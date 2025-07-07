@@ -27,6 +27,7 @@
     font-size: 18px;
 }
 
+/* about BUSAN */
 .container #contents{
     /* background-color: aqua; */
 
@@ -38,6 +39,8 @@
 
 .content .photo{
     margin-bottom: 30px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .content .description > ul{
@@ -50,13 +53,14 @@
 .content .description > ul .leftPhoto img{
     width: 500px;
     height: 300px;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     object-fit: cover;
 }
 .content .description > ul .rightDesc{
     width: 400px;
     margin-left: 50px;
+    margin-top: 10px;
 }
 .content .description div{
     font-size: 24px;
@@ -70,3 +74,11 @@
 .content .description p{
     font-size: 18px;
 }
+
+/* goals */
+
+/* basisinfo */
+
+/* symbol */
+
+/* character */
