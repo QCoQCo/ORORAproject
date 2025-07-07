@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>detailed</title>
+    <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/kakaoMap/kakaoMap.css">
+</head>
+<body>
+    <div id="wrap">
+        <div class="googleMap">
+            <h1>부산 관광지 지도</h1>
+            <!-- 지도가 표시될 영역 -->
+            <div id="map"></div>
+            
+            <!-- 관광지 카테고리 버튼 -->
+            <div class="category-buttons">
+                <button onclick="showTouristSpots('all')" class="active">전체</button>
+                <button onclick="showTouristSpots('beach')">해변</button>
+                <button onclick="showTouristSpots('mountain')">산/공원</button>
+                <button onclick="showTouristSpots('culture')">문화</button>
+                <button onclick="showTouristSpots('food')">전통시장</button>
+                <button onclick="showTouristSpots('shopping')">쇼핑</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카카오맵 API -->
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=[API_KEY_REMOVED]&libraries=services"></script>
+    <script src="../../js/kakaoMap/script.js"></script>
+
+</body>
+</html>
