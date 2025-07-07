@@ -1,0 +1,72 @@
+#wrapper{
+    width: 100%;
+}
+#wrapper .abBusan{
+    width: 1440px;
+    margin: 0 auto;
+}
+#wrapper .abBusan .container{
+    width: 100%;
+    /* background-color: aqua; */
+    display: flex;
+    justify-content: center;
+}
+.container #sideNav{
+    width: 300px;
+}
+.container #sideNav .sideNavMenu{
+    font-size: 20px;
+}
+.container #sideNav .sideNavMenu .bsInfo a{
+    font-size: 18px;
+}
+.container #sideNav .sideNavMenu .symbol a{
+    font-size: 18px;
+}
+.container #sideNav .sideNavMenu .sns a{
+    font-size: 18px;
+}
+
+.container #contents{
+    /* background-color: aqua; */
+
+}
+
+.title{
+    text-align: center;
+}
+
+.content .photo{
+    margin-bottom: 30px;
+}
+
+.content .description > ul{
+    display: flex;
+    justify-content: start;
+    width: 100%;
+    margin-bottom: 30px;
+    
+}
+.content .description > ul .leftPhoto img{
+    width: 500px;
+    height: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+    object-fit: cover;
+}
+.content .description > ul .rightDesc{
+    width: 400px;
+    margin-left: 50px;
+}
+.content .description div{
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.content .description span{
+    font-size: 20px;
+    font-weight: 700;
+}
+.content .description p{
+    font-size: 18px;
+}
