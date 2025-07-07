@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fetch data and create list
     try {
         const response = await fetch('data.json');
+        // const response = await fetch('../../data/busanTouristSpots.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
