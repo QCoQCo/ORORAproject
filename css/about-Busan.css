@@ -159,6 +159,9 @@
 .coast .coastInfo > p{
     margin-bottom: 30px;
 }
+.coast .coastInfo .coastList{
+    margin: 0 auto;
+}
 .coast .coastInfo .coastList .coastLiTi{
     font-size: 20px;
     font-weight: 700;
@@ -173,6 +176,11 @@
     width: 500px;
     border-radius: 10px;
 }
+.coast .coastInfo .coastList .sand img{
+    width: 400px;
+    margin-bottom: 10px;
+}
+
 /* symbol */
 
 /* character */
