@@ -1,3 +1,21 @@
-.test {
+#rinji{
+    width: 100%;
 
+}
+#rinji .main-visual{
+    width: 600px;
+    margin: 0 auto;
+}
+#rinji .main-visual ul{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 4px;
+}
+#rinji .main-visual ul li{
+    width: 45%;
+    text-align: center;
+    line-height: 100px;
+    border: 1px solid #000;
+    border-radius: 10px;
 }
