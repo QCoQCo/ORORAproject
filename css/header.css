@@ -1,0 +1,111 @@
+#header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100px;
+    padding: 0 100px;
+    /* background-color: rgb(206, 220, 255); */
+    background: linear-gradient(to right, #fff 0%, rgb(206, 220, 255) 25%, rgb(206, 220, 255) 100%);
+    /* background: linear-gradient(to right, #fff 0%, rgb(206, 220, 255) 25%, khaki 100%); */
+}
+
+.logo{
+    width: 100px;
+    height: 100px;
+    /* background-color: #fff; */
+}
+.logo img{
+    width: 100%;
+    height: 100%;
+}
+
+#nav .d1{
+    display: flex;
+    gap: 100px;
+}
+#nav .d1 > li{
+    position: relative;
+}
+#nav .d1 li a{
+    color: #000;
+    position: relative;
+    padding: 10px 15px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+#nav .d1 li a::after{
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, rgb(100, 149, 237), rgb(206, 220, 255));
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+#nav .d1 li a:hover{
+    color: rgb(100, 149, 237);
+    transform: translateY(-2px);
+}
+#nav .d1 li a:hover::after{
+    width: 100%;
+}
+#nav .sub{
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 10px 0;
+    min-width: 150px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+#nav .d1 li:hover .sub{
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+#nav .sub .d2 li{
+    padding: 5px 20px;
+    transition: background-color 0.2s ease;
+}
+#nav .sub .d2 li:hover{
+    background-color: rgb(240, 245, 255);
+}
+#nav .sub .d2 li a{
+    color: #333;
+    font-size: 14px;
+    padding: 8px 0;
+}
+#nav .sub .d2 li a:hover{
+    color: rgb(100, 149, 237);
+    transform: none;
+}
+#nav .sub .d2 li a::after{
+    display: none;
+}
+
+#header .btns{
+    display: flex;
+    gap: 100px;
+}
+#header .btns button{
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #fff;
+}
+#header .btns select{
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #fff;
+}
