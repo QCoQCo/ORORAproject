@@ -1,4 +1,13 @@
+.container {
+    padding: 20px;
+}
+h2{
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #1f2397;
+}
 .but {
+    margin-top: 10px;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -7,11 +16,83 @@
     flex-wrap: wrap;
 }
 
-.but .my-button {
-    background-color: #4c98af;
-    color: white;
+.but #apple {
+    background-color: #fff;
+    color: cornflowerblue;
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 20px;
+}
+.popular01{
+    display: none;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 2px;
+    padding: 10px 20px;
+}
+
+.tag{
+    display: inline-block;
+    background-color: #f0f4f8;
+    border-radius: 15px;
+    color: #333;
+    padding: 8px 14px;
+    margin: 5px;
+    font-size: 14px;
+}
+.latest01{
+    display: none;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 2px;
+    padding: 10px 20px;
+}
+.tagg{
+    display: inline-block;
+    background-color: #f0f4f8;
+    border-radius: 15px;
+    color: #333;
+    padding: 8px 14px;
+    margin: 5px;
+    font-size: 14px;
+}
+.recommended01{
+    display: none;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 2px;
+    padding: 10px 20px;
+}
+.Third{
+   display: inline-block;
+    background-color: #f0f4f8;
+    border-radius: 15px;
+    color: #333;
+    padding: 8px 14px;
+    margin: 5px;
+    font-size: 14px;
+}
+.Festival01{
+    display: none;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 2px;
+    padding: 10px 20px;
+}
+.last{
+    display: inline-block;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+    padding: 8px 14px;
+    margin: 5px;
+    font-size: 14px;
 }
