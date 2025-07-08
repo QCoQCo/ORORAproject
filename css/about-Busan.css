@@ -29,11 +29,6 @@
 }
 
 /* about BUSAN */
-.container #contents{
-    /* background-color: aqua; */
-
-}
-
 .title{
     text-align: center;
 }
@@ -79,7 +74,105 @@
 /* goals */
 
 /* basisinfo */
+.basisinfo{
+    font-size: 18px;
+}
+.basisinfo > li{
+    margin-bottom: 50px;
+}
+.basisinfo .placeTitle, .basisinfo .climateTitle, .basisinfo .coastTitle{
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.basisinfo .placeLiTi, .basisinfo .seasonLiTi{
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
 
+.place .placeInfo{
+    display: flex;
+    gap: 30px;
+}
+.place .placeInfo .placePhoto{
+    width: 500px;
+}
+.place .placeInfo .placeList .placeLi{
+    margin-bottom: 20px;
+}
+.place .placeInfo .placeList .placeLiTi{
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.climate .climateTitle{
+    display: flex;
+    gap: 20px;
+    font-weight: 700;
+    align-items: center;
+}
+.climate .climateTitle .kma a{
+    position: relative;
+    display: block;
+    padding: 0 5px;
+    border: 2px solid #88e7ff;
+    border-radius: 7px;
+    font-size: 18px;
+    color: #005f77;
+    background-color: #88e7ff;
+}
+.climate .climateTitle .kma a::after{
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: -22px;
+    display: block;
+    width: 26px;
+    height: 26px;
+    background-image: url('../images/icon_cursor.png');
+    background-size: 20px auto;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.climate .climateInfo p{
+    margin-bottom: 30px;
+}
+.climate .seasonLiTi{
+    font-weight: 700;
+}
+.climate .climateInfo .seasonList > li{
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+.climate .climateInfo .seasonList img{
+    width: 500px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.climate .climateInfo .seasonList span{
+    font-weight: 700;
+    color: #db0000;
+}
+
+.coast .coastInfo > p{
+    margin-bottom: 30px;
+}
+.coast .coastInfo .coastList .coastLiTi{
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.coast .coastInfo .coastList li{
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+.coast .coastInfo .coastList img{
+    width: 500px;
+    border-radius: 10px;
+}
 /* symbol */
 
 /* character */
