@@ -43,7 +43,7 @@ class ListLoader {
         const currentPath = window.location.pathname;
         
         if (currentPath.includes('/pages/')) {
-            return '../components/list-item.html';
+            return '../../components/list-item.html';
         } else {
             return './components/list-item.html';
         }

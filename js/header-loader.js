@@ -29,9 +29,9 @@ function getHeaderPath() {
     const currentPath = window.location.pathname;
     
     if (currentPath.includes('/pages/')) {
-        return '../components/header.html';
+        return '../../components/header.html';
     } else {
-        return './pages/components/header.html';
+        return './components/header.html';
     }
 }
 
