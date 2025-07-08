@@ -4,14 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>searchByPlace</title>
+    <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/searchBy/place.css">
 </head>
 <body>
     <div id="wrapper">
         <section>
-            <div class="container">
-                
+            <!-- 지역 선택 컨트롤 패널 -->
+            <div class="control-panel">
+                <h3>부산 지역 선택</h3>
+                <div id="selection-info">
+                    지역을 클릭하여 선택/해제할 수 있습니다.
+                </div>
+                <div class="control-buttons">
+                    <button class="control-button">전체 해제</button>
+                    <button class="control-button">선택된 지역 보기</button>
+                </div>
+            </div>
+            
+            <!-- 인라인 방식 -->
+            <div class="sample">
+                <div id="map-container" style="overflow: hidden;">
+                    <svg id="mapSvg" xmlns="http://www.w3.org/2000/svg" width="1000" height="820" version="1.1" viewBox="0 0 1000 820">
+                    </svg>
+                </div>
             </div>
         </section>
     </div>
+    <script src="../../js/searchBy/place.js"></script>
 </body>
 </html>
