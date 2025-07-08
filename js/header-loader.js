@@ -31,7 +31,7 @@ function getHeaderPath() {
     if (currentPath.includes('/pages/')) {
         return '../components/header.html';
     } else {
-        return './components/header.html';
+        return './pages/components/header.html';
     }
 }
 

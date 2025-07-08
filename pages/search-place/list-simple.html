@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리스트 컴포넌트 - 간단 사용법</title>
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/header.css">
+    <link rel="stylesheet" href="../../css/list-component.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="header-container"></div>
+        
+        <div class="container">
+            <h1>부산 관광지 추천</h1>
+            
+            <!-- 자동 로드 설정 (data-list-config 속성 사용) -->
+            <div data-list-config='{"containerSelector": ".list-wrap", "dataUrl": "../list-example/data.json", "fallbackImage": "../list-example/logo.png"}'>
+                <ul class="list-wrap"></ul>
+            </div>
+            
+            <!-- 템플릿 컨테이너 -->
+            <div id="list-template-container"></div>
+        </div>
+    </div>
+
+    <script src="../../js/header-loader.js"></script>
+    <script src="../../js/list-loader.js"></script>
+</body>
+</html> 
