@@ -86,8 +86,12 @@ class SideNavLoader {
                 const parentMenuItem = document.querySelector(activeInfo.parentMenuSelector);
                 if (parentMenuItem) {
                     parentMenuItem.classList.add('active');
-                    // 부모 메뉴의 서브메뉴 표시
-                    this.showSubMenu(parentMenuItem);
+                    
+                    // 서브메뉴가 있는 경우에만 표시
+                    const hasSubMenu = parentMenuItem.querySelector('ul');
+                    if (hasSubMenu) {
+                        this.showSubMenu(parentMenuItem, false);
+                    }
                 }
             }
         }
@@ -113,6 +117,7 @@ class SideNavLoader {
                 parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:nth-child(2)'
             },
             'character.html': {
+                subMenuSelector: '#sideNav .sns li:first-child', // 캐릭터 소개 메뉴
                 parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:nth-child(3)'
             }
         };
@@ -264,7 +269,7 @@ class SideNavLoader {
         const parentMenus = document.querySelectorAll('#sideNav > .sideNavMenu > ul > li');
         
         parentMenus.forEach(parentLi => {
-            const mainLink = parentLi.querySelector('> a');
+            const mainLink = parentLi.querySelector('.sideNavMenuTitle > a');
             const subMenu = parentLi.querySelector('ul');
             
             if (mainLink && subMenu) {
@@ -275,6 +280,16 @@ class SideNavLoader {
                     const button = parentLi.querySelector('.btnMenuDropDown');
                     if (button) {
                         button.click(); // 버튼 클릭 이벤트 트리거
+                    }
+                });
+            } else if (mainLink && !subMenu) {
+                // 서브메뉴가 없는 경우 일반 링크로 작동 (character.html 같은 경우)
+                mainLink.addEventListener('click', (e) => {
+                    const href = mainLink.getAttribute('href');
+                    const currentFileName = window.location.pathname.split('/').pop();
+                    
+                    if (href === currentFileName) {
+                        e.preventDefault(); // 같은 페이지인 경우 이동 방지
                     }
                 });
             }
@@ -309,7 +324,12 @@ class SideNavLoader {
             const parentLi = targetMenu.closest('li');
             if (parentLi) {
                 parentLi.classList.add('active');
-                this.showSubMenu(parentLi, false);
+                
+                // 서브메뉴가 있는 경우에만 표시
+                const hasSubMenu = parentLi.querySelector('ul');
+                if (hasSubMenu) {
+                    this.showSubMenu(parentLi, false);
+                }
             }
         }
     }
