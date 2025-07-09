@@ -1,17 +1,79 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>koreanTip</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+
+    <link rel="stylesheet" href="../../css/reset.css">
+    
+    <link rel="stylesheet" href="../../css/header.css">
+    <link rel="stylesheet" href="../../css/tip.css">
+    <title>koreanTip</title>
 </head>
 <body>
     <div id="wrapper">
-        <section>
-            <div class="container">
-
+    <div id="header-container"></div>
+        <section class="korean-tip">
+            <div class="transportaion">
+                <h3>교통</h3>
+                <div class="mapTrans">
+                    <h4>🗺️지도</h4>
+                    <div class="map">
+                        <div class="navermap">
+                            <p class="image"><a href="https://map.naver.com/" target="_blank">네이버지도</a></p>
+                            <p>네이버지도</p>
+                        </div>
+                        <div class="kakaomap">
+                            <p class="image"><a href="https://map.kakao.com/" target="_blank">카카오맵</a></p>
+                            <p>카카오맵</p>
+                        </div>
+                    </div>
+                    <div class="transApp">
+                        <div class="kakaobus">
+                            <p class="image"><a href="https://map.naver.com/" target="_blank">카카오버스</a></p>
+                            <p>카카오버스</p>
+                        </div>
+                        <div class="kakaosubway">
+                            <p class="image"><a href="https://map.kakao.com/?target=subway&REGION=01" target="_blank">카카오지하철</a></p>
+                            <p>카카오지하철</p>
+                        </div>
+                        <div class="kakaotaxi">
+                            <p class="image"><a href="https://www.kakaomobility.com/service-kakaot/taxi" target="_blank">카카오 T</a></p>
+                            <p>카카오택시</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pass">
+                    <h4>&#128643;패스권</h4>
+                    <div class="visitBusanPass">
+                        비짓부산패스
+                    </div>
+                </div>
+            </div>
+            <div class="convenience">
+                <h3>편의</h3>
+                <div class="reservation">
+                    <h4>📅예약</h4>
+                    <div class="eat">
+                        <div>캐치테이블</div>
+                    </div>
+                    <div class="sleep">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="delivery">
+                    <h4>&#128757;배달</h4>
+                    <div>배달의민족</div>
+                </div>
+                <div class="photo">
+                    <h4>📸포토부스</h4> 
+                    <div>포토이즘</div>
+                </div>
             </div>
         </section>
     </div>
+    <script src="../../js/header-loader.js"></script>
 </body>
 </html>
