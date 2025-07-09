@@ -14,11 +14,11 @@
 }
 
 #sideNav h1 {
-    background: linear-gradient(135deg, #d4f4ff 0%, #96daff 100%);
+    background: linear-gradient(135deg, #d4f4ff 0%, #6dc5ff 100%);
     font-size: 24px;
     font-weight: 700;
     text-align: center;
-    color: #006fb9;
+    color: #0175c1;
     padding: 20px 15px;
     margin: 0;
     border-radius: 8px 8px 0 0;
@@ -62,15 +62,15 @@
 
 .sideNavMenuTitle > a:hover {
     background: #f8f9fa;
-    color: #6daff2;
-    border-left-color: #6daff2;
+    color: #0175c1;
+    border-left-color: #0175c1;
 }
 
 /* 부모 메뉴 active 상태 */
 .sideNavMenu > ul > li.active .sideNavMenuTitle > a {
     background: #f0f7ff;
-    color: #6daff2;
-    border-left-color: #6daff2;
+    color: #0175c1;
+    border-left-color: #0175c1;
     font-weight: 600;
 }
 
@@ -103,7 +103,7 @@
 }
 
 .btnMenuDropDown:hover::before {
-    border-color: #6daff2;
+    border-color: #0175c1;
 }
 
 /* 서브메뉴가 열렸을 때 화살표 회전 */
@@ -160,13 +160,13 @@
 
 .sideNavMenu ul ul li a:hover {
     background: #e8f4fd;
-    color: #6daff2;
-    border-left-color: #6daff2;
+    color: #0175c1;
+    border-left-color: #0175c1;
 }
 
 .sideNavMenu ul ul li.active a {
     background: #e8f4fd;
-    color: #6daff2;
+    color: #0175c1;
     border-left-color: #6daff2;
     font-weight: 500;
 }

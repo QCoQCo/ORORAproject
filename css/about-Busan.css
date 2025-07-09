@@ -34,7 +34,9 @@
 }
 
 /* about BUSAN */
-.busan .photo{
+.busan .photo img{
+    width: 1030px;
+    height: auto;
     margin-bottom: 30px;
     border-radius: 10px;
     overflow: hidden;
@@ -89,6 +91,9 @@
     margin-bottom: 20px;
     background: #ccc;
 }
+.vg .photo img{
+    width: 1030px;
+}
 
 /* basisinfo */
 .basisinfo{
@@ -115,6 +120,10 @@
 }
 .place .placeInfo ul{
     width: 500px;
+}
+.place .placeInfo .placePhoto{
+    border-radius: 10px;
+    overflow: hidden;
 }
 .place .placeInfo .placeList .placeLi{
     margin-bottom: 20px;
@@ -160,10 +169,13 @@
 .climate .seasonLiTi{
     font-weight: 700;
 }
-.climate .climateInfo .seasonList > li{
+.climate .climateInfo .seasonList li{
     display: flex;
     gap: 30px;
     margin-bottom: 30px;
+}
+.climate .climateInfo .seasonList li :last-child{
+    margin-bottom: 0;
 }
 .climate .climateInfo .seasonList img{
     width: 500px;
@@ -211,20 +223,40 @@
 }
 
 /* symbol */
-/* .symbol li{
+.symbols{
+    width: 1030px;
+    font-size: 18px;
+}
+.symbols > ul > li{
     margin-bottom: 30px;
-} */
-.symbol li > p{
-    font-size: 20px;
+}
+.symbols > ul > li > p{
+    font-size: 24px;
     font-weight: 700;
     margin-bottom: 10px;
 }
-.symbol li img{
+.symbols li img{
+    width: auto;
+    height: 150px;
+    margin-right: 30px;
     margin-bottom: 10px;
 }
-.symbol .flower div > p{
-    margin-bottom: 10px;
+.symbols .symbol{
+    padding: 30px 30px;
+    border: 2px solid #dbf6ff;
+    border-radius: 10px;
+    background-color: #dbf6ff;
+}
+.symbols .symbol ul{
+    display: flex;
+}
+.symbols .symbol .symbolText{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
 }
 
 /* character */
-.
+.character img{
+    width: 1030px;
+}
