@@ -1,11 +1,16 @@
 @charset "utf-8";
 #wrapper{
     width: 100%;
+    /* width: 980px; */
 }
 .about-orora{
-    width: 980px;
+    width: 940px;
     margin: 0 auto;
-    /* background-color: aquamarine; */
+    padding-top: 80px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
+        -15px -15px 100px rgba(0, 0, 0, 0.05);
+        
 }
 .about-orora > div{
     margin-bottom: 200px;
