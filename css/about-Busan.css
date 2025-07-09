@@ -30,7 +30,8 @@
 .container #contents .title{
     font-size: 33px;
     text-align: center;
-    line-height: 60px;
+    margin: 0 0 25px;
+    padding-top: 50px;
 }
 
 /* sideNav */
@@ -44,8 +45,8 @@
     border-radius: 5px;
     font-size: 24px;
     font-weight: 700;
-    color: #1e5ac9;
-    background-color: #d6e2ff;
+    color: #006fb9;
+    background-color: #d4f4ff;
 }
 #sideNav .sideNavMenu a{
     color: #121212;
@@ -97,7 +98,14 @@
     margin-bottom: 10px;
 }
 .vg .vision{
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+}
+.vg .line-gray{
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin-bottom: 20px;
+    background: #ccc;
 }
 
 /* basisinfo */
@@ -209,9 +217,9 @@
 }
 
 /* symbol */
-.symbol li{
+/* .symbol li{
     margin-bottom: 30px;
-}
+} */
 .symbol li > p{
     font-size: 20px;
     font-weight: 700;
