@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
     const mapContainer = document.getElementById('mapSvg');
-
     fetch('../../images/map.svg')
         .then(response => response.text())
         .then(svgText => {
