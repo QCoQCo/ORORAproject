@@ -75,3 +75,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  let selectBox = document.getElementById("apple");
+  let contentBox = document.querySelector(".picture");
+
+  contentBox.style.display = "none";
+
+  selectBox.addEventListener("change", function () {
+    if (selectBox.value === "Festival") {
+      contentBox.style.display = "block"; // 보이게 하기
+    } else {
+      contentBox.style.display = "none"; // 숨기기
+    }
+  });
+});
