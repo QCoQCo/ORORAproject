@@ -5,15 +5,21 @@ p {
     padding: 0;
 }
 
-button{
+button {
     padding: 0;
     margin: 0;
 }
 
 #Wrapper {
+    width: 100%;
+
+}
+
+.inner {
     margin-left: auto;
     margin-right: auto;
     width: 940px;
+
 }
 
 .title {
@@ -65,12 +71,14 @@ button{
     height: 19px;
 }
 
-.like button, .like button img {
+.like button,
+.like button img {
     width: 21px;
     height: 19px;
 }
 
-.eyes button, .eyes button img {
+.eyes button,
+.eyes button img {
     width: 24px;
     height: 18px;
 }
@@ -81,22 +89,26 @@ button{
     color: #666;
 }
 
-.save button, .save button img {
+.save button,
+.save button img {
     width: 16px;
     height: 18px;
 }
 
-.print button, .print button img {
+.print button,
+.print button img {
     width: 20px;
     height: 18px;
 }
 
-.map button, .map button img {
+.map button,
+.map button img {
     width: 20px;
     height: 21px;
 }
 
-.share button, .share button img {
+.share button,
+.share button img {
     width: 17px;
     height: 18px;
 }
@@ -121,20 +133,83 @@ button{
     border-right: none;
 }
 
-.subPic{
+.subPic {
     display: flex;
     justify-content: end;
     margin-bottom: 9px;
 }
 
-.submitPicture{
+.submitPicture {
     border: 1px solid #767676;
     font-size: 16px;
     width: 146px;
     height: 40px;
-    
+
 }
 
-.submitPicture img{
+.submitPicture img {
     margin-right: 10px;
+}
+
+.photo {
+    position: relative;
+    height: 627px;
+}
+
+.swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.swiper {
+    width: 100%;
+    height: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.swiper-slide {
+    background-size: cover;
+    background-position: center;
+}
+
+.mySwiper2 {
+    height: 80%;
+    width: 100%;
+}
+
+.mySwiper {
+    height: 20%;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+.mySwiper .swiper-slide {
+    width: 25%;
+    height: 100%;
+    opacity: 0.4;
+}
+
+.mySwiper .swiper-slide-thumb-active {
+    opacity: 1;
+}
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
