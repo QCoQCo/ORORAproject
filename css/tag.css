@@ -1,12 +1,12 @@
 .container {
     padding: 20px;
 }
-h2{
+.container > h2{
     font-size: 24px;
     margin-bottom: 20px;
     color: #1f2397;
 }
-.but {
+.container .but {
     margin-top: 10px;
     list-style: none;
     padding: 0;
@@ -16,7 +16,7 @@ h2{
     flex-wrap: wrap;
 }
 
-.but #apple {
+.container .but #apple {
     background-color: #fff;
     color: cornflowerblue;
     padding: 10px 20px;
@@ -24,7 +24,7 @@ h2{
     border-radius: 5px;
     font-size: 20px;
 }
-.popular01{
+.container .popular01{
     display: none;
     margin-top: 15px;
     display: flex;
@@ -34,7 +34,7 @@ h2{
     padding: 10px 20px;
 }
 
-.tag{
+.container .tag{
     display: inline-block;
     background-color: #f0f4f8;
     border-radius: 15px;
@@ -43,7 +43,7 @@ h2{
     margin: 5px;
     font-size: 14px;
 }
-.latest01{
+.container .latest01{
     display: none;
     margin-top: 15px;
     display: flex;
@@ -52,7 +52,7 @@ h2{
     border-bottom: 2px;
     padding: 10px 20px;
 }
-.tagg{
+.container .tagg{
     display: inline-block;
     background-color: #f0f4f8;
     border-radius: 15px;
@@ -61,7 +61,7 @@ h2{
     margin: 5px;
     font-size: 14px;
 }
-.recommended01{
+.container .recommended01{
     display: none;
     margin-top: 15px;
     display: flex;
@@ -70,7 +70,7 @@ h2{
     border-bottom: 2px;
     padding: 10px 20px;
 }
-.Third{
+.container .Third{
    display: inline-block;
     background-color: #f0f4f8;
     border-radius: 15px;
@@ -79,7 +79,7 @@ h2{
     margin: 5px;
     font-size: 14px;
 }
-.Festival01{
+.container .Festival01{
     display: none;
     margin-top: 15px;
     display: flex;
@@ -88,7 +88,7 @@ h2{
     border-bottom: 2px;
     padding: 10px 20px;
 }
-.last{
+.container .last{
     display: inline-block;
     background-color: #f0f0f0;
     border-radius: 15px;
@@ -96,9 +96,15 @@ h2{
     margin: 5px;
     font-size: 14px;
 }
-.white{
+.container .list-area{
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+.container .white{
     font-family: 'NotoSansKR',sans-serif;
     font-size: 16px;
+    font-weight: bold;
     color: #000;
     -webkit-text-size-adjust: 100%;
     line-height: 1;
@@ -109,7 +115,7 @@ h2{
     padding: 3px 0 5px;
     margin-bottom: 30px;
 }
-.sortTy{
+.container .sortTy{
     font-family: 'NotoSansKR',sans-serif;
     font-size: 16px;
     color: #000;
@@ -124,9 +130,65 @@ h2{
     width: auto;
     padding: 3px 0 10px;
 }
-.picture{
-    width: 30px;
-    height: 30px;
+.container .picture{
+    width: 700px;
+}
+.container .picture ul{
+    display: flex;
+    gap: 50px;
+    padding: 0;
+    margin: 0;
+}
+.container .picture li{
+    list-style: none;
+    width: 160px;
+    text-align: center;
+}
+.container .picture .ph{
+    width: 100px;
+    height: 100px;
+}
+.container .picture .ph img{
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     /* 사진을 꽉차게 */
+}
+.container .picture .to2{
+    font-size: 20px
+}
+.container .picture .to3{
+    font-size: 15px;
+    color: #333;
+}
+.container .busan99{
+    width: 1000px;
+    padding: 0;
+    margin: 0;
+}
+.container .busan99 ul{
+    display: flex;
+    gap: 20px;
+}
+.container .busan99 li{
+    border: 1px solid #000;
+}
+.container .busan99 .ph{
+    width: 100px;
+    height: 100px;
+}
+.container .busan99 .ph img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    /* 사진을 꽉차게 */
+}
+.container .busan99 .to2{
+    font-weight: bold;
+    font-size: 17px
+}
+.container .busan99 .to3{
+    font-size: 13px;
+    color: #333;
 }
