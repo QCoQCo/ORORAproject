@@ -4,6 +4,7 @@ class SideNavLoader {
         this.containerSelector = options.containerSelector || '#sidenav-container';
         this.autoActivate = options.autoActivate !== false; // 기본값 true
         this.onMenuClick = options.onMenuClick || null;
+        this.animationDuration = 300; // 애니메이션 지속 시간
     }
 
     // 사이드 네비게이션 템플릿 로드
@@ -56,6 +57,7 @@ class SideNavLoader {
         }
         
         this.initMenuEvents();
+        this.initSubMenuDisplay();
     }
 
     // 현재 페이지에 따른 활성 메뉴 설정
@@ -68,40 +70,101 @@ class SideNavLoader {
         allMenuItems.forEach(item => item.classList.remove('active'));
         
         // 현재 페이지에 해당하는 메뉴 활성화
-        let activeSelector = null;
+        let activeInfo = this.getActiveMenuInfo(fileName);
         
-        switch (fileName) {
-            case 'busan.html':
-                activeSelector = '#sideNav .bsInfo li:first-child';
-                // 부모 메뉴도 활성화
-                document.querySelector('#sideNav > .sideNavMenu > ul > li:first-child')?.classList.add('active');
-                break;
-            case 'goals.html':
-                activeSelector = '#sideNav .bsInfo li:nth-child(2)';
-                document.querySelector('#sideNav > .sideNavMenu > ul > li:first-child')?.classList.add('active');
-                break;
-            case 'basisinfo.html':
-                activeSelector = '#sideNav .bsInfo li:nth-child(3)';
-                document.querySelector('#sideNav > .sideNavMenu > ul > li:first-child')?.classList.add('active');
-                break;
-            case 'symbol.html':
-                activeSelector = '#sideNav .symbol li:first-child';
-                document.querySelector('#sideNav > .sideNavMenu > ul > li:nth-child(2)')?.classList.add('active');
-                break;
-            case 'character.html':
-                activeSelector = '#sideNav > .sideNavMenu > ul > li:nth-child(3)';
-                break;
-            default:
-                // 기본값: 첫 번째 메뉴 활성화
-                activeSelector = '#sideNav .bsInfo li:first-child';
-                document.querySelector('#sideNav > .sideNavMenu > ul > li:first-child')?.classList.add('active');
-        }
-        
-        if (activeSelector) {
-            const activeElement = document.querySelector(activeSelector);
-            if (activeElement) {
-                activeElement.classList.add('active');
+        if (activeInfo) {
+            // 서브메뉴 활성화
+            if (activeInfo.subMenuSelector) {
+                const subMenuItem = document.querySelector(activeInfo.subMenuSelector);
+                if (subMenuItem) {
+                    subMenuItem.classList.add('active');
+                }
             }
+            
+            // 부모 메뉴 활성화
+            if (activeInfo.parentMenuSelector) {
+                const parentMenuItem = document.querySelector(activeInfo.parentMenuSelector);
+                if (parentMenuItem) {
+                    parentMenuItem.classList.add('active');
+                    // 부모 메뉴의 서브메뉴 표시
+                    this.showSubMenu(parentMenuItem);
+                }
+            }
+        }
+    }
+
+    // 파일명에 따른 활성 메뉴 정보 반환
+    getActiveMenuInfo(fileName) {
+        const menuMap = {
+            'busan.html': {
+                subMenuSelector: '#sideNav .bsInfo li:first-child',
+                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:first-child'
+            },
+            'goals.html': {
+                subMenuSelector: '#sideNav .bsInfo li:nth-child(2)',
+                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:first-child'
+            },
+            'basisinfo.html': {
+                subMenuSelector: '#sideNav .bsInfo li:nth-child(3)',
+                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:first-child'
+            },
+            'symbol.html': {
+                subMenuSelector: '#sideNav .symbol li:first-child',
+                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:nth-child(2)'
+            },
+            'character.html': {
+                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:nth-child(3)'
+            }
+        };
+        
+        return menuMap[fileName] || {
+            subMenuSelector: '#sideNav .bsInfo li:first-child',
+            parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:first-child'
+        };
+    }
+
+    // 서브메뉴 초기 표시 상태 설정
+    initSubMenuDisplay() {
+        const subMenus = document.querySelectorAll('.sideNavMenu ul ul');
+        subMenus.forEach(subMenu => {
+            const parentLi = subMenu.closest('li');
+            if (parentLi && parentLi.classList.contains('active')) {
+                this.showSubMenu(parentLi, false); // 애니메이션 없이 표시
+            }
+        });
+    }
+
+    // 서브메뉴 표시
+    showSubMenu(parentLi, animated = true) {
+        const subMenu = parentLi.querySelector('ul');
+        const button = parentLi.querySelector('.btnMenuDropDown');
+        
+        if (subMenu && button) {
+            if (animated) {
+                subMenu.style.display = 'block';
+                subMenu.style.animation = 'slideDown 0.3s ease';
+            } else {
+                subMenu.style.display = 'block';
+            }
+            button.textContent = '하위메뉴 닫기';
+        }
+    }
+
+    // 서브메뉴 숨김
+    hideSubMenu(parentLi, animated = true) {
+        const subMenu = parentLi.querySelector('ul');
+        const button = parentLi.querySelector('.btnMenuDropDown');
+        
+        if (subMenu && button) {
+            if (animated) {
+                subMenu.style.animation = 'slideUp 0.3s ease';
+                setTimeout(() => {
+                    subMenu.style.display = 'none';
+                }, this.animationDuration);
+            } else {
+                subMenu.style.display = 'none';
+            }
+            button.textContent = '하위메뉴 열기';
         }
     }
 
@@ -112,29 +175,22 @@ class SideNavLoader {
         menuButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                
                 const parentLi = button.closest('li');
                 const subMenu = parentLi.querySelector('ul');
                 
                 if (subMenu) {
-                    const isOpen = subMenu.style.display === 'block';
+                    const isVisible = subMenu.style.display === 'block';
                     
                     // 다른 서브메뉴 모두 닫기
-                    document.querySelectorAll('.sideNavMenu ul ul').forEach(menu => {
-                        menu.style.display = 'none';
-                    });
-                    
-                    // 모든 버튼 텍스트 업데이트
-                    document.querySelectorAll('.btnMenuDropDown').forEach(btn => {
-                        btn.textContent = '하위메뉴 열기';
-                    });
+                    this.closeAllSubMenus(parentLi);
                     
                     // 현재 서브메뉴 토글
-                    if (!isOpen) {
-                        subMenu.style.display = 'block';
-                        button.textContent = '하위메뉴 닫기';
+                    if (!isVisible) {
+                        this.showSubMenu(parentLi);
                     } else {
-                        subMenu.style.display = 'none';
-                        button.textContent = '하위메뉴 열기';
+                        this.hideSubMenu(parentLi);
                     }
                 }
                 
@@ -146,7 +202,33 @@ class SideNavLoader {
         });
 
         // 메뉴 링크 클릭 이벤트
+        this.initLinkEvents();
+        
+        // 부모 메뉴 클릭 이벤트 (드롭다운 토글)
+        this.initParentMenuEvents();
+    }
+
+    // 모든 서브메뉴 닫기
+    closeAllSubMenus(excludeParent = null) {
+        const allParentItems = document.querySelectorAll('#sideNav > .sideNavMenu > ul > li');
+        
+        allParentItems.forEach(parentLi => {
+            if (parentLi !== excludeParent) {
+                const subMenu = parentLi.querySelector('ul');
+                const button = parentLi.querySelector('.btnMenuDropDown');
+                
+                if (subMenu && button) {
+                    subMenu.style.display = 'none';
+                    button.textContent = '하위메뉴 열기';
+                }
+            }
+        });
+    }
+
+    // 링크 클릭 이벤트 초기화
+    initLinkEvents() {
         const menuLinks = document.querySelectorAll('#sideNav a');
+        
         menuLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 // 외부 링크가 아닌 경우에만 처리
@@ -157,11 +239,59 @@ class SideNavLoader {
                         const currentFileName = window.location.pathname.split('/').pop();
                         if (href === currentFileName) {
                             e.preventDefault();
+                            return;
                         }
+                        
+                        // 페이지 이동 전 로딩 효과
+                        this.showLoadingEffect(link);
                     }
                 }
             });
+            
+            // 호버 효과 개선
+            link.addEventListener('mouseenter', () => {
+                link.style.transform = 'translateX(2px)';
+            });
+            
+            link.addEventListener('mouseleave', () => {
+                link.style.transform = 'translateX(0)';
+            });
         });
+    }
+
+    // 부모 메뉴 클릭 이벤트 (드롭다운 토글)
+    initParentMenuEvents() {
+        const parentMenus = document.querySelectorAll('#sideNav > .sideNavMenu > ul > li');
+        
+        parentMenus.forEach(parentLi => {
+            const mainLink = parentLi.querySelector('> a');
+            const subMenu = parentLi.querySelector('ul');
+            
+            if (mainLink && subMenu) {
+                mainLink.addEventListener('click', (e) => {
+                    // 서브메뉴가 있는 경우 드롭다운 토글
+                    e.preventDefault();
+                    
+                    const button = parentLi.querySelector('.btnMenuDropDown');
+                    if (button) {
+                        button.click(); // 버튼 클릭 이벤트 트리거
+                    }
+                });
+            }
+        });
+    }
+
+    // 로딩 효과 표시
+    showLoadingEffect(link) {
+        const originalText = link.textContent;
+        link.style.opacity = '0.6';
+        link.style.pointerEvents = 'none';
+        
+        // 실제 페이지 이동은 브라우저가 처리
+        setTimeout(() => {
+            link.style.opacity = '1';
+            link.style.pointerEvents = 'auto';
+        }, 1000);
     }
 
     // 특정 메뉴 활성화
@@ -179,10 +309,41 @@ class SideNavLoader {
             const parentLi = targetMenu.closest('li');
             if (parentLi) {
                 parentLi.classList.add('active');
+                this.showSubMenu(parentLi, false);
             }
         }
     }
+
+    // 사이드네비게이션 새로고침
+    refresh() {
+        this.setActiveMenu();
+        this.initSubMenuDisplay();
+    }
 }
+
+// CSS 애니메이션 추가
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideUp {
+        from {
+            opacity: 1;
+            max-height: 200px;
+        }
+        to {
+            opacity: 0;
+            max-height: 0;
+        }
+    }
+    
+    .sideNavMenu a {
+        transition: all 0.3s ease, transform 0.2s ease !important;
+    }
+    
+    .sideNavMenu .btnMenuDropDown {
+        transition: all 0.3s ease !important;
+    }
+`;
+document.head.appendChild(style);
 
 // 간편 사용을 위한 전역 함수
 window.loadSideNav = async function(options = {}) {
@@ -195,6 +356,9 @@ window.loadSideNav = async function(options = {}) {
 document.addEventListener('DOMContentLoaded', async () => {
     // about-busan 페이지에서만 자동 로드
     if (window.location.pathname.includes('/about-busan/')) {
-        await window.loadSideNav();
+        const sideNavLoader = await window.loadSideNav();
+        
+        // 전역 변수로 접근 가능하도록 설정
+        window.sideNavLoader = sideNavLoader;
     }
 }); 
