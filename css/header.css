@@ -5,8 +5,7 @@
     width: 100%;
     height: 100px;
     padding: 0 100px;
-    /* background-color: rgb(206, 220, 255); */
-    background: linear-gradient(to right, #fff 0%, rgb(206, 220, 255) 25%, rgb(206, 220, 255) 100%);
+    background: linear-gradient(to right, #fff 0%, #dbf6ff 25%, #96daff 100%);
     /* background: linear-gradient(to right, #fff 0%, rgb(206, 220, 255) 25%, khaki 100%); */
 }
 
