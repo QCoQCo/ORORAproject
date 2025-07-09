@@ -3,12 +3,11 @@
     /* background-color: #121212; */
 }
 #wrapper .abBusan{
-    width: 1440px;
-    margin: 0 auto;
+
 }
 #wrapper .abBusan .container{
-    width: 100%;
-    /* background-color: aqua; */
+    width: 1440px;
+    margin: 10px auto;
     display: flex;
     justify-content: center;
 }
@@ -34,65 +33,48 @@
     padding-top: 50px;
 }
 
-/* sideNav */
-#sideNav{
-    margin-right: 50px;
-}
-#sideNav h1{
-    padding: 20px 15px;
-    margin-top: 30px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    font-size: 24px;
-    font-weight: 700;
-    color: #006fb9;
-    background-color: #d4f4ff;
-}
-#sideNav .sideNavMenu a{
-    color: #121212;
-}
-
 /* about BUSAN */
-.content .photo{
+.busan .photo{
     margin-bottom: 30px;
     border-radius: 10px;
     overflow: hidden;
 }
 
-.content .description > ul{
+.busan .description > ul{
     display: flex;
     justify-content: start;
     width: 100%;
     margin-bottom: 30px;
     
 }
-.content .description > ul .leftPhoto img{
+.busan .description > ul .leftPhoto img{
     width: 500px;
     height: 300px;
     border-radius: 10px;
     overflow: hidden;
     object-fit: cover;
 }
-.content .description > ul .rightDesc{
+.busan .description > ul .rightDesc{
     width: 400px;
     margin-left: 50px;
     margin-top: 10px;
 }
-.content .description div{
+.busan .description div{
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 10px;
 }
-.content .description span{
+.busan .description span{
     font-size: 20px;
     font-weight: 700;
 }
-.content .description p{
+.busan .description p{
     font-size: 18px;
 }
 
 /* goals */
 .vg > div{
+    width: 1030px;
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 10px;
@@ -126,11 +108,12 @@
     margin-bottom: 10px;
 }
 
+/* 위치 영역 */
 .place .placeInfo{
     display: flex;
     gap: 30px;
 }
-.place .placeInfo .placePhoto{
+.place .placeInfo ul{
     width: 500px;
 }
 .place .placeInfo .placeList .placeLi{
@@ -141,6 +124,7 @@
     font-weight: 700;
 }
 
+/* 기후 영역 */
 .climate .climateTitle{
     display: flex;
     gap: 20px;
@@ -186,11 +170,15 @@
     border-radius: 10px;
     overflow: hidden;
 }
+.climate .climateInfo .seasonList div{
+    width: 500px;
+}
 .climate .climateInfo .seasonList span{
     font-weight: 700;
     color: #db0000;
 }
 
+/* 해안 영역 */
 .coast .coastInfo > p{
     margin-bottom: 30px;
 }
@@ -211,8 +199,14 @@
     width: 500px;
     border-radius: 10px;
 }
+.coast .coastInfo .coastList div{
+    width: 500px;
+}
+.coast .coastInfo .coastList .sand{
+    width: 320px;
+}
 .coast .coastInfo .coastList .sand img{
-    width: 400px;
+    width: 320px;
     margin-bottom: 10px;
 }
 
