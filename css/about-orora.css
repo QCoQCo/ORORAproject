@@ -1,60 +1,92 @@
 @charset "utf-8";
-#wrapper{
+
+#wrapper {
     width: 100%;
+    /* width: 980px; */
 }
-.about-orora{
-    width: 980px;
+
+.about-orora {
+    width: 940px;
     margin: 0 auto;
-    /* background-color: aquamarine; */
+    margin-top: 80px;
+
+    /* box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
+        -15px -15px 100px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    padding: 10px; */
 }
-.about-orora > div{
+
+.about-orora>div {
     margin-bottom: 200px;
 }
-.about-orora h3{   
+
+.about-orora h3 {
     font-size: 36px;
     font-weight: 800;
     color: #333;
     margin-bottom: 60px;
 }
 
-.orora-background .content{
+.orora-background {
+    box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
+        -15px -15px 100px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+}
+.orora-background h3{
+    text-align: center;
+    align-items: center;
+}
+.orora-background .content {
     margin-left: 20px;
     font-size: 16px;
     line-height: 33px;
 }
 
-.team-introduce .team-introduce-list > li{
+.team-introduce h3{
+        text-align: center;
+    align-items: center;
+}
+.team-introduce .team-introduce-list>li {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     text-align: center;
     margin-bottom: 80px;
-    border-bottom: 1px solid #afafaf;
+    box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
+        -15px -15px 100px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    padding: 15px 10px;
 }
-.team-introduce .team-introduce-list > li:last-child{
+
+.team-introduce .team-introduce-list>li:last-child {
     border-bottom: none;
 }
 
-.team-introduce .profile{
+.team-introduce .profile {
     width: 50%;
 }
+
 .team-introduce .profile .name,
-.team-introduce .profile .role{
+.team-introduce .profile .role {
     text-align: start;
     margin-left: 20px;
 }
-.team-introduce .profile .name{
+
+.team-introduce .profile .name {
     font-size: 28px;
     font-weight: 500;
 }
-.team-introduce .profile .role{
+
+.team-introduce .profile .role {
     font-size: 16px;
     line-height: 33px;
     color: #666;
     margin-bottom: 10px;
 }
-.team-introduce .profile .pic img{
+
+.team-introduce .profile .pic img {
     width: 300px;
     height: 300px;
     border-radius: 50%;
@@ -62,7 +94,7 @@
 }
 
 
-.team-introduce .record{
+.team-introduce .record {
     width: 50%;
     height: 220px;
     border-radius: 10%;
@@ -76,7 +108,8 @@
     /* background-color: #666; */
     box-shadow: 52px 30px 90px rgba(0, 0, 0, 0.05);
 }
-.team-introduce .record > p{
+
+.team-introduce .record>p {
     display: list-item;
     margin-left: 1em;
     list-style-type: disc;
