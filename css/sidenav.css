@@ -1,22 +1,24 @@
 /* 부산 소개 사이드 네비게이션 스타일 */
 #sideNav {
     width: 260px;
-    background: #ffffff;
-    border: 1px solid #e6e6e6;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    font-family: 'Noto Sans KR', sans-serif;
     position: sticky;
     top: 20px;
     height: fit-content;
+    margin-top: 30px;
+    margin-right: 50px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
 }
 
 #sideNav h1 {
-    background: linear-gradient(135deg, #6daff2 0%, #407cc6 100%);
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: 600;
+    background: linear-gradient(135deg, #d4f4ff 0%, #96daff 100%);
+    font-size: 24px;
+    font-weight: 700;
     text-align: center;
+    color: #006fb9;
     padding: 20px 15px;
     margin: 0;
     border-radius: 8px 8px 0 0;
@@ -49,10 +51,10 @@
 .sideNavMenuTitle > a {
     display: block;
     padding: 16px 20px;
-    color: #333333;
+    color: #121212;
     text-decoration: none;
     font-weight: 500;
-    font-size: 15px;
+    font-size: 18px;
     border-left: 4px solid transparent;
     transition: all 0.3s ease;
     background: #ffffff;
