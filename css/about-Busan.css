@@ -27,12 +27,31 @@
 .container #sideNav .sideNavMenu .sns a{
     font-size: 18px;
 }
-
-/* about BUSAN */
-.title{
+.container #contents .title{
+    font-size: 33px;
     text-align: center;
+    line-height: 60px;
 }
 
+/* sideNav */
+#sideNav{
+    margin-right: 50px;
+}
+#sideNav h1{
+    padding: 20px 15px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e5ac9;
+    background-color: #d6e2ff;
+}
+#sideNav .sideNavMenu a{
+    color: #121212;
+}
+
+/* about BUSAN */
 .content .photo{
     margin-bottom: 30px;
     border-radius: 10px;
@@ -72,6 +91,14 @@
 }
 
 /* goals */
+.vg > div{
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.vg .vision{
+    margin-bottom: 30px;
+}
 
 /* basisinfo */
 .basisinfo{
@@ -182,5 +209,20 @@
 }
 
 /* symbol */
+.symbol li{
+    margin-bottom: 30px;
+}
+.symbol li > p{
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.symbol li img{
+    margin-bottom: 10px;
+}
+.symbol .flower div > p{
+    margin-bottom: 10px;
+}
 
 /* character */
+.
