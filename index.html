@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>arataBUSAN</title>
+    <title>あらた釜山 - Busan Travel Guide</title>
     <link rel="stylesheet" as="style" crossorigin
     href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
     <link rel="stylesheet" href="css/reset.css">
@@ -15,36 +15,109 @@
 <body>
     <div id="wrapper">
         <div id="header-container"></div>
-        <main id="rinji">
-            <div class="main-visual">
-                <ul>
-                    <li>
-                        <a href="pages/about-busan/busan.html">부산소개</a>
-                    </li>
-                    <li>
-                        <a href="pages/search-place/place.html">부산 관광지 검색</a>
-                    </li>
-                    <li>
-                        <a href="pages/detailed/detailed.html">관광지 상세 예시</a>
-                    </li>
-                    <li>
-                        <a href="pages/search-place/tag.html">관광지 태그 검색</a>
-                    </li>
-                    <li>
-                        <a href="pages/search-place/theme.html">관광지 테마 검색</a>
-                    </li>
-                    <li>
-                        <a href="pages/list-example/test.html">리스트 예시</a>
-                    </li>
-                </ul>
+        
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">あらた釜山</h1>
+                <p class="hero-subtitle">새로운 부산을 발견하다</p>
+                <p class="hero-description">부산의 숨겨진 보석 같은 관광지와 특별한 경험을 찾아보세요</p>
+            </div>
+        </section>
+
+        <!-- Main Navigation Section -->
+        <main class="main-content">
+            <div class="container">
+                <h2 class="section-title">부산 여행 가이드</h2>
+                <div class="navigation-grid">
+                    <div class="nav-card" data-bg="about_busan">
+                        <div class="card-overlay"></div>
+                        <div class="card-content">
+                            <h3>부산 소개</h3>
+                            <p>부산의 역사와 문화를 알아보세요</p>
+                        </div>
+                        <a href="pages/about-busan/busan.html" class="card-link"></a>
+                    </div>
+                    
+                    <div class="nav-card" data-bg="marine_city">
+                        <div class="card-overlay"></div>
+                        <div class="card-content">
+                            <h3>관광지 검색</h3>
+                            <p>부산의 다양한 관광명소를 찾아보세요</p>
+                        </div>
+                        <a href="pages/search-place/place.html" class="card-link"></a>
+                    </div>
+                    
+                    <div class="nav-card" data-bg="sandbeach">
+                        <div class="card-overlay"></div>
+                        <div class="card-content">
+                            <h3>상세 정보</h3>
+                            <p>관광지의 자세한 정보를 확인하세요</p>
+                        </div>
+                        <a href="pages/detailed/detailed.html" class="card-link"></a>
+                    </div>
+                    
+                    <div class="nav-card" data-bg="flower">
+                        <div class="card-overlay"></div>
+                        <div class="card-content">
+                            <h3>태그 검색</h3>
+                            <p>태그로 원하는 관광지를 찾아보세요</p>
+                        </div>
+                        <a href="pages/search-place/tag.html" class="card-link"></a>
+                    </div>
+                    
+                    <div class="nav-card" data-bg="rock">
+                        <div class="card-overlay"></div>
+                        <div class="card-content">
+                            <h3>테마 검색</h3>
+                            <p>테마별로 부산을 탐험해보세요</p>
+                        </div>
+                        <a href="pages/search-place/theme.html" class="card-link"></a>
+                    </div>
+                    
+                    <div class="nav-card" data-bg="fireworks">
+                        <div class="card-overlay"></div>
+                        <div class="card-content">
+                            <h3>추천 리스트</h3>
+                            <p>엄선된 부산 여행 코스를 확인하세요</p>
+                        </div>
+                        <a href="pages/list-example/test.html" class="card-link"></a>
+                    </div>
+                </div>
             </div>
         </main>
-        <div class="test">
-            <input type="text" placeholder="password" id="password">
-            <input type="text" placeholder="passwordRepeat" id="passwordRepeat">
-            <button id="signup">회원가입</button>
-        </div>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">부산의 계절</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <img src="images/spring.jpg" alt="부산의 봄" class="feature-image">
+                        <h3>봄</h3>
+                        <p>벚꽃이 만개하는 아름다운 부산의 봄</p>
+                    </div>
+                    <div class="feature-item">
+                        <img src="images/summer.jpg" alt="부산의 여름" class="feature-image">
+                        <h3>여름</h3>
+                        <p>시원한 바다와 해변을 만끽하는 여름</p>
+                    </div>
+                    <div class="feature-item">
+                        <img src="images/fall.jpg" alt="부산의 가을" class="feature-image">
+                        <h3>가을</h3>
+                        <p>단풍으로 물든 부산의 가을 정취</p>
+                    </div>
+                    <div class="feature-item">
+                        <img src="images/winter.jpg" alt="부산의 겨울" class="feature-image">
+                        <h3>겨울</h3>
+                        <p>따뜻한 부산에서 즐기는 겨울 여행</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
+    
     <script src="js/index.js"></script>
     <script src="js/header-loader.js"></script>
 </body>
