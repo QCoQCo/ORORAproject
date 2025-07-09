@@ -36,6 +36,8 @@
 }
 #nav .d1 > li{
     position: relative;
+    font-size: 18px;
+    font-weight: 500;
 }
 #nav .d1 li a{
     color: #000;
@@ -52,12 +54,12 @@
     left: 50%;
     width: 0;
     height: 2px;
-    background: linear-gradient(to right, rgb(100, 149, 237), rgb(206, 220, 255));
+    background: linear-gradient(to right, #a8dcff, #0175c1);
     transition: all 0.3s ease;
     transform: translateX(-50%);
 }
 #nav .d1 li a:hover{
-    color: rgb(100, 149, 237);
+    color: #0175c1;
     transform: translateY(-2px);
 }
 #nav .d1 li a:hover::after{
@@ -88,7 +90,7 @@
     transition: background-color 0.2s ease;
 }
 #nav .sub .d2 li:hover{
-    background-color: rgb(240, 245, 255);
+    background-color: rgb(228, 244, 255);
 }
 #nav .sub .d2 li a{
     color: #333;
@@ -96,7 +98,7 @@
     padding: 8px 0;
 }
 #nav .sub .d2 li a:hover{
-    color: rgb(100, 149, 237);
+    color: #0175c1;
     transform: none;
 }
 #nav .sub .d2 li a::after{
