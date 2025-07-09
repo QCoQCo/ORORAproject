@@ -36,14 +36,17 @@
 
 .sideNavMenu > ul > li {
     border-bottom: 1px solid #f0f0f0;
-    position: relative;
 }
 
 .sideNavMenu > ul > li:last-child {
     border-bottom: none;
 }
 
-.sideNavMenu > ul > li > a {
+.sideNavMenuTitle {
+    position: relative;
+}
+
+.sideNavMenuTitle > a {
     display: block;
     padding: 16px 20px;
     color: #333333;
@@ -55,13 +58,14 @@
     background: #ffffff;
 }
 
-.sideNavMenu > ul > li > a:hover {
+.sideNavMenuTitle > a:hover {
     background: #f8f9fa;
     color: #6daff2;
     border-left-color: #6daff2;
 }
 
-.sideNavMenu > ul > li.active > a {
+/* 부모 메뉴 active 상태 */
+.sideNavMenu > ul > li.active .sideNavMenuTitle > a {
     background: #f0f7ff;
     color: #6daff2;
     border-left-color: #6daff2;
@@ -190,7 +194,7 @@
         padding: 15px;
     }
     
-    .sideNavMenu > ul > li > a {
+    .sideNavMenuTitle > a {
         padding: 14px 16px;
         font-size: 14px;
     }
