@@ -96,3 +96,37 @@ h2{
     margin: 5px;
     font-size: 14px;
 }
+.white{
+    font-family: 'NotoSansKR',sans-serif;
+    font-size: 16px;
+    color: #000;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
+    box-sizing: border-box;
+    margin: 0;
+    float: left;
+    padding: 3px 0 5px;
+    margin-bottom: 30px;
+}
+.sortTy{
+    font-family: 'NotoSansKR',sans-serif;
+    font-size: 16px;
+    color: #000;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
+    box-sizing: border-box;
+    margin: 0;
+    float: right;
+    position: absolute;
+    right: 13px;
+    width: auto;
+    padding: 3px 0 10px;
+}
+.picture{
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    /* 사진을 꽉차게 */
+}
