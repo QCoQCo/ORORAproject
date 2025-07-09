@@ -79,6 +79,24 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
 
   let selectBox = document.getElementById("apple");
+  let contentBox = document.querySelector(".busan99");
+  contentBox.style.display = "none";
+
+  // select 박스에서 선택이 바뀔 때 실행
+  selectBox.addEventListener("change", function () {
+    if (selectBox.value === "popular") {
+      contentBox.style.display = "block"; // 보이게 하기
+    } else {
+      contentBox.style.display = "none"; // 숨기기
+    }
+
+  });
+});
+
+// 축제 일정 (이미지)
+document.addEventListener("DOMContentLoaded", function () {
+
+  let selectBox = document.getElementById("apple");
   let contentBox = document.querySelector(".picture");
 
   contentBox.style.display = "none";
