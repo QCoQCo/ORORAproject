@@ -10,6 +10,11 @@ h3 {
     color: #333;
     margin-bottom: 60px;
 }
+h4{
+    font-size: 18px;
+    padding: 20px 20px;
+    margin-bottom: 60px;
+}
 
 .korean-tip {
     width: 980px;
@@ -31,19 +36,23 @@ h3 {
     border-radius: 15px;
     padding: 10px;
 }
-.transportaion h4{
-    font-size: 16px;
-}
 
-.mapTrans .map .navermap{
+.mapTrans .map > div{
     position: relative;
-    background-color: wheat;
+    display: flex;
+    gap: 100px;
+    padding: 0 20px;
+    margin-bottom: 40px;
+    /* background-color: wheat; */
 }
-
+.mapTrans .map .left p{
+    text-align: center;
+    margin-bottom: 10px;
+}
 .mapTrans .map .image a{
     display: block;
-    width: 50px;
-    height: 50px;
+    width: 75px;
+    height: 75px;
     text-indent: -99999px;
     background-position: center;
     background-repeat: no-repeat;
@@ -58,10 +67,23 @@ h3 {
     background-image: url(../images/kakaomap.png);
 
 }
+
+.mapTrans .transApp > div{
+    position: relative;
+    display: flex;
+    gap: 100px;
+    padding: 0 20px;
+    margin-bottom: 40px;
+    /* background-color: wheat; */
+}
+.mapTrans .transApp .left p{
+    text-align: center;
+    margin-bottom: 10px;
+}
 .mapTrans .transApp .image a{
     display: block;
-    width: 50px;
-    height: 50px;
+    width: 75px;
+    height: 75px;
     text-indent: -99999px;
     background-position: center;
     background-repeat: no-repeat;
@@ -78,10 +100,113 @@ h3 {
 .kakaotaxi a{
     background-image: url(../images/kakaotaxi.png);
 }
+
+
+.pass .visitbusanpass > div{
+    position: relative;
+    display: flex;
+    gap: 100px;
+    padding: 0 20px;
+    margin-bottom: 40px;
+    /* background-color: wheat; */
+}
+.pass .visitbusanpass .left p{
+    text-align: center;
+    margin-bottom: 10px;
+}
+.pass .visitbusanpass .image a{
+    display: block;
+    width: 75px;
+    height: 75px;
+    text-indent: -99999px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 10px;
+    box-shadow: 2px 2px 50px rgba(0,0,0,0.08);
+}
+.visitbusanpass a{
+    background-image: url(../images/visitbusanpass.png);
+    background-color: rgb(1, 108, 170);
+    border-radius: 10px;
+    box-shadow: 2px 2px 50px rgba(0,0,0,0.08);
+}
+
+/* .convenience  */
 .convenience>div {
     margin-bottom: 50px;
     box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
         -15px -15px 100px rgba(0, 0, 0, 0.05);
     border-radius: 15px;
     padding: 10px;
+}
+
+.reservation .eat > div{
+    position: relative;
+    display: flex;
+    gap: 100px;
+    padding: 0 20px;
+    margin-bottom: 40px;
+    /* background-color: wheat; */
+}
+.reservation .left p{
+    text-align: center;
+    margin-bottom: 10px;
+}
+.reservation .image a{
+    display: block;
+    width: 75px;
+    height: 75px;
+    text-indent: -99999px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.08);
+}
+.tabling a{
+    background-image: url(../images/tabling.png);
+}
+.catchtable a{
+    background-image: url(../images/catchtable.png);
+}
+
+
+.delivery .image a{
+    display: block;
+    width: 75px;
+    height: 75px;
+    text-indent: -99999px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.08);
+}
+.baemin a{
+    background-image: url(../images/baemin.jpg);
+}
+.coupangeats a{
+    background-image: url(../images/ce.png);
+}
+
+
+.photo .image a{
+    display: block;
+    width: 75px;
+    height: 75px;
+    text-indent: -99999px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.08);
+}
+.photoism a{
+    background-image: url(../images/photoism.png);
+    background-color: #000;
+}
+.photo .lifefourcuts .image a{
+    background-image: url(../images/lifefourcuts.png);
+    /* border-radius: 0; */
 }
