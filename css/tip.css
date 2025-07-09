@@ -1,0 +1,87 @@
+@charset "utf-8";
+
+#wrapper {
+    width: 100%;
+}
+
+h3 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 60px;
+}
+
+.korean-tip {
+    width: 980px;
+    padding: 0 20px;
+    margin: 0 auto;
+    margin-top: 80px;
+    /* background-color: antiquewhite; */
+
+    /* box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
+        -15px -15px 100px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    padding: 10px; */
+}
+
+.transportaion > div {
+    margin-bottom: 50px;
+    box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
+        -15px -15px 100px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    padding: 10px;
+}
+.transportaion h4{
+    font-size: 16px;
+}
+
+.mapTrans .map .navermap{
+    position: relative;
+    background-color: wheat;
+}
+
+.mapTrans .map .image a{
+    display: block;
+    width: 50px;
+    height: 50px;
+    text-indent: -99999px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.08);
+}
+.navermap a{
+    background-image: url(../images/navermap.jpg);
+}
+.kakaomap a{
+    background-image: url(../images/kakaomap.png);
+
+}
+.mapTrans .transApp .image a{
+    display: block;
+    width: 50px;
+    height: 50px;
+    text-indent: -99999px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.08);
+}
+.kakaobus a{
+    background-image: url(../images/kakaobus.png);
+}
+.kakaosubway a{
+    background-image: url(../images/kakaosubway.png);
+}
+.kakaotaxi a{
+    background-image: url(../images/kakaotaxi.png);
+}
+.convenience>div {
+    margin-bottom: 50px;
+    box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
+        -15px -15px 100px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    padding: 10px;
+}
