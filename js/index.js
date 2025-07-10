@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initCardHoverEffects();
     initSmoothScrolling();
     initParallaxEffect();
+    initHeroSlider();
 });
 
 // Intersection Observer for scroll animations
@@ -82,11 +83,80 @@ function initParallaxEffect() {
     if (hero) {
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
-            const rate = scrolled * -0.5;
+            const rate = scrolled * -0.2;
             
-            hero.style.transform = `translateY(${rate}px)`;
+            // Apply parallax to current active slide
+            const activeSlide = hero.querySelector('.hero-slide.active');
+            if (activeSlide) {
+                activeSlide.style.transform = `translateY(${rate}px)`;
+            }
         });
     }
+}
+
+// Hero Slider functionality
+function initHeroSlider() {
+    const slides = document.querySelectorAll('.hero-slide');
+    const indicators = document.querySelectorAll('.indicator');
+    let currentSlide = 0;
+    let slideInterval;
+
+    // Function to show specific slide
+    function showSlide(index) {
+        // Remove active class from all slides and indicators
+        slides.forEach(slide => slide.classList.remove('active'));
+        indicators.forEach(indicator => indicator.classList.remove('active'));
+        
+        // Add active class to current slide and indicator
+        slides[index].classList.add('active');
+        indicators[index].classList.add('active');
+        
+        currentSlide = index;
+    }
+
+    // Function to go to next slide
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // Auto-play functionality
+    function startSlideshow() {
+        slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+    }
+
+    function stopSlideshow() {
+        clearInterval(slideInterval);
+    }
+
+    // Add click event listeners to indicators
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            showSlide(index);
+            stopSlideshow();
+            startSlideshow(); // Restart the slideshow timer
+        });
+    });
+
+    // Pause slideshow on hover
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        hero.addEventListener('mouseenter', stopSlideshow);
+        hero.addEventListener('mouseleave', startSlideshow);
+    }
+
+    // Start the slideshow
+    startSlideshow();
+
+    // Preload images for smooth transitions
+    slides.forEach(slide => {
+        const bgImage = slide.style.backgroundImage;
+        if (bgImage) {
+            const imageUrl = bgImage.slice(4, -1).replace(/["']/g, "");
+            const img = new Image();
+            img.src = imageUrl;
+        }
+    });
 }
 
 // Dynamic greeting based on time
