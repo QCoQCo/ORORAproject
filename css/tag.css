@@ -1,11 +1,19 @@
+#wrapper {
+    width: 100%;
+}
+
 .container {
+    width: 1200px;
+    margin: 0 auto;
     padding: 20px;
 }
-.container > h2{
+
+.container>h2 {
     font-size: 24px;
     margin-bottom: 20px;
     color: #1f2397;
 }
+
 .container .but {
     margin-top: 10px;
     list-style: none;
@@ -16,6 +24,7 @@
     flex-wrap: wrap;
 }
 
+/* apple */
 .container .but #apple {
     background-color: #fff;
     color: cornflowerblue;
@@ -24,7 +33,9 @@
     border-radius: 5px;
     font-size: 20px;
 }
-.container .popular01{
+
+/* 인기순 태그 */
+.container .popular01 {
     display: none;
     margin-top: 15px;
     display: flex;
@@ -34,7 +45,7 @@
     padding: 10px 20px;
 }
 
-.container .tag{
+.container .tag {
     display: inline-block;
     background-color: #f0f4f8;
     border-radius: 15px;
@@ -43,7 +54,9 @@
     margin: 5px;
     font-size: 14px;
 }
-.container .latest01{
+
+/* 최신순 태그 */
+.container .latest01 {
     display: none;
     margin-top: 15px;
     display: flex;
@@ -52,7 +65,8 @@
     border-bottom: 2px;
     padding: 10px 20px;
 }
-.container .tagg{
+
+.container .tagg {
     display: inline-block;
     background-color: #f0f4f8;
     border-radius: 15px;
@@ -61,7 +75,9 @@
     margin: 5px;
     font-size: 14px;
 }
-.container .recommended01{
+
+/* 추천순 태그 */
+.container .recommended01 {
     display: none;
     margin-top: 15px;
     display: flex;
@@ -70,8 +86,9 @@
     border-bottom: 2px;
     padding: 10px 20px;
 }
-.container .Third{
-   display: inline-block;
+
+.container .Third {
+    display: inline-block;
     background-color: #f0f4f8;
     border-radius: 15px;
     color: #333;
@@ -79,7 +96,9 @@
     margin: 5px;
     font-size: 14px;
 }
-.container .Festival01{
+
+/* 부산 축제 일정 */
+.container .Festival01 {
     display: none;
     margin-top: 15px;
     display: flex;
@@ -88,7 +107,8 @@
     border-bottom: 2px;
     padding: 10px 20px;
 }
-.container .last{
+
+.container .last {
     display: inline-block;
     background-color: #f0f0f0;
     border-radius: 15px;
@@ -96,13 +116,99 @@
     margin: 5px;
     font-size: 14px;
 }
-.container .list-area{
+
+.container .list-area {
     display: flex;
     flex-direction: column;
     gap: 40px;
 }
-.container .white{
-    font-family: 'NotoSansKR',sans-serif;
+
+/* 검색 */
+.container .input-group {
+    font-family: 'NotoSansKR', sans-serif;
+    font-size: 16px;
+    color: #000;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
+    box-sizing: border-box;
+    padding: 0;
+    position: relative;
+    display: block;
+    margin: 30px auto;
+    float: unset;
+    width: 90%;
+    max-width: 415px;
+}
+
+.container .input-group .label {
+    font-family: 'NotoSansKR', sans-serif;
+    color: #000;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 0;
+    height: 0;
+    display: block;
+    text-indent: -9999px;
+    font-size: 0;
+}
+
+.container .input-group #keyword {
+    -webkit-text-size-adjust: 100%;
+    word-wrap: break-word;
+    margin: 0;
+    font-family: inherit;
+    vertical-align: middle;
+    background: #fff;
+    font-weight: 300;
+    color: #000;
+    letter-spacing: -.6px;
+    font-size: 14px;
+    float: left;
+    width: 100%;
+    line-height: 1.5rem;
+    z-index: auto;
+    box-sizing: border-box;
+    height: 55px;
+    padding: 5px 25px;
+    border-radius: 28px;
+    border: 1px solid #cdcdcd;
+}
+
+.container .input-group-btn {
+    font-family: 'NotoSansKR', sans-serif;
+    color: #000;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    position: absolute;
+    top: 1px;
+    right: 0;
+    width: 64px;
+    font-size: .75rem;
+    height: 55px;
+}
+
+.container .input-group-btn button {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    line-height: 36px;
+}
+
+/* 총(전체) */
+.container .white {
+    font-family: 'NotoSansKR', sans-serif;
     font-size: 16px;
     font-weight: bold;
     color: #000;
@@ -115,10 +221,11 @@
     padding: 3px 0 5px;
     margin-bottom: 30px;
 }
-.container .sortTy{
-    font-family: 'NotoSansKR',sans-serif;
+
+/* sortTy */
+.container .sortTy {
+    font-family: 'NotoSansKR', sans-serif;
     font-size: 16px;
-    color: #000;
     -webkit-text-size-adjust: 100%;
     line-height: 1;
     word-wrap: break-word;
@@ -129,66 +236,262 @@
     right: 13px;
     width: auto;
     padding: 3px 0 10px;
-}
-.container .picture{
-    width: 700px;
-}
-.container .picture ul{
-    display: flex;
-    gap: 50px;
     padding: 0;
     margin: 0;
 }
-.container .picture li{
+
+.container .sortTy a {
+    color: #000;
+}
+
+.container .sortTy .on {
+    font-family: 'NotoSansKR', sans-serif;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
     list-style: none;
-    width: 160px;
-    text-align: center;
+    font-size: 14px;
+    font-weight: 600 !important;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: #555;
+    display: inline;
+    padding: 0 5px;
+    margin: 0 4px;
 }
-.container .picture .ph{
-    width: 100px;
-    height: 100px;
+
+.container .sortTy li {
+    font-family: 'NotoSansKR', sans-serif;
+    color: #000;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
+    box-sizing: border-box;
+    padding: 0;
+    list-style: none;
+    display: inline-block;
+    border-right: 1px solid #cfcfcf;
+    margin: 7px 0;
+    font-size: 14px;
+    font-weight: 600 !important;
 }
-.container .picture .ph img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 사진을 꽉차게 */
+
+.container .sortTy .on1 {
+    font-family: 'NotoSansKR', sans-serif;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
+    list-style: none;
+    font-size: 14px;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: #555;
+    display: inline;
+    padding: 0 5px;
+    margin: 0 4px;
 }
-.container .picture .to2{
-    font-size: 20px
+
+.container .sortTy .on2 {
+    font-family: 'NotoSansKR', sans-serif;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1;
+    word-wrap: break-word;
+    list-style: none;
+    font-size: 14px;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: #555;
+    display: inline;
+    padding: 0 5px;
+    margin: 0 4px;
 }
-.container .picture .to3{
-    font-size: 15px;
-    color: #333;
-}
-.container .busan99{
+
+/* 인기순 이미지 */
+.container .busan99 {
     width: 1000px;
     padding: 0;
     margin: 0;
 }
-.container .busan99 ul{
+
+.container .busan99 ul {
     display: flex;
     gap: 20px;
 }
-.container .busan99 li{
-    border: 1px solid #000;
+
+.container .busan99 li {
+    /* border: 1px solid #000; */
 }
-.container .busan99 .ph{
-    width: 100px;
-    height: 100px;
+
+.container .busan99 .ph {
+    width: 200px;
+    height: 200px;
 }
-.container .busan99 .ph img{
+
+.container .busan99 .ph img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 8px;
     /* 사진을 꽉차게 */
 }
-.container .busan99 .to2{
+
+.container .busan99 .to2 {
     font-weight: bold;
     font-size: 17px
 }
-.container .busan99 .to3{
+
+.container .busan99 .to3 {
     font-size: 13px;
     color: #333;
+}
+
+/* 최신순 이미지 */
+.container .inquiry1 {
+    width: 1000px;
+    padding: 0;
+    margin: 0;
+}
+
+.container .inquiry1 ul {
+    display: flex;
+    gap: 20px;
+}
+
+.container .inquiry1 .ph {
+    width: 200px;
+    height: 200px;
+}
+
+.container .inquiry1 .ph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    /* 사진을 꽉차게 */
+}
+
+.container .inquiry1 .to2 {
+    font-weight: bold;
+    font-size: 17px
+}
+
+.container .inquiry1 .to3 {
+    font-size: 13px;
+    color: #333;
+}
+
+/* 추천순 이미지 */
+.container .Trees {
+    width: 1000px;
+    padding: 0;
+    margin: 0;
+}
+
+.container .Trees ul {
+    display: flex;
+    gap: 20px;
+}
+
+.container .Trees .ph {
+    width: 200px;
+    height: 200px;
+}
+
+.container .Trees .ph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    /* 사진을 꽉차게 */
+}
+
+.container .Trees .to2 {
+    font-weight: bold;
+    font-size: 17px
+}
+
+.container .Trees .to3 {
+    font-size: 13px;
+    color: #333;
+}
+
+/* 부산 축제 일정 이미지 */
+.container .picture {
+    width: 700px;
+    padding: 0;
+    margin: 0;
+}
+
+.container .picture ul {
+    display: flex;
+    gap: 50px;
+    padding: 0;
+    margin: 0;
+}
+
+.container .picture li {
+    list-style: none;
+    width: 160px;
+    text-align: center;
+}
+
+.container .picture .ph {
+    width: 200px;
+    height: 250px;
+}
+
+.container .picture .ph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 사진을 꽉차게 */
+}
+
+.container .picture .to2 {
+    /* display: flex; */
+    font-size: 17px
+}
+
+.container .picture .to3 {
+    font-size: 10px;
+    color: #333;
+}
+
+/* 로고 */
+.container .main-brand-story-wrap {
+    --swiper-theme-color: #007aff;
+    --swiper-navigation-size: 44px;
+    font-size: 12px;
+    color: #222222;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: none;
+    margin: 15px 0 0;
+    width: 100%;
+    padding: 0;
+    text-align: center;
+    margin-top: 95px;
+}
+.container .main-brand-story-wrap img{
+    /* text-align: right; */
+    display: flex;
+    margin-left: -80px;
+    margin-right: 0;
+    width: 200px;
+    height: 200px;
+}
+.container .main-brand-story-wrap a {
+    --swiper-theme-color: #007aff;
+    --swiper-navigation-size: 44px;
+    font-size: 12px;
+    text-align: center;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: none;
+    text-decoration: none;
+    background: none;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    display: block;
+    width: 100%;
+    height: 100%;
 }

@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// 인기순 이미지
 document.addEventListener("DOMContentLoaded", function () {
 
   let selectBox = document.getElementById("apple");
@@ -85,6 +86,42 @@ document.addEventListener("DOMContentLoaded", function () {
   // select 박스에서 선택이 바뀔 때 실행
   selectBox.addEventListener("change", function () {
     if (selectBox.value === "popular") {
+      contentBox.style.display = "block"; // 보이게 하기
+    } else {
+      contentBox.style.display = "none"; // 숨기기
+    }
+
+  });
+});
+
+// 최신순 이미지
+document.addEventListener("DOMContentLoaded", function () {
+
+  let selectBox = document.getElementById("apple");
+  let contentBox = document.querySelector(".inquiry1");
+  contentBox.style.display = "none";
+
+  // select 박스에서 선택이 바뀔 때 실행
+  selectBox.addEventListener("change", function () {
+    if (selectBox.value === "latest") {
+      contentBox.style.display = "block"; // 보이게 하기
+    } else {
+      contentBox.style.display = "none"; // 숨기기
+    }
+
+  });
+});
+
+// 추천순 이미지
+document.addEventListener("DOMContentLoaded", function () {
+
+  let selectBox = document.getElementById("apple");
+  let contentBox = document.querySelector(".Trees");
+  contentBox.style.display = "none";
+
+  // select 박스에서 선택이 바뀔 때 실행
+  selectBox.addEventListener("change", function () {
+    if (selectBox.value === "recommended") {
       contentBox.style.display = "block"; // 보이게 하기
     } else {
       contentBox.style.display = "none"; // 숨기기
