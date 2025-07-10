@@ -253,7 +253,7 @@ h3{
 }
 
 .aboutAhop{
-    margin-bottom: 30px;
+    margin-bottom: 80px;
 }
 
 .aboutAhop ul{
@@ -283,7 +283,12 @@ h3{
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    justify-content: center;
     margin-bottom: 50px;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .tag button{
@@ -315,10 +320,36 @@ h3{
     border: none;
     border-radius: 40px;
     background-color: #F1F1F1;
+    font-size: 18px;
 }
 
-.goodBad .right .good{
+.goodBad .right .good, .goodBad .right .bad{
     margin-right: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+.goodBad .right .good .likeIco, .goodBad .right .bad .dislikeIco{
+    width: 45px;
+    height: 45px;
+    background-image: url(../images/icon_user_expression_detailPage.png);
+    background-repeat: no-repeat;
+}
+
+.goodBad .right .good .likeIco{
+    background-position: 0 0;
+}
+
+.goodBad .right .good .likeIco.active{
+    background-position: 0 -45px;
+}
+
+.goodBad .right .bad .dislikeIco{
+    background-position: 0 -90px;
+}
+.goodBad .right .bad .dislikeIco.active{
+    background-position: 0 -135px;
 }
 
 .comment{
@@ -390,14 +421,6 @@ h3{
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
-}
-
-.userPhotoCo .usercheck .userCheckbox{
-    text-align: center;
-}
-
-.userPhotoCo .usercheck input{
-    margin-right: 10px
 }
 
 .userPhotoCo .usercheck ul{
