@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>부산 소개</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="../../css/reset.css">
     <link rel="stylesheet" href="../../css/header.css">
     <link rel="stylesheet" href="../../css/sidenav.css">
@@ -19,7 +20,12 @@
             <div class="container">
                 <div id="sidenav-container"></div>
                 <main id="contents">
-                    <h2 class="title">도시비전과 목표</h2>
+                    <div class="swiper main_bg">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide"><img src="../../images/main_goal.jpg" alt="도시비전과 목표"></div>
+                        </div>
+                        <h2 class="title">도시비전과 목표</h2>
+                    </div>
                     <div class="vg">
                         <div class="vision">
                             <p>도시 비전</p>
@@ -40,6 +46,8 @@
     </div>
     <script src="../../js/header-loader.js"></script>
     <script src="../../js/sidenav-loader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="../../js/busan.js"></script>
 </body>
 
 </html>
