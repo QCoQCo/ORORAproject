@@ -7,6 +7,7 @@
     <title>あらた釜山 - Busan Travel Guide</title>
     <link rel="stylesheet" as="style" crossorigin
     href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/footer.css">
@@ -19,11 +20,34 @@
         
         <!-- Hero Section -->
         <section class="hero">
-            <div class="hero-overlay"></div>
+            <div class="hero-slider">
+                <div class="hero-slide active" style="background-image: url('images/marine_city.jpg');">
+                    <div class="slide-overlay"></div>
+                </div>
+                <div class="hero-slide" style="background-image: url('images/about_busan.jpg');">
+                    <div class="slide-overlay"></div>
+                </div>
+                <div class="hero-slide" style="background-image: url('images/sandbeach.jpg');">
+                    <div class="slide-overlay"></div>
+                </div>
+                <div class="hero-slide" style="background-image: url('images/fireworks.jpg');">
+                    <div class="slide-overlay"></div>
+                </div>
+                <div class="hero-slide" style="background-image: url('images/rock.jpg');">
+                    <div class="slide-overlay"></div>
+                </div>
+            </div>
             <div class="hero-content">
                 <h1 class="hero-title">あらた釜山</h1>
                 <p class="hero-subtitle">새로운 부산을 발견하다</p>
                 <p class="hero-description">부산의 숨겨진 보석 같은 관광지와 특별한 경험을 찾아보세요</p>
+            </div>
+            <div class="hero-indicators">
+                <span class="indicator active" data-slide="0"></span>
+                <span class="indicator" data-slide="1"></span>
+                <span class="indicator" data-slide="2"></span>
+                <span class="indicator" data-slide="3"></span>
+                <span class="indicator" data-slide="4"></span>
             </div>
         </section>
 

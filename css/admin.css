@@ -1,11 +1,11 @@
 /* 관리자 페이지 스타일 */
-.admin {
+.admin-page {
     min-height: calc(100vh - 100px);
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     padding: 40px 0;
 }
 
-.admin .container {
+.admin-page .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
@@ -697,11 +697,11 @@
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
-    .admin {
+    .admin-page {
         padding: 20px 0;
     }
     
-    .admin .container {
+    .admin-page .container {
         padding: 0 15px;
     }
     
