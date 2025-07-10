@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>부산 소개</title>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"/>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="../../css/reset.css">
     <link rel="stylesheet" href="../../css/header.css">
     <link rel="stylesheet" href="../../css/footer.css">
@@ -20,7 +21,13 @@
             <div class="container">
                 <div id="sidenav-container"></div>
                 <main id="contents">
-                    <h2 class="title">소통캐릭터</h2>
+                    <div class="swiper main_bg">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide"><img src="../../images/main_character01.jpg" alt="캐릭터 소개"></div>
+                            <div class="swiper-slide"><img src="../../images/main_character02.jpg" alt="캐릭터 소개"></div>
+                        </div>
+                        <h2 class="title">캐릭터 소개</h2>
+                    </div>
                     <div class="character">
                         <img src="../../images/bugi.jpg" alt="부기 캐릭터">
                     </div>
@@ -30,8 +37,10 @@
             </div>
         </section>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="../../js/header-loader.js"></script>
     <script src="../../js/sidenav-loader.js"></script>
+    <script src="../../js/busan.js"></script>
     <script src="../../js/footer-loader.js"></script>
 </body>
 

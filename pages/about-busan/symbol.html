@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>부산 소개</title>
-    <link rel="stylesheet" as="style" crossorigin
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="../../css/reset.css">
     <link rel="stylesheet" href="../../css/header.css">
     <link rel="stylesheet" href="../../css/footer.css">
@@ -21,11 +21,21 @@
             <div class="container">
                 <div id="sidenav-container"></div>
                 <main id="contents">
-                    <h2 class="title">지역 상징</h2>
+                    <div class="swiper main_bg">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide"><img src="../../images/main_symbol01.jpg" alt="지역 상징_동백꽃"></div>
+                            <div class="swiper-slide"><img src="../../images/main_symbol02.jpg" alt="지역 상징_갈매기"></div>
+                            <div class="swiper-slide"><img src="../../images/main_symbol03.jpg" alt="지역 상징_고등어"></div>
+                        </div>
+                        <h2 class="title">지역 상징</h2>
+                    </div>
                     <div class="symbols">
                         <ul>
                             <li class="symbol">
-                                <p>동백꽃</p>
+                                <div>
+                                    <span class="seagull"></span>
+                                    <p>동백꽃</p>
+                                </div>
                                 <ul>
                                     <li>
                                         <p><img src="../../images/flower.jpg" alt="동백꽃"></p>
@@ -36,7 +46,8 @@
                                             시목 - 동백나무 1970. 7. 1. 지정
                                         </p>
                                         <p>
-                                            진녹색의 잎과 진홍색의 꽃의 조화는 푸른 바다와, 사랑이 많은 시민의 정신을 그려내고, 싱싱하고 빛이 나는 진녹색 활엽은 시민의 젊음과
+                                            진녹색의 잎과 진홍색의 꽃의 조화는 푸른 바다와, 사랑이 많은 시민의 정신을 그려내고, <br>싱싱하고 빛이 나는 진녹색 활엽은 시민의
+                                            젊음과
                                             의욕을
                                             나타낸다.
                                         </p>
@@ -44,7 +55,10 @@
                                 </ul>
                             </li>
                             <li class="symbol">
-                                <p>갈매기</p>
+                                <div>
+                                    <span class="seagull"></span>
+                                    <p>갈매기</p>
+                                </div>
                                 <ul>
                                     <li>
                                         <p><img src="../../images/bird.jpg" alt="갈매기"></p>
@@ -54,7 +68,8 @@
                                             시조 - 갈매기 1978. 7. 1. 지정
                                         </p>
                                         <p>
-                                            새하얀 날개와 몸은 백의민족을 상징한다. 끈기있게 먼 뱃길을 따라 하늘을 나는 갈매기의 강인함은 부산 시민의 정신을 잘 나타내기 때문에
+                                            새하얀 날개와 몸은 백의민족을 상징한다. 끈기있게 먼 뱃길을 따라 하늘을 나는 갈매기의 강인함은 <br>부산 시민의 정신을 잘 나타내기
+                                            때문에
                                             부산의
                                             새로 선정되었다.
                                         </p>
@@ -62,7 +77,10 @@
                                 </ul>
                             </li>
                             <li class="symbol">
-                                <p>고등어</p>
+                                <div>
+                                    <span class="seagull"></span>
+                                    <p>고등어</p>
+                                </div>
                                 <ul>
                                     <li>
                                         <p><img src="../../images/fish.jpg" alt="고등어"></p>
@@ -90,6 +108,8 @@
     </div>
     <script src="../../js/header-loader.js"></script>
     <script src="../../js/sidenav-loader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="../../js/busan.js"></script>
     <script src="../../js/footer-loader.js"></script>
 </body>
 

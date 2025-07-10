@@ -2,9 +2,53 @@
     width: 100%;
     /* background-color: #121212; */
 }
-#wrapper .abBusan{
 
+/* 갈매기 아이콘 */
+.seagull{
+    display: block;
+    width: 35px;
+    height: 35px;
+    margin-right: 10px;
+    background-image: url(../images/seagull.jpg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
 }
+
+.main_bg{
+    position: relative;    
+}
+.main_bg .swiper-wrapper{
+    width: 1030px;
+    height: 600px;
+}
+.main_bg .swiper-slide img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    overflow: hidden;
+    filter: brightness(50%)
+}
+
+.title{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    color: #fff;
+    z-index: 990;
+}
+.enter{
+    margin-bottom: 10px;
+}
+.bold{
+    margin-right: 8px;
+    font-weight: 700;
+}
+.example{
+    color: #7a7a7a;
+}
+
 #wrapper .abBusan .container{
     width: 1440px;
     margin: 10px auto;
@@ -34,13 +78,13 @@
 }
 
 /* about BUSAN */
-.busan .photo img{
+/* .busan .main_bg img{
     width: 1030px;
     height: auto;
     margin-bottom: 30px;
     border-radius: 10px;
     overflow: hidden;
-}
+} */
 
 .busan .description > ul{
     display: flex;
@@ -91,7 +135,7 @@
     margin-bottom: 20px;
     background: #ccc;
 }
-.vg .photo img{
+.vg .main_bg img{
     width: 1030px;
 }
 
@@ -103,9 +147,17 @@
     margin-bottom: 50px;
 }
 .basisinfo .placeTitle, .basisinfo .climateTitle, .basisinfo .coastTitle{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
     font-size: 24px;
     font-weight: 700;
-    margin-bottom: 10px;
+}
+.basisinfo .placeInfo, .basisinfo .climateInfo, .basisinfo .coastInfo{
+    padding: 30px;
+    border: 3px solid #dbf6ff;
+    border-radius: 10px;
+    background-color: #ecfaff;
 }
 .basisinfo .placeLiTi, .basisinfo .seasonLiTi{
     font-size: 20px;
@@ -124,6 +176,7 @@
 .place .placeInfo .placePhoto{
     border-radius: 10px;
     overflow: hidden;
+    margin-bottom: 20px;
 }
 .place .placeInfo .placeList .placeLi{
     margin-bottom: 20px;
@@ -136,7 +189,6 @@
 /* 기후 영역 */
 .climate .climateTitle{
     display: flex;
-    gap: 20px;
     font-weight: 700;
     align-items: center;
 }
@@ -144,6 +196,7 @@
     position: relative;
     display: block;
     padding: 0 5px;
+    margin-left: 10px;
     border: 2px solid #88e7ff;
     border-radius: 7px;
     font-size: 18px;
@@ -186,7 +239,6 @@
     width: 500px;
 }
 .climate .climateInfo .seasonList span{
-    font-weight: 700;
     color: #db0000;
 }
 
@@ -230,7 +282,9 @@
 .symbols > ul > li{
     margin-bottom: 30px;
 }
-.symbols > ul > li > p{
+.symbols > ul > li > div{
+    display: flex;
+    align-items: center;
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 10px;
@@ -241,14 +295,18 @@
     margin-right: 30px;
     margin-bottom: 10px;
 }
-.symbols .symbol{
-    padding: 30px 30px;
-    border: 2px solid #dbf6ff;
+/* .symbols .symbol{
+    padding: 30px;
+    border: 3px solid #dbf6ff;
     border-radius: 10px;
-    background-color: #dbf6ff;
-}
+    background-color: #ecfaff;
+} */
 .symbols .symbol ul{
     display: flex;
+    padding: 30px;
+    border: 3px solid #dbf6ff;
+    border-radius: 10px;
+    background-color: #ecfaff;
 }
 .symbols .symbol .symbolText{
     display: flex;
