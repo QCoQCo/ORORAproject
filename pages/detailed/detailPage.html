@@ -110,8 +110,12 @@
                     </div>
                 </div>
             </div>
-            <div>
-                <p>상세정보</p>
+            <div class="detail">
+                <h3>상세정보</h3>
+                <button class="detailPicture"><img
+                        src="../../images/icon_btn_pen_detailPage.png">관광정보 수정요청</button>
+            </div>
+            <div class="detailScript">
                 <p>부산 기장 철마면 아홉산 자락에 위치한 숲으로, 훼손되지 않은 자연환경과 생태를 만날 수 있는 곳이다. 대나무숲, 편백나무 숲, 삼나무, 은행나무 등의 인공림과 수령 100~300년
                     되는
                     금강송 등을 포함한 천연림이 아홉산숲을 구성한다. 총면적이 무려 52만 ㎡에 이르며, 약 400년의 세월을 지켜온 사유림으로, 자연보호를 위하여 사전 예약된 제한된 인원만이 출입이
@@ -119,15 +123,57 @@
                     있다.
                 </p>
             </div>
-            <div>
-                <p>댓글 <span>(건)</span></p>
-                <label><input type="text"></label></label>
-                <div>
-                    <button>사진</button>
-                    <button>등록</button>
-                </div>
-                <div>후기</div>
+            <div id="map">지.도</div>
+            <div class="aboutAhop">
+                <ul>
+                    <li>
+                        <p>문의 및 안내</p>
+                        <p>051-721-9183</p>
+                    </li>
+                    <li>
+                        <p>홈페이지</p>
+                        <p><a href="http://www.ahopsan.com/" target="_blank">http://www.ahopsan.com/</a></p>
+                    </li>
+                    <li>
+                        <p>주소</p>
+                        <p>부산광역시 기장군 철마면 미동길 37-1</p>
+                    </li>
+                    <li>
+                        <p>이용시간</p>
+                        <p>	09:00~18:00 (입장마감 17:00)<br>※ 사전 예약 필수</p>
+                    </li>
+                    <li>
+                        <p>휴일</p>
+                        <p>연중무휴</p>
+                    </li>
+                    <li>
+                        <p>주차</p>
+                        <p>가능<br>요금 (무료)</p>
+                    </li>
+                    <li>
+                        <p>체험 안내</p>
+                        <p>생태문화숲체험</p>
+                    </li>
+                    <li>
+                        <p>입장료</p>
+                        <p>	- 일반 8,000원<br>- 경로, 단체 7,000원<br>- 청소년, 어린이 5,000원</p>
+                    </li>
+                </ul>
             </div>
+            <div class="comment">
+                <div class="commentTitle">
+                    <h3>댓글</h3>
+                    <p>(<span>0</span>)</p>
+                </div>
+                <textarea  placeholder="로그인 후 댓글을 등록할 수 있습니다." id="textarea" name="textarea" maxlength="1000"></textarea>
+                <div class="commentPicture">
+                    <button class="pho"><img
+                        src="../../images/icon_btn_picture_detailPage.png">사진</button>
+                    <button class="sub">등록</button>
+                </div>
+            </div>
+            <h3>후기</h3>
+            <p></p>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
