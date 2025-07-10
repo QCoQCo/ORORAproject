@@ -6,6 +6,8 @@
     height: 100px;
     padding: 0 100px;
     background: linear-gradient(to right, #fff 0%, #dbf6ff 25%, #96daff 100%);
+    position: relative;
+    z-index: 999;
     /* background: linear-gradient(to right, #fff 0%, rgb(206, 220, 255) 25%, khaki 100%); */
 }
 
@@ -32,7 +34,9 @@
 
 #nav .d1{
     display: flex;
-    gap: 80px;
+    gap: 40px;
+    /* flex: 1; */
+    /* justify-content: space-between; */
 }
 #nav .d1 > li{
     position: relative;
@@ -107,23 +111,87 @@
 
 #header .btns{
     display: flex;
-    gap: 80px;
+    gap: 50px;
 }
-#header .btns .btn1{
+
+#header .btns .btn1 a{
+    color: #000;
+    text-decoration: none;
+}
+#header .btns .btn2, #header .btns .btn1{
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
-#header .btns .btn1 a{
-    color: #000;
-    text-decoration: none;
+#header .btns .btn2:hover, #header .btns .btn1:hover{
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
 }
 #header .btns select{
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     background-color: #fff;
+}
+
+/* 검색 박스 스타일 */
+.search-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to right, #fff 0%, #dbf6ff 25%, #96daff 100%);
+    padding: 20px 100px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: all 0.3s ease;
+    z-index: 998;
+    pointer-events: none;
+}
+
+.search-box.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.search-box input:focus {
+    border-color: #0175c1;
+}
+
+.search-box button {
+    padding: 12px 25px;
+    background: linear-gradient(to right, #0175c1, #a8dcff);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-box button:hover {
+    background: linear-gradient(to right, #015a9c, #87cefc);
+    transform: translateY(-2px);
 }
 
 /* 햄버거 메뉴 버튼 (기본적으로 숨김) */
@@ -144,23 +212,19 @@
 
 /* 모바일에서 햄버거 메뉴 표시 */
 
-@media (max-width: 1260px) {
+@media (max-width: 1320px) {
     #nav .d1{
-        gap: 40px;
+        gap: 20px;
     }
     #header .btns{
-        gap: 40px;
+        gap: 20px;
     }
 }
-@media (max-width: 1064px) {
-    #nav .d1{
-        gap: 10px;
-    }
+@media (max-width: 1176px) {
+
     #header .btns{
-        gap: 10px;
+        gap: 5px;
     }
-}
-@media (max-width: 885px) {
     .hamburger {
         display: flex;
     }
@@ -211,5 +275,20 @@
     #nav .sub .d2 li a {
         padding: 10px 40px;
         font-size: 14px;
+    }
+    
+    /* 모바일에서 검색 박스 스타일 */
+    .search-box {
+        padding: 20px;
+    }
+    
+    .search-box input {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+    
+    .search-box button {
+        font-size: 14px;
+        padding: 10px 20px;
     }
 }
