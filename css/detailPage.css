@@ -252,7 +252,9 @@ h3{
     margin-bottom: 45px;
 }
 
-
+.aboutAhop{
+    margin-bottom: 30px;
+}
 
 .aboutAhop ul{
     display: flex;
@@ -260,13 +262,12 @@ h3{
 }
 
 .aboutAhop ul li{
-    width: 50%;
     display: flex;
 }
 
 .aboutAhop p{
-    width: 50%;
-    margin-bottom: 10px;
+    width: 140px;
+    margin-bottom: 15px;
 }
 
 .aboutAhop a{
@@ -274,9 +275,51 @@ h3{
 }
 
 .aboutAhop .cont{
+    width: 330px;
     color: #666;
 }
 
+.tag{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 50px;
+}
+
+.tag button{
+    border: 1px solid #777;
+    border-radius: 4px;
+    padding: 5px 20px;
+    font-size: 16px;
+    color: #777;
+}
+
+.goodBad{
+    display: flex;
+    justify-content: space-between;
+    background: url(../images/icon_user_goodbad_detailPage.png);
+    background-repeat: no-repeat;
+}
+
+.goodBad .left{
+    margin-left: 30px;
+}
+
+.goodBad .left .goodBadTitle{
+    font-size: 22px;
+}
+
+.goodBad .right button{
+    width: 152px;
+    height: 72px;
+    border: none;
+    border-radius: 40px;
+    background-color: #F1F1F1;
+}
+
+.goodBad .right .good{
+    margin-right: 20px;
+}
 
 .comment{
     position: relative;
@@ -305,7 +348,7 @@ h3{
     resize: none;
 }
 
-.commentPicture > button{
+.comment .commentPicture > button{
     
     width: 80px;
     height: 40px;
@@ -315,18 +358,49 @@ h3{
     font-size: 16px;
 }
 
-.pho{
+.comment .commentPicture .pho{
     margin-right: 8px;
 }
 
-.comment .pho img{
+.comment .commentPicture .pho img{
     width: 20px;
     height: 20px;
     margin-top: 8px;
     margin-right: 5px;
 }
 
-.sub{
+.comment .commentPicture .sub{
     color: white;
     background-color: #333;
+}
+
+.userPhotoCo .up{
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 10px;
+}
+
+.userPhotoCo .userPhoto{
+    padding-bottom: 50px;
+    border-bottom: 1px solid #ccc;
+}
+
+.userPhotoCo .usercheck{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.userPhotoCo .usercheck .userCheckbox{
+    text-align: center;
+}
+
+.userPhotoCo .usercheck input{
+    margin-right: 10px
+}
+
+.userPhotoCo .usercheck ul{
+    display: flex;
+    gap: 20px;
 }
