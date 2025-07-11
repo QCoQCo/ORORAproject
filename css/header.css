@@ -94,7 +94,7 @@
     transition: background-color 0.2s ease;
 }
 #nav .sub .d2 li:hover{
-    background-color: rgb(228, 244, 255);
+    background-color: #e4f4ff;
 }
 #nav .sub .d2 li a{
     color: #333;
