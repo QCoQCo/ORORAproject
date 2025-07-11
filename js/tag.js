@@ -58,8 +58,41 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+// 4. 카페 추천
+document.addEventListener("DOMContentLoaded", function () {
 
-//4. 부산 축제 일정
+  let selectBox = document.getElementById("apple");
+  let contentBox = document.querySelector(".cafe22");
+
+  contentBox.style.display = "none";
+
+  selectBox.addEventListener("change", function () {
+    if (selectBox.value === "cafe123") {
+      contentBox.style.display = "block"; // 보이게 하기
+    } else {
+      contentBox.style.display = "none"; // 숨기기
+    }
+  });
+});
+
+// 4. 소품샵 소개
+document.addEventListener("DOMContentLoaded", function () {
+
+  let selectBox = document.getElementById("apple");
+  let contentBox = document.querySelector(".Props01");
+
+  contentBox.style.display = "none";
+
+  selectBox.addEventListener("change", function () {
+    if (selectBox.value === "Props") {
+      contentBox.style.display = "block"; // 보이게 하기
+    } else {
+      contentBox.style.display = "none"; // 숨기기
+    }
+  });
+});
+
+//5. 부산 축제 일정
 document.addEventListener("DOMContentLoaded", function () {
 
   let selectBox = document.getElementById("apple");
@@ -122,6 +155,23 @@ document.addEventListener("DOMContentLoaded", function () {
   // select 박스에서 선택이 바뀔 때 실행
   selectBox.addEventListener("change", function () {
     if (selectBox.value === "recommended") {
+      contentBox.style.display = "block"; // 보이게 하기
+    } else {
+      contentBox.style.display = "none"; // 숨기기
+    }
+
+  });
+});
+// 카페 이미지
+document.addEventListener("DOMContentLoaded", function () {
+
+  let selectBox = document.getElementById("apple");
+  let contentBox = document.querySelector(".cafe55");
+  contentBox.style.display = "none";
+
+  // select 박스에서 선택이 바뀔 때 실행
+  selectBox.addEventListener("change", function () {
+    if (selectBox.value === "cafe123") {
       contentBox.style.display = "block"; // 보이게 하기
     } else {
       contentBox.style.display = "none"; // 숨기기
