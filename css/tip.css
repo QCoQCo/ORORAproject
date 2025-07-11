@@ -13,10 +13,7 @@ h3 {
 h4{
     font-size: 18px;
     padding: 20px 20px;
-    margin-bottom: 60px;
-}
-.right{
-    /* background-color: aqua; */
+    margin-bottom: 30px;
 }
 .good{
     margin-bottom: 20px;
@@ -29,6 +26,11 @@ h4{
 a{
     color: black;
 }
+.how{
+    display: none;
+}
+
+
 .korean-tip {
     width: 980px;
     padding: 0 20px;
@@ -50,7 +52,10 @@ a{
     padding: 10px;
 }
 
-.mapTrans .map > div{
+.mapTrans .map .mapComent{
+    padding: 0 20px;
+}
+.mapTrans .map .mapRecommend > div{
     position: relative;
     display: flex;
     gap: 100px;
@@ -81,13 +86,15 @@ a{
 
 }
 
-.mapTrans .transApp > div{
+.mapTrans .transApp .transAppComent{
+    padding: 0 20px;
+}
+.mapTrans .transApp .transAppRecommend > div{
     position: relative;
     display: flex;
     gap: 100px;
     padding: 0 20px;
     margin-bottom: 40px;
-    /* background-color: wheat; */
 }
 .mapTrans .transApp .left p{
     text-align: center;
@@ -180,7 +187,7 @@ a{
 }
 
 /* .convenience  */
-.convenience>div {
+.convenience > div {
     margin-bottom: 50px;
     box-shadow: 30px 15px 100px rgba(0, 0, 0, 0.05),
         -15px -15px 100px rgba(0, 0, 0, 0.05);
@@ -188,7 +195,10 @@ a{
     padding: 10px;
 }
 
-.reservation .eat > div{
+.reservation .eat .eatComent{
+    padding: 0 20px;
+}
+.reservation .eat .eatRecommend > div{
     position: relative;
     display: flex;
     gap: 100px;
@@ -218,7 +228,10 @@ a{
 }
 
 
-.delivery > div{
+.delivery .deliveryComent{
+    padding: 0 20px;
+}
+.delivery .deliveryRecommend > div{
     position: relative;
     display: flex;
     gap: 100px;
@@ -248,7 +261,10 @@ a{
 }
 
 
-.photo > div{
+.photo .photoComent{
+    padding: 0 20px;
+}
+.photo .photoRecommend > div{
     position: relative;
     display: flex;
     gap: 100px;
