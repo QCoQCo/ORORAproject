@@ -6,7 +6,7 @@
     <title>login</title>
     <link rel="stylesheet" as="style" crossorigin
     href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
-    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="../../css/reset.css">
     <link rel="stylesheet" href="../../css/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -27,11 +27,11 @@
                 </div>
                 <div class="check">
                     <div>
-                        <label><input type="checkbox" id="" name="">아이디 저장</label>
-                        <label><input type="checkbox" id="" name="">로그인 상태 유지</label>
+                        <label><input type="checkbox" id="checkId" name="">아이디 저장</label>
+                        <label><input type="checkbox" id="checkLogin" name="">로그인 상태 유지</label>
                     </div>
                 </div>
-                <button>로그인</button>
+                <button id="loginBtn">로그인</button>
                 <div class="aboutLogin">
                     <a href="./signup.html"><p>회원가입</p></a>
                     <a href=""><p>아이디 찾기</p></a>
@@ -40,6 +40,8 @@
             </div>
         </div>
     </div>
+    
+    <script src="../../js/login.js"></script>
 </body>
 
 </html>

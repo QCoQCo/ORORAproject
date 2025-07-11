@@ -1,3 +1,11 @@
+const likeBtn = document.querySelector(".likeBtn");
+
+// 관광지 하트 눌렀을 때, 빈하트 -> 빨간하트
+likeBtn.addEventListener("click", () => {
+    likeBtn.classList.toggle("likeBtnActive");
+});
+
+
 var swiper = new Swiper(".mySwiper", {
       loop: true,
       spaceBetween: 10,
@@ -16,3 +24,6 @@ var swiper = new Swiper(".mySwiper", {
         swiper: swiper,
       },
     });
+
+
+    
