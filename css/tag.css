@@ -96,7 +96,46 @@
     margin: 5px;
     font-size: 14px;
 }
+/* 카페 태그 */
+.container .cafe22 {
+    display: none;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 2px;
+    padding: 10px 20px;
+}
 
+.container .Third22 {
+    display: inline-block;
+    background-color: #f0f4f8;
+    border-radius: 15px;
+    color: #333;
+    padding: 8px 14px;
+    margin: 5px;
+    font-size: 14px;
+}
+/* 소품샵 태그 */
+.container .Props01 {
+    display: none;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 2px;
+    padding: 10px 20px;
+}
+
+.container .Record {
+    display: inline-block;
+    background-color: #f0f4f8;
+    border-radius: 15px;
+    color: #333;
+    padding: 8px 14px;
+    margin: 5px;
+    font-size: 14px;
+}
 /* 부산 축제 일정 */
 .container .Festival01 {
     display: none;
@@ -415,6 +454,41 @@
     color: #333;
 }
 
+/* 카페 이미지 */
+.container .cafe55 {
+    width: 1000px;
+    padding: 0;
+    margin: 0;
+}
+
+.container .cafe55 ul {
+    display: flex;
+    gap: 20px;
+}
+
+.container .cafe55 .ph {
+    width: 200px;
+    height: 200px;
+}
+
+.container .cafe55 .ph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    /* 사진을 꽉차게 */
+}
+
+.container .cafe55 .to2 {
+    font-weight: bold;
+    font-size: 17px
+}
+
+.container .cafe55 .to3 {
+    font-size: 13px;
+    color: #333;
+}
+
 /* 부산 축제 일정 이미지 */
 .container .picture {
     width: 700px;
@@ -474,7 +548,7 @@
 .container .main-brand-story-wrap img{
     /* text-align: right; */
     display: flex;
-    margin-left: 1500px;
+    margin-left: 1350px;
     margin-right: 0;
     width: 200px;
     height: 200px;
