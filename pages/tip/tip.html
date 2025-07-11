@@ -18,56 +18,29 @@
     <div id="wrapper">
         <div id="header-container"></div>
         <section class="korean-tip">
+            <div class="ktTabWrap">
+                <ul class="tapUl">
+                    <li class="select_tap" id="trans">
+                        <span>교통 · 지도</span>
+                    </li>
+                    <li class="select_tap" id="pass">
+                        <span>패스권</span>
+                    </li>
+                    <li class="select_tap" id="reserve">
+                        <span>식당 예약</span>
+                    </li>
+                    <li class="select_tap" id="deliver">
+                        <span>배달</span>
+                    </li>
+                    <li class="select_tap" id="photob">
+                        <span>포토부스</span>
+                    </li>
+                </ul>
+            </div>
             <div class="transportaion">
-                <h3>지도 · 교통 · 패스권</h3>
+                <h3>교통 · 지도 · 패스권</h3>
                 <div class="mapTrans">
-                    <h4>🗺️ 지도</h4>
-                    <div class="map">
-                        <div class="mapComent">
-                            <p>지도 설명</p>
-                        </div>
-                        <div class="mapRecommend">
-                            <h4>지도 어플 추천</h4>
-                            <div class="navermap">
-                                <div class="left">
-                                    <p class="image"><a href="https://map.naver.com/" target="_blank">네이버지도</a></p>
-                                    <p>네이버 지도</p>
-                                </div>
-                                <div class="right">
-                                    <div class="good">
-                                        <p>주변 정보 검색을 통해 주변 음식점, 카페, 편의점 등 다양한 시설 정보를 쉽게 얻을 수 있습니다</p>
-                                        <p>가고 싶은 장소들을 주제별로 저장할수 있어 지도에서 보기가 편리합니다</p>
-                                        <p>네이버 예약과 연계되어 있어 네이버 지도에서 예약도 할 수 있습니다</p>
-                                    </div>
-                                    <div class="how">
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="kakaomap">
-                                <div class="left">
-                                    <p class="image"><a href="https://map.kakao.com/" target="_blank">카카오맵</a></p>
-                                    <p>카카오맵</p>
-                                </div>
-                                <div class="right">
-                                    <div class="good">
-                                        <p>실시간 대중교통 정보의 정확성이 높습니다</p>
-                                        <p>지도를 확대하면 지하철의 움직임을 실시간으로 확인할 수 있어 정보를 직관적으로 확인할 수 있습니다</p>
-                                    </div>
-                                    <div class="how">
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <h4>&#128643; 교통</h4>
+                    <h4 id="section1">&#128643; 교통 · 지도</h4>
                     <div class="transApp">
                         <div class="transAppComent">
                             <p>외국인 교통카드 구매법</p>
@@ -134,9 +107,55 @@
                             </div>
                         </div>
                     </div>
+                    <!-- <h4>🗺️교통 · 지도</h4> -->
+                    <div class="map">
+                        <div class="mapComent">
+                            <!-- <p>지도 설명</p> -->
+                        </div>
+                        <div class="mapRecommend">
+                            <h4>지도 어플 추천</h4>
+                            <div class="navermap">
+                                <div class="left">
+                                    <p class="image"><a href="https://map.naver.com/" target="_blank">네이버지도</a></p>
+                                    <p>네이버 지도</p>
+                                </div>
+                                <div class="right">
+                                    <div class="good">
+                                        <p>주변 정보 검색을 통해 주변 음식점, 카페, 편의점 등 다양한 시설 정보를 쉽게 얻을 수 있습니다</p>
+                                        <p>가고 싶은 장소들을 주제별로 저장할수 있어 지도에서 보기가 편리합니다</p>
+                                        <p>네이버 예약과 연계되어 있어 네이버 지도에서 예약도 할 수 있습니다</p>
+                                    </div>
+                                    <div class="how">
+                                        <p>사용 방법</p>
+                                        <p>사용 방법</p>
+                                        <p>사용 방법</p>
+                                        <p>사용 방법</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="kakaomap">
+                                <div class="left">
+                                    <p class="image"><a href="https://map.kakao.com/" target="_blank">카카오맵</a></p>
+                                    <p>카카오맵</p>
+                                </div>
+                                <div class="right">
+                                    <div class="good">
+                                        <p>실시간 대중교통 정보의 정확성이 높습니다</p>
+                                        <p>지도를 확대하면 지하철의 움직임을 실시간으로 확인할 수 있어 정보를 직관적으로 확인할 수 있습니다</p>
+                                    </div>
+                                    <div class="how">
+                                        <p>사용 방법</p>
+                                        <p>사용 방법</p>
+                                        <p>사용 방법</p>
+                                        <p>사용 방법</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="pass">
-                    <h4>🎫 패스권</h4>
+                    <h4 id="section2"><br>🎫 패스권</h4>
                     <div class="visitbusanpass">
                         <div class="left">
                             <p class="image"><a href="https://www.visitbusanpass.com/" target="_blank">비짓부산패스</a></p>
@@ -216,7 +235,7 @@
             <div class="convenience">
                 <h3>편의</h3>
                 <div class="reservation">
-                    <h4>📅 식당 예약</h4>
+                    <h4 id="section3">📅 식당 예약</h4>
                     <div class="eat">
                         <div class="eatComent">
                             <p>식당 예약 설명</p>
@@ -230,8 +249,8 @@
                                 </div>
                                 <div class="right">
                                     <div class="good">
-                                        <p>주변 정보 검색을 통해 주변 음식점, 카페, 편의점 등 다양한 시설 정보를 쉽게 얻을 수 있습니다.</p>
-                                        <p>다른 사용자들이 작성한 리뷰와 평점을 참고하여 음식점이나 카페를 선택할 수 있습니다.</p>
+                                        <p>테이블링 앱을 통해 메뉴 주문부터 결제까지 간편하게 처리할 수 있습니다</p>
+                                        <p>매장별 대기 시간, 메뉴 정보, 예약 가능 여부 등을 앱 내에서 쉽게 확인할 수 있습니다</p>
                                     </div>
                                     <div class="how">
                                         <p>사용 방법</p>
@@ -263,7 +282,7 @@
                     </div>
                 </div>
                 <div class="delivery">
-                    <h4>&#128757; 배달</h4>
+                    <h4 id="section4">&#128757; 배달</h4>
                     <div class="deliveryComent">
                         <p>한국의 빠른 서비스 문화를 그대로 반영하여, 주문 후 30분~1시간 이내에 음식을 받아보는 것이 일반적입니다</p>
                         <p>늦은 시간 야식 배달이 매우 활성화되어 있어 24시간 배달이 가능한 음식점도 많습니다</p>
@@ -311,7 +330,7 @@
                     </div>
                 </div>
                 <div class="photo">
-                    <h4>📸 포토부스</h4>
+                    <h4 id="section5">📸 포토부스</h4>
                     <div class="photoComent">
                         <p>한국에서 네컷사진은 단순히 사진을 찍는 행위를 넘어, 친구나 연인과 함께 소품을 활용하고 다양한 포즈를 취하며 추억을 만드는 '놀이 문화'로 자리 잡았습니다</p>
                         <p>과도한 보정보다는 자연스러운 피부 보정이나 얼굴형 보정 기능이 주를 이룹니다</p>
@@ -355,6 +374,7 @@
         </section>
     </div>
     <script src="../../js/header-loader.js"></script>
+    <script src="../../js/tip.js"></script>
 </body>
 
 </html>
