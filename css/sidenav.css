@@ -8,7 +8,7 @@
     margin-right: 50px;
     border: 1px solid #e6e6e6;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px #0000001a;
     background: #fff;
     font-family: 'Noto Sans KR', sans-serif;
 }
@@ -141,7 +141,7 @@
 .sideNavMenu ul ul li a {
     display: block;
     padding: 12px 20px 12px 40px;
-    color: #555555;
+    color: #555;
     text-decoration: none;
     font-size: 14px;
     font-weight: 400;
@@ -154,7 +154,7 @@
     content: '•';
     position: absolute;
     left: 25px;
-    color: #999999;
+    color: #999;
     font-size: 12px;
 }
 

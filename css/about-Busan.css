@@ -16,7 +16,8 @@
 }
 
 .main_bg{
-    position: relative;    
+    position: relative;
+    margin-bottom: 30px;    
 }
 .main_bg .swiper-wrapper{
     width: 1030px;
@@ -120,10 +121,12 @@
 
 /* goals */
 .vg > div{
-    width: 1030px;
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 10px;
+}
+.vg img{
+    width: 1030px;
 }
 .vg .vision{
     margin-bottom: 40px;
@@ -134,9 +137,6 @@
     height: 1px;
     margin-bottom: 20px;
     background: #ccc;
-}
-.vg .main_bg img{
-    width: 1030px;
 }
 
 /* basisinfo */
