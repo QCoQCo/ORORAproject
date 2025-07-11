@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="../../css/header.css">
     <link rel="stylesheet" href="../../css/footer.css">
     <link rel="stylesheet" href="../../css/searchBy/place.css">
+    <link rel="stylesheet" href="../../css/list-component.css">
 </head>
 <body>
     <div id="wrapper">
         <div id="header-container"></div>
-        <section>
+        <section class="search-place">
             <!-- 지역 선택 컨트롤 패널 -->
             <div class="control-panel">
                 <h3>부산 지역 선택</h3>
@@ -28,20 +29,33 @@
             </div>
             
             <!-- 인라인 방식 -->
-            <div class="sample">
+            <div class="maplist-container">
                 <div id="map-container" style="overflow: hidden;">
-                    <svg id="mapSvg" xmlns="http://www.w3.org/2000/svg" width="1000" height="820" version="1.1" viewBox="0 0 1000 820">
+                    <svg id="mapSvg" xmlns="http://www.w3.org/2000/svg" width="580" height="580" version="1.1" viewBox="0 0 1000 820">
                     </svg>
+                </div>
+                <div class="list-container">
+                    <div class="list-header">
+                        <h3>부산 관광지</h3>
+                        <p id="region-subtitle">지도에서 지역을 클릭하면 해당 지역의 관광지를 확인할 수 있습니다.</p>
+                    </div>
+                    <ul class="list-item" id="tourist-spots-list">
+                        <!-- 관광지 리스트가 여기에 동적으로 추가됩니다 -->
+                    </ul>
                 </div>
             </div>
         </section>
+        
+        <!-- 템플릿 컨테이너 -->
+        <div id="list-template-container"></div>
     </div>
     
     <!-- 푸터 컨테이너 -->
     <div id="footer-container"></div>
     
-    <script src="../../js/searchBy/place.js"></script>
+    <script src="../../js/list-loader.js"></script>
     <script src="../../js/header-loader.js"></script>
     <script src="../../js/footer-loader.js"></script>
+    <script src="../../js/searchBy/place.js"></script>
 </body>
 </html>
