@@ -86,30 +86,12 @@ async function loadTouristData() {
     }
 }
 
-// 지역 ID를 데이터 키로 매핑하는 함수
+// 지역 ID를 데이터 키로 직접 변환하는 함수
 function getRegionKey(regionId) {
-    // SVG의 실제 ID에 맞춰 매핑
-    const regionMapping = {
-        'busanArea01': 'geumjeong',  // 기장군 -> 금정구 데이터 사용
-        'busanArea02': 'geumjeong',  // 금정구
-        'busanArea03': 'haeundae',   // 해운대구 (실제로는 기장군이지만 해운대 데이터 사용)
-        'busanArea04': 'dongnae',    // 동래구
-        'busanArea05': 'geumjeong',  // 북구 -> 금정구 데이터 사용  
-        'busanArea06': 'seo',        // 강서구 -> 서구 데이터 사용
-        'busanArea07': 'busanjin',   // 사상구 -> 부산진구 데이터 사용
-        'busanArea08': 'busanjin',   // 부산진구
-        'busanArea09': 'nam',        // 남구
-        'busanArea10': 'seo',        // 사하구 -> 서구 데이터 사용
-        'busanArea11': 'seo',        // 서구
-        'busanArea12': 'suyeong',    // 수영구
-        'busanArea13': 'busanjin',   // 연제구 -> 부산진구 데이터 사용
-        'busanArea14': 'jung',       // 중구
-        'busanArea15': 'dongnae',    // 동구 -> 동래구 데이터 사용
-        'busanArea16': 'yeongdo'     // 영도구
-    };
-    
-    console.log(`지역 ID "${regionId}"를 키 "${regionMapping[regionId]}"로 매핑`);
-    return regionMapping[regionId] || null;
+    // busanArea01 -> area01, busanArea02 -> area02 형식으로 변환
+    const key = regionId.replace('busan', '').toLowerCase();
+    console.log(`지역 ID "${regionId}"를 키 "${key}"로 변환`);
+    return key;
 }
 
 function addMapInteractivity() {
@@ -278,7 +260,7 @@ async function displaySelectedRegionsTouristSpots() {
     }
 
     // 리스트 헤더 업데이트
-    updateListHeader(`${regionNames.join(', ')}`, allSpots.length);
+    updateListHeader(regionNames, allSpots.length);
 
     // 리스트 렌더링
     try {
@@ -297,24 +279,26 @@ async function displaySelectedRegionsTouristSpots() {
 }
 
 // 리스트 헤더 업데이트
-function updateListHeader(regionName, spotCount) {
-    const titleElement = document.getElementById('region-title');
+function updateListHeader(regionNames, spotCount) {
     const subtitleElement = document.getElementById('region-subtitle');
     
-    if (titleElement && subtitleElement) {
-        titleElement.textContent = `${regionName} 관광지`;
-        subtitleElement.textContent = `총 ${spotCount}개의 관광지를 확인하실 수 있습니다.`;
+    if (subtitleElement) {
+        if (Array.isArray(regionNames)) {
+            // 다중 지역 선택 시
+            subtitleElement.textContent = `${regionNames.join(', ')} 지역의 관광지 ${spotCount}개를 확인하실 수 있습니다.`;
+        } else {
+            // 단일 지역 선택 시
+            subtitleElement.textContent = `${regionNames} 지역의 관광지 ${spotCount}개를 확인하실 수 있습니다.`;
+        }
     }
 }
 
 // 기본 상태로 리셋
 function resetListDisplay() {
-    const titleElement = document.getElementById('region-title');
     const subtitleElement = document.getElementById('region-subtitle');
     const listContainer = document.getElementById('tourist-spots-list');
     
-    if (titleElement && subtitleElement) {
-        titleElement.textContent = '지역을 선택해주세요';
+    if (subtitleElement) {
         subtitleElement.textContent = '지도에서 지역을 클릭하면 해당 지역의 관광지를 확인할 수 있습니다.';
     }
     
@@ -325,13 +309,11 @@ function resetListDisplay() {
 
 // 데이터 없음 메시지 표시
 function displayNoDataMessage(regionName) {
-    const titleElement = document.getElementById('region-title');
     const subtitleElement = document.getElementById('region-subtitle');
     const listContainer = document.getElementById('tourist-spots-list');
     
-    if (titleElement && subtitleElement) {
-        titleElement.textContent = `${regionName}`;
-        subtitleElement.textContent = '현재 해당 지역의 관광지 정보가 준비되지 않았습니다.';
+    if (subtitleElement) {
+        subtitleElement.textContent = `${regionName} 지역의 관광지 정보가 준비되지 않았습니다.`;
     }
     
     if (listContainer) {
@@ -341,13 +323,11 @@ function displayNoDataMessage(regionName) {
 
 // 오류 메시지 표시
 function displayErrorMessage(regionName) {
-    const titleElement = document.getElementById('region-title');
     const subtitleElement = document.getElementById('region-subtitle');
     const listContainer = document.getElementById('tourist-spots-list');
     
-    if (titleElement && subtitleElement) {
-        titleElement.textContent = `${regionName}`;
-        subtitleElement.textContent = '관광지 정보를 불러오는 중 오류가 발생했습니다.';
+    if (subtitleElement) {
+        subtitleElement.textContent = `${regionName} 지역의 관광지 정보를 불러오는 중 오류가 발생했습니다.`;
     }
     
     if (listContainer) {
