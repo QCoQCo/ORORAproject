@@ -1,3 +1,10 @@
+#header-container {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    width: 100%;
+}
+
 #header{
     display: flex;
     justify-content: space-between;
