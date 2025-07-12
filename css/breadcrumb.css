@@ -1,8 +1,8 @@
 /* 브레드크럼 스타일 */
 .breadcrumb {
-    max-width: 1440px;
+    /* max-width: 1440px; */
     padding: 12px 20px;
-    margin: 0 0 20px 0;
+    /* margin: 0 0 20px 0; */
     border-bottom: 2px solid #e3e3e3;
 }
 
