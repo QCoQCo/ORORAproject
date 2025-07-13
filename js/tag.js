@@ -19,12 +19,12 @@ class TagSearchSystem {
             
             // 태그 추출 및 정리
             this.extractTags();
-            
+
             // 초기 렌더링
             this.renderPopularTags();
             this.renderAllTags();
             this.updateTagCount();
-            
+
             // 이벤트 리스너 설정
             this.setupEventListeners();
             
@@ -50,9 +50,9 @@ class TagSearchSystem {
                         region: region.name,
                         regionCode: region.code
                     });
-                });
-            });
-            
+  });
+});
+
         } catch (error) {
             console.error('데이터 로드 실패:', error);
         }
@@ -133,7 +133,7 @@ class TagSearchSystem {
     toggleTag(tag) {
         if (this.selectedTags.has(tag)) {
             this.selectedTags.delete(tag);
-        } else {
+    } else {
             this.selectedTags.add(tag);
         }
         
@@ -408,10 +408,27 @@ class TagSearchSystem {
             regionElement.appendChild(regionInfo);
         }
 
-        // 링크 설정
+        // 링크 설정 - 상세 페이지로 이동
         const linkElement = itemFragment.querySelector('.item-link');
-        if (linkElement && spot.link) {
-            linkElement.href = spot.link;
+        if (linkElement) {
+            linkElement.href = 'javascript:void(0)'; // 기본 링크 동작 방지
+            linkElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!e.target.closest('.likeBtn')) {
+                    this.navigateToDetail(spot);
+                }
+            });
+        }
+
+        // 아이템 클릭 이벤트
+        const itemElement = itemFragment.querySelector('.item');
+        if (itemElement) {
+            itemElement.style.cursor = 'pointer';
+            itemElement.addEventListener('click', (e) => {
+                if (!e.target.closest('.likeBtn')) {
+                    this.navigateToDetail(spot);
+                }
+            });
         }
 
         // 좋아요 버튼 이벤트
@@ -425,6 +442,12 @@ class TagSearchSystem {
         }
 
         return itemFragment;
+    }
+
+    // 상세 페이지로 이동하는 함수
+    navigateToDetail(spot) {
+        const encodedTitle = encodeURIComponent(spot.title);
+        window.location.href = `../detailed/detailed.html?title=${encodedTitle}`;
     }
 
     loadMore() {
@@ -448,7 +471,7 @@ class TagSearchSystem {
             allTagsContainer.classList.add('collapsed');
             allTagsContainer.classList.remove('expanded');
             toggleBtn.classList.add('collapsed');
-        } else {
+    } else {
             allTagsContainer.classList.remove('collapsed');
             allTagsContainer.classList.add('expanded');
             toggleBtn.classList.remove('collapsed');
@@ -463,11 +486,11 @@ class TagSearchSystem {
 
     updateFadeEffect() {
         const allTagsContainer = document.getElementById('all-tags');
-        
+
         // 접힌 상태에서만 페이드 효과 적용
         if (!this.isAllTagsExpanded && allTagsContainer.scrollHeight > 200) {
             allTagsContainer.classList.add('show-fade');
-        } else {
+    } else {
             allTagsContainer.classList.remove('show-fade');
         }
     }

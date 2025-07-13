@@ -71,6 +71,23 @@ class ListLoader {
         }
     }
 
+    // 상세 페이지로 이동하는 함수
+    navigateToDetail(itemData) {
+        const currentPath = window.location.pathname;
+        let detailPagePath;
+        
+        // 현재 경로에 따라 상세 페이지 경로 결정
+        if (currentPath.includes('/pages/')) {
+            detailPagePath = '../detailed/detailed.html';
+        } else {
+            detailPagePath = './pages/detailed/detailed.html';
+        }
+        
+        // 관광지 제목을 URL 파라미터로 전달
+        const encodedTitle = encodeURIComponent(itemData.title);
+        window.location.href = `${detailPagePath}?title=${encodedTitle}`;
+    }
+
     // 리스트 아이템 생성
     createListItem(itemData) {
         const template = document.getElementById('list-item');
@@ -104,10 +121,16 @@ class ListLoader {
                 : itemData.hashtags;
         }
 
-        // 링크 설정
+        // 링크 설정 - 기본 링크 제거하고 클릭 이벤트로 처리
         const linkElement = itemFragment.querySelector('.item-link');
-        if (linkElement && itemData.link) {
-            linkElement.href = itemData.link;
+        if (linkElement) {
+            linkElement.href = 'javascript:void(0)'; // 기본 링크 동작 방지
+            linkElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!e.target.closest('.likeBtn')) {
+                    this.navigateToDetail(itemData);
+                }
+            });
         }
 
         // 좋아요 버튼 이벤트
@@ -124,16 +147,19 @@ class ListLoader {
             });
         }
 
-        // 아이템 클릭 이벤트
-        if (this.onItemClick) {
-            const itemElement = itemFragment.querySelector('.item');
-            if (itemElement) {
-                itemElement.addEventListener('click', (e) => {
-                    if (!e.target.closest('.likeBtn')) {
+        // 아이템 클릭 이벤트 (추가적인 클릭 처리)
+        const itemElement = itemFragment.querySelector('.item');
+        if (itemElement) {
+            itemElement.style.cursor = 'pointer'; // 커서 모양 변경
+            itemElement.addEventListener('click', (e) => {
+                if (!e.target.closest('.likeBtn')) {
+                    if (this.onItemClick) {
                         this.onItemClick(itemData, e);
+                    } else {
+                        this.navigateToDetail(itemData);
                     }
-                });
-            }
+                }
+            });
         }
 
         return itemFragment;
