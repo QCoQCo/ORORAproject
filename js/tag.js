@@ -1,198 +1,536 @@
-// 1. 인기순
+class TagSearchSystem {
+    constructor() {
+        this.allSpots = [];
+        this.allTags = new Map(); // tag -> count
+        this.selectedTags = new Set();
+        this.filteredSpots = [];
+        this.currentResults = [];
+        this.resultsPerPage = 12;
+        this.currentPage = 0;
+        this.isAllTagsExpanded = false; // 전체 태그 펼침 상태
 
-// 웹페이지가 다 열렸을 때 실행
-document.addEventListener("DOMContentLoaded", function () {
-
-  // select 박스를 가져옴 (id가 'apple'인 것)
-  let selectBox = document.getElementById("apple");
-
-  // content라는 박스를 가져옴 (숨겼다 보여줄 내용)
-  let contentBox = document.querySelector(".popular01");
-
-  // 처음에는 contentBox를 숨겨놓기
-  contentBox.style.display = "none";
-
-  // select 박스에서 선택이 바뀔 때 실행
-  selectBox.addEventListener("change", function () {
-
-    // 지금 선택된 값이 popular이면
-    if (selectBox.value === "popular") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
+        this.init();
     }
 
-  });
-});
-
-//2.최신순
-document.addEventListener("DOMContentLoaded", function () {
-
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".latest01");
-
-  contentBox.style.display = "none";
-
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "latest") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
-    }
-  });
-});
-
-//3.추천순
-document.addEventListener("DOMContentLoaded", function () {
-
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".recommended01");
-
-  contentBox.style.display = "none";
-
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "recommended") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
-    }
-  });
-});
-// 4. 카페 추천
-document.addEventListener("DOMContentLoaded", function () {
-
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".cafe22");
-
-  contentBox.style.display = "none";
-
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "cafe123") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
-    }
-  });
-});
-
-// 4. 소품샵 소개
-document.addEventListener("DOMContentLoaded", function () {
-
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".Props01");
-
-  contentBox.style.display = "none";
-
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "Props") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
-    }
-  });
-});
-
-//5. 부산 축제 일정
-document.addEventListener("DOMContentLoaded", function () {
-
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".Festival01");
-
-  contentBox.style.display = "none";
-
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "Festival") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
-    }
-  });
-});
-
-// 인기순 이미지
-document.addEventListener("DOMContentLoaded", function () {
-
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".busan99");
-  contentBox.style.display = "none";
-
-  // select 박스에서 선택이 바뀔 때 실행
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "popular") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
+    async init() {
+        try {
+            // 데이터 로드
+            await this.loadData();
+            
+            // 태그 추출 및 정리
+            this.extractTags();
+            
+            // 초기 렌더링
+            this.renderPopularTags();
+            this.renderAllTags();
+            this.updateTagCount();
+            
+            // 이벤트 리스너 설정
+            this.setupEventListeners();
+            
+            // 초기 검색 결과 표시 (모든 관광지)
+            this.performSearch();
+            
+        } catch (error) {
+            console.error('태그 검색 시스템 초기화 오류:', error);
+        }
     }
 
-  });
-});
-
-// 최신순 이미지
-document.addEventListener("DOMContentLoaded", function () {
-
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".inquiry1");
-  contentBox.style.display = "none";
-
-  // select 박스에서 선택이 바뀔 때 실행
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "latest") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
+    async loadData() {
+        try {
+            const response = await fetch('../../data/busanTouristSpots.json');
+            const data = await response.json();
+            
+            // 모든 관광지 데이터를 배열로 변환
+            this.allSpots = [];
+            Object.values(data.regions).forEach(region => {
+                region.spots.forEach(spot => {
+                    this.allSpots.push({
+                        ...spot,
+                        region: region.name,
+                        regionCode: region.code
+                    });
+                });
+            });
+            
+        } catch (error) {
+            console.error('데이터 로드 실패:', error);
+        }
     }
 
-  });
-});
-
-// 추천순 이미지
-document.addEventListener("DOMContentLoaded", function () {
-
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".Trees");
-  contentBox.style.display = "none";
-
-  // select 박스에서 선택이 바뀔 때 실행
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "recommended") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
+    extractTags() {
+        this.allTags.clear();
+        
+        this.allSpots.forEach(spot => {
+            if (spot.hashtags && Array.isArray(spot.hashtags)) {
+                spot.hashtags.forEach(tag => {
+                    // # 제거하고 정리
+                    const cleanTag = tag.replace('#', '').trim();
+                    if (cleanTag) {
+                        const count = this.allTags.get(cleanTag) || 0;
+                        this.allTags.set(cleanTag, count + 1);
+                    }
+                });
+            }
+        });
     }
 
-  });
-});
-// 카페 이미지
-document.addEventListener("DOMContentLoaded", function () {
+    renderPopularTags() {
+        const popularTagsContainer = document.getElementById('popular-tags');
+        if (!popularTagsContainer) return;
 
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".cafe55");
-  contentBox.style.display = "none";
+        // 인기 태그 (사용 빈도 기준 상위 15개)
+        const sortedTags = Array.from(this.allTags.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 15);
 
-  // select 박스에서 선택이 바뀔 때 실행
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "cafe123") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
+        popularTagsContainer.innerHTML = '';
+        sortedTags.forEach(([tag, count]) => {
+            const tagElement = this.createTagElement(tag, count, 'popular');
+            popularTagsContainer.appendChild(tagElement);
+        });
     }
 
-  });
-});
+    renderAllTags() {
+        const allTagsContainer = document.getElementById('all-tags');
+        if (!allTagsContainer) return;
 
-// 축제 일정 (이미지)
-document.addEventListener("DOMContentLoaded", function () {
+        // 모든 태그 알파벳 순 정렬
+        const sortedTags = Array.from(this.allTags.entries())
+            .sort((a, b) => a[0].localeCompare(b[0]));
 
-  let selectBox = document.getElementById("apple");
-  let contentBox = document.querySelector(".picture");
+        allTagsContainer.innerHTML = '';
+        sortedTags.forEach(([tag, count]) => {
+            const tagElement = this.createTagElement(tag, count, 'all');
+            allTagsContainer.appendChild(tagElement);
+        });
 
-  contentBox.style.display = "none";
-
-  selectBox.addEventListener("change", function () {
-    if (selectBox.value === "Festival") {
-      contentBox.style.display = "block"; // 보이게 하기
-    } else {
-      contentBox.style.display = "none"; // 숨기기
+        // 초기 상태 설정 (접힌 상태)
+        this.setAllTagsCollapsedState();
+        
+        // 태그가 많을 때 페이드 효과 적용
+        this.updateFadeEffect();
     }
-  });
+
+    createTagElement(tag, count, type) {
+        const tagElement = document.createElement('span');
+        tagElement.className = `tag-item ${type}-tag`;
+        tagElement.textContent = `#${tag} (${count})`;
+        tagElement.dataset.tag = tag;
+        
+        // 선택된 태그인지 확인
+        if (this.selectedTags.has(tag)) {
+            tagElement.classList.add('selected');
+        }
+        
+        tagElement.addEventListener('click', () => {
+            this.toggleTag(tag);
+        });
+        
+        return tagElement;
+    }
+
+    toggleTag(tag) {
+        if (this.selectedTags.has(tag)) {
+            this.selectedTags.delete(tag);
+        } else {
+            this.selectedTags.add(tag);
+        }
+        
+        this.updateSelectedTagsDisplay();
+        this.updateTagStyles();
+        this.performSearch();
+    }
+
+    updateSelectedTagsDisplay() {
+        const selectedTagsSection = document.getElementById('selected-tags-section');
+        const selectedTagsContainer = document.getElementById('selected-tags');
+        
+        if (this.selectedTags.size === 0) {
+            selectedTagsSection.style.display = 'none';
+            return;
+        }
+        
+        selectedTagsSection.style.display = 'block';
+        selectedTagsContainer.innerHTML = '';
+        
+        this.selectedTags.forEach(tag => {
+            const tagElement = document.createElement('span');
+            tagElement.className = 'selected-tag-item';
+            tagElement.innerHTML = `
+                #${tag}
+                <button type="button" class="remove-tag-btn" data-tag="${tag}">×</button>
+            `;
+            selectedTagsContainer.appendChild(tagElement);
+        });
+        
+        // 개별 태그 제거 이벤트
+        selectedTagsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-tag-btn')) {
+                const tag = e.target.dataset.tag;
+                this.toggleTag(tag);
+            }
+        });
+    }
+
+    updateTagStyles() {
+        // 모든 태그 요소의 선택 상태 업데이트
+        document.querySelectorAll('.tag-item').forEach(element => {
+            const tag = element.dataset.tag;
+            if (this.selectedTags.has(tag)) {
+                element.classList.add('selected');
+            } else {
+                element.classList.remove('selected');
+            }
+        });
+    }
+
+    updateTagCount() {
+        const tagCountElement = document.getElementById('tag-count');
+        if (tagCountElement) {
+            tagCountElement.textContent = `(${this.allTags.size}개)`;
+        }
+    }
+
+    performSearch(searchQuery = '') {
+        this.currentPage = 0;
+        
+        // 검색 조건에 맞는 관광지 필터링
+        this.filteredSpots = this.allSpots.filter(spot => {
+            // 선택된 태그로 필터링
+            if (this.selectedTags.size > 0) {
+                const spotTags = spot.hashtags.map(tag => tag.replace('#', '').trim());
+                const hasSelectedTag = Array.from(this.selectedTags).some(selectedTag => 
+                    spotTags.includes(selectedTag)
+                );
+                if (!hasSelectedTag) return false;
+            }
+            
+            // 검색어로 필터링
+            if (searchQuery.trim()) {
+                const query = searchQuery.toLowerCase();
+                const titleMatch = spot.title.toLowerCase().includes(query);
+                const descMatch = spot.description.toLowerCase().includes(query);
+                const tagMatch = spot.hashtags.some(tag => 
+                    tag.toLowerCase().includes(query)
+                );
+                const regionMatch = spot.region.toLowerCase().includes(query);
+                
+                return titleMatch || descMatch || tagMatch || regionMatch;
+            }
+            
+            return true;
+        });
+        
+        // 카테고리 필터 적용
+        const categoryFilter = document.getElementById('category-filter').value;
+        if (categoryFilter !== 'all') {
+            this.filteredSpots = this.filteredSpots.filter(spot => 
+                this.matchesCategory(spot, categoryFilter)
+            );
+        }
+        
+        // 정렬
+        this.sortResults();
+        
+        // 결과 표시
+        this.displayResults();
+    }
+
+    matchesCategory(spot, category) {
+        const tags = spot.hashtags.map(tag => tag.toLowerCase());
+        
+        switch(category) {
+            case 'attraction':
+                return tags.some(tag => 
+                    tag.includes('명소') || tag.includes('관광') || tag.includes('전망') || 
+                    tag.includes('포토스팟') || tag.includes('랜드마크')
+                );
+            case 'nature':
+                return tags.some(tag => 
+                    tag.includes('자연') || tag.includes('공원') || tag.includes('산') || 
+                    tag.includes('해수욕장') || tag.includes('바다') || tag.includes('생태')
+                );
+            case 'culture':
+                return tags.some(tag => 
+                    tag.includes('문화') || tag.includes('역사') || tag.includes('사찰') || 
+                    tag.includes('전통') || tag.includes('예술') || tag.includes('박물관')
+                );
+            case 'food':
+                return tags.some(tag => 
+                    tag.includes('먹거리') || tag.includes('시장') || tag.includes('맛집') || 
+                    tag.includes('카페') || tag.includes('해산물') || tag.includes('로컬푸드')
+                );
+            case 'activity':
+                return tags.some(tag => 
+                    tag.includes('서핑') || tag.includes('요트') || tag.includes('케이블카') || 
+                    tag.includes('등산') || tag.includes('자전거') || tag.includes('운동')
+                );
+            case 'shopping':
+                return tags.some(tag => 
+                    tag.includes('쇼핑') || tag.includes('백화점') || tag.includes('상가') || 
+                    tag.includes('브랜드') || tag.includes('패션')
+                );
+            case 'relaxation':
+                return tags.some(tag => 
+                    tag.includes('힐링') || tag.includes('휴식') || tag.includes('온천') || 
+                    tag.includes('조용') || tag.includes('명상')
+                );
+            default:
+                return true;
+        }
+    }
+
+    sortResults() {
+        const sortSelect = document.getElementById('sort-select');
+        const sortBy = sortSelect.value;
+        
+        switch(sortBy) {
+            case 'name':
+                this.filteredSpots.sort((a, b) => a.title.localeCompare(b.title));
+                break;
+            case 'region':
+                this.filteredSpots.sort((a, b) => a.region.localeCompare(b.region));
+                break;
+            case 'relevance':
+            default:
+                // 선택된 태그와의 일치도로 정렬
+                if (this.selectedTags.size > 0) {
+                    this.filteredSpots.sort((a, b) => {
+                        const aMatches = this.countTagMatches(a);
+                        const bMatches = this.countTagMatches(b);
+                        return bMatches - aMatches;
+                    });
+                }
+                break;
+        }
+    }
+
+    countTagMatches(spot) {
+        const spotTags = spot.hashtags.map(tag => tag.replace('#', '').trim());
+        return Array.from(this.selectedTags).filter(selectedTag => 
+            spotTags.includes(selectedTag)
+        ).length;
+    }
+
+    async displayResults() {
+        const resultsGrid = document.getElementById('results-grid');
+        const resultsCount = document.getElementById('results-count');
+        const loadMoreSection = document.getElementById('load-more-section');
+        
+        // 결과 개수 업데이트
+        resultsCount.textContent = `(${this.filteredSpots.length}개)`;
+        
+        // 현재 페이지까지의 결과 계산
+        const endIndex = (this.currentPage + 1) * this.resultsPerPage;
+        this.currentResults = this.filteredSpots.slice(0, endIndex);
+        
+        // 리스트 템플릿 로드
+        await this.loadListTemplate();
+        
+        // 결과 표시
+        resultsGrid.innerHTML = '';
+        this.currentResults.forEach(spot => {
+            const itemElement = this.createResultItem(spot);
+            if (itemElement) {
+                resultsGrid.appendChild(itemElement);
+            }
+        });
+        
+        // 더보기 버튼 표시/숨김
+        const hasMore = this.currentResults.length < this.filteredSpots.length;
+        loadMoreSection.style.display = hasMore ? 'block' : 'none';
+    }
+
+    async loadListTemplate() {
+        try {
+            const templateContainer = document.getElementById('list-template-container');
+            if (templateContainer && !templateContainer.innerHTML.trim()) {
+                const response = await fetch('../../components/list-item.html');
+                const templateHTML = await response.text();
+                templateContainer.innerHTML = templateHTML;
+            }
+        } catch (error) {
+            console.error('템플릿 로드 실패:', error);
+        }
+    }
+
+    createResultItem(spot) {
+        const template = document.getElementById('list-item');
+        if (!template) {
+            console.error('리스트 템플릿을 찾을 수 없습니다.');
+            return null;
+        }
+
+        const itemFragment = document.importNode(template.content, true);
+
+        // 이미지 설정
+        const imgElement = itemFragment.querySelector('.item-photo img');
+        if (imgElement) {
+            imgElement.src = spot.img || '';
+            imgElement.alt = spot.title || '';
+            imgElement.onerror = () => {
+                imgElement.src = '../../images/common.jpg';
+                imgElement.onerror = null;
+            };
+        }
+
+        // 텍스트 데이터 설정
+        const titleElement = itemFragment.querySelector('.item-title');
+        if (titleElement) {
+            titleElement.textContent = spot.title || '';
+        }
+
+        const descriptionElement = itemFragment.querySelector('.item-description');
+        if (descriptionElement) {
+            descriptionElement.textContent = spot.description || '';
+        }
+
+        const hashtagElement = itemFragment.querySelector('.hash-tag');
+        if (hashtagElement && spot.hashtags) {
+            // 선택된 태그는 강조 표시
+            const hashtagText = spot.hashtags.map(tag => {
+                const cleanTag = tag.replace('#', '').trim();
+                if (this.selectedTags.has(cleanTag)) {
+                    return `<strong>${tag}</strong>`;
+                }
+                return tag;
+            }).join(' ');
+            hashtagElement.innerHTML = hashtagText;
+        }
+
+        // 지역 정보 추가
+        const regionElement = itemFragment.querySelector('.item-info');
+        if (regionElement) {
+            const regionInfo = document.createElement('p');
+            regionInfo.className = 'item-region';
+            regionInfo.textContent = `📍 ${spot.region}`;
+            regionElement.appendChild(regionInfo);
+        }
+
+        // 링크 설정
+        const linkElement = itemFragment.querySelector('.item-link');
+        if (linkElement && spot.link) {
+            linkElement.href = spot.link;
+        }
+
+        // 좋아요 버튼 이벤트
+        const likeBtn = itemFragment.querySelector('.likeBtn');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                likeBtn.classList.toggle('liked');
+            });
+        }
+
+        return itemFragment;
+    }
+
+    loadMore() {
+        this.currentPage++;
+        this.displayResults();
+    }
+
+    clearAllTags() {
+        this.selectedTags.clear();
+        this.updateSelectedTagsDisplay();
+        this.updateTagStyles();
+        this.performSearch();
+    }
+
+    // 전체 태그 접기/펼치기 관련 메서드들
+    setAllTagsCollapsedState() {
+        const allTagsContainer = document.getElementById('all-tags');
+        const toggleBtn = document.getElementById('toggle-all-tags');
+        
+        if (!this.isAllTagsExpanded) {
+            allTagsContainer.classList.add('collapsed');
+            allTagsContainer.classList.remove('expanded');
+            toggleBtn.classList.add('collapsed');
+        } else {
+            allTagsContainer.classList.remove('collapsed');
+            allTagsContainer.classList.add('expanded');
+            toggleBtn.classList.remove('collapsed');
+        }
+    }
+
+    toggleAllTags() {
+        this.isAllTagsExpanded = !this.isAllTagsExpanded;
+        this.setAllTagsCollapsedState();
+        this.updateFadeEffect();
+    }
+
+    updateFadeEffect() {
+        const allTagsContainer = document.getElementById('all-tags');
+        
+        // 접힌 상태에서만 페이드 효과 적용
+        if (!this.isAllTagsExpanded && allTagsContainer.scrollHeight > 200) {
+            allTagsContainer.classList.add('show-fade');
+        } else {
+            allTagsContainer.classList.remove('show-fade');
+        }
+    }
+
+    setupEventListeners() {
+        // 검색 버튼
+        const searchBtn = document.getElementById('search-btn');
+        const searchInput = document.getElementById('search-keyword');
+        
+        const performSearchHandler = () => {
+            const searchQuery = searchInput.value.trim();
+            this.performSearch(searchQuery);
+        };
+        
+        searchBtn.addEventListener('click', performSearchHandler);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearchHandler();
+            }
+        });
+
+        // 카테고리 필터
+        const categoryFilter = document.getElementById('category-filter');
+        categoryFilter.addEventListener('change', () => {
+            this.performSearch(searchInput.value.trim());
+        });
+
+        // 정렬 옵션
+        const sortSelect = document.getElementById('sort-select');
+        sortSelect.addEventListener('change', () => {
+            this.performSearch(searchInput.value.trim());
+        });
+
+        // 모든 태그 지우기 버튼
+        const clearTagsBtn = document.getElementById('clear-tags-btn');
+        clearTagsBtn.addEventListener('click', () => {
+            this.clearAllTags();
+        });
+
+        // 더보기 버튼
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        loadMoreBtn.addEventListener('click', () => {
+            this.loadMore();
+        });
+
+        // 전체 태그 토글 버튼
+        const toggleAllTagsBtn = document.getElementById('toggle-all-tags');
+        toggleAllTagsBtn.addEventListener('click', () => {
+            this.toggleAllTags();
+        });
+
+        // 실시간 검색 (옵션)
+        let searchTimeout;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.performSearch(searchInput.value.trim());
+            }, 500);
+        });
+    }
+}
+
+// DOM 로드 완료 후 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    new TagSearchSystem();
 });
