@@ -3,7 +3,7 @@
 // 전역 변수
 let touristSpots = {};
 let currentEditIndex = null;
-let currentEditCategory = null;
+let currentEditRegion = null;
 
 // 사용자 관리 관련 전역 변수
 let users = [];
@@ -11,6 +11,52 @@ let currentEditUserId = null;
 let currentPage = 1;
 let usersPerPage = 10;
 let filteredUsers = [];
+
+// 지역 한글 매핑
+const regionNames = {
+    area01: '기장군',
+    area02: '금정구',
+    area03: '해운대구',
+    area04: '동래구',
+    area05: '북구',
+    area06: '강서구',
+    area07: '사상구',
+    area08: '부산진구',
+    area09: '남구',
+    area10: '사하구',
+    area11: '동구',
+    area12: '서구',
+    area13: '중구',
+    area14: '연제구',
+    area15: '수영구',
+    area16: '영도구'
+};
+
+// 해시태그 기반 카테고리 매핑
+const hashtagToCategory = {
+    '해수욕장': 'beach',
+    '해변': 'beach',
+    '바다': 'beach',
+    '해안': 'beach',
+    '산': 'mountain',
+    '공원': 'mountain',
+    '등산': 'mountain',
+    '자연': 'mountain',
+    '사찰': 'culture',
+    '문화': 'culture',
+    '역사': 'culture',
+    '전통': 'culture',
+    '박물관': 'culture',
+    '영화': 'culture',
+    '시장': 'food',
+    '먹거리': 'food',
+    '맛집': 'food',
+    '음식': 'food',
+    '쇼핑': 'shopping',
+    '백화점': 'shopping',
+    '상가': 'shopping',
+    '쇼핑몰': 'shopping'
+};
 
 // 카테고리 한글 매핑
 const categoryNames = {
@@ -28,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 관리자 페이지 초기화
 async function initializeAdmin() {
-    loadTouristSpots();
+    await loadTouristSpots();
     await initializeUsers();
     initializeTabs();
     initializeEventListeners();
@@ -56,13 +102,29 @@ function loadHeaderComponent() {
 async function loadTouristSpots() {
     try {
         const response = await fetch('../../data/busanTouristSpots.json');
-        touristSpots = await response.json();
+        const data = await response.json();
+        touristSpots = data.regions || {};
         displayTouristSpots();
         updateStatistics();
     } catch (error) {
         console.error('관광지 데이터 로드 실패:', error);
         showNotification('데이터를 불러오는데 실패했습니다.', 'error');
     }
+}
+
+// 해시태그로 카테고리 추정
+function getCategoryFromHashtags(hashtags) {
+    if (!hashtags || !Array.isArray(hashtags)) return 'culture';
+    
+    for (const hashtag of hashtags) {
+        const cleanTag = hashtag.replace('#', '');
+        for (const [keyword, category] of Object.entries(hashtagToCategory)) {
+            if (cleanTag.includes(keyword)) {
+                return category;
+            }
+        }
+    }
+    return 'culture'; // 기본값
 }
 
 // 탭 기능 초기화
@@ -99,10 +161,10 @@ function initializeTabs() {
 function initializeEventListeners() {
     // 검색 기능
     const searchInput = document.getElementById('search-input');
-    const categoryFilter = document.getElementById('category-filter');
+    const regionFilter = document.getElementById('region-filter');
     
     searchInput.addEventListener('input', filterTouristSpots);
-    categoryFilter.addEventListener('change', filterTouristSpots);
+    regionFilter.addEventListener('change', filterTouristSpots);
     
     // 관광지 추가 폼
     const addForm = document.getElementById('add-tourist-spot-form');
@@ -184,29 +246,35 @@ function displayTouristSpots(filteredSpots = null) {
     
     grid.innerHTML = '';
     
-    Object.keys(spots).forEach(category => {
-        spots[category].forEach((spot, index) => {
-            const card = createTouristSpotCard(spot, category, index);
-            grid.appendChild(card);
-        });
+    Object.keys(spots).forEach(regionKey => {
+        const region = spots[regionKey];
+        if (region.spots && Array.isArray(region.spots)) {
+            region.spots.forEach((spot, index) => {
+                const card = createTouristSpotCard(spot, regionKey, index, region.name);
+                grid.appendChild(card);
+            });
+        }
     });
 }
 
 // 관광지 카드 생성
-function createTouristSpotCard(spot, category, index) {
+function createTouristSpotCard(spot, regionKey, index, regionName) {
     const card = document.createElement('div');
     card.className = 'tourist-spot-card';
     
+    const category = getCategoryFromHashtags(spot.hashtags);
+    const hashtags = spot.hashtags ? spot.hashtags.join(' ') : '';
+    
     card.innerHTML = `
-        <h3>${spot.name}</h3>
-        <div class="spot-category">${categoryNames[category] || spot.category}</div>
+        <h3>${spot.title}</h3>
+        <div class="spot-category">${regionName} (${categoryNames[category]})</div>
         <div class="spot-info">
-            위도: ${spot.lat} | 경도: ${spot.lng}
+            해시태그: ${hashtags}
         </div>
         <div class="spot-description">${spot.description}</div>
         <div class="spot-actions">
-            <button class="edit-btn" onclick="openEditModal('${category}', ${index})">수정</button>
-            <button class="delete-btn" onclick="deleteTouristSpot('${category}', ${index})">삭제</button>
+            <button class="edit-btn" onclick="openEditModal('${regionKey}', ${index})">수정</button>
+            <button class="delete-btn" onclick="deleteTouristSpot('${regionKey}', ${index})">삭제</button>
         </div>
     `;
     
@@ -216,22 +284,30 @@ function createTouristSpotCard(spot, category, index) {
 // 관광지 필터링
 function filterTouristSpots() {
     const searchTerm = document.getElementById('search-input').value.toLowerCase();
-    const selectedCategory = document.getElementById('category-filter').value;
+    const selectedRegion = document.getElementById('region-filter').value;
     
     const filteredSpots = {};
     
-    Object.keys(touristSpots).forEach(category => {
-        if (selectedCategory && category !== selectedCategory) {
+    Object.keys(touristSpots).forEach(regionKey => {
+        const region = touristSpots[regionKey];
+        
+        if (selectedRegion && regionKey !== selectedRegion) {
             return;
         }
         
-        const filtered = touristSpots[category].filter(spot => 
-            spot.name.toLowerCase().includes(searchTerm) ||
-            spot.description.toLowerCase().includes(searchTerm)
-        );
-        
-        if (filtered.length > 0) {
-            filteredSpots[category] = filtered;
+        if (region.spots && Array.isArray(region.spots)) {
+            const filtered = region.spots.filter(spot => 
+                spot.title.toLowerCase().includes(searchTerm) ||
+                spot.description.toLowerCase().includes(searchTerm) ||
+                (spot.hashtags && spot.hashtags.some(tag => tag.toLowerCase().includes(searchTerm)))
+            );
+            
+            if (filtered.length > 0) {
+                filteredSpots[regionKey] = {
+                    ...region,
+                    spots: filtered
+                };
+            }
         }
     });
     
@@ -242,22 +318,34 @@ function filterTouristSpots() {
 function handleAddTouristSpot(event) {
     event.preventDefault();
     
-    const formData = new FormData(event.target);
+    const regionKey = document.getElementById('spot-region').value;
+    const hashtags = document.getElementById('spot-hashtags').value
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0)
+        .map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+    
     const newSpot = {
-        name: document.getElementById('spot-name').value,
-        lat: parseFloat(document.getElementById('spot-lat').value),
-        lng: parseFloat(document.getElementById('spot-lng').value),
+        title: document.getElementById('spot-title').value,
         description: document.getElementById('spot-description').value,
-        category: categoryNames[document.getElementById('spot-category').value] || document.getElementById('spot-category').value
+        hashtags: hashtags,
+        img: document.getElementById('spot-img').value || '../../images/common.jpg',
+        link: document.getElementById('spot-link').value || '#'
     };
     
-    const category = document.getElementById('spot-category').value;
-    
-    if (!touristSpots[category]) {
-        touristSpots[category] = [];
+    if (!touristSpots[regionKey]) {
+        touristSpots[regionKey] = {
+            name: regionNames[regionKey] || regionKey,
+            code: '',
+            spots: []
+        };
     }
     
-    touristSpots[category].push(newSpot);
+    if (!touristSpots[regionKey].spots) {
+        touristSpots[regionKey].spots = [];
+    }
+    
+    touristSpots[regionKey].spots.push(newSpot);
     
     // 폼 초기화
     event.target.reset();
@@ -270,17 +358,18 @@ function handleAddTouristSpot(event) {
 }
 
 // 수정 모달 열기
-function openEditModal(category, index) {
-    const spot = touristSpots[category][index];
-    currentEditCategory = category;
+function openEditModal(regionKey, index) {
+    const spot = touristSpots[regionKey].spots[index];
+    currentEditRegion = regionKey;
     currentEditIndex = index;
     
     // 폼에 기존 데이터 입력
-    document.getElementById('edit-spot-name').value = spot.name;
-    document.getElementById('edit-spot-category').value = category;
-    document.getElementById('edit-spot-lat').value = spot.lat;
-    document.getElementById('edit-spot-lng').value = spot.lng;
+    document.getElementById('edit-spot-title').value = spot.title;
+    document.getElementById('edit-spot-region').value = regionKey;
     document.getElementById('edit-spot-description').value = spot.description;
+    document.getElementById('edit-spot-hashtags').value = spot.hashtags ? spot.hashtags.join(', ') : '';
+    document.getElementById('edit-spot-img').value = spot.img || '';
+    document.getElementById('edit-spot-link').value = spot.link || '';
     
     // 모달 표시
     document.getElementById('edit-modal').style.display = 'block';
@@ -290,33 +379,46 @@ function openEditModal(category, index) {
 function handleEditTouristSpot(event) {
     event.preventDefault();
     
-    if (currentEditCategory === null || currentEditIndex === null) {
+    if (currentEditRegion === null || currentEditIndex === null) {
         return;
     }
     
+    const hashtags = document.getElementById('edit-spot-hashtags').value
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0)
+        .map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+    
     const updatedSpot = {
-        name: document.getElementById('edit-spot-name').value,
-        lat: parseFloat(document.getElementById('edit-spot-lat').value),
-        lng: parseFloat(document.getElementById('edit-spot-lng').value),
+        title: document.getElementById('edit-spot-title').value,
         description: document.getElementById('edit-spot-description').value,
-        category: categoryNames[document.getElementById('edit-spot-category').value] || document.getElementById('edit-spot-category').value
+        hashtags: hashtags,
+        img: document.getElementById('edit-spot-img').value || '../../images/common.jpg',
+        link: document.getElementById('edit-spot-link').value || '#'
     };
     
-    const newCategory = document.getElementById('edit-spot-category').value;
+    const newRegion = document.getElementById('edit-spot-region').value;
     
-    // 카테고리가 변경된 경우
-    if (newCategory !== currentEditCategory) {
-        // 기존 카테고리에서 제거
-        touristSpots[currentEditCategory].splice(currentEditIndex, 1);
+    // 지역이 변경된 경우
+    if (newRegion !== currentEditRegion) {
+        // 기존 지역에서 제거
+        touristSpots[currentEditRegion].spots.splice(currentEditIndex, 1);
         
-        // 새 카테고리에 추가
-        if (!touristSpots[newCategory]) {
-            touristSpots[newCategory] = [];
+        // 새 지역에 추가
+        if (!touristSpots[newRegion]) {
+            touristSpots[newRegion] = {
+                name: regionNames[newRegion] || newRegion,
+                code: '',
+                spots: []
+            };
         }
-        touristSpots[newCategory].push(updatedSpot);
+        if (!touristSpots[newRegion].spots) {
+            touristSpots[newRegion].spots = [];
+        }
+        touristSpots[newRegion].spots.push(updatedSpot);
     } else {
-        // 같은 카테고리 내에서 수정
-        touristSpots[currentEditCategory][currentEditIndex] = updatedSpot;
+        // 같은 지역 내에서 수정
+        touristSpots[currentEditRegion].spots[currentEditIndex] = updatedSpot;
     }
     
     // 모달 닫기
@@ -329,18 +431,18 @@ function handleEditTouristSpot(event) {
     showNotification('관광지 정보가 성공적으로 수정되었습니다!', 'success');
     
     // 편집 상태 초기화
-    currentEditCategory = null;
+    currentEditRegion = null;
     currentEditIndex = null;
 }
 
 // 관광지 삭제
-function deleteTouristSpot(category, index) {
+function deleteTouristSpot(regionKey, index) {
     if (confirm('정말로 이 관광지를 삭제하시겠습니까?')) {
-        touristSpots[category].splice(index, 1);
+        touristSpots[regionKey].spots.splice(index, 1);
         
-        // 카테고리가 비어있으면 제거
-        if (touristSpots[category].length === 0) {
-            delete touristSpots[category];
+        // 지역에 관광지가 없으면 spots 배열만 비워둠 (지역 정보는 유지)
+        if (touristSpots[regionKey].spots.length === 0) {
+            touristSpots[regionKey].spots = [];
         }
         
         displayTouristSpots();
@@ -353,12 +455,22 @@ function deleteTouristSpot(category, index) {
 // 통계 업데이트
 function updateStatistics() {
     let totalSpots = 0;
+    const regionCounts = {};
     const categoryCounts = {};
     
-    Object.keys(touristSpots).forEach(category => {
-        const count = touristSpots[category].length;
-        totalSpots += count;
-        categoryCounts[category] = count;
+    Object.keys(touristSpots).forEach(regionKey => {
+        const region = touristSpots[regionKey];
+        if (region.spots && Array.isArray(region.spots)) {
+            const count = region.spots.length;
+            totalSpots += count;
+            regionCounts[regionKey] = count;
+            
+            // 카테고리별 통계
+            region.spots.forEach(spot => {
+                const category = getCategoryFromHashtags(spot.hashtags);
+                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            });
+        }
     });
     
     // 총 관광지 수 업데이트
@@ -375,9 +487,35 @@ function updateStatistics() {
     
     // 차트 업데이트
     updateCategoryChart(categoryCounts);
+    updateRegionChart(regionCounts);
     
     // 사용자 통계 업데이트
     updateUserStatistics();
+}
+
+// 지역별 차트 업데이트
+function updateRegionChart(regionCounts) {
+    const chartContainer = document.getElementById('region-chart');
+    if (!chartContainer) return;
+    
+    chartContainer.innerHTML = '';
+    
+    Object.keys(regionCounts).forEach(regionKey => {
+        const count = regionCounts[regionKey] || 0;
+        const regionName = regionNames[regionKey] || regionKey;
+        
+        if (count > 0) {
+            const chartBar = document.createElement('div');
+            chartBar.className = 'chart-bar';
+            chartBar.innerHTML = `
+                <div class="category-name">${regionName}</div>
+                <div class="category-count">${count}</div>
+            `;
+            
+            chartBar.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+            chartContainer.appendChild(chartBar);
+        }
+    });
 }
 
 // 사용자 통계 업데이트
@@ -447,6 +585,8 @@ function updateUserRoleChart(roleCounts) {
 // 카테고리 차트 업데이트
 function updateCategoryChart(categoryCounts) {
     const chartContainer = document.getElementById('category-chart');
+    if (!chartContainer) return;
+    
     chartContainer.innerHTML = '';
     
     Object.keys(categoryNames).forEach(category => {
@@ -555,7 +695,7 @@ document.head.appendChild(style);
 
 // 관광지 데이터 내보내기
 function exportTouristSpotsData() {
-    const dataStr = JSON.stringify(touristSpots, null, 2);
+    const dataStr = JSON.stringify({ regions: touristSpots }, null, 2);
     const dataBlob = new Blob([dataStr], {type: 'application/json'});
     const url = URL.createObjectURL(dataBlob);
     
@@ -584,7 +724,7 @@ function exportUsersData() {
 // 전체 데이터 내보내기
 function exportAllData() {
     const allData = {
-        touristSpots: touristSpots,
+        regions: touristSpots,
         users: users,
         exportDate: new Date().toISOString()
     };
