@@ -119,22 +119,22 @@ class ThemeCarousel {
             const endIndex = (this.currentPage[carouselId] + 1) * this.itemsPerPage;
             this.displayedData[carouselId] = data.slice(startIndex, endIndex);
             
-            // 카루셀 렌더링
-            const carousel = document.getElementById(carouselId);
-            carousel.innerHTML = '';
+            // 그리드 렌더링
+            const grid = document.getElementById(carouselId);
+            grid.innerHTML = '';
             
             this.displayedData[carouselId].forEach(item => {
                 const itemElement = this.createListItem(item);
                 if (itemElement) {
-                    carousel.appendChild(itemElement);
+                    grid.appendChild(itemElement);
                 }
             });
             
-            // 네비게이션 버튼 상태 업데이트
-            this.updateNavigationButtons(carouselId, data.length);
+            // 더보기 버튼 상태 업데이트
+            this.updateMoreButton(carouselId, data.length);
             
         } catch (error) {
-            console.error('카루셀 렌더링 중 오류:', error);
+            console.error('테마 그리드 렌더링 중 오류:', error);
         }
     }
 
@@ -205,50 +205,27 @@ class ThemeCarousel {
         return itemFragment;
     }
 
-    updateNavigationButtons(carouselId, totalItems) {
-        const prevBtn = document.querySelector(`[data-carousel="${carouselId}"].prev-btn`);
-        const nextBtn = document.querySelector(`[data-carousel="${carouselId}"].next-btn`);
+    updateMoreButton(carouselId, totalItems) {
         const moreBtn = document.querySelector(`[data-carousel="${carouselId}"].more-btn`);
         
         const currentDisplayed = this.displayedData[carouselId].length;
         const canShowMore = currentDisplayed < totalItems;
         
-        // 이전 버튼 (첫 페이지에서는 비활성화)
-        if (prevBtn) {
-            prevBtn.disabled = this.currentPage[carouselId] === 0;
-        }
-        
-        // 다음 버튼 (마지막 페이지에서는 비활성화)
-        if (nextBtn) {
-            nextBtn.disabled = !canShowMore;
-        }
-        
         // 더보기 버튼 (더 이상 표시할 항목이 없으면 비활성화)
         if (moreBtn) {
             moreBtn.disabled = !canShowMore;
-            moreBtn.textContent = canShowMore ? '더보기' : '모든 항목을 표시했습니다';
+            const btnText = moreBtn.querySelector('span');
+            if (btnText) {
+                btnText.textContent = canShowMore ? '더보기' : '모든 항목을 표시했습니다';
+            }
         }
     }
 
     setupEventListeners() {
-        // 네비게이션 버튼 이벤트
-        document.querySelectorAll('.carousel-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const carouselId = e.target.dataset.carousel;
-                const isNext = e.target.classList.contains('next-btn');
-                
-                if (isNext) {
-                    this.nextPage(carouselId);
-                } else {
-                    this.prevPage(carouselId);
-                }
-            });
-        });
-
         // 더보기 버튼 이벤트
         document.querySelectorAll('.more-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const carouselId = e.target.dataset.carousel;
+                const carouselId = e.target.closest('.more-btn').dataset.carousel;
                 this.loadMore(carouselId);
             });
         });
@@ -261,24 +238,6 @@ class ThemeCarousel {
                 this.renderCarousel('user-carousel', e.target.value);
             });
         }
-    }
-
-    nextPage(carouselId) {
-        const carousel = document.getElementById(carouselId);
-        const itemWidth = 240; // 아이템 너비 + 간격
-        const currentTransform = carousel.style.transform;
-        const currentX = currentTransform ? parseInt(currentTransform.match(/-?\d+/)[0]) : 0;
-        
-        carousel.style.transform = `translateX(${currentX - itemWidth * this.itemsPerPage}px)`;
-    }
-
-    prevPage(carouselId) {
-        const carousel = document.getElementById(carouselId);
-        const itemWidth = 240; // 아이템 너비 + 간격
-        const currentTransform = carousel.style.transform;
-        const currentX = currentTransform ? parseInt(currentTransform.match(/-?\d+/)[0]) : 0;
-        
-        carousel.style.transform = `translateX(${currentX + itemWidth * this.itemsPerPage}px)`;
     }
 
     loadMore(carouselId) {
