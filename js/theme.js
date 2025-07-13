@@ -186,10 +186,27 @@ class ThemeCarousel {
                 : itemData.hashtags;
         }
 
-        // 링크 설정
+        // 링크 설정 - 상세 페이지로 이동
         const linkElement = itemFragment.querySelector('.item-link');
-        if (linkElement && itemData.link) {
-            linkElement.href = itemData.link;
+        if (linkElement) {
+            linkElement.href = 'javascript:void(0)'; // 기본 링크 동작 방지
+            linkElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!e.target.closest('.likeBtn')) {
+                    this.navigateToDetail(itemData);
+                }
+            });
+        }
+
+        // 아이템 클릭 이벤트
+        const itemElement = itemFragment.querySelector('.item');
+        if (itemElement) {
+            itemElement.style.cursor = 'pointer';
+            itemElement.addEventListener('click', (e) => {
+                if (!e.target.closest('.likeBtn')) {
+                    this.navigateToDetail(itemData);
+                }
+            });
         }
 
         // 좋아요 버튼 이벤트
@@ -203,6 +220,12 @@ class ThemeCarousel {
         }
 
         return itemFragment;
+    }
+
+    // 상세 페이지로 이동하는 함수
+    navigateToDetail(itemData) {
+        const encodedTitle = encodeURIComponent(itemData.title);
+        window.location.href = `../detailed/detailed.html?title=${encodedTitle}`;
     }
 
     updateMoreButton(carouselId, totalItems) {
