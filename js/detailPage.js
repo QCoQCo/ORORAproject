@@ -291,8 +291,34 @@ function initKakaoMap(spotTitle) {
     });
 }
 
+// 뒤로가기 버튼 기능 개선
+function initBackButton() {
+    const backButton = document.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 브라우저 히스토리가 있으면 뒤로가기, 없으면 메인 페이지로
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // 현재 경로에 따라 메인 페이지 경로 결정
+                const currentPath = window.location.pathname;
+                if (currentPath.includes('/pages/')) {
+                    window.location.href = '../../index.html';
+                } else {
+                    window.location.href = './index.html';
+                }
+            }
+        });
+    }
+}
+
 // DOM 로드 완료 후 초기화
 document.addEventListener('DOMContentLoaded', function() {
+    // 뒤로가기 버튼 초기화
+    initBackButton();
+    
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
     const urlParams = new URLSearchParams(window.location.search);
     const spotTitle = urlParams.get('title') || urlParams.get('spot');
