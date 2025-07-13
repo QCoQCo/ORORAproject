@@ -103,7 +103,7 @@ class TagSearchSystem {
         sortedTags.forEach(([tag, count]) => {
             const tagElement = this.createTagElement(tag, count, 'all');
             allTagsContainer.appendChild(tagElement);
-        });
+});
 
         // 초기 상태 설정 (접힌 상태)
         this.setAllTagsCollapsedState();
@@ -179,7 +179,7 @@ class TagSearchSystem {
             const tag = element.dataset.tag;
             if (this.selectedTags.has(tag)) {
                 element.classList.add('selected');
-            } else {
+    } else {
                 element.classList.remove('selected');
             }
         });
@@ -324,7 +324,7 @@ class TagSearchSystem {
         // 현재 페이지까지의 결과 계산
         const endIndex = (this.currentPage + 1) * this.resultsPerPage;
         this.currentResults = this.filteredSpots.slice(0, endIndex);
-        
+
         // 리스트 템플릿 로드
         await this.loadListTemplate();
         
