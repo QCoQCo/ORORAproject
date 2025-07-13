@@ -302,7 +302,10 @@
 
 /* Map Section */
 .map-section {
-    position: relative;
+
+    position: -webkit-sticky;
+    position: sticky;
+    top: 130px;
 }
 
 .map-card {
@@ -389,21 +392,23 @@
 }
 
 .list-item {
-    max-height: 70vh;
+    /* max-height: 70vh;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--neutral-300) var(--neutral-100);
     margin: 0;
     padding: 0;
-    list-style: none;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    list-style: none; */
+    display: flex;
+    /* grid-template-columns: 1fr 1fr; */
+    flex-wrap: wrap;
+
     gap: 15px;
 }
 
-.list-item::-webkit-scrollbar {
+/* .list-item::-webkit-scrollbar {
     width: 8px;
-}
+} */
 
 .list-item::-webkit-scrollbar-track {
     background: var(--neutral-100);
@@ -425,6 +430,7 @@
 }
 
 .list-item .item {
+    width: 48%;
     background-color: #fff;
     border: 1px solid var(--neutral-200);
     border-radius: 12px;

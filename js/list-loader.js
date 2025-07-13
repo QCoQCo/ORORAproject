@@ -168,7 +168,7 @@ class ListLoader {
                 }
             });
 
-            console.log(`${data.length}개의 리스트 아이템이 렌더링되었습니다.`);
+            // console.log(`${data.length}개의 리스트 아이템이 렌더링되었습니다.`);
         } catch (error) {
             console.error('리스트 렌더링 중 오류:', error);
         }
