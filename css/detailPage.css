@@ -345,6 +345,7 @@ h6 {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow-xl);
+    scroll-margin-top: 570px;
 }
 
 .swiper {
