@@ -438,31 +438,31 @@ function initTransportationEffects() {
     });
     
     // App item click effect
-    appItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Add ripple effect
-            const ripple = document.createElement('div');
-            ripple.style.position = 'absolute';
-            ripple.style.borderRadius = '50%';
-            ripple.style.background = 'rgba(96, 165, 250, 0.4)';
-            ripple.style.transform = 'scale(0)';
-            ripple.style.animation = 'ripple 0.6s linear';
-            ripple.style.left = '50%';
-            ripple.style.top = '50%';
-            ripple.style.width = '20px';
-            ripple.style.height = '20px';
-            ripple.style.marginLeft = '-10px';
-            ripple.style.marginTop = '-10px';
-            ripple.style.zIndex = '1';
+    // appItems.forEach(item => {
+    //     item.addEventListener('click', function() {
+    //         // Add ripple effect
+    //         const ripple = document.createElement('div');
+    //         ripple.style.position = 'absolute';
+    //         ripple.style.borderRadius = '50%';
+    //         ripple.style.background = 'rgba(96, 165, 250, 0.4)';
+    //         ripple.style.transform = 'scale(0)';
+    //         ripple.style.animation = 'ripple 0.6s linear';
+    //         ripple.style.left = '50%';
+    //         ripple.style.top = '50%';
+    //         ripple.style.width = '20px';
+    //         ripple.style.height = '20px';
+    //         ripple.style.marginLeft = '-10px';
+    //         ripple.style.marginTop = '-10px';
+    //         ripple.style.zIndex = '1';
             
-            this.style.position = 'relative';
-            this.appendChild(ripple);
+    //         this.style.position = 'relative';
+    //         this.appendChild(ripple);
             
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
-    });
+    //         setTimeout(() => {
+    //             ripple.remove();
+    //         }, 600);
+    //     });
+    // });
     
     // Parallax effect for transport apps section
     const transportApps = document.querySelector('.transport-apps');
@@ -473,7 +473,7 @@ function initTransportationEffects() {
             const speed = 0.1;
             
             if (rect.top < window.innerHeight && rect.bottom > 0) {
-                transportApps.style.transform = `translateY(${scrolled * speed}px)`;
+                // transportApps.style.transform = `translateY(${scrolled * speed}px)`;
             }
         });
     }
