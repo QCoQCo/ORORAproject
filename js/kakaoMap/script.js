@@ -4,6 +4,46 @@ let markers = [];
 let currentCategory = 'all';
 let busanTouristSpots = {}; 
 
+// 해시태그 기반 카테고리 매핑
+const hashtagToCategory = {
+    '해수욕장': 'beach',
+    '해변': 'beach',
+    '바다': 'beach',
+    '해안': 'beach',
+    '산': 'mountain',
+    '공원': 'mountain',
+    '등산': 'mountain',
+    '자연': 'mountain',
+    '사찰': 'culture',
+    '문화': 'culture',
+    '역사': 'culture',
+    '전통': 'culture',
+    '박물관': 'culture',
+    '영화': 'culture',
+    '시장': 'food',
+    '먹거리': 'food',
+    '맛집': 'food',
+    '음식': 'food',
+    '쇼핑': 'shopping',
+    '백화점': 'shopping',
+    '상가': 'shopping',
+    '쇼핑몰': 'shopping'
+};
+
+// 해시태그로 카테고리 추정
+function getCategoryFromHashtags(hashtags) {
+    if (!hashtags || !Array.isArray(hashtags)) return 'culture';
+    
+    for (const hashtag of hashtags) {
+        const cleanTag = hashtag.replace('#', '');
+        for (const [keyword, category] of Object.entries(hashtagToCategory)) {
+            if (cleanTag.includes(keyword)) {
+                return category;
+            }
+        }
+    }
+    return 'culture'; // 기본값
+}
 
 async function loadTouristSpots() {
     try {
@@ -11,14 +51,13 @@ async function loadTouristSpots() {
         if (!response.ok) {
             throw new Error('JSON 파일을 불러올 수 없습니다.');
         }
-        busanTouristSpots = await response.json();
+        const data = await response.json();
+        busanTouristSpots = data.regions || {};
         console.log('관광지 데이터 로드 완료:', busanTouristSpots);
     } catch (error) {
         console.error('관광지 데이터 로드 실패:', error);
     }
 }
-
-
 
 async function initMap() {
     // 부산 중심 좌표 (부산시청 기준)
@@ -49,13 +88,14 @@ async function initMap() {
 }
 
 function showAllTouristSpots() {
-
     clearMarkers();
     
-    Object.values(busanTouristSpots).forEach(spots => {
-        spots.forEach(spot => {
-            createMarker(spot);
-        });
+    Object.values(busanTouristSpots).forEach(region => {
+        if (region.spots && Array.isArray(region.spots)) {
+            region.spots.forEach(spot => {
+                createMarker(spot);
+            });
+        }
     });
     
     updateActiveButton('all');
@@ -71,21 +111,63 @@ function showTouristSpots(category) {
     
     clearMarkers();
     
-    const spots = busanTouristSpots[category];
-    if (spots) {
-        spots.forEach(spot => {
-            createMarker(spot);
-        });
-    }
+    // 모든 지역을 순회하면서 해당 카테고리의 관광지 찾기
+    Object.values(busanTouristSpots).forEach(region => {
+        if (region.spots && Array.isArray(region.spots)) {
+            region.spots.forEach(spot => {
+                const spotCategory = getCategoryFromHashtags(spot.hashtags);
+                if (spotCategory === category) {
+                    createMarker(spot);
+                }
+            });
+        }
+    });
     
     updateActiveButton(category);
 }
 
 function createMarker(spot) {
-    const position = new kakao.maps.LatLng(spot.lat, spot.lng);
+    // 새로운 JSON 구조에는 lat, lng가 없으므로 임시 좌표 사용
+    // 실제 사용시에는 각 관광지의 실제 좌표를 추가해야 함
+    const defaultCoords = {
+        '해동 용궁사': { lat: 35.1884, lng: 129.2231 },
+        '기장 해안선': { lat: 35.2448, lng: 129.2224 },
+        '금정산': { lat: 35.2558, lng: 129.0162 },
+        '범어사': { lat: 35.2558, lng: 129.0162 },
+        '해운대 해수욕장': { lat: 35.1587, lng: 129.1603 },
+        '부산국제영화제 거리': { lat: 35.0969, lng: 129.0348 },
+        '신세계 센텀시티': { lat: 35.1691, lng: 129.1309 },
+        '동래온천': { lat: 35.2063, lng: 129.0856 },
+        '동래읍성': { lat: 35.2063, lng: 129.0856 },
+        '구포시장': { lat: 35.2063, lng: 129.0856 },
+        '김해공항': { lat: 35.1795, lng: 128.9384 },
+        '강서습지생태공원': { lat: 35.1795, lng: 128.9384 },
+        '삼락생태공원': { lat: 35.1901, lng: 128.9695 },
+        '서면 지하상가': { lat: 35.1579, lng: 129.0594 },
+        '부평깡통시장': { lat: 35.1579, lng: 129.0594 },
+        'UN기념공원': { lat: 35.1368, lng: 129.0969 },
+        '이기대공원': { lat: 35.1368, lng: 129.0969 },
+        '몰운대': { lat: 35.0944, lng: 128.9692 },
+        '동구 전망대': { lat: 35.1147, lng: 129.0456 },
+        '송도해수욕장': { lat: 35.0757, lng: 129.0175 },
+        '감천문화마을': { lat: 35.0976, lng: 129.0107 },
+        '자갈치시장': { lat: 35.0969, lng: 129.0304 },
+        '국제시장': { lat: 35.0969, lng: 129.0304 },
+        '용두산공원': { lat: 35.1007, lng: 129.0320 },
+        '온천천 시민공원': { lat: 35.1631, lng: 129.0751 },
+        '연산동 맛집거리': { lat: 35.1631, lng: 129.0751 },
+        '광안리 해수욕장': { lat: 35.1533, lng: 129.1186 },
+        '광안대교': { lat: 35.1533, lng: 129.1186 },
+        '태종대': { lat: 35.0510, lng: 129.0864 },
+        '흰여울문화마을': { lat: 35.0510, lng: 129.0864 }
+    };
+    
+    const coords = defaultCoords[spot.title] || { lat: 35.1796, lng: 129.0756 };
+    const position = new kakao.maps.LatLng(coords.lat, coords.lng);
     
     // 마커 이미지
-    const markerImageSrc = getMarkerImageSrc(spot.category);
+    const category = getCategoryFromHashtags(spot.hashtags);
+    const markerImageSrc = getMarkerImageSrc(category);
     const markerImage = new kakao.maps.MarkerImage(markerImageSrc, new kakao.maps.Size(30, 35));
     
     // 마커 생성
@@ -95,81 +177,74 @@ function createMarker(spot) {
         image: markerImage
     });
 
+    const categoryColor = getCategoryColor(category);
 
-    const categoryColor = getCategoryColor(spot.category);
-
-
-    const infoContent = `
-        <div class="custom-overlay">
-            <span class="category-tag" style="background-color: ${categoryColor};">${spot.category}</span>
-            <h3>${spot.name}</h3>
-            <p>${spot.description}</p>
+    // 인포윈도우 내용
+    const infoWindowContent = `
+        <div style="padding:10px; min-width:200px; font-family: 'Pretendard', sans-serif;">
+            <h3 style="margin:0 0 8px 0; color:#333; font-size:16px; font-weight:600;">${spot.title}</h3>
+            <p style="margin:0 0 8px 0; color:#666; font-size:14px; line-height:1.4;">${spot.description}</p>
+            <div style="margin-top:8px;">
+                ${spot.hashtags ? spot.hashtags.map(tag => `<span style="display:inline-block; background:${categoryColor}; color:white; padding:2px 6px; border-radius:12px; font-size:12px; margin-right:4px; margin-bottom:2px;">${tag}</span>`).join('') : ''}
+            </div>
         </div>
     `;
-
-
-    const infowindow = new kakao.maps.InfoWindow({
-        content: infoContent,
+    
+    const infoWindow = new kakao.maps.InfoWindow({
+        content: infoWindowContent,
         removable: true
     });
-
+    
     // 마커 클릭 이벤트
     kakao.maps.event.addListener(marker, 'click', function() {
-        // 다른 정보창 닫기
         closeAllInfoWindows();
-        
-        // 현재 정보창 열기
-        infowindow.open(map, marker);
-        
-        // 지도 중심을 마커 위치로 이동
-        map.setCenter(position);
+        infoWindow.open(map, marker);
     });
-
-    // 마커와 정보창을 배열에 저장
+    
+    // 마커와 인포윈도우를 배열에 저장
     markers.push({
         marker: marker,
-        infowindow: infowindow
+        infoWindow: infoWindow
     });
 }
 
 function getMarkerImageSrc(category) {
-    // 카테고리별 커스텀 색상 마커 (SVG 데이터 URI 사용)
-    const colors = {
-        '해변': createCustomMarker('#3498db'), 
-        '산/공원': createCustomMarker('#27ae60'), 
-        '문화': createCustomMarker('#e74c3c'), 
-        '전통시장': createCustomMarker('#f39c12'), 
-        '쇼핑': createCustomMarker('#9b59b6') 
+    const markerImages = {
+        beach: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_blue.png',
+        mountain: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_green.png',
+        culture: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+        food: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_yellow.png',
+        shopping: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_purple.png'
     };
     
-    return colors[category] || createCustomMarker('#e74c3c');
+    return markerImages[category] || markerImages.culture;
 }
 
 function createCustomMarker(color) {
-    // SVG 마커 생성
-    const svg = `
-        <svg width="30" height="35" viewBox="0 0 30 35" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 0C6.716 0 0 6.716 0 15c0 8.284 15 20 15 20s15-11.716 15-20C30 6.716 23.284 0 15 0z" 
-                  fill="${color}" stroke="#fff" stroke-width="2"/>
-            <circle cx="15" cy="15" r="6" fill="#fff"/>
-        </svg>
-    `;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 30;
+    canvas.height = 35;
     
-    // SVG를 base64로 인코딩하여 데이터 URI 생성
-    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+    // 마커 모양 그리기
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(15, 15, 12, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    return canvas.toDataURL();
 }
 
 function getCategoryColor(category) {
-    // 카테고리별 색상 반환 (마커와 동일한 색상)
     const colors = {
-        '해변': '#3498db',   
-        '산/공원': '#27ae60', 
-        '문화': '#e74c3c',   
-        '전통시장': '#f39c12',   
-        '쇼핑': '#9b59b6'    
+        beach: '#4A90E2',
+        mountain: '#7ED321',
+        culture: '#D0021B',
+        food: '#F5A623',
+        shopping: '#9013FE'
     };
     
-    return colors[category] || '#e74c3c';
+    return colors[category] || colors.culture;
 }
 
 function clearMarkers() {
@@ -181,33 +256,33 @@ function clearMarkers() {
 
 function closeAllInfoWindows() {
     markers.forEach(item => {
-        item.infowindow.close();
+        item.infoWindow.close();
     });
 }
 
 function updateActiveButton(category) {
-    document.querySelectorAll('.category-buttons button').forEach(btn => {
+    // 모든 버튼의 active 클래스 제거
+    document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    const activeButton = document.querySelector(`[onclick="showTouristSpots('${category}')"]`);
-    if (activeButton) {
-        activeButton.classList.add('active');
+    // 선택된 카테고리 버튼에 active 클래스 추가
+    const activeBtn = document.querySelector(`[data-category="${category}"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
     }
 }
 
-window.addEventListener('load', async function() {
-    if (typeof kakao !== 'undefined' && kakao.maps) {
-        await initMap();
-    } else {
-        console.error('카카오맵 API가 로드되지 않았습니다.');
-    }
+// 페이지 로드 시 지도 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
 });
+
+// 윈도우 리사이즈 시 지도 크기 조정
+window.addEventListener('resize', resizeMap);
 
 function resizeMap() {
     if (map) {
         map.relayout();
     }
 }
-
-window.addEventListener('resize', resizeMap);
