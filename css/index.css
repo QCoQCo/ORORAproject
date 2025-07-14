@@ -649,6 +649,7 @@ body {
     padding-top: 80px;
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%);
     position: relative;
+    padding-bottom: 200px;
 }
 
 .transport-content {
@@ -681,7 +682,7 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 30px;
-    margin-bottom: 60px;
+    /* margin-bottom: 60px; */
 }
 
 .transport-card {
@@ -749,6 +750,7 @@ body {
 
 .transport-apps {
     margin-top: 60px;
+    /* margin-bottom: 200px; */
     padding: 40px;
     background: rgba(255, 255, 255, 0.8);
     border-radius: 20px;
