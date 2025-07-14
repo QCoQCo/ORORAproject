@@ -43,15 +43,34 @@ class TagSearchSystem {
             
             // 모든 관광지 데이터를 배열로 변환
             this.allSpots = [];
-            Object.values(data.regions).forEach(region => {
-                region.spots.forEach(spot => {
-                    this.allSpots.push({
-                        ...spot,
-                        region: region.name,
-                        regionCode: region.code
+            
+            // data.regions가 존재하는지 확인 후 진행
+            if (data && data.regions) {
+                Object.values(data.regions).forEach(region => {
+                    if (region && region.spots && Array.isArray(region.spots)) {
+                        region.spots.forEach(spot => {
+                            this.allSpots.push({
+                                ...spot,
+                                region: region.name,
+                                regionCode: region.code
+                            });
+                        });
+                    }
+                });
+
+                // festivals 데이터가 있으면 추가
+                if (data.regions.festivals && Array.isArray(data.regions.festivals.events)) {
+                    data.regions.festivals.events.forEach(event => {
+                        this.allSpots.push({
+                            ...event,
+                            region: "축제/행사",
+                            regionCode: "festival"
+                        });
                     });
-  });
-});
+                }
+            } else {
+                console.error('데이터 구조 오류: regions 속성이 없습니다.');
+            }
 
         } catch (error) {
             console.error('데이터 로드 실패:', error);
@@ -560,3 +579,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 
 document.querySelector("#scrollTop")
+
+// 스크롤 탑 버튼 기능 구현
+document.addEventListener('DOMContentLoaded', () => {
+    const scrollTopBtn = document.querySelector("#scrollTop");
+    
+    if (scrollTopBtn) {
+        // 스크롤 이벤트 리스너 추가
+        window.addEventListener('scroll', () => {
+            // 스크롤이 100px 이상 내려가면 버튼 표시
+            if (window.scrollY > 100) {
+                scrollTopBtn.style.display = 'block';
+            } else {
+                scrollTopBtn.style.display = 'none';
+            }
+        });
+
+        // 버튼 클릭 시 최상단으로 스크롤
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 초기 상태는 숨김
+        scrollTopBtn.style.display = 'none';
+    }
+});
