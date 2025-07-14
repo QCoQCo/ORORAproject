@@ -536,3 +536,47 @@
         transform: rotate(360deg);
     }
 }
+
+/* Scroll To Top Button */
+#scrollTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-blue);
+    border-radius: 50%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 100;
+    border: none;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+#scrollTop:before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-top: 3px solid white;
+    border-left: 3px solid white;
+    transform: rotate(45deg) translate(2px, 2px);
+    display: block;
+}
+
+#scrollTop:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    background-color: var(--secondary-blue);
+}
+
+@media (max-width: 768px) {
+    #scrollTop {
+        bottom: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+    }
+}
