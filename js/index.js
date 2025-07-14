@@ -465,18 +465,7 @@ function initTransportationEffects() {
     });
     
     // Parallax effect for transport apps section
-    const transportApps = document.querySelector('.transport-apps');
-    if (transportApps) {
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const rect = transportApps.getBoundingClientRect();
-            const speed = 0.1;
-            
-            if (rect.top < window.innerHeight && rect.bottom > 0) {
-                transportApps.style.transform = `translateY(${scrolled * speed}px)`;
-            }
-        });
-    }
+
 }
 
 // Add CSS animation keyframes for bounce and ripple effects
