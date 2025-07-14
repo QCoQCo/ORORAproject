@@ -9,7 +9,7 @@
     width: 35px;
     height: 35px;
     margin-right: 10px;
-    background-image: url(../images/seagull.jpg);
+    background-image: url(../images/seagull.png);
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -241,6 +241,9 @@
     font-weight: 700;
     margin-bottom: 10px;
 }
+.vg > div > div{
+    display: flex;
+}
 .vg img{
     width: 1030px;
 }
@@ -284,10 +287,13 @@
 /* 위치 영역 */
 .place .placeInfo{
     display: flex;
-    gap: 30px;
+    gap: 20px;
 }
 .place .placeInfo ul{
-    width: 500px;
+    width: 480px;
+}
+.place .placeInfo .placePhoto img{
+    width: 470px;
 }
 .place .placeInfo .placePhoto{
     border-radius: 10px;
@@ -340,19 +346,19 @@
 }
 .climate .climateInfo .seasonList li{
     display: flex;
-    gap: 30px;
+    gap: 20px;
     margin-bottom: 30px;
 }
 .climate .climateInfo .seasonList li :last-child{
     margin-bottom: 0;
 }
 .climate .climateInfo .seasonList img{
-    width: 500px;
+    width: 470px;
     border-radius: 10px;
     overflow: hidden;
 }
 .climate .climateInfo .seasonList div{
-    width: 500px;
+    width: 480px;
 }
 .climate .climateInfo .seasonList span{
     color: #db0000;
@@ -372,21 +378,21 @@
 }
 .coast .coastInfo .coastList li{
     display: flex;
-    gap: 30px;
+    gap: 20px;
     margin-bottom: 30px;
 }
 .coast .coastInfo .coastList img{
-    width: 500px;
+    width: 470px;
     border-radius: 10px;
 }
 .coast .coastInfo .coastList div{
-    width: 500px;
+    width: 480px;
 }
 .coast .coastInfo .coastList .sand{
-    width: 320px;
+    width: 310px;
 }
 .coast .coastInfo .coastList .sand img{
-    width: 320px;
+    width: 310px;
     margin-bottom: 10px;
 }
 
