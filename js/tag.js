@@ -557,3 +557,6 @@ class TagSearchSystem {
 document.addEventListener('DOMContentLoaded', () => {
     new TagSearchSystem();
 });
+
+// 
+document.querySelector("#scrollTop")
