@@ -16,6 +16,9 @@ async function loadFooter() {
         if (footerContainer) {
             footerContainer.innerHTML = footerHTML;
             
+            // 로고 이미지 경로 조정
+            adjustLogoImagePath();
+            
             // 푸터 로드 후 이벤트 초기화
             initFooterEvents();
         } else {
@@ -23,6 +26,7 @@ async function loadFooter() {
             const existingFooter = document.getElementById('footer');
             if (existingFooter) {
                 existingFooter.outerHTML = footerHTML;
+                adjustLogoImagePath();
                 initFooterEvents();
             }
         }
@@ -39,6 +43,20 @@ function getFooterPath() {
         return '../../components/footer.html';
     } else {
         return './components/footer.html';
+    }
+}
+
+// 로고 이미지 경로 조정
+function adjustLogoImagePath() {
+    const logoImage = document.querySelector('.footer-logo-image');
+    if (logoImage) {
+        const currentPath = window.location.pathname;
+        
+        if (currentPath.includes('/pages/')) {
+            logoImage.src = '../../images/logo.png';
+        } else {
+            logoImage.src = './images/logo.png';
+        }
     }
 }
 
@@ -87,9 +105,21 @@ function updateCopyright() {
 function addScrollToTopFeature() {
     // 푸터 로고 클릭 시 맨 위로 스크롤
     const footerLogo = document.querySelector('.footer-logo');
+    const footerLogoImage = document.querySelector('.footer-logo-image');
+    
     if (footerLogo) {
         footerLogo.style.cursor = 'pointer';
         footerLogo.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+    
+    if (footerLogoImage) {
+        footerLogoImage.style.cursor = 'pointer';
+        footerLogoImage.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'

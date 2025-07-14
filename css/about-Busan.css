@@ -16,19 +16,40 @@
 }
 
 .main_bg{
-    position: relative;
-    margin-bottom: 30px;    
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 0;
+    overflow: hidden;
+}
+.main_bg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,30,60,0.3), rgba(0,80,120,0.6));
+    z-index: 1;
 }
 .main_bg .swiper-wrapper{
-    width: 1030px;
-    height: 600px;
+    width: 100%;
+    height: 100%;
+}
+.main_bg .swiper-slide {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 .main_bg .swiper-slide img{
     width: 100%;
-    height: auto;
+    height: 130vh;
     object-fit: cover;
-    overflow: hidden;
-    filter: brightness(50%)
+    filter: brightness(70%);
+    transform-origin: center top; /* 변환 원점 상단 중앙으로 */
+    transition: transform 0.1s ease-out; /* 부드러운 패럴랙스 효과 */
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
 }
 
 .title{
@@ -37,7 +58,11 @@
     left: 50%;
     transform: translate(-50%,-50%);
     color: #fff;
-    z-index: 990;
+    z-index: 2;
+    font-size: 4rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    letter-spacing: 2px;
 }
 .enter{
     margin-bottom: 10px;
@@ -52,9 +77,15 @@
 
 #wrapper .abBusan .container{
     width: 1440px;
-    margin: 10px auto;
+    margin: 0 auto;
     display: flex;
     justify-content: center;
+    position: relative;
+    z-index: 2;
+    padding: 30px 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, #ffffff 100px);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
 }
 .container #sideNav{
     width: 300px;
@@ -79,27 +110,48 @@
 }
 
 /* about BUSAN */
-/* .busan .main_bg img{
-    width: 1030px;
-    height: auto;
-    margin-bottom: 30px;
+.busan {
+    position: relative;
+    background: #fff;
+    padding-top: 30px;
     border-radius: 10px;
-    overflow: hidden;
-} */
+}
+.busan .description {
+    opacity: 0;
+    transition: opacity 1.5s ease, transform 1.5s ease;
+    transform: translateY(30px);
+}
+.busan .description.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
 
 .busan .description > ul{
     display: flex;
     justify-content: start;
     width: 100%;
-    margin-bottom: 30px;
-    
+    margin-bottom: 50px;
+    padding: 20px;
+    border-radius: 15px;
+    background: linear-gradient(to right, rgba(240,248,255,0.5), rgba(240,248,255,0));
+    transition: all 0.3s ease;
+}
+.busan .description > ul:hover {
+    background: linear-gradient(to right, rgba(220,240,255,0.8), rgba(240,248,255,0.2));
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 .busan .description > ul .leftPhoto img{
     width: 500px;
     height: 300px;
-    border-radius: 10px;
+    border-radius: 15px;
     overflow: hidden;
     object-fit: cover;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+.busan .description > ul .leftPhoto img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
 }
 .busan .description > ul .rightDesc{
     width: 400px;
@@ -107,16 +159,80 @@
     margin-top: 10px;
 }
 .busan .description div{
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    color: #005b8a;
+    position: relative;
+}
+.busan .description div::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(to right, #0088cc, transparent);
 }
 .busan .description span{
     font-size: 20px;
     font-weight: 700;
+    color: #0088cc;
 }
 .busan .description p{
     font-size: 18px;
+    line-height: 1.7;
+    color: #333;
+    margin-top: 15px;
+}
+
+/* 스크롤 탑 버튼 */
+#scrollTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(0, 136, 204, 0.8);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+}
+
+#scrollTop::before {
+    content: "↑";
+    font-size: 24px;
+    line-height: 50px;
+}
+
+#scrollTop.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#scrollTop:hover {
+    background-color: rgba(0, 136, 204, 1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+}
+
+/* 애니메이션 효과 */
+@keyframes wave {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 /* goals */

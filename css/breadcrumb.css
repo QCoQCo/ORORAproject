@@ -1,9 +1,9 @@
 /* 브레드크럼 스타일 */
 .breadcrumb {
-    max-width: 1440px;
+    /* max-width: 1440px; */
     padding: 12px 20px;
-    margin: 0 0 20px 0;
-    border-bottom: 2px solid #e3e3e3;
+    /* margin: 0 0 20px 0; */
+    /* border-bottom: 2px solid #e3e3e3; */
 }
 
 .breadcrumb-nav {
@@ -14,8 +14,8 @@
     font-weight: 500;
     color: #6c757d;
     list-style: none;
-    margin: 0;
-    padding: 0;
+    /* margin: 0;
+    padding: 0; */
 }
 
 .breadcrumb-item {

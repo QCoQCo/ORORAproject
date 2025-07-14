@@ -15,33 +15,71 @@
 <body>
     <div id="wrapper">
         <div id="header-container"></div>
-        <section class="search-place">
-            <!-- 지역 선택 컨트롤 패널 -->
-            <div class="control-panel">
-                <h3>부산 지역 선택</h3>
-                <div id="selection-info">
-                    지역을 클릭하여 선택/해제할 수 있습니다.
-                </div>
-                <div class="control-buttons">
-                    <button class="control-button">전체 해제</button>
-                    <button class="control-button">선택된 지역 보기</button>
-                </div>
+        
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-background"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">부산 지역별 관광지</h1>
+                <p class="hero-subtitle">지도에서 원하는 지역을 선택하여 관광지를 탐색해보세요</p>
             </div>
-            
-            <!-- 인라인 방식 -->
-            <div class="maplist-container">
-                <div id="map-container" style="overflow: hidden;">
-                    <svg id="mapSvg" xmlns="http://www.w3.org/2000/svg" width="580" height="580" version="1.1" viewBox="0 0 1000 820">
-                    </svg>
-                </div>
-                <div class="list-container">
-                    <div class="list-header">
-                        <h3>부산 관광지</h3>
-                        <p id="region-subtitle">지도에서 지역을 클릭하면 해당 지역의 관광지를 확인할 수 있습니다.</p>
+        </section>
+        
+        <section class="search-place">
+            <div class="container">
+                <!-- 지역 선택 컨트롤 패널 -->
+                <div class="control-panel">
+                    <div class="control-toggle">
+                        <button class="toggle-button" id="controlToggle">
+                            <span class="toggle-text">지역 선택 옵션</span>
+                            <span class="toggle-icon">▼</span>
+                        </button>
                     </div>
-                    <ul class="list-item" id="tourist-spots-list">
-                        <!-- 관광지 리스트가 여기에 동적으로 추가됩니다 -->
-                    </ul>
+                    <div class="control-content" id="controlContent">
+                        <div class="control-header">
+                            <div class="control-description">
+                                <p id="selection-info">지도에서 지역을 클릭하여 선택/해제할 수 있습니다.</p>
+                            </div>
+                        </div>
+                        <div class="control-buttons">
+                            <button class="control-button btn-secondary">전체 해제</button>
+                            <button class="control-button btn-primary">선택된 지역 보기</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 메인 컨텐츠 -->
+                <div class="main-content">
+                    <div class="content-grid">
+                        <!-- 지도 섹션 -->
+                        <div class="map-section">
+                            <div class="map-card">
+                                <div class="map-header">
+                                    <h3>부산 지역 지도</h3>
+                                    <p>지역을 클릭하여 관광지를 확인하세요</p>
+                                </div>
+                                <div id="map-container">
+                                    <svg id="mapSvg" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" version="1.1" viewBox="0 0 1000 820">
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 리스트 섹션 -->
+                        <div class="list-section">
+                            <div class="list-card">
+                                <div class="list-header">
+                                    <h3>부산 관광지</h3>
+                                    <p id="region-subtitle">지도에서 지역을 클릭하면 해당 지역의 관광지를 확인할 수 있습니다.</p>
+                                </div>
+                                <div class="list-content">
+                                    <ul class="list-item" id="tourist-spots-list">
+                                        <!-- 관광지 리스트가 여기에 동적으로 추가됩니다 -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
