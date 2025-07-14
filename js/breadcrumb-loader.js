@@ -93,11 +93,11 @@ function adjustBreadcrumbPaths() {
         //     'symbol.html': './symbol.html'
         // };
 
-        if (href && currentPageMenus[currentPage] && href === currentPageMenus[currentPage]) {
+        // if (href && currentPageMenus[currentPage] && href === currentPageMenus[currentPage]) {
 
-            link.style.pointerEvents = 'none';
-            link.style.color = '#6c757d';
-        }
+        //     link.style.pointerEvents = 'none';
+        //     link.style.color = '#6c757d';
+        // }
     });
 }
 
