@@ -25,6 +25,10 @@
     min-height: 100vh;
 }
 
+#wrapper .tag-section{
+    position: relative;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -132,6 +136,7 @@
     right: 30px;
     width: 50px;
     height: 50px;
+    display: block;
     background-color: rgba(0, 136, 204, 0.8);
     color: #fff;
     border: none;
@@ -585,17 +590,18 @@
 
 /* Scroll To Top Button */
 #scrollTop {
-    position: fixed;
-    bottom: 30px;
+    /* position: fixed; */
+    bottom: 430px;
     right: 30px;
     width: 50px;
     height: 50px;
     background-color: var(--primary-blue);
     border-radius: 50%;
-    display: none;
+    /* display: none; */
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    display: flex;
     z-index: 100;
     border: none;
     box-shadow: var(--shadow-md);
