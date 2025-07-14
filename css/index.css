@@ -204,7 +204,7 @@ body {
 
 /* Background Images for Cards */
 .nav-card[data-bg="about_busan"] {
-    background-image: url('../images/about_busan.jpg');
+    background-image: url('../images/main_busan01.jpg');
 }
 
 .nav-card[data-bg="marine_city"] {
