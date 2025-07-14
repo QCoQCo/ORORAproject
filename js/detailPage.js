@@ -1,4 +1,73 @@
 const likeBtn = document.querySelector(".likeBtn");
+const sectionEl = document.querySelectorAll(".section");
+const photoEl = document.querySelector(".photo");
+const detailEl = document.querySelector(".detail");
+const locationEl = document.querySelector("#map-container");
+const commentEl = document.querySelector(".comment");
+
+
+// 버튼 눌렀을 때 위치 이동
+// sectionEl.forEach(function(sect){
+//     sect.addEventListener('click',function(){
+
+//     })
+// })
+
+const photoIdEl = document.getElementById('photo');
+const detailIdEl = document.getElementById('detail');
+const locationIdEl = document.getElementById('location');
+const commentIdEl = document.getElementById('comment');
+
+const sectionsEl = [
+    {el :photoIdEl, section : photoEl},
+    {el :detailIdEl, section : detailEl},
+    {el :locationIdEl, section : locationEl},
+    {el :commentIdEl, section : commentEl},
+]
+
+sectionsEl.forEach(({ el, section }) => {
+    el.addEventListener('click', (e) =>{
+        console.log(el,section)
+        console.log(e.target)
+        let elTop = el.offsetTop - 70;
+        section.scrollIntoView({
+            top: elTop,
+            behavior: "smooth" 
+        });
+    })
+})
+
+
+
+// section1El.addEventListener('click', () =>{
+//     photoEl.classList.add('on');
+//     detailEl.classList.remove('on');
+//     locationEl.classList.remove('on');
+//     commentEl.classList.remove('on');
+//     let photoElTop = photoEl.offsetTop - 70;
+//     window.scrollTo({ top: photoElTop, behavior: "smooth" });
+// })
+// section2El.addEventListener('click', () =>{
+//     photoEl.classList.remove('on');
+//     detailEl.classList.add('on');
+//     locationEl.classList.remove('on');
+//     commentEl.classList.remove('on');
+//     detailEl.scrollIntoView({behavior : 'smooth'});
+// })
+// section3El.addEventListener('click', () =>{
+//     photoEl.classList.remove('on');
+//     detailEl.classList.remove('on');
+//     locationEl.classList.add('on');
+//     commentEl.classList.remove('on');
+//     locationEl.scrollIntoView({behavior : 'smooth'});
+// })
+// section4El.addEventListener('click', () =>{
+//     photoEl.classList.remove('on');
+//     detailEl.classList.remove('on');
+//     locationEl.classList.remove('on');
+//     commentEl.classList.add('on');
+//     commentEl.scrollIntoView({behavior : 'smooth'});
+// })
 
 // 관광지 하트 눌렀을 때, 빈하트 -> 빨간하트
 if (likeBtn) {
@@ -334,4 +403,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-    
