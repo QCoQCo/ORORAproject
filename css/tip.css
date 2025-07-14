@@ -31,29 +31,48 @@ a{
 }
 
 .korean-tip {
-    width: 980px;
+    width: 1200px;
     padding: 0 20px;
     margin: 0 auto;
     margin-top: 80px;
 }
 
-.korean-tip .ktTabWrap .tapUl{
+.ktTabWrap{
+    /* position: relative; */
     width: 100%;
+    padding: 0 0 70px;
+    /* transition: transform 0.1s ease-out;  */
+}
+
+.ktTabWrap .tabContainer{
+    overflow: hidden;
+}
+
+
+.ktTabWrap .tabUl{
+    /* width: 100%; */
     height: 65px;
     display: flex;
     text-align: center;
     background-color: #fff;
+    /* transition: transform 0.1s ease-out;  */
+    /* transition:all 500ms linear; */
+    transform: scale(1);
+    transform-origin: center center;
+    transition: transform 0.5s ease;
+    /* padding: 0;
+    transition: padding 0.5s ease; */
+    
 }
-.korean-tip .ktTabWrap .tapUl.sticky{
+.ktTabWrap .tabUl.sticky{
     width: 100%;
     position: fixed;
-    top: 0;
+    top: 100px;
     left: 0;
     overflow: hidden;
     z-index: 400;
-}
-.ktTabWrap{
-    padding: 0 0 70px;
+    transform: scale(1.1)  translateZ(0);
+    padding: 0 100px;
 }
 .ktTabWrap li{
     position: relative;
@@ -79,7 +98,7 @@ a{
     left: 0;
     bottom: 0;
 }
-.ktTabWrap .tapUl li::before {
+.ktTabWrap .tabUl li::before {
     content: '';
     display: inline-block;
     width: 1px;
@@ -90,7 +109,7 @@ a{
     top: 50%;
     margin-top: -8px;
 }   
-.ktTabWrap .tapUl #trans::before{
+.ktTabWrap .tabUl #trans::before{
     content: '';
     display: none;
 }
