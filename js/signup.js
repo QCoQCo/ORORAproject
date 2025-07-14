@@ -23,7 +23,7 @@ function pwOnChange() {
 
 submit.addEventListener('click', () => {
     if (strongPassword(putPsw.value) && strongPassword(putRePsw.value)) {
-        if (putPsw.length >= 6 && putPsw.length <= 15) {
+        if (putPsw.value.length >= 6 && putPsw.value.length <= 15) {
             if (putPsw.value && putRePsw.value) {
                 same.style.display = 'none';
                 if (putPsw.value == putRePsw.value) {
@@ -47,7 +47,7 @@ submit.addEventListener('click', () => {
             same.style.color = 'red';
         }
     }else{
-        alert('6글자 이상 15글자 이하, 영문, 숫자, 특수문자를 최소 1번 사용해야 합니다.');
+        alert('비밀번호는 6글자 이상 15글자 이하, 영문, 숫자, 특수문자(@$!%*#?&)를 최소 1번 사용해야 합니다.');
     }
 })
 
