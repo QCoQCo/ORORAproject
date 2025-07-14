@@ -48,7 +48,12 @@ button {
     font-family: inherit;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     margin: 0;
     color: var(--neutral-800);
 }
@@ -162,7 +167,12 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
 }
 
-.like, .eyes, .save, .print, .map, .share {
+.like,
+.eyes,
+.save,
+.print,
+.map,
+.share {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -176,7 +186,12 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--neutral-600);
 }
 
-.like:hover, .eyes:hover, .save:hover, .print:hover, .map:hover, .share:hover {
+.like:hover,
+.eyes:hover,
+.save:hover,
+.print:hover,
+.map:hover,
+.share:hover {
     background: var(--gradient-blue);
     border-color: var(--accent-blue);
     color: var(--primary-blue);
@@ -201,7 +216,11 @@ h1, h2, h3, h4, h5, h6 {
     background-size: contain;
 }
 
-.eyes button, .save button, .print button, .map button, .share button {
+.eyes button,
+.save button,
+.print button,
+.map button,
+.share button {
     background: none;
     border: none;
     padding: 0;
@@ -209,24 +228,44 @@ h1, h2, h3, h4, h5, h6 {
     transition: transform 0.3s ease;
 }
 
-.eyes button:hover, .save button:hover, .print button:hover, .map button:hover, .share button:hover {
+.eyes button:hover,
+.save button:hover,
+.print button:hover,
+.map button:hover,
+.share button:hover {
     transform: scale(1.1);
 }
 
-.eyes button img, .save button img, .print button img, .map button img, .share button img {
+.eyes button img,
+.save button img,
+.print button img,
+.map button img,
+.share button img {
     width: 24px;
     height: 24px;
     object-fit: contain;
 }
 
-.likeCount, .eyesCount, .shareCount {
+.likeCount,
+.eyesCount,
+.shareCount {
     color: var(--neutral-500);
     font-size: 0.9rem;
     font-weight: 500;
 }
 
+.inner .tap {
+    position: sticky;
+    top: 120px;
+    left: 0;
+    z-index: 100;
+}
+
 /* Sub navigation */
 #subTitle {
+    /* position: sticky;
+    top: 120px;
+    left: 0; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -868,23 +907,24 @@ h1, h2, h3, h4, h5, h6 {
     margin-left: auto;
 }
 
-.userReview > div:nth-child(2) {
+.userReview>div:nth-child(2) {
     margin-bottom: 20px;
 }
 
-.userReview > div:nth-child(2) p {
+.userReview>div:nth-child(2) p {
     font-size: 1rem;
     line-height: 1.6;
     color: var(--neutral-700);
 }
 
-.userReview > div:nth-child(3) > div {
+.userReview>div:nth-child(3)>div {
     display: flex;
     align-items: center;
     gap: 20px;
 }
 
-.reviewLike, .reviewRe {
+.reviewLike,
+.reviewRe {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -903,7 +943,8 @@ h1, h2, h3, h4, h5, h6 {
     transform: scale(1.1);
 }
 
-.reviewLikeCount, .reviewReCount {
+.reviewLikeCount,
+.reviewReCount {
     color: var(--neutral-500);
     font-size: 0.9rem;
 }
@@ -925,65 +966,65 @@ h1, h2, h3, h4, h5, h6 {
     .inner {
         padding: 0 15px 60px;
     }
-    
+
     .title h2 {
         font-size: 2rem;
     }
-    
+
     .title .descript {
         font-size: 1.25rem;
         padding: 15px 20px;
     }
-    
+
     .middleButtons {
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .middleButtons .left,
     .middleButtons .right {
         justify-content: center;
         flex-wrap: wrap;
     }
-    
+
     #subTitle {
         flex-direction: column;
     }
-    
+
     #subTitle li {
         border-right: none;
         border-bottom: 1px solid var(--neutral-200);
     }
-    
+
     #subTitle li:last-child {
         border-bottom: none;
     }
-    
+
     .detail {
         flex-direction: column;
         gap: 20px;
         text-align: center;
     }
-    
+
     .goodBad {
         flex-direction: column;
         gap: 30px;
         text-align: center;
     }
-    
+
     .goodBad .right {
         justify-content: center;
     }
-    
+
     .aboutAhop ul {
         grid-template-columns: 1fr;
     }
-    
+
     .aboutAhop li {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .aboutAhop p {
         min-width: auto;
         margin-right: 0;
@@ -994,38 +1035,38 @@ h1, h2, h3, h4, h5, h6 {
     .back-button-container {
         padding: 15px;
     }
-    
+
     .title {
         padding: 40px 0 30px;
     }
-    
+
     .title h2 {
         font-size: 1.75rem;
     }
-    
+
     .title .descript {
         font-size: 1.125rem;
         padding: 12px 16px;
     }
-    
+
     .photo {
         height: 400px;
     }
-    
+
     .tag {
         padding: 20px;
     }
-    
+
     .tag button {
         font-size: 0.9rem;
         padding: 8px 16px;
     }
-    
+
     .goodBad .right {
         flex-direction: column;
         width: 100%;
     }
-    
+
     .goodBad .right button {
         width: 100%;
     }
