@@ -10,19 +10,27 @@ const section4El = document.getElementById('section4');
 const section5El = document.getElementById('section5');
 
 const content = document.querySelector('.transportation');
-const tab = document.querySelector('.ktTabWrap');
-// const tab = document.querySelector('.tapUl');
+// const tab = document.querySelector('.ktTabWrap');
+const tab = document.querySelector('.tapUl');
 const sticky = tab.offsetTop;
 
+// function updateTabWidth{
+//   if (tab.classList.contains("sticky")) {
+//     tab.style.width = wrapper.offsetWidth + 'px';
+//   }
+// }
 function myFunction(){
   if (window.pageYOffset >= sticky) {
     tab.classList.add("sticky")
+    tab.style.width = wrapper.offsetWidth + 'px';
   } else {
     tab.classList.remove("sticky");
+    tab.style.width = '';
   }
 }
 
-window.addEventListener('scroll', myFunction)
+// window.addEventListener('scroll', myFunction);
+// window.addEventListener('resize', updateTabWidth);
 
 transEl.addEventListener('click', () => {
     passEl.classList.remove('on');
