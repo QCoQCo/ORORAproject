@@ -55,9 +55,9 @@
 
 .orora-background h3 {
     color: #2c3e50;
-    font-size: 28px;
+    font-size: 36px;
     margin-bottom: 30px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .orora-background h3::after {
@@ -69,7 +69,45 @@
     font-size: 16px;
     line-height: 1.7;
     color: #495057;
-    text-align: justify;
+    text-align: center;
+}
+.orora-background .content .bar::after{
+    content: '';
+    display: block;
+    width: 200px;
+    height: 2px;
+    margin: 0 auto;
+    background: #dadada;
+
+}
+.orora-background .content .orora{
+    position: relative; 
+    font-weight: 700;
+    color: #5401c1;
+}
+.orora-background .content .orora:first-child{
+    padding-left: 18px;
+}
+.orora-background .content .orora .ororaImg{ 
+    display: block;
+    position: absolute;
+    bottom: 2px;
+    padding-right: 20px;
+    width: 20px;
+    height: 16px;
+    line-height: 16px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url(../images/ororaEmoji.png);
+}
+.orora-background .content .arataBusan{ 
+    font-weight: 700;
+    color: #0175c1;
+}
+.orora-background .content .s500{
+    font-weight: 500;
+    color: #121212;
 }
 
 .team-introduce {
