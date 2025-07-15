@@ -52,7 +52,7 @@ function updateActiveTab() {
   sections.forEach(section => {
     const sectionTop = section.offsetTop;
     const sectionHeight = section.offsetHeight;
-    const offset = window.innerHeight * 0.15;
+    const offset = window.innerHeight * 0.2;
 
     if (scrollPosition + offset >= sectionTop && scrollPosition < sectionTop + sectionHeight - offset) {
       onReset();
@@ -69,6 +69,13 @@ function updateActiveTab() {
 }
 window.addEventListener('scroll', updateActiveTab);
 
+
+const topBtnEl = document.getElementById('topBtn');
+topBtnEl.addEventListener('click', () => {
+  transEl.classList.remove('on');
+  window.scrollTo({top : 0, behavior : "smooth"});
+  onReset();
+});
 
 
 
