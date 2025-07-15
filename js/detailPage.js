@@ -1,77 +1,73 @@
 const likeBtn = document.querySelector(".likeBtn");
+const like = document.querySelector(".like");
 const sectionEl = document.querySelectorAll(".section");
-const photoEl = document.querySelector(".photo");
-const detailEl = document.querySelector(".detail");
-const locationEl = document.querySelector("#map-container");
-const commentEl = document.querySelector(".comment");
+// const photoEl = document.querySelector(".photo");
+// const detailEl = document.querySelector(".detail");
+// const locationEl = document.querySelector("#map-container");
+// const commentEl = document.querySelector(".comment");
+const sectionList = document.querySelectorAll(".sectionList");
+//els{0,1,2,3}
 
 
 // 버튼 눌렀을 때 위치 이동
-// sectionEl.forEach(function(sect){
-//     sect.addEventListener('click',function(){
+// sectionEl.forEach((el, i) => {
+//     el.addEventListener('click', function () {
+//         sectionEl.forEach(se => se.classList.remove('active'));
+//         el.classList.add('active');
 
+//         sectionList.forEach((e, idx) => {
+//             let minus = 0;
+//             if (idx === 0) {
+//                 minus = 70;
+//             }
+//             if (i === idx) {
+//                 let sectionTop = sectionList[idx].offsetTop - minus;
+//                 window.scrollTo({ top: sectionTop, behavior: "smooth" });
+//             }
+//         })
 //     })
-// })
+// });
 
-const photoIdEl = document.getElementById('photo');
-const detailIdEl = document.getElementById('detail');
-const locationIdEl = document.getElementById('location');
-const commentIdEl = document.getElementById('comment');
+// 위치에 따라 버튼 체크
+const doc = document.documentElement;
+const docHeight = window.pageYOffset;
 
-const sectionsEl = [
-    {el :photoIdEl, section : photoEl},
-    {el :detailIdEl, section : detailEl},
-    {el :locationIdEl, section : locationEl},
-    {el :commentIdEl, section : commentEl},
-]
 
-sectionsEl.forEach(({ el, section }) => {
-    el.addEventListener('click', (e) =>{
-        console.log(el,section)
-        console.log(e.target)
-        let elTop = el.offsetTop - 70;
-        section.scrollIntoView({
-            top: elTop,
-            behavior: "smooth" 
-        });
+window.addEventListener('scroll', function () {
+    sectionList.forEach((e, idx) => {
+        let minus = 0;
+        if (idx === 0) {
+            minus = 70;
+
+            let sectionTop = sectionList[idx].offsetTop - minus;
+
+            if (sectionList[0].offsetTop - 70 > doc.scrollTop) {
+                sectionEl.forEach(se => se.classList.remove('active'));
+            } else if (sectionList[0].offsetTop < doc.scrollTop) {
+                sectionEl[0].classList.add('active');
+                window.scrollTo({ top: sectionTop, behavior: "smooth" });
+            } else if (sectionList[1].offsetTop < doc.scrollTop) {
+                sectionEl[1].classList.add('active');
+                window.scrollTo({ top: sectionTop, behavior: "smooth" });
+            } else if (sectionList[2].offsetTop < doc.scrollTop) {
+                sectionEl[2].classList.add('active');
+                window.scrollTo({ top: sectionTop, behavior: "smooth" });
+            } else {
+                sectionEl[3].classList.add('active');
+                window.scrollTo({ top: sectionTop, behavior: "smooth" });
+            }
+        }
+    }
     })
+
+
+window.scrollTo({ top: sectionTop, behavior: "smooth" });
 })
 
 
-
-// section1El.addEventListener('click', () =>{
-//     photoEl.classList.add('on');
-//     detailEl.classList.remove('on');
-//     locationEl.classList.remove('on');
-//     commentEl.classList.remove('on');
-//     let photoElTop = photoEl.offsetTop - 70;
-//     window.scrollTo({ top: photoElTop, behavior: "smooth" });
-// })
-// section2El.addEventListener('click', () =>{
-//     photoEl.classList.remove('on');
-//     detailEl.classList.add('on');
-//     locationEl.classList.remove('on');
-//     commentEl.classList.remove('on');
-//     detailEl.scrollIntoView({behavior : 'smooth'});
-// })
-// section3El.addEventListener('click', () =>{
-//     photoEl.classList.remove('on');
-//     detailEl.classList.remove('on');
-//     locationEl.classList.add('on');
-//     commentEl.classList.remove('on');
-//     locationEl.scrollIntoView({behavior : 'smooth'});
-// })
-// section4El.addEventListener('click', () =>{
-//     photoEl.classList.remove('on');
-//     detailEl.classList.remove('on');
-//     locationEl.classList.remove('on');
-//     commentEl.classList.add('on');
-//     commentEl.scrollIntoView({behavior : 'smooth'});
-// })
-
 // 관광지 하트 눌렀을 때, 빈하트 -> 빨간하트
 if (likeBtn) {
-    likeBtn.addEventListener("click", () => {
+    like.addEventListener("click", () => {
         likeBtn.classList.toggle("likeBtnActive");
     });
 }
@@ -95,7 +91,7 @@ function initSwiper() {
     // Swiper 요소가 존재하는지 확인
     const thumbSwiper = document.querySelector(".mySwiper");
     const mainSwiper = document.querySelector(".mySwiper2");
-    
+
     if (!thumbSwiper || !mainSwiper) {
         console.log('Swiper 요소를 찾을 수 없습니다.');
         return;
@@ -134,7 +130,7 @@ async function loadTouristSpotDetail() {
         // URL 파라미터에서 관광지 정보 가져오기
         const urlParams = new URLSearchParams(window.location.search);
         const spotTitle = urlParams.get('title') || decodeURIComponent(urlParams.get('spot') || '');
-        
+
         if (!spotTitle) {
             console.error('관광지 정보가 없습니다.');
             return;
@@ -144,11 +140,11 @@ async function loadTouristSpotDetail() {
         const dataPath = getDataPath();
         const response = await fetch(dataPath);
         const data = await response.json();
-        
+
         // 해당 관광지 찾기
         let foundSpot = null;
         let regionName = '';
-        
+
         for (const [regionKey, regionData] of Object.entries(data.regions)) {
             if (regionData.spots) {
                 const spot = regionData.spots.find(s => s.title === spotTitle || s.title.includes(spotTitle));
@@ -167,7 +163,7 @@ async function loadTouristSpotDetail() {
 
         // 페이지 데이터 설정
         updatePageContent(foundSpot, regionName);
-        
+
     } catch (error) {
         console.error('데이터 로드 중 오류:', error);
     }
@@ -176,7 +172,7 @@ async function loadTouristSpotDetail() {
 // 현재 경로에 따른 데이터 파일 경로 결정
 function getDataPath() {
     const currentPath = window.location.pathname;
-    
+
     if (currentPath.includes('/pages/')) {
         return '../../data/busanTouristSpots.json';
     } else {
@@ -217,11 +213,56 @@ function updatePageContent(spot, regionName) {
     }, 100);
 }
 
+// 좋아요 별로예요 버튼
+const good = document.querySelector('.good');
+const likeIco = document.querySelector('.likeIco');
+const bad = document.querySelector('.bad');
+const dislikeIco = document.querySelector('.dislikeIco');
+const btns = document.querySelectorAll('.right button');
+
+
+// good.addEventListener('click', function () {
+//     likeIco.classList.toggle('active');
+//     dislikeIco.classList.remove('active');
+// })
+
+
+// bad.addEventListener('click', function () {
+//     dislikeIco.classList.toggle('active');
+//     likeIco.classList.remove('active');
+// })
+
+btns.forEach(el => {
+    el.addEventListener('click', e => {
+        // btns.forEach(e=>e.classList.remove('active'));
+        if (!el.classList.contains('active')) {
+            btns.forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+        }
+        else {
+            btns.forEach(e => e.classList.remove('active'));
+            el.classList.remove('active');
+        }
+        // if(btns.forEach(e=>e.classList.contains('active')))
+        // el.classList.toggle('active');
+    })
+})
+
+// function likeDislike(el,btn){
+//     btn.addEventListener('click',()=>{
+//         dislikeIco.classList.remove('active');
+//         likeIco.classList.remove('active');
+//         el.classList.toggle('active');
+//     })
+// }
+
+
+
 // 이미지 업데이트
 function updateImages(spot) {
     const mainSlider = document.getElementById('main-slider');
     const thumbSlider = document.getElementById('thumb-slider');
-    
+
     if (!mainSlider || !thumbSlider) return;
 
     // 기본 이미지들 (실제로는 spot.img나 여러 이미지를 사용)
@@ -254,7 +295,7 @@ function updateImages(spot) {
 // 이미지 경로 자동 감지
 function getImagePath(imageName) {
     const currentPath = window.location.pathname;
-    
+
     if (currentPath.includes('/pages/')) {
         return `../../images/${imageName}`;
     } else {
@@ -268,7 +309,7 @@ function updateHashtags(spot) {
     if (!hashtagsContainer) return;
 
     hashtagsContainer.innerHTML = '';
-    
+
     if (spot.hashtags) {
         spot.hashtags.forEach(tag => {
             const button = document.createElement('button');
@@ -312,13 +353,13 @@ function updateSpotInfo(spot, regionName) {
 // 해시태그로부터 카테고리 추출
 function getCategoryFromHashtags(hashtags) {
     if (!hashtags) return '관광지';
-    
+
     if (hashtags.some(tag => tag.includes('해수욕장') || tag.includes('바다'))) return '해변/바다';
     if (hashtags.some(tag => tag.includes('산') || tag.includes('공원'))) return '산/공원';
     if (hashtags.some(tag => tag.includes('문화') || tag.includes('사찰') || tag.includes('박물관'))) return '문화/역사';
     if (hashtags.some(tag => tag.includes('카페') || tag.includes('음식'))) return '음식/카페';
     if (hashtags.some(tag => tag.includes('시장') || tag.includes('쇼핑'))) return '쇼핑/시장';
-    
+
     return '관광지';
 }
 
@@ -333,27 +374,27 @@ function initKakaoMap(spotTitle) {
     };
 
     const map = new kakao.maps.Map(mapContainer, mapOption);
-    
+
     // 장소 검색 객체 생성
     const ps = new kakao.maps.services.Places();
-    
+
     // 키워드로 장소를 검색
     ps.keywordSearch(`부산 ${spotTitle}`, (data, status) => {
         if (status === kakao.maps.services.Status.OK) {
             const coords = new kakao.maps.LatLng(data[0].y, data[0].x);
-            
+
             // 마커 생성
             const marker = new kakao.maps.Marker({
                 map: map,
                 position: coords
             });
-            
+
             // 인포윈도우 생성
             const infowindow = new kakao.maps.InfoWindow({
                 content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`
             });
             infowindow.open(map, marker);
-            
+
             // 지도 중심을 결과값으로 이동
             map.setCenter(coords);
         }
@@ -364,9 +405,9 @@ function initKakaoMap(spotTitle) {
 function initBackButton() {
     const backButton = document.querySelector('.back-button');
     if (backButton) {
-        backButton.addEventListener('click', function(e) {
+        backButton.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             // 브라우저 히스토리가 있으면 뒤로가기, 없으면 메인 페이지로
             if (window.history.length > 1) {
                 window.history.back();
@@ -384,14 +425,14 @@ function initBackButton() {
 }
 
 // DOM 로드 완료 후 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // 뒤로가기 버튼 초기화
     initBackButton();
-    
+
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
     const urlParams = new URLSearchParams(window.location.search);
     const spotTitle = urlParams.get('title') || urlParams.get('spot');
-    
+
     if (spotTitle) {
         loadTouristSpotDetail();
     } else {
