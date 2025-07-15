@@ -36,33 +36,23 @@ a{
     margin: 0 auto;
     margin-top: 80px;
 }
-
 .ktTabWrap{
     /* position: relative; */
     width: 100%;
     padding: 0 0 70px;
-    /* transition: transform 0.1s ease-out;  */
 }
-
 .ktTabWrap .tabContainer{
     overflow: hidden;
 }
-
-
 .ktTabWrap .tabUl{
     /* width: 100%; */
     height: 65px;
     display: flex;
     text-align: center;
     background-color: #fff;
-    /* transition: transform 0.1s ease-out;  */
-    /* transition:all 500ms linear; */
-    transform: scale(1);
+    transform: scale(1) translateZ(0);
     transform-origin: center center;
     transition: transform 0.5s ease;
-    /* padding: 0;
-    transition: padding 0.5s ease; */
-    
 }
 .ktTabWrap .tabUl.sticky{
     width: 100%;
@@ -141,6 +131,7 @@ a{
 .mapTrans .map .left p{
     text-align: center;
     margin-bottom: 10px;
+    font-weight: 600;
 }
 .mapTrans .map .image a{
     display: block;
@@ -160,7 +151,9 @@ a{
     background-image: url(../images/kakaomap.png);
 
 }
-
+#trans-section {
+  scroll-margin-top: 150px; /* 헤더+탭의 높이만큼 */
+}
 .mapTrans .transApp .transAppComent{
     padding: 0 20px;
 }
@@ -174,6 +167,7 @@ a{
 .mapTrans .transApp .left p{
     text-align: center;
     margin-bottom: 10px;
+    font-weight: 600;
 }
 .mapTrans .transApp .image a{
     display: block;
@@ -208,8 +202,9 @@ a{
 .pass .left p{
     text-align: center;
     margin-bottom: 10px;
+    font-weight: 600;
 }
-.pass .image a{
+.pass .visitbusanpass .left .image a{
     display: block;
     width: 75px;
     height: 75px;
@@ -220,7 +215,12 @@ a{
     border-radius: 10px;
     box-shadow: 2px 2px 50px rgba(0,0,0,0.08);
 }
-.visitbusanpass .image a{
+
+#pass-section {
+  scroll-margin-top: 120px;
+}
+
+.pass .visitbusanpass .image a{
     background-image: url(../images/visitbusanpass.png);
     background-color: rgb(1, 108, 170);
     border-radius: 10px;
@@ -269,7 +269,9 @@ a{
     border-radius: 15px;
     padding: 10px;
 }
-
+#reserve-section {
+  scroll-margin-top: 150px; /* 헤더+탭의 높이만큼 */
+}
 .reservation .eat .eatComent{
     padding: 0 20px;
 }
@@ -283,6 +285,7 @@ a{
 .reservation .left p{
     text-align: center;
     margin-bottom: 10px;
+    font-weight: 600;
 }
 .reservation .image a{
     display: block;
@@ -302,6 +305,9 @@ a{
     background-image: url(../images/catchtable.png);
 }
 
+#deliver-section {
+  scroll-margin-top: 150px; /* 헤더+탭의 높이만큼 */
+}
 
 .delivery .deliveryComent{
     padding: 0 20px;
@@ -316,6 +322,7 @@ a{
 .delivery .left p{
     text-align: center;
     margin-bottom: 10px;
+    font-weight: 600;
 }
 .delivery .image a{
     display: block;
@@ -335,7 +342,12 @@ a{
     background-image: url(../images/shuttle.png);
 }
 
-
+.convenience .photo{
+    margin-bottom: 220px;
+}
+#photob-section {
+  scroll-margin-top: 150px; /* 헤더+탭의 높이만큼 */
+}
 .photo .photoComent{
     padding: 0 20px;
 }
@@ -349,6 +361,7 @@ a{
 .photo .left p{
     text-align: center;
     margin-bottom: 10px;
+    font-weight: 600;
 }
 .photo .image a{
     display: block;
