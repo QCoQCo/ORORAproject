@@ -10,6 +10,47 @@ const sectionList = document.querySelectorAll(".sectionList");
 
 
 // 버튼 눌렀을 때 위치 이동
+sectionEl.forEach((el, i) => {
+    el.addEventListener('click', function () {
+        sectionList.forEach((e, idx) => {
+            let minus = 0;
+            if (idx === 0) {
+                minus = 70;
+            }
+            if (i === idx) {
+                let sectionTop = sectionList[idx].offsetTop - minus;
+                window.scrollTo({ top: sectionTop, behavior: "smooth" });
+            }
+        })
+        window.addEventListener('scroll', function () {
+            sectionList.forEach((e, idx) => {
+                if (sectionList[0].offsetTop - 70 > doc.scrollTop) {
+                    sectionEl.forEach(se => se.classList.remove('active'));
+                } else if (sectionList[0].offsetTop - 70 <= doc.scrollTop && sectionList[1].offsetTop > doc.scrollTop) {
+                    sectionEl.forEach(se => se.classList.remove('active'));
+                    sectionEl[0].classList.add('active');
+                } else if (sectionList[1].offsetTop <= doc.scrollTop && sectionList[2].offsetTop > doc.scrollTop) {
+                    sectionEl.forEach(se => se.classList.remove('active'));
+                    sectionEl[1].classList.add('active');
+                } else if (sectionList[2].offsetTop <= doc.scrollTop && sectionList[3].offsetTop > doc.scrollTop) {
+                    sectionEl.forEach(se => se.classList.remove('active'));
+                    sectionEl[2].classList.add('active');
+                } else {
+                    sectionEl.forEach(se => se.classList.remove('active'));
+                    sectionEl[3].classList.add('active');
+                }
+            })
+        })
+    })
+
+});
+
+// 위치에 따라 버튼 체크
+const doc = document.documentElement;
+const docHeight = window.pageYOffset;
+
+//   const scrollPosition = window.scrollY;
+
 // sectionEl.forEach((el, i) => {
 //     el.addEventListener('click', function () {
 //         sectionEl.forEach(se => se.classList.remove('active'));
@@ -28,41 +69,34 @@ const sectionList = document.querySelectorAll(".sectionList");
 //     })
 // });
 
-// 위치에 따라 버튼 체크
-const doc = document.documentElement;
-const docHeight = window.pageYOffset;
+// function onReset() {
+//   sectionsEl.forEach(({ el: otherEl }) => otherEl.classList.remove('on'));
+// }
+
+// function scrolls(){
+//     const scrollPosition = window.scrollY;
+//     sectionList.forEach(se => {
+//         const sectionTop = sectionEl.offsetTop;
+//         const sectionHeight = section.offsetHeight;
+//         const offset = window.innerHeight * 0.2;
+
+//         if(scrollPosition + offset >= sectionTop && scrollPosition < sectionTop + sectionHeight - offset){
+//             onReset();
+//             const tabId = section.id.replace('-section', '');
+//             const activeTab = document.getElementById(tabId);
+//             if(activeTab){
+//                 activeTab.classList.add('on');
+//             }
+//             if(scrollPosition === 0){
+//                 onReset();
+//             }
+//         }
+//     })
+// }
+// window.addEventListener('scroll', updateActiveTab);
 
 
-window.addEventListener('scroll', function () {
-    sectionList.forEach((e, idx) => {
-        let minus = 0;
-        if (idx === 0) {
-            minus = 70;
 
-            let sectionTop = sectionList[idx].offsetTop - minus;
-
-            if (sectionList[0].offsetTop - 70 > doc.scrollTop) {
-                sectionEl.forEach(se => se.classList.remove('active'));
-            } else if (sectionList[0].offsetTop < doc.scrollTop) {
-                sectionEl[0].classList.add('active');
-                window.scrollTo({ top: sectionTop, behavior: "smooth" });
-            } else if (sectionList[1].offsetTop < doc.scrollTop) {
-                sectionEl[1].classList.add('active');
-                window.scrollTo({ top: sectionTop, behavior: "smooth" });
-            } else if (sectionList[2].offsetTop < doc.scrollTop) {
-                sectionEl[2].classList.add('active');
-                window.scrollTo({ top: sectionTop, behavior: "smooth" });
-            } else {
-                sectionEl[3].classList.add('active');
-                window.scrollTo({ top: sectionTop, behavior: "smooth" });
-            }
-        }
-    }
-    })
-
-
-window.scrollTo({ top: sectionTop, behavior: "smooth" });
-})
 
 
 // 관광지 하트 눌렀을 때, 빈하트 -> 빨간하트
