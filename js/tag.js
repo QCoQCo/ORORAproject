@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (scrollTopBtn) {
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
+            if (window.scrollY) {
                 scrollTopBtn.classList.add('visible');
             } else {
                 scrollTopBtn.classList.remove('visible');
