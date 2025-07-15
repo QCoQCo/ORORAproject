@@ -379,20 +379,71 @@
     margin-bottom: 10px;
 }
 .coast .coastInfo .coastList li{
+    transition: 0.1s ease;
     display: flex;
     gap: 20px;
     margin-bottom: 30px;
 }
-.coast .coastInfo .coastList li.hidden{
-    transition: 0.1s ease; /* 부드러운 패럴랙스 효과 */
-    display: none;
+.coast .coastInfo .coastList li.sandbeach.hidden{
+    /* display: none; */
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-width: 0;
 }
 .coast .coastInfo .coastList li.sandbeach{
+    position: relative;
     padding: 20px;
     border: 2px solid #baeeff;
     border-radius: 25px;
-    background: linear-gradient(to bottom, #fff, #baeeff);
+    background-color: #dbf6ff;
+    /* background: linear-gradient(to bottom, #fff, #baeeff); */
+    transition: max-height 1s ease-in-out,
+    opacity 0.5s ease-in-out,
+    padding 0.5s ease-in-out,
+    margin-bottom 0.5s ease-in-out,
+    border-width 1s ease-in-out;
+    /* overflow: hidden; */
+    max-height: 985px;
+    opacity: 1;
+    z-index: 0;
 }
+.sandbeach .arr{
+    position: absolute;
+    top: -18px;
+    left: 530px;
+    width: 30px;
+    height: 30px;
+    /* background-color: #dbf6ff; */
+    border-top: 2px solid #baeeff;
+    border-left: 2px solid #baeeff;
+    transform: rotate(45deg);
+}
+.sandbeach .arr span{
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-top: 16px solid #dbf6ff;
+    border-left: 16px solid #dbf6ff;
+    border-right: 16px solid transparent;
+    border-bottom: 16px solid transparent;
+
+}
+/* .coast .coastInfo .coastList .sandbeach::after{
+    content: "";
+    position: absolute;
+    top: -18px;
+    left: 530px;
+    width: 30px;
+    height: 30px;
+    background-color: #dbf6ff;
+    border-top: 15px solid #baeeff;
+    border-left: 30px solid #baeeff;
+    transform: rotate(45deg);
+} */
+
 .coast .coastInfo .coastList img{
     width: 470px;
     border-radius: 10px;
@@ -464,6 +515,79 @@
 }
 
 /* character */
+.character{
+    position: relative;   
+}
 .character img{
     width: 1030px;
+}
+.link .guide{
+    display: block;
+    width: 205px;
+    height: 55px;
+    position: absolute;
+    bottom: 1665px;
+    left: 540px;
+    background-color: transparent;
+    text-indent: -9999999px;
+}
+.link .app{
+    display: block;
+    width: 205px;
+    height: 55px;
+    position: absolute;
+    bottom: 1665px;
+    left: 1027px;
+    background-color: transparent;
+    text-indent: -9999999px;
+}
+.link .insta1{
+    display: block;
+    width: 205px;
+    height: 55px;
+    position: absolute;
+    bottom: 1155px;
+    left: 540px;
+    background-color: transparent;
+    text-indent: -9999999px;
+}
+.link .insta2{
+    display: block;
+    width: 205px;
+    height: 55px;
+    position: absolute;
+    bottom: 1155px;
+    left: 1000px;
+    background-color: transparent;
+    text-indent: -9999999px;
+}
+.link .movement1{
+    display: block;
+    width: 205px;
+    height: 55px;
+    position: absolute;
+    bottom: 668px;
+    left: 540px;
+    background-color: transparent;
+    text-indent: -9999999px;
+}
+.link .movement2{
+    display: block;
+    width: 205px;
+    height: 55px;
+    position: absolute;
+    bottom: 668px;
+    left: 1035px;
+    background-color: transparent;
+    text-indent: -9999999px;
+}
+.link .youtube{
+    display: block;
+    width: 130px;
+    height: 55px;
+    position: absolute;
+    bottom: 560px;
+    left: 1186px;
+    background-color: transparent;
+    text-indent: -9999999px;
 }
