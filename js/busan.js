@@ -111,4 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleContent(){
     const sand =document.querySelector('.sandbeach');
     sand.classList.toggle('hidden');
+    // if(!sand.classList.has('hidden')){
+    //     sand.style.height='985px';
+    // }
 }
