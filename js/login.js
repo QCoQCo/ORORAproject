@@ -33,8 +33,8 @@ loginBtn.addEventListener('click', async function () {
 
         const foundUser = users.find(user => user.username === userInputId);
 
-        // users.json에 비밀번호 정보가 없어, 임시로 'test1234'로 확인합니다.
-        if (foundUser && userInputPsw === 'test1234') {
+        // users.json의 비밀번호와 입력한 비밀번호가 일치하는지 확인
+        if (foundUser && userInputPsw === foundUser.password) {
             alert(`${foundUser.username}님 환영합니다!`);
             // 로그인 성공 시 사용자 정보를 세션 스토리지에 저장
             sessionStorage.setItem('loggedInUser', JSON.stringify(foundUser));
