@@ -101,18 +101,6 @@
     background-size: contain;
     background-image: url(../images/ororaEmoji.png);
 }
-/* .orora-background .content .orora::before{
-    content: '';
-    display: block;
-    width: 20px;
-    height: 16px;
-    line-height: 16px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-image: url(../images/ororaEmoji.png);
-} */
-
 .orora-background .content .arataBusan{ 
     font-weight: 700;
     color: #0175c1;
