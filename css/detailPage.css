@@ -216,12 +216,36 @@ h6 {
     background-size: contain;
 }
 
+.middleButtons .eyes button {
+    background: url(../images/ico_eyes_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .save button {
+    background: url(../images/ico_save_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .print button {
+    background: url(../images/ico_print_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .map button {
+    background: url(../images/ico_map_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .share button {
+    background: url(../images/ico_share_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
 .eyes button,
 .save button,
 .print button,
 .map button,
 .share button {
-    background: none;
     border: none;
     padding: 0;
     cursor: pointer;
@@ -236,11 +260,11 @@ h6 {
     transform: scale(1.1);
 }
 
-.eyes button img,
-.save button img,
-.print button img,
-.map button img,
-.share button img {
+.eyes button,
+.save button,
+.print button,
+.map button,
+.share button {
     width: 24px;
     height: 24px;
     object-fit: contain;
@@ -332,9 +356,11 @@ h6 {
     box-shadow: var(--shadow-md);
 }
 
-.submitPicture img {
+.submitPicture span {
     width: 20px;
     height: 20px;
+    background: url(../images/icon_btn_picture_detailPage.png) no-repeat center;
+    background-size: contain;
 }
 
 /* Photo gallery */
@@ -457,9 +483,11 @@ h6 {
     box-shadow: var(--shadow-md);
 }
 
-.detailPicture img {
+.detailPicture span {
     width: 20px;
     height: 20px;
+    background: url(../images/icon_btn_pen_detailPage.png) no-repeat center;
+    background-size: contain;
 }
 
 /* Detail description */
@@ -843,9 +871,11 @@ h6 {
     color: var(--primary-blue);
 }
 
-.commentPicture .pho img {
+.commentPicture .pho span {
     width: 20px;
     height: 20px;
+    background: url(../images/icon_btn_picture_detailPage.png) no-repeat center;
+    background-size: contain;
 }
 
 .commentPicture .sub {
