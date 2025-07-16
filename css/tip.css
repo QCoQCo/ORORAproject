@@ -186,7 +186,7 @@ a {
 }
 
 #trans-section {
-    scroll-margin-top: 150px;
+    scroll-margin-top: 180px;
 }
 
 .mapTrans .transApp .transAppComent {
@@ -264,7 +264,7 @@ a {
 }
 
 #pass-section {
-    scroll-margin-top: 120px;
+    scroll-margin-top: 180px;
 }
 
 .pass .visitbusanpass .image a {
@@ -337,7 +337,7 @@ a {
 }
 
 #reserve-section {
-    scroll-margin-top: 150px;
+    scroll-margin-top: 180px;
 }
 
 .reservation .eat .eatComent {
@@ -383,7 +383,7 @@ a {
 }
 
 #deliver-section {
-    scroll-margin-top: 150px;
+    scroll-margin-top: 180px;
 }
 
 .delivery .deliveryComent {
@@ -428,7 +428,7 @@ a {
 }
 
 #photob-section {
-    scroll-margin-top: 150px;
+    scroll-margin-top: 180px;
 }
 
 .photo .photoComent {
