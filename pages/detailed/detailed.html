@@ -129,13 +129,36 @@
 
             <div class="comment sectionList">
                 <div class="commentTitle">
-                    <h3>댓글</h3>
-                    <p>(<span id="comment-count">0</span>)</p>
+                    <h3>리뷰</h3>
+                    <p>(<span id="review-count">0</span>)</p>
                 </div>
-                <textarea placeholder="로그인 후 댓글을 등록할 수 있습니다." id="textarea" name="textarea" maxlength="1000"></textarea>
-                <div class="commentPicture">
-                    <button class="pho"><img src="../../images/icon_btn_picture_detailPage.png">사진</button>
-                    <button class="sub">등록</button>
+                
+                <!-- 리뷰 작성 폼 -->
+                <div class="reviewWriteForm">
+                    <div class="reviewFormTop">
+                        <input type="text" id="review-title" placeholder="리뷰 제목을 입력해주세요" maxlength="50">
+                        <div class="rating-input">
+                            <span>별점:</span>
+                            <div class="stars">
+                                <button type="button" class="star" data-rating="1">★</button>
+                                <button type="button" class="star" data-rating="2">★</button>
+                                <button type="button" class="star" data-rating="3">★</button>
+                                <button type="button" class="star" data-rating="4">★</button>
+                                <button type="button" class="star" data-rating="5">★</button>
+                            </div>
+                            <span class="rating-text">별점을 선택해주세요</span>
+                        </div>
+                    </div>
+                    <textarea placeholder="이 관광지에 대한 후기를 작성해주세요. (최대 1000자)" id="review-content" name="review-content" maxlength="1000"></textarea>
+                    <div class="reviewFormBottom">
+                        <div class="reviewFormInfo">
+                            <span class="char-count"><span id="char-count">0</span>/1000</span>
+                        </div>
+                        <div class="commentPicture">
+                            <button class="pho"><img src="../../images/icon_btn_picture_detailPage.png">사진</button>
+                            <button class="sub" id="submit-review">리뷰 등록</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -156,35 +179,14 @@
                 </div>
             </div>
 
-            <div class="userReview">
-                <div class="userReviewTop">
-                    <p class="userImage"></p>
-                    <p class="userId"><strong>부산여행러</strong></p>
-                    <p class="reviewDate">2025.1.15</p>
-                </div>
-                <div>
-                    <p id="sample-review">이곳은 정말 아름다운 곳이에요! 부산 여행 중 가장 기억에 남는 장소 중 하나입니다.</p>
-                </div>
-                <div>
-                    <div>
-                        <div class="reviewLike">
-                            <button class="reviewLikeBtn"></button>
-                            <p class="reviewLikeCount">0</p>
-                        </div>
-                        <div class="reviewRe">
-                            <button><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none"
-                                    data-inject-url="https://korean.visitkorea.or.kr/resources/images/common/icon/svg/chat24.svg"
-                                    class="icon_svg_inject injectable">
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M9.34737 2.46818C4.94215 2.46818 1.36821 6.04213 1.36821 10.4473C1.36821 14.7616 4.19681 18.4265 8.68711 18.4265H8.94846L10.7383 20.9075C10.9438 21.2069 11.2834 21.4018 11.6705 21.4018C12.0576 21.4018 12.3972 21.2069 12.6027 20.9075L14.3926 18.4265H15.3142C19.8045 18.4265 22.6331 14.7616 22.6331 10.4473C22.6331 6.04162 19.0586 2.46818 14.6458 2.46818H9.34737ZM2.76821 10.4473C2.76821 6.81533 5.71535 3.86818 9.34737 3.86818H14.6458C18.2864 3.86818 21.2331 6.81584 21.2331 10.4473C21.2331 14.1703 18.8611 17.0265 15.3142 17.0265H14.0344H13.6762L13.4667 17.317L11.6705 19.8068L9.87431 17.317L9.66477 17.0265H9.30661H8.68711C5.14017 17.0265 2.76821 14.1703 2.76821 10.4473ZM8.00003 11.5C8.55232 11.5 9.00003 11.0523 9.00003 10.5C9.00003 9.94772 8.55232 9.5 8.00003 9.5C7.44775 9.5 7.00003 9.94772 7.00003 10.5C7.00003 11.0523 7.44775 11.5 8.00003 11.5ZM12 11.5C12.5523 11.5 13 11.0523 13 10.5C13 9.94772 12.5523 9.5 12 9.5C11.4477 9.5 11 9.94772 11 10.5C11 11.0523 11.4477 11.5 12 11.5ZM17 10.5C17 11.0523 16.5523 11.5 16 11.5C15.4477 11.5 15 11.0523 15 10.5C15 9.94772 15.4477 9.5 16 9.5C16.5523 9.5 17 9.94772 17 10.5Z"
-                                        fill="#333333"></path>
-                                </svg></button>
-                            <p class="reviewReCount">0</p>
-                        </div>
-                        <div>신고</div>
-                    </div>
-                </div>
+            <!-- 리뷰 목록 컨테이너 -->
+            <div id="reviews-container">
+                <!-- 리뷰들이 동적으로 추가됩니다 -->
+            </div>
+
+            <!-- 리뷰가 없을 때 표시되는 메시지 -->
+            <div id="no-reviews-message" class="no-reviews" style="display: none;">
+                <p>아직 작성된 리뷰가 없습니다. 첫 번째 리뷰를 작성해보세요!</p>
             </div>
         </div>
     </div>
