@@ -22,24 +22,24 @@ sectionEl.forEach((el, i) => {
                 window.scrollTo({ top: sectionTop, behavior: "smooth" });
             }
         })
-        window.addEventListener('scroll', function () {
-            sectionList.forEach((e, idx) => {
-                if (sectionList[0].offsetTop - 70 > doc.scrollTop) {
-                    sectionEl.forEach(se => se.classList.remove('active'));
-                } else if (sectionList[0].offsetTop - 70 <= doc.scrollTop && sectionList[1].offsetTop > doc.scrollTop) {
-                    sectionEl.forEach(se => se.classList.remove('active'));
-                    sectionEl[0].classList.add('active');
-                } else if (sectionList[1].offsetTop <= doc.scrollTop && sectionList[2].offsetTop > doc.scrollTop) {
-                    sectionEl.forEach(se => se.classList.remove('active'));
-                    sectionEl[1].classList.add('active');
-                } else if (sectionList[2].offsetTop <= doc.scrollTop && sectionList[3].offsetTop > doc.scrollTop) {
-                    sectionEl.forEach(se => se.classList.remove('active'));
-                    sectionEl[2].classList.add('active');
-                } else {
-                    sectionEl.forEach(se => se.classList.remove('active'));
-                    sectionEl[3].classList.add('active');
-                }
-            })
+    })
+    window.addEventListener('scroll', function () {
+        sectionList.forEach((e, idx) => {
+            if (sectionList[0].offsetTop - 70 > doc.scrollTop) {
+                sectionEl.forEach(se => se.classList.remove('active'));
+            } else if (sectionList[0].offsetTop - 70 <= doc.scrollTop && sectionList[1].offsetTop > doc.scrollTop) {
+                sectionEl.forEach(se => se.classList.remove('active'));
+                sectionEl[0].classList.add('active');
+            } else if (sectionList[1].offsetTop <= doc.scrollTop && sectionList[2].offsetTop > doc.scrollTop) {
+                sectionEl.forEach(se => se.classList.remove('active'));
+                sectionEl[1].classList.add('active');
+            } else if (sectionList[2].offsetTop <= doc.scrollTop && sectionList[3].offsetTop > doc.scrollTop) {
+                sectionEl.forEach(se => se.classList.remove('active'));
+                sectionEl[2].classList.add('active');
+            } else {
+                sectionEl.forEach(se => se.classList.remove('active'));
+                sectionEl[3].classList.add('active');
+            }
         })
     })
 
@@ -471,30 +471,30 @@ async function loadReviews() {
         const response = await fetch(dataPath);
         const data = await response.json();
         let allReviews = data.userReview || [];
-        
+
         // 로컬 스토리지에서 사용자가 작성한 리뷰 가져오기
         const localReviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
-        
+
         // 기본 리뷰와 로컬 리뷰 합치기
         reviews = [...allReviews, ...localReviews];
-        
+
         // 현재 관광지의 리뷰만 필터링
         const spotReviews = reviews.filter(review => review.spotTitle === currentSpotTitle);
-        
+
         // 리뷰 표시
         displayReviews(spotReviews);
-        
+
         // 리뷰 카운트 업데이트
         updateReviewCount(spotReviews.length);
-        
+
     } catch (error) {
         console.error('리뷰 데이터 로드 중 오류:', error);
-        
+
         // JSON 파일 로드 실패시 로컬 스토리지의 리뷰만 표시
         const localReviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
         reviews = localReviews;
         const spotReviews = reviews.filter(review => review.spotTitle === currentSpotTitle);
-        
+
         if (spotReviews.length > 0) {
             displayReviews(spotReviews);
             updateReviewCount(spotReviews.length);
@@ -518,24 +518,24 @@ function getReviewDataPath() {
 function displayReviews(spotReviews) {
     const reviewsContainer = document.getElementById('reviews-container');
     const noReviewsMessage = document.getElementById('no-reviews-message');
-    
+
     if (!reviewsContainer) return;
-    
+
     if (spotReviews.length === 0) {
         showNoReviewsMessage();
         return;
     }
-    
+
     // 리뷰가 있으면 no-reviews 메시지 숨기기
     if (noReviewsMessage) {
         noReviewsMessage.style.display = 'none';
     }
-    
+
     // 리뷰를 최신순으로 정렬
     spotReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    
+
     reviewsContainer.innerHTML = '';
-    
+
     spotReviews.forEach(review => {
         const reviewElement = createReviewElement(review);
         reviewsContainer.appendChild(reviewElement);
@@ -547,14 +547,14 @@ function createReviewElement(review) {
     const reviewDiv = document.createElement('div');
     reviewDiv.className = 'userReview';
     reviewDiv.setAttribute('data-review-id', review.id);
-    
+
     const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-    
+
     // 로컬 스토리지에서 좋아요 정보 확인
     const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
     const isLiked = likedReviews.includes(review.id);
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
-    
+
     reviewDiv.innerHTML = `
         <div class="userReviewTop">
             <p class="userImage"></p>
@@ -588,7 +588,7 @@ function createReviewElement(review) {
             </div>
         </div>
     `;
-    
+
     return reviewDiv;
 }
 
@@ -602,11 +602,11 @@ function formatDate(dateString) {
 function showNoReviewsMessage() {
     const reviewsContainer = document.getElementById('reviews-container');
     const noReviewsMessage = document.getElementById('no-reviews-message');
-    
+
     if (reviewsContainer) {
         reviewsContainer.innerHTML = '';
     }
-    
+
     if (noReviewsMessage) {
         noReviewsMessage.style.display = 'block';
     }
@@ -624,26 +624,26 @@ function updateReviewCount(count) {
 function initRatingSystem() {
     const stars = document.querySelectorAll('.star');
     const ratingText = document.querySelector('.rating-text');
-    
+
     stars.forEach((star, index) => {
-        star.addEventListener('click', function() {
+        star.addEventListener('click', function () {
             selectedRating = parseInt(this.getAttribute('data-rating'));
             updateStarDisplay(selectedRating);
-            
+
             if (ratingText) {
                 const ratingTexts = ['', '별로예요', '보통이에요', '좋아요', '매우 좋아요', '최고예요'];
                 ratingText.textContent = ratingTexts[selectedRating];
             }
         });
-        
-        star.addEventListener('mouseover', function() {
+
+        star.addEventListener('mouseover', function () {
             const hoverRating = parseInt(this.getAttribute('data-rating'));
             updateStarDisplay(hoverRating);
         });
     });
-    
+
     // 마우스가 별점 영역을 벗어났을 때
-    document.querySelector('.stars').addEventListener('mouseleave', function() {
+    document.querySelector('.stars').addEventListener('mouseleave', function () {
         updateStarDisplay(selectedRating);
     });
 }
@@ -664,12 +664,12 @@ function updateStarDisplay(rating) {
 function initCharCount() {
     const textarea = document.getElementById('review-content');
     const charCount = document.getElementById('char-count');
-    
+
     if (textarea && charCount) {
-        textarea.addEventListener('input', function() {
+        textarea.addEventListener('input', function () {
             const currentLength = this.value.length;
             charCount.textContent = currentLength;
-            
+
             // 글자수가 950자를 넘으면 경고색으로 변경
             if (currentLength > 950) {
                 charCount.style.color = '#ef4444';
@@ -685,18 +685,18 @@ function initReviewSubmission() {
     const submitBtn = document.getElementById('submit-review');
     const titleInput = document.getElementById('review-title');
     const contentInput = document.getElementById('review-content');
-    
+
     if (submitBtn) {
-        submitBtn.addEventListener('click', function() {
+        submitBtn.addEventListener('click', function () {
             submitReview();
         });
     }
-    
+
     // 입력 검증
     function validateInputs() {
         const title = titleInput?.value.trim();
         const content = contentInput?.value.trim();
-        
+
         if (submitBtn) {
             if (title && content && selectedRating > 0) {
                 submitBtn.disabled = false;
@@ -705,7 +705,7 @@ function initReviewSubmission() {
             }
         }
     }
-    
+
     // 입력 필드 이벤트 리스너
     if (titleInput) {
         titleInput.addEventListener('input', validateInputs);
@@ -713,7 +713,7 @@ function initReviewSubmission() {
     if (contentInput) {
         contentInput.addEventListener('input', validateInputs);
     }
-    
+
     // 초기 상태 설정
     validateInputs();
 }
@@ -722,20 +722,20 @@ function initReviewSubmission() {
 function submitReview() {
     const titleInput = document.getElementById('review-title');
     const contentInput = document.getElementById('review-content');
-    
+
     const title = titleInput?.value.trim();
     const content = contentInput?.value.trim();
-    
+
     if (!title || !content || selectedRating === 0) {
         alert('제목, 내용, 별점을 모두 입력해주세요.');
         return;
     }
-    
+
     if (!currentSpotTitle) {
         alert('관광지 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
         return;
     }
-    
+
     // 새로운 리뷰 객체 생성
     const newReview = {
         id: Date.now(), // 간단한 ID 생성
@@ -750,23 +750,23 @@ function submitReview() {
         likes: 0,
         replies: 0
     };
-    
+
     // 로컬 스토리지에서 기존 리뷰 가져오기
     const localReviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
     localReviews.push(newReview);
     localStorage.setItem('userReviews', JSON.stringify(localReviews));
-    
+
     // 리뷰 목록에 추가
     reviews.push(newReview);
-    
+
     // 화면 업데이트
     const spotReviews = reviews.filter(review => review.spotTitle === currentSpotTitle);
     displayReviews(spotReviews);
     updateReviewCount(spotReviews.length);
-    
+
     // 폼 초기화
     resetReviewForm();
-    
+
     alert('리뷰가 성공적으로 등록되었습니다!');
 }
 
@@ -776,15 +776,15 @@ function resetReviewForm() {
     const contentInput = document.getElementById('review-content');
     const charCount = document.getElementById('char-count');
     const ratingText = document.querySelector('.rating-text');
-    
+
     if (titleInput) titleInput.value = '';
     if (contentInput) contentInput.value = '';
     if (charCount) charCount.textContent = '0';
     if (ratingText) ratingText.textContent = '별점을 선택해주세요';
-    
+
     selectedRating = 0;
     updateStarDisplay(0);
-    
+
     // 제출 버튼 비활성화
     const submitBtn = document.getElementById('submit-review');
     if (submitBtn) {
@@ -797,7 +797,7 @@ function toggleReviewLike(reviewId) {
     // 로컬 스토리지에서 좋아요 정보 관리
     const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
     const isLiked = likedReviews.includes(reviewId);
-    
+
     if (isLiked) {
         // 좋아요 취소
         const index = likedReviews.indexOf(reviewId);
@@ -806,18 +806,18 @@ function toggleReviewLike(reviewId) {
         // 좋아요 추가
         likedReviews.push(reviewId);
     }
-    
+
     localStorage.setItem('likedReviews', JSON.stringify(likedReviews));
-    
+
     // 화면의 좋아요 수 업데이트
     const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
     if (reviewElement) {
         const likeBtn = reviewElement.querySelector('.reviewLikeBtn');
         const likeCount = reviewElement.querySelector('.reviewLikeCount');
-        
+
         if (likeBtn && likeCount) {
             let currentCount = parseInt(likeCount.textContent) || 0;
-            
+
             if (isLiked) {
                 currentCount--;
                 likeBtn.classList.remove('active');
@@ -825,7 +825,7 @@ function toggleReviewLike(reviewId) {
                 currentCount++;
                 likeBtn.classList.add('active');
             }
-            
+
             likeCount.textContent = currentCount;
         }
     }
@@ -842,7 +842,7 @@ function reportReview(reviewId) {
 function updatePageContent(spot, regionName) {
     // 현재 관광지 제목 설정
     currentSpotTitle = spot.title;
-    
+
     // 기본 정보 업데이트
     const spotTitle = document.getElementById('spot-title');
     const spotLocation = document.getElementById('spot-location');
@@ -872,7 +872,7 @@ function updatePageContent(spot, regionName) {
     setTimeout(() => {
         initSwiper();
     }, 100);
-    
+
     // 리뷰 로드
     setTimeout(() => {
         loadReviews();
@@ -883,7 +883,7 @@ function updatePageContent(spot, regionName) {
 document.addEventListener('DOMContentLoaded', function () {
     // 뒤로가기 버튼 초기화
     initBackButton();
-    
+
     // 리뷰 관련 기능 초기화
     initRatingSystem();
     initCharCount();
