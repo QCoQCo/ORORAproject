@@ -162,21 +162,34 @@ function addMapInteractivity() {
     }
     
     let selectedRegions = new Set();
+    const regionNameTag = document.querySelectorAll('#_지명-19 > g > a');
+
 
     regions.forEach((region, index) => {
         const regionName = region.getAttribute('sigungu-name');
         const regionCode = region.getAttribute('sigungu-code');
         const regionId = region.getAttribute('id');
-        
         // console.log(`지역 ${index + 1}: ${regionName} (${regionId})`);
         
-        region.addEventListener('click', function (e) {
+        region.addEventListener('click',function(e) {
+            // console.log(regionNameTag[index].getAttribute('href'));
             // console.log(`클릭 이벤트 발생: ${regionName} (${regionId})`);
             
             // 토글 방식
             if (this.classList.contains('selected')) {
                 // 이미 선택된 지역이면 해제
                 this.classList.remove('selected');
+                regionNameTag.forEach(tag => {
+                    if(tag.getAttribute('href') === `#${this.getAttribute('id')}`) {
+                        // tag.style.stroke = '';//ok
+                        // tag.style.fill = '#000000';
+                        const g = tag.querySelectorAll('#_지명-19 .cls-25');
+                        
+                        g.forEach(tt=>{
+                            tt.style.fill='#121212'
+                        })
+                    }
+                });
                 selectedRegions.delete(regionId);
                 // console.log(`지역 해제: ${regionName}`);
                 
@@ -193,6 +206,18 @@ function addMapInteractivity() {
             } else {
                 // 새로운 지역 선택 (다중 선택 가능)
                 this.classList.add('selected');
+                regionNameTag.forEach(tag => {
+                    if(tag.getAttribute('href') === `#${this.getAttribute('id')}`) {
+                        // tag.style.stroke = '#f9f9f9';
+                        // tag.style.fill = '#ffffff';
+                        const g = tag.querySelectorAll('#_지명-19 .cls-25');
+                        
+                        g.forEach(tt=>{
+                            tt.style.fill='#f9f9f9'
+                        })
+                        // g.style.fill='#ffffff'
+                    }
+                });
                 selectedRegions.add(regionId);
                 // console.log(`지역 선택: ${regionName} (코드: ${regionCode})`);
 
