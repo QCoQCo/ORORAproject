@@ -9,6 +9,12 @@ const section3El = document.getElementById('reserve-section');
 const section4El = document.getElementById('deliver-section');
 const section5El = document.getElementById('photob-section');
 
+const moveTo1 = document.getElementsByClassName('moveTo1')
+const moveTo2 = document.getElementsByClassName('moveTo2')
+const moveTo3 = document.getElementsByClassName('moveTo3')
+const moveTo4 = document.getElementsByClassName('moveTo4')
+const moveTo5 = document.getElementsByClassName('moveTo5')
+
 const tab = document.querySelector('.tabUl');
 const sticky = tab.offsetTop;
 
@@ -31,6 +37,14 @@ const sectionsEl = [
   { el: photobEl, section: section5El }
 ]
 
+const sections2El = [
+  { el: transEl, section: moveTo1 },
+  { el: passEl, section: moveTo2 },
+  { el: reserveEl, section: moveTo3 },
+  { el: deliverEl, section: moveTo4 },
+  { el: photobEl, section: moveTo5 }
+]
+
 // on 클래스 제거 초기화 함수
 function onReset() {
   sectionsEl.forEach(({ el: otherEl }) => otherEl.classList.remove('on'));
@@ -43,6 +57,17 @@ sectionsEl.forEach(({ el, section }) => {
     section.scrollIntoView({ behavior: 'smooth' });
   });
 });
+
+
+
+// sections2El.forEach(({ el, section }) => {
+//   el.addEventListener('click', () => {
+//     onReset();
+//     el.classList.add('on');
+//     section.scrollIntoView({ behavior: 'smooth' });
+//   });
+// });
+
 
 
 // 해당 탭에 스크롤 됐을 때 on 클래스 추가 함수
