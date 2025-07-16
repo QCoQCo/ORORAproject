@@ -167,6 +167,10 @@ h6 {
     align-items: center;
 }
 
+#Wrapper .inner .middleButtons .left .eyes button {
+    pointer-events: none;
+}
+
 .like,
 .eyes,
 .save,
@@ -186,8 +190,22 @@ h6 {
     color: var(--neutral-600);
 }
 
+.like,
+.save,
+.print,
+.map,
+.share {
+    cursor: pointer;
+}
+
+/* .like button,
+.eyes button,
+.save button,
+.print button,
+.map button,
+.share button */
+
 .like:hover,
-.eyes:hover,
 .save:hover,
 .print:hover,
 .map:hover,
@@ -200,15 +218,8 @@ h6 {
 }
 
 .likeBtn {
-    width: 24px;
-    height: 24px;
     background: url(../images/icon_like_detailPage.png) no-repeat center;
     background-size: contain;
-    transition: all 0.3s ease;
-}
-
-.likeBtn:hover {
-    transform: scale(1.1);
 }
 
 .likeBtnActive {
@@ -216,58 +227,54 @@ h6 {
     background-size: contain;
 }
 
-.middleButtons .eyes button {
+.middleButtons .eyes .eyesPho {
     background: url(../images/ico_eyes_detailPage.png) no-repeat center;
     background-size: contain;
 }
 
-.middleButtons .save button {
+.middleButtons .save .saveBtn {
     background: url(../images/ico_save_detailPage.png) no-repeat center;
     background-size: contain;
 }
 
-.middleButtons .print button {
+.middleButtons .save .saveBtnActive {
+    background: url(../images/ico_saveActive_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .print .printPho {
     background: url(../images/ico_print_detailPage.png) no-repeat center;
     background-size: contain;
 }
 
-.middleButtons .map button {
+.middleButtons .map .mapPho {
     background: url(../images/ico_map_detailPage.png) no-repeat center;
     background-size: contain;
 }
 
-.middleButtons .share button {
+.middleButtons .share .sharePho {
     background: url(../images/ico_share_detailPage.png) no-repeat center;
     background-size: contain;
 }
 
-.eyes button,
-.save button,
-.print button,
-.map button,
-.share button {
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.eyes button:hover,
-.save button:hover,
-.print button:hover,
-.map button:hover,
-.share button:hover {
-    transform: scale(1.1);
-}
-
-.eyes button,
-.save button,
-.print button,
-.map button,
-.share button {
+.likeBtn,
+.eyes .eyesPho,
+.save .saveBtn,
+.print .printPho,
+.map .mapPho,
+.share .sharePho {
     width: 24px;
     height: 24px;
+    transition: all 0.3s ease;
     object-fit: contain;
+}
+
+.likeBtn:hover,
+.save .saveBtn:hover,
+.print .printPho:hover,
+.map .mapPho:hover,
+.share .sharePho:hover {
+    transform: scale(1.1);
 }
 
 .likeCount,
@@ -419,17 +426,16 @@ h6 {
 
 .swiper-button-next,
 .swiper-button-prev {
-    color: white;
-    background: rgba(30, 90, 139, 0.8);
+    color: rgba(30, 90, 139, 0.8);
     width: 50px;
     height: 50px;
-    border-radius: 50%;
+    border-radius: 5px;
     transition: all 0.3s ease;
 }
 
 .swiper-button-next:hover,
 .swiper-button-prev:hover {
-    background: rgba(30, 90, 139, 1);
+    background: rgba(30, 90, 139, 0.7);
     transform: scale(1.1);
 }
 
@@ -447,8 +453,6 @@ h6 {
     margin-bottom: 40px;
     border-bottom: 3px solid var(--primary-blue);
     background: var(--gradient-blue);
-    margin-left: -20px;
-    margin-right: -20px;
     padding-left: 20px;
     padding-right: 20px;
     border-radius: 16px;
@@ -1014,7 +1018,8 @@ h6 {
 }
 
 .userPhotoCo .usercheck li button:hover {
-    color: var(--primary-blue);
+    background-color: var(--primary-blue);
+    color: white;
 }
 
 /* User review */

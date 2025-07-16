@@ -106,6 +106,26 @@ if (likeBtn) {
     });
 }
 
+// save버튼 눌럿을 때
+const save = document.querySelector(".save");
+const saveBtn = document.querySelector(".saveBtn");
+
+
+save.addEventListener('click', function(){
+    if(!saveBtn.classList.contains('saveBtnActive')){
+        saveBtn.classList.add('saveBtnActive');
+    }else{
+        saveBtn.classList.remove('saveBtnActive');
+    }
+})
+
+
+
+
+
+
+
+
 // Swiper 인스턴스를 전역으로 관리
 let swiperInstance = null;
 let swiper2Instance = null;
