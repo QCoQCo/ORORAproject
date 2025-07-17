@@ -249,6 +249,10 @@ function addMapInteractivity() {
             if (buttonText === '전체 해제') {
                 // 모든 선택 해제
                 regions.forEach(region => region.classList.remove('selected'));
+                const g = document.querySelectorAll('#_지명-19 .cls-25');
+                g.forEach(tt=>{
+                    tt.style.fill='#121212'
+                })
                 selectedRegions.clear();
                 resetListDisplay();
                 updateSelectionInfo();
