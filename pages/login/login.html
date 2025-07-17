@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+    <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/login.css">
+    <link rel="stylesheet" href="../../css/header.css">
+    <link rel="stylesheet" href="../../css/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="header-container"></div>
+    <div id="wrapper">
+        <div class="container">
+            <button class="back-button" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2>회원 로그인</h2>
+            <div>
+                <div>
+                    <p class="id">아이디</p>
+                    <label><input type="text" placeholder="아이디를 입력해 주세요." id="putId"></label>
+                </div>
+                <div>
+                    <p class="psw">비밀번호</p>
+                    <label><input type="password" placeholder="비밀번호를 입력하세요." id="putPsw"></label>
+                </div>
+                <div class="check">
+                    <div>
+                        <label><input type="checkbox" id="checkId" name="">아이디 저장</label>
+                        <label><input type="checkbox" id="checkLogin" name="">로그인 상태 유지</label>
+                    </div>
+                </div>
+                <button id="loginBtn">로그인</button>
+                <div class="aboutLogin">
+                    <a href="./signup.html"><p>회원가입</p></a>
+                    <a href=""><p>아이디 찾기</p></a>
+                    <a href=""><p class="newPsw">비밀번호 재설정</p></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer-container"></div>
+    
+    <script src="../../js/header-loader.js"></script>
+    <script src="../../js/footer-loader.js"></script>
+    <script src="../../js/login.js"></script>
+</body>
+
+</html>

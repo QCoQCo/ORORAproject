@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>searchByTag</title>
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/header.css">
+    <link rel="stylesheet" href="../../css/footer.css">
+    <link rel="stylesheet" href="../../css/tag.css">
+    <link rel="stylesheet" href="../../css/list-component.css">
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="header-container"></div>
+        <section class="tag-section">
+            <div class="container">
+                <h2 class="page-title">부산 관광지 태그 검색</h2>
+
+                <!-- 카테고리 필터 -->
+                <div class="filter-section">
+                    <label for="category-filter">카테고리 선택:</label>
+                    <select name="category" id="category-filter">
+                        <option value="all">전체</option>
+                        <option value="attraction">관광명소</option>
+                        <option value="nature">자연/공원</option>
+                        <option value="culture">문화/역사</option>
+                        <option value="food">먹거리/시장</option>
+                        <option value="activity">액티비티</option>
+                        <option value="shopping">쇼핑</option>
+                        <option value="relaxation">휴식/힐링</option>
+                    </select>
+                </div>
+
+                <!-- 검색 섹션 -->
+                <div class="search-section">
+                    <div class="search-input-group">
+                        <label class="search-label" for="search-keyword">태그 검색</label>
+                        <input type="text" name="search_keyword" id="search-keyword"
+                            placeholder="예: 해수욕장, 야경, 카페, 가족여행..." class="search-input">
+                        <button type="button" class="search-btn" id="search-btn">검색</button>
+                    </div>
+                </div>
+
+                <!-- 인기 태그 섹션 -->
+                <div class="popular-tags-section">
+                    <h3>인기 태그</h3>
+                    <div class="popular-tags" id="popular-tags">
+                        <!-- 동적으로 생성됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 전체 태그 섹션 -->
+                <div class="all-tags-section">
+                    <h3>
+                        전체 태그 <span id="tag-count">(0개)</span>
+                        <button type="button" class="toggle-btn" id="toggle-all-tags">
+                            <span class="toggle-icon">▼</span>
+                        </button>
+                    </h3>
+                    <div class="all-tags collapsible" id="all-tags">
+                        <!-- 동적으로 생성됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 선택된 태그 표시 -->
+                <div class="selected-tags-section" id="selected-tags-section" style="display: none;">
+                    <h3>선택된 태그</h3>
+                    <div class="selected-tags" id="selected-tags">
+                        <!-- 선택된 태그들이 여기에 표시됩니다 -->
+                    </div>
+                    <button type="button" class="clear-tags-btn" id="clear-tags-btn">모든 태그 지우기</button>
+                </div>
+
+                <!-- 검색 결과 -->
+                <div class="results-section">
+                    <div class="results-header">
+                        <h3>검색 결과 <span id="results-count">(0개)</span></h3>
+                        <div class="sort-options">
+                            <select id="sort-select">
+                                <option value="relevance">관련도순</option>
+                                <option value="name">이름순</option>
+                                <option value="region">지역순</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="results-grid" id="results-grid">
+                        <!-- 검색 결과가 여기에 표시됩니다 -->
+                    </div>
+
+                    <!-- 더보기 버튼 -->
+                    <div class="load-more-section" id="load-more-section" style="display: none;">
+                        <button type="button" class="load-more-btn" id="load-more-btn">더보기</button>
+                    </div>
+                </div>
+
+                <!-- 리스트 아이템 템플릿 -->
+                <div id="list-template-container"></div>
+
+                <!-- 로고 -->
+                <div class="main-brand-story-wrap">
+                    <a class="main-brand-story-wrap--inner" href="../../index.html">
+                        <img src="../../images/logo.png" alt="부산 관광 로고">
+                    </a>
+                </div>
+            </div>
+            <!-- 클릭 버튼 -->
+            <button title="클릭하시면 최상단으로 이동합니다" id="scrollTop" class=""></button>
+        </section>
+    </div>
+
+    <!-- 푸터 컨테이너 -->
+    <div id="footer-container"></div>
+
+    <script src="../../js/tag.js"></script>
+    <script src="../../js/header-loader.js"></script>
+    <script src="../../js/footer-loader.js"></script>
+    <script src="../../js/list-loader.js"></script>
+</body>
+
+</html>
