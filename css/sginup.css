@@ -11,8 +11,9 @@ input{
 
 #wrapper {
     width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+    /* margin-left: auto;
+    margin-right: auto; */
+    margin: 120px auto 220px auto;
 }
 
 #wrapper h2 {
@@ -78,4 +79,10 @@ input{
     color: white;
     margin-bottom: 15px;
     cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+#wrapper #submit:disabled{
+    cursor: not-allowed;
+    opacity: 0.5;
 }
