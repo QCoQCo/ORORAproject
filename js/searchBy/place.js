@@ -28,7 +28,7 @@ function initControlPanelToggle() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOMContentLoaded 이벤트 발생');
+
     
     // 컨트롤 패널 토글 기능 초기화
     initControlPanelToggle();
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
     
-    console.log('SVG 로드 시작...');
+    // console.log('SVG 로드 시작...');
     fetch('../../images/map.svg')
         .then(response => {
             // console.log('SVG 응답 상태:', response.status);
@@ -295,17 +295,17 @@ async function displayRegionTouristSpots(regionElement, regionName) {
             data: regionData.spots,
             fallbackImage: '../../images/logo.png',
             onItemClick: (itemData, event) => {
-                console.log('관광지 클릭:', itemData.title);
+                // console.log('관광지 클릭:', itemData.title);
                 // 상세 페이지로 이동하는 로직
             },
             onLikeClick: (itemData, isLiked) => {
-                console.log(`${itemData.title} 좋아요: ${isLiked}`);
+                // console.log(`${itemData.title} 좋아요: ${isLiked}`);
                 // 좋아요 상태 저장 로직
             }
         });
 
         await listLoader.render();
-        console.log(`${regionName} 관광지 ${regionData.spots.length}개 표시 완료`);
+        // console.log(`${regionName} 관광지 ${regionData.spots.length}개 표시 완료`);
     } catch (error) {
         console.error('리스트 렌더링 오류:', error);
         displayErrorMessage(regionName);
@@ -353,7 +353,7 @@ async function displaySelectedRegionsTouristSpots() {
         });
 
         await listLoader.render();
-        console.log(`선택된 지역들의 관광지 ${allSpots.length}개 표시 완료`);
+        // console.log(`선택된 지역들의 관광지 ${allSpots.length}개 표시 완료`);
     } catch (error) {
         console.error('리스트 렌더링 오류:', error);
     }
@@ -419,7 +419,7 @@ function getSelectedRegions() {
 //선택된 지역 정보출력
 document.addEventListener('regionChange', event => {
     const { action, regionName, regionCode, regionId } = event.detail;
-    console.log(`Region ${action}: ${regionName} (코드: ${regionCode}) (ID: ${regionId})`);
+    // console.log(`Region ${action}: ${regionName} (코드: ${regionCode}) (ID: ${regionId})`);
     updateSelectionInfo();
 });
 
