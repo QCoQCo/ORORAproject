@@ -57,10 +57,11 @@
 #nav .d1 li a {
     color: #000;
     position: relative;
-    padding: 10px 15px;
+    width: 100%;
+    height: 100%;
     text-decoration: none;
     transition: all 0.3s ease;
-    display: inline-block;
+    display: block;
 }
 
 #nav .d1 li a::after {
@@ -107,7 +108,7 @@
 }
 
 #nav .sub .d2 li {
-    padding: 5px 20px;
+
     transition: background-color 0.2s ease;
 }
 
@@ -118,7 +119,12 @@
 #nav .sub .d2 li a {
     color: #333;
     font-size: 14px;
-    padding: 8px 0;
+    padding: 8px 28px;
+    line-height: 28px;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 #nav .sub .d2 li a:hover {
