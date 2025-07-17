@@ -839,10 +839,10 @@ function toggleReviewLike(reviewId) {
             let currentCount = parseInt(likeCount.textContent) || 0;
 
             if (isLiked) {
-                currentCount--;
+                // currentCount--;
                 likeBtn.classList.remove('active');
             } else {
-                currentCount++;
+                // currentCount++;
                 likeBtn.classList.add('active');
             }
 
