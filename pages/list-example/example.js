@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fetch data and create list
     try {
+        // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
         const response = await fetch('data.json');
         // const response = await fetch('../../data/busanTouristSpots.json');
         if (!response.ok) {
@@ -40,6 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = await response.json();
         data.forEach(createListItem);
     } catch (error) {
-        console.error("Could not fetch or process data:", error);
+        console.error('Could not fetch or process data:', error);
     }
 });
