@@ -1,13 +1,12 @@
-const likeBtn = document.querySelector(".likeBtn");
-const like = document.querySelector(".like");
-const sectionEl = document.querySelectorAll(".section");
+const likeBtn = document.querySelector('.likeBtn');
+const like = document.querySelector('.like');
+const sectionEl = document.querySelectorAll('.section');
 // const photoEl = document.querySelector(".photo");
 // const detailEl = document.querySelector(".detail");
 // const locationEl = document.querySelector("#map-container");
 // const commentEl = document.querySelector(".comment");
-const sectionList = document.querySelectorAll(".sectionList");
+const sectionList = document.querySelectorAll('.sectionList');
 //els{0,1,2,3}
-
 
 // 버튼 눌렀을 때 위치 이동
 sectionEl.forEach((el, i) => {
@@ -19,30 +18,38 @@ sectionEl.forEach((el, i) => {
             }
             if (i === idx) {
                 let sectionTop = sectionList[idx].offsetTop - minus;
-                window.scrollTo({ top: sectionTop, behavior: "smooth" });
+                window.scrollTo({ top: sectionTop, behavior: 'smooth' });
             }
-        })
-    })
+        });
+    });
     window.addEventListener('scroll', function () {
         sectionList.forEach((e, idx) => {
             if (sectionList[0].offsetTop - 70 > doc.scrollTop) {
-                sectionEl.forEach(se => se.classList.remove('active'));
-            } else if (sectionList[0].offsetTop - 70 <= doc.scrollTop && sectionList[1].offsetTop > doc.scrollTop) {
-                sectionEl.forEach(se => se.classList.remove('active'));
+                sectionEl.forEach((se) => se.classList.remove('active'));
+            } else if (
+                sectionList[0].offsetTop - 70 <= doc.scrollTop &&
+                sectionList[1].offsetTop > doc.scrollTop
+            ) {
+                sectionEl.forEach((se) => se.classList.remove('active'));
                 sectionEl[0].classList.add('active');
-            } else if (sectionList[1].offsetTop <= doc.scrollTop && sectionList[2].offsetTop > doc.scrollTop) {
-                sectionEl.forEach(se => se.classList.remove('active'));
+            } else if (
+                sectionList[1].offsetTop <= doc.scrollTop &&
+                sectionList[2].offsetTop > doc.scrollTop
+            ) {
+                sectionEl.forEach((se) => se.classList.remove('active'));
                 sectionEl[1].classList.add('active');
-            } else if (sectionList[2].offsetTop <= doc.scrollTop && sectionList[3].offsetTop > doc.scrollTop) {
-                sectionEl.forEach(se => se.classList.remove('active'));
+            } else if (
+                sectionList[2].offsetTop <= doc.scrollTop &&
+                sectionList[3].offsetTop > doc.scrollTop
+            ) {
+                sectionEl.forEach((se) => se.classList.remove('active'));
                 sectionEl[2].classList.add('active');
             } else {
-                sectionEl.forEach(se => se.classList.remove('active'));
+                sectionEl.forEach((se) => se.classList.remove('active'));
                 sectionEl[3].classList.add('active');
             }
-        })
-    })
-
+        });
+    });
 });
 
 // 위치에 따라 버튼 체크
@@ -95,36 +102,24 @@ const docHeight = window.pageYOffset;
 // }
 // window.addEventListener('scroll', updateActiveTab);
 
-
-
-
-
 // 관광지 하트 눌렀을 때, 빈하트 -> 빨간하트
 if (likeBtn) {
-    like.addEventListener("click", () => {
-        likeBtn.classList.toggle("likeBtnActive");
+    like.addEventListener('click', () => {
+        likeBtn.classList.toggle('likeBtnActive');
     });
 }
 
 // save버튼 눌럿을 때
-const save = document.querySelector(".save");
-const saveBtn = document.querySelector(".saveBtn");
+const save = document.querySelector('.save');
+const saveBtn = document.querySelector('.saveBtn');
 
-
-save.addEventListener('click', function(){
-    if(!saveBtn.classList.contains('saveBtnActive')){
+save.addEventListener('click', function () {
+    if (!saveBtn.classList.contains('saveBtnActive')) {
         saveBtn.classList.add('saveBtnActive');
-    }else{
+    } else {
         saveBtn.classList.remove('saveBtnActive');
     }
-})
-
-
-
-
-
-
-
+});
 
 // Swiper 인스턴스를 전역으로 관리
 let swiperInstance = null;
@@ -143,8 +138,8 @@ function initSwiper() {
     }
 
     // Swiper 요소가 존재하는지 확인
-    const thumbSwiper = document.querySelector(".mySwiper");
-    const mainSwiper = document.querySelector(".mySwiper2");
+    const thumbSwiper = document.querySelector('.mySwiper');
+    const mainSwiper = document.querySelector('.mySwiper2');
 
     if (!thumbSwiper || !mainSwiper) {
         console.log('Swiper 요소를 찾을 수 없습니다.');
@@ -152,7 +147,7 @@ function initSwiper() {
     }
 
     // 썸네일 Swiper 초기화
-    swiperInstance = new Swiper(".mySwiper", {
+    swiperInstance = new Swiper('.mySwiper', {
         loop: true,
         spaceBetween: 10,
         slidesPerView: 4,
@@ -161,12 +156,12 @@ function initSwiper() {
     });
 
     // 메인 Swiper 초기화
-    swiper2Instance = new Swiper(".mySwiper2", {
+    swiper2Instance = new Swiper('.mySwiper2', {
         loop: true,
         spaceBetween: 10,
         navigation: {
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
         },
         thumbs: {
             swiper: swiperInstance,
@@ -201,7 +196,9 @@ async function loadTouristSpotDetail() {
 
         for (const [regionKey, regionData] of Object.entries(data.regions)) {
             if (regionData.spots) {
-                const spot = regionData.spots.find(s => s.title === spotTitle || s.title.includes(spotTitle));
+                const spot = regionData.spots.find(
+                    (s) => s.title === spotTitle || s.title.includes(spotTitle)
+                );
                 if (spot) {
                     foundSpot = spot;
                     regionName = regionData.name;
@@ -217,16 +214,17 @@ async function loadTouristSpotDetail() {
 
         // 페이지 데이터 설정
         updatePageContent(foundSpot, regionName);
-
     } catch (error) {
         console.error('데이터 로드 중 오류:', error);
     }
 }
 
 // 현재 경로에 따른 데이터 파일 경로 결정
+// TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
 function getDataPath() {
     const currentPath = window.location.pathname;
 
+    // TODO: 백엔드 연결 시 '/api/tourist-spots'로 통일
     if (currentPath.includes('/pages/')) {
         return '../../data/busanTouristSpots.json';
     } else {
@@ -274,33 +272,30 @@ const bad = document.querySelector('.bad');
 const dislikeIco = document.querySelector('.dislikeIco');
 const btns = document.querySelectorAll('.right button');
 
-
 // good.addEventListener('click', function () {
 //     likeIco.classList.toggle('active');
 //     dislikeIco.classList.remove('active');
 // })
-
 
 // bad.addEventListener('click', function () {
 //     dislikeIco.classList.toggle('active');
 //     likeIco.classList.remove('active');
 // })
 
-btns.forEach(el => {
-    el.addEventListener('click', e => {
+btns.forEach((el) => {
+    el.addEventListener('click', (e) => {
         // btns.forEach(e=>e.classList.remove('active'));
         if (!el.classList.contains('active')) {
-            btns.forEach(e => e.classList.remove('active'));
+            btns.forEach((e) => e.classList.remove('active'));
             el.classList.add('active');
-        }
-        else {
-            btns.forEach(e => e.classList.remove('active'));
+        } else {
+            btns.forEach((e) => e.classList.remove('active'));
             el.classList.remove('active');
         }
         // if(btns.forEach(e=>e.classList.contains('active')))
         // el.classList.toggle('active');
-    })
-})
+    });
+});
 
 // function likeDislike(el,btn){
 //     btn.addEventListener('click',()=>{
@@ -309,8 +304,6 @@ btns.forEach(el => {
 //         el.classList.toggle('active');
 //     })
 // }
-
-
 
 // 이미지 업데이트
 function updateImages(spot) {
@@ -325,13 +318,13 @@ function updateImages(spot) {
         getImagePath('spring.jpg'),
         getImagePath('summer.jpg'),
         getImagePath('fall.jpg'),
-        getImagePath('winter.jpg')
+        getImagePath('winter.jpg'),
     ];
 
     mainSlider.innerHTML = '';
     thumbSlider.innerHTML = '';
 
-    images.forEach(imgSrc => {
+    images.forEach((imgSrc) => {
         // 메인 슬라이더
         const mainSlide = document.createElement('div');
         mainSlide.className = 'swiper-slide';
@@ -365,7 +358,7 @@ function updateHashtags(spot) {
     hashtagsContainer.innerHTML = '';
 
     if (spot.hashtags) {
-        spot.hashtags.forEach(tag => {
+        spot.hashtags.forEach((tag) => {
             const button = document.createElement('button');
             button.textContent = tag;
             hashtagsContainer.appendChild(button);
@@ -390,15 +383,27 @@ function updateSpotInfo(spot, regionName) {
             </li>
             <li>
                 <p>이용요금</p>
-                <p class="cont">${spot.hashtags && spot.hashtags.includes('#무료') ? '무료' : spot.hashtags && spot.hashtags.includes('#유료') ? '유료 (현장 문의)' : '현장 문의'}</p>
+                <p class="cont">${
+                    spot.hashtags && spot.hashtags.includes('#무료')
+                        ? '무료'
+                        : spot.hashtags && spot.hashtags.includes('#유료')
+                        ? '유료 (현장 문의)'
+                        : '현장 문의'
+                }</p>
             </li>
             <li>
                 <p>주차</p>
-                <p class="cont">${spot.hashtags && spot.hashtags.includes('#주차가능') ? '가능' : '현장 문의'}</p>
+                <p class="cont">${
+                    spot.hashtags && spot.hashtags.includes('#주차가능') ? '가능' : '현장 문의'
+                }</p>
             </li>
             <li>
                 <p>이용시간</p>
-                <p class="cont">${spot.hashtags && spot.hashtags.includes('#실내') ? '시설 운영시간 내' : '상시 이용 가능'}</p>
+                <p class="cont">${
+                    spot.hashtags && spot.hashtags.includes('#실내')
+                        ? '시설 운영시간 내'
+                        : '상시 이용 가능'
+                }</p>
             </li>
         </ul>
     `;
@@ -408,11 +413,17 @@ function updateSpotInfo(spot, regionName) {
 function getCategoryFromHashtags(hashtags) {
     if (!hashtags) return '관광지';
 
-    if (hashtags.some(tag => tag.includes('해수욕장') || tag.includes('바다'))) return '해변/바다';
-    if (hashtags.some(tag => tag.includes('산') || tag.includes('공원'))) return '산/공원';
-    if (hashtags.some(tag => tag.includes('문화') || tag.includes('사찰') || tag.includes('박물관'))) return '문화/역사';
-    if (hashtags.some(tag => tag.includes('카페') || tag.includes('음식'))) return '음식/카페';
-    if (hashtags.some(tag => tag.includes('시장') || tag.includes('쇼핑'))) return '쇼핑/시장';
+    if (hashtags.some((tag) => tag.includes('해수욕장') || tag.includes('바다')))
+        return '해변/바다';
+    if (hashtags.some((tag) => tag.includes('산') || tag.includes('공원'))) return '산/공원';
+    if (
+        hashtags.some(
+            (tag) => tag.includes('문화') || tag.includes('사찰') || tag.includes('박물관')
+        )
+    )
+        return '문화/역사';
+    if (hashtags.some((tag) => tag.includes('카페') || tag.includes('음식'))) return '음식/카페';
+    if (hashtags.some((tag) => tag.includes('시장') || tag.includes('쇼핑'))) return '쇼핑/시장';
 
     return '관광지';
 }
@@ -424,7 +435,7 @@ function initKakaoMap(spotTitle) {
 
     const mapOption = {
         center: new kakao.maps.LatLng(35.1796, 129.0756), // 부산 중심 좌표
-        level: 3
+        level: 3,
     };
 
     const map = new kakao.maps.Map(mapContainer, mapOption);
@@ -440,12 +451,12 @@ function initKakaoMap(spotTitle) {
             // 마커 생성
             const marker = new kakao.maps.Marker({
                 map: map,
-                position: coords
+                position: coords,
             });
 
             // 인포윈도우 생성
             const infowindow = new kakao.maps.InfoWindow({
-                content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`
+                content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`,
             });
             infowindow.open(map, marker);
 
@@ -499,21 +510,20 @@ async function loadReviews() {
         reviews = [...allReviews, ...localReviews];
 
         // 현재 관광지의 리뷰만 필터링
-        const spotReviews = reviews.filter(review => review.spotTitle === currentSpotTitle);
+        const spotReviews = reviews.filter((review) => review.spotTitle === currentSpotTitle);
 
         // 리뷰 표시
         displayReviews(spotReviews);
 
         // 리뷰 카운트 업데이트
         updateReviewCount(spotReviews.length);
-
     } catch (error) {
         console.error('리뷰 데이터 로드 중 오류:', error);
 
         // JSON 파일 로드 실패시 로컬 스토리지의 리뷰만 표시
         const localReviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
         reviews = localReviews;
-        const spotReviews = reviews.filter(review => review.spotTitle === currentSpotTitle);
+        const spotReviews = reviews.filter((review) => review.spotTitle === currentSpotTitle);
 
         if (spotReviews.length > 0) {
             displayReviews(spotReviews);
@@ -525,8 +535,10 @@ async function loadReviews() {
 }
 
 // 리뷰 데이터 파일 경로 결정
+// TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
 function getReviewDataPath() {
     const currentPath = window.location.pathname;
+    // TODO: 백엔드 연결 시 '/api/reviews'로 통일
     if (currentPath.includes('/pages/')) {
         return '../../data/userReview.json';
     } else {
@@ -556,7 +568,7 @@ function displayReviews(spotReviews) {
 
     reviewsContainer.innerHTML = '';
 
-    spotReviews.forEach(review => {
+    spotReviews.forEach((review) => {
         const reviewElement = createReviewElement(review);
         reviewsContainer.appendChild(reviewElement);
     });
@@ -651,7 +663,14 @@ function initRatingSystem() {
             updateStarDisplay(selectedRating);
 
             if (ratingText) {
-                const ratingTexts = ['', '별로예요', '보통이에요', '좋아요', '매우 좋아요', '최고예요'];
+                const ratingTexts = [
+                    '',
+                    '별로예요',
+                    '보통이에요',
+                    '좋아요',
+                    '매우 좋아요',
+                    '최고예요',
+                ];
                 ratingText.textContent = ratingTexts[selectedRating];
             }
         });
@@ -768,7 +787,7 @@ function submitReview() {
         createdAt: new Date().toISOString().split('T')[0],
         updatedAt: new Date().toISOString().split('T')[0],
         likes: 0,
-        replies: 0
+        replies: 0,
     };
 
     // 로컬 스토리지에서 기존 리뷰 가져오기
@@ -780,7 +799,7 @@ function submitReview() {
     reviews.push(newReview);
 
     // 화면 업데이트
-    const spotReviews = reviews.filter(review => review.spotTitle === currentSpotTitle);
+    const spotReviews = reviews.filter((review) => review.spotTitle === currentSpotTitle);
     displayReviews(spotReviews);
     updateReviewCount(spotReviews.length);
 
@@ -922,5 +941,3 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 100);
     }
 });
-
-

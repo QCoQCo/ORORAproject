@@ -22,8 +22,10 @@ loginBtn.addEventListener('click', async function () {
         alert('비밀번호를 입력해 주세요.');
         return;
     }
-    
+
     try {
+        // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
+        // 예: const response = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({username, password}) });
         const response = await fetch('../../data/users.json');
         if (!response.ok) {
             throw new Error('사용자 데이터를 불러오는 데 실패했습니다.');
@@ -31,7 +33,7 @@ loginBtn.addEventListener('click', async function () {
         const data = await response.json();
         const users = data.users;
 
-        const foundUser = users.find(user => user.username === userInputId);
+        const foundUser = users.find((user) => user.username === userInputId);
 
         // users.json의 비밀번호와 입력한 비밀번호가 일치하는지 확인
         if (foundUser && userInputPsw === foundUser.password) {
