@@ -239,7 +239,7 @@ class LanguageManager {
             const waveOverlay = loadingElement.querySelector('.wave-overlay');
             const logoWrapper = loadingElement.querySelector('.logoWrapper');
             const loadingLogo = loadingElement.querySelector('.loading-logo');
-            const logoText = loadingElement.querySelector('.logo-text');
+            const logoText = loadingElement.querySelector('.logoText');
 
             if (waveOverlay && logoWrapper) {
                 // 기존 애니메이션 제거
