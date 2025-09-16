@@ -48,7 +48,7 @@
     /* justify-content: space-between; */
 }
 
-#nav .d1>li {
+#nav .d1 > li {
     position: relative;
     font-size: 18px;
     font-weight: 500;
@@ -108,7 +108,6 @@
 }
 
 #nav .sub .d2 li {
-
     transition: background-color 0.2s ease;
 }
 
@@ -233,6 +232,117 @@
     transform: translateY(-2px);
 }
 
+/* 사용자 정보 스타일 */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.user-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.user-info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    transition: left 0.6s ease;
+}
+
+.user-info:hover::before {
+    left: 100%;
+}
+
+.username {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.username::before {
+    content: '👤';
+    margin-right: 6px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.logout-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(238, 90, 82, 0.3);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.logout-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #ff5252, #e53935);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(238, 90, 82, 0.4);
+}
+
+.logout-btn:hover::before {
+    left: 100%;
+}
+
+.logout-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(238, 90, 82, 0.3);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .user-info {
+        padding: 8px 16px;
+        gap: 10px;
+    }
+
+    .username {
+        font-size: 13px;
+    }
+
+    .logout-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+}
+
+/* 관리자 메뉴 숨김/표시 */
+.admin-menu-hidden {
+    display: none !important;
+}
+
 /* 햄버거 메뉴 버튼 (기본적으로 숨김) */
 .hamburger {
     display: none;
@@ -262,7 +372,6 @@
 }
 
 @media (max-width: 1176px) {
-
     #header .btns {
         gap: 5px;
     }

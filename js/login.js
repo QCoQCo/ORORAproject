@@ -40,6 +40,12 @@ loginBtn.addEventListener('click', async function () {
             alert(`${foundUser.username}님 환영합니다!`);
             // 로그인 성공 시 사용자 정보를 세션 스토리지에 저장
             sessionStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+
+            // 헤더 업데이트 (auth.js의 함수 호출)
+            if (typeof updateHeaderAfterLogin === 'function') {
+                updateHeaderAfterLogin();
+            }
+
             window.location.href = '../../index.html'; // 메인 페이지로 이동
         } else {
             alert('아이디 또는 비밀번호가 일치하지 않습니다.');
