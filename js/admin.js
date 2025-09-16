@@ -74,6 +74,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // 관리자 페이지 초기화
 async function initializeAdmin() {
+    // 관리자 권한 확인
+    if (!isAdmin()) {
+        alert('관리자 권한이 필요합니다.');
+        window.location.href = '/index.html';
+        return;
+    }
+
     await loadTouristSpots();
     await initializeUsers();
     initializeTabs();

@@ -1,5 +1,5 @@
 // DOM Content Loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize all functions
     initScrollAnimations();
     initCardHoverEffects();
@@ -15,11 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function initScrollAnimations() {
     const observerOptions = {
         threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: '0px 0px -50px 0px',
     };
 
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
@@ -29,31 +29,33 @@ function initScrollAnimations() {
 
     // Observe navigation cards
     const cards = document.querySelectorAll('.nav-card');
-    cards.forEach(card => {
+    cards.forEach((card) => {
         observer.observe(card);
     });
 
     // Observe feature items
     const features = document.querySelectorAll('.feature-item');
-    features.forEach(feature => {
+    features.forEach((feature) => {
         observer.observe(feature);
     });
 
     // Observe Japanese introduction elements
-    const introElements = document.querySelectorAll('.highlight-item, .distance-card, .travel-tips, .stat-item');
-    introElements.forEach(element => {
+    const introElements = document.querySelectorAll(
+        '.highlight-item, .distance-card, .travel-tips, .stat-item'
+    );
+    introElements.forEach((element) => {
         observer.observe(element);
     });
 
     // Observe experience elements
     const experienceElements = document.querySelectorAll('.experience-item');
-    experienceElements.forEach(element => {
+    experienceElements.forEach((element) => {
         observer.observe(element);
     });
 
     // Observe transportation elements
     const transportElements = document.querySelectorAll('.transport-card, .app-item');
-    transportElements.forEach(element => {
+    transportElements.forEach((element) => {
         observer.observe(element);
     });
 }
@@ -61,19 +63,21 @@ function initScrollAnimations() {
 // Enhanced card hover effects
 function initCardHoverEffects() {
     const cards = document.querySelectorAll('.nav-card');
-    
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
+
+    cards.forEach((card) => {
+        card.addEventListener('mouseenter', function () {
             // Add subtle scale effect
             this.style.transform = 'translateY(-8px) scale(1.02)';
-            
+
             // Add glow effect
-            this.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 20px rgba(59, 130, 196, 0.3)';
+            this.style.boxShadow =
+                '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 20px rgba(59, 130, 196, 0.3)';
         });
-        
-        card.addEventListener('mouseleave', function() {
+
+        card.addEventListener('mouseleave', function () {
             this.style.transform = 'translateY(0) scale(1)';
-            this.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)';
+            this.style.boxShadow =
+                '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)';
         });
     });
 }
@@ -81,16 +85,16 @@ function initCardHoverEffects() {
 // Smooth scrolling for anchor links
 function initSmoothScrolling() {
     const links = document.querySelectorAll('a[href^="#"]');
-    
-    links.forEach(link => {
-        link.addEventListener('click', function(e) {
+
+    links.forEach((link) => {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
                 target.scrollIntoView({
                     behavior: 'smooth',
-                    block: 'start'
+                    block: 'start',
                 });
             }
         });
@@ -100,12 +104,12 @@ function initSmoothScrolling() {
 // Parallax effect for hero section
 function initParallaxEffect() {
     const hero = document.querySelector('.hero');
-    
+
     if (hero) {
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const rate = scrolled * -0.2;
-            
+
             // Apply parallax to current active slide
             const activeSlide = hero.querySelector('.hero-slide.active');
             if (activeSlide) {
@@ -125,13 +129,13 @@ function initHeroSlider() {
     // Function to show specific slide
     function showSlide(index) {
         // Remove active class from all slides and indicators
-        slides.forEach(slide => slide.classList.remove('active'));
-        indicators.forEach(indicator => indicator.classList.remove('active'));
-        
+        slides.forEach((slide) => slide.classList.remove('active'));
+        indicators.forEach((indicator) => indicator.classList.remove('active'));
+
         // Add active class to current slide and indicator
         slides[index].classList.add('active');
         indicators[index].classList.add('active');
-        
+
         currentSlide = index;
     }
 
@@ -170,10 +174,10 @@ function initHeroSlider() {
     startSlideshow();
 
     // Preload images for smooth transitions
-    slides.forEach(slide => {
+    slides.forEach((slide) => {
         const bgImage = slide.style.backgroundImage;
         if (bgImage) {
-            const imageUrl = bgImage.slice(4, -1).replace(/["']/g, "");
+            const imageUrl = bgImage.slice(4, -1).replace(/["']/g, '');
             const img = new Image();
             img.src = imageUrl;
         }
@@ -184,10 +188,10 @@ function initHeroSlider() {
 function setDynamicGreeting() {
     const hour = new Date().getHours();
     const subtitle = document.querySelector('.hero-subtitle');
-    
+
     if (subtitle) {
         let greeting = '새로운 부산을 발견하다';
-        
+
         if (hour >= 5 && hour < 12) {
             greeting = '좋은 아침! 부산과 함께 시작하세요';
         } else if (hour >= 12 && hour < 18) {
@@ -197,7 +201,7 @@ function setDynamicGreeting() {
         } else {
             greeting = '부산의 밤이 당신을 기다립니다';
         }
-        
+
         subtitle.textContent = greeting;
     }
 }
@@ -210,11 +214,11 @@ function initJapaneseIntroEffects() {
     // Statistics counter animation
     const observerOptions = {
         threshold: 0.5,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: '0px 0px -50px 0px',
     };
 
     const statsObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 const statNumber = entry.target.querySelector('.stat-number');
                 if (statNumber && !statNumber.classList.contains('animated')) {
@@ -227,14 +231,14 @@ function initJapaneseIntroEffects() {
 
     // Observe stat items
     const statItems = document.querySelectorAll('.stat-item');
-    statItems.forEach(item => {
+    statItems.forEach((item) => {
         statsObserver.observe(item);
     });
 
     // Enhanced highlight items hover effects
     const highlightItems = document.querySelectorAll('.highlight-item');
-    highlightItems.forEach(item => {
-        item.addEventListener('mouseenter', function() {
+    highlightItems.forEach((item) => {
+        item.addEventListener('mouseenter', function () {
             const icon = this.querySelector('.highlight-icon');
             if (icon) {
                 icon.style.transform = 'scale(1.2) rotate(10deg)';
@@ -242,7 +246,7 @@ function initJapaneseIntroEffects() {
             }
         });
 
-        item.addEventListener('mouseleave', function() {
+        item.addEventListener('mouseleave', function () {
             const icon = this.querySelector('.highlight-icon');
             if (icon) {
                 icon.style.transform = 'scale(1) rotate(0deg)';
@@ -272,7 +276,7 @@ function initJapaneseIntroEffects() {
             item.style.opacity = '0';
             item.style.transform = 'translateX(-20px)';
             item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            
+
             setTimeout(() => {
                 item.style.opacity = '1';
                 item.style.transform = 'translateX(0)';
@@ -287,7 +291,7 @@ function animateStatNumber(element) {
     const hasPlus = text.includes('+');
     const isTime = text.includes('시간');
     const isDay = text.includes('일');
-    
+
     let targetNumber;
     if (hasPlus) {
         targetNumber = parseInt(text.replace(/[^\d]/g, ''));
@@ -306,7 +310,7 @@ function animateStatNumber(element) {
 
     const counter = setInterval(() => {
         currentNumber += increment;
-        
+
         if (currentNumber >= targetNumber) {
             currentNumber = targetNumber;
             clearInterval(counter);
@@ -330,13 +334,30 @@ function animateStatNumber(element) {
 // Loading animation for images
 function initImageLoading() {
     const images = document.querySelectorAll('img');
-    
-    images.forEach(img => {
-        img.addEventListener('load', function() {
-            this.style.opacity = '1';
-            this.style.transform = 'scale(1)';
-        });
-        
+
+    images.forEach((img) => {
+        // Check if image is already loaded
+        if (img.complete && img.naturalHeight !== 0) {
+            // Image is already loaded, show it immediately
+            img.style.opacity = '1';
+            img.style.transform = 'scale(1)';
+        } else {
+            // Image is still loading, set up event listeners
+            img.addEventListener('load', function () {
+                this.style.opacity = '1';
+                this.style.transform = 'scale(1)';
+            });
+
+            img.addEventListener('error', function () {
+                // If image fails to load, show it anyway with a fallback
+                console.warn('Image failed to load:', this.src);
+                this.style.opacity = '1';
+                this.style.transform = 'scale(1)';
+                // Optional: add a placeholder or error indicator
+                this.style.background = 'linear-gradient(135deg, #f1f5f9, #e2e8f0)';
+            });
+        }
+
         // Set initial styles
         img.style.opacity = '0';
         img.style.transform = 'scale(0.9)';
@@ -347,8 +368,55 @@ function initImageLoading() {
 // Initialize image loading
 initImageLoading();
 
+// Features section specific image loading
+function initFeaturesImageLoading() {
+    const featureImages = document.querySelectorAll('.feature-image');
+
+    featureImages.forEach((img) => {
+        // Preload the image
+        const imageUrl = img.src;
+        const preloadImg = new Image();
+
+        preloadImg.onload = function () {
+            // Image loaded successfully
+            img.style.opacity = '1';
+            img.style.transform = 'scale(1)';
+        };
+
+        preloadImg.onerror = function () {
+            // Image failed to load, show placeholder
+            console.warn('Feature image failed to load:', imageUrl);
+            img.style.opacity = '1';
+            img.style.transform = 'scale(1)';
+            img.style.background = 'linear-gradient(135deg, #f1f5f9, #e2e8f0)';
+            img.style.display = 'flex';
+            img.style.alignItems = 'center';
+            img.style.justifyContent = 'center';
+            img.style.color = '#64748b';
+            img.style.fontSize = '14px';
+            img.style.fontWeight = '500';
+
+            // Add fallback text
+            const fallbackText = document.createElement('div');
+            fallbackText.textContent = '이미지를 불러올 수 없습니다';
+            fallbackText.style.textAlign = 'center';
+            img.appendChild(fallbackText);
+        };
+
+        preloadImg.src = imageUrl;
+
+        // Set initial styles
+        img.style.opacity = '0';
+        img.style.transform = 'scale(0.9)';
+        img.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    });
+}
+
+// Initialize features image loading
+initFeaturesImageLoading();
+
 // Add keyboard navigation support
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Tab') {
         // Add focus styles for keyboard navigation
         const style = document.createElement('style');
@@ -382,31 +450,31 @@ window.addEventListener('scroll', throttledParallax);
 // Experience Section Effects
 function initExperienceEffects() {
     const experienceItems = document.querySelectorAll('.experience-item');
-    
-    experienceItems.forEach(item => {
+
+    experienceItems.forEach((item) => {
         // Icon animation on hover
-        item.addEventListener('mouseenter', function() {
+        item.addEventListener('mouseenter', function () {
             const icon = this.querySelector('.experience-icon');
             if (icon) {
                 icon.style.animation = 'bounce 0.6s ease-in-out';
             }
         });
-        
-        item.addEventListener('mouseleave', function() {
+
+        item.addEventListener('mouseleave', function () {
             const icon = this.querySelector('.experience-icon');
             if (icon) {
                 icon.style.animation = '';
             }
         });
-        
+
         // Highlight tags hover effect
         const highlights = item.querySelectorAll('.experience-highlights span');
-        highlights.forEach(highlight => {
-            highlight.addEventListener('mouseenter', function() {
+        highlights.forEach((highlight) => {
+            highlight.addEventListener('mouseenter', function () {
                 this.style.transform = 'translateY(-3px) scale(1.05)';
             });
-            
-            highlight.addEventListener('mouseleave', function() {
+
+            highlight.addEventListener('mouseleave', function () {
                 this.style.transform = 'translateY(0) scale(1)';
             });
         });
@@ -417,18 +485,18 @@ function initExperienceEffects() {
 function initTransportationEffects() {
     const transportCards = document.querySelectorAll('.transport-card');
     const appItems = document.querySelectorAll('.app-item');
-    
+
     // Transport card hover effects
-    transportCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
+    transportCards.forEach((card) => {
+        card.addEventListener('mouseenter', function () {
             const image = this.querySelector('.transport-image');
             if (image) {
                 image.style.transform = 'scale(1.1)';
                 image.style.filter = 'brightness(1.1)';
             }
         });
-        
-        card.addEventListener('mouseleave', function() {
+
+        card.addEventListener('mouseleave', function () {
             const image = this.querySelector('.transport-image');
             if (image) {
                 image.style.transform = 'scale(1)';
@@ -436,10 +504,10 @@ function initTransportationEffects() {
             }
         });
     });
-    
+
     // App item click effect
-    appItems.forEach(item => {
-        item.addEventListener('click', function() {
+    appItems.forEach((item) => {
+        item.addEventListener('click', function () {
             // Add ripple effect
             const ripple = document.createElement('div');
             ripple.style.position = 'absolute';
@@ -454,18 +522,17 @@ function initTransportationEffects() {
             ripple.style.marginLeft = '-10px';
             ripple.style.marginTop = '-10px';
             ripple.style.zIndex = '1';
-            
+
             this.style.position = 'relative';
             this.appendChild(ripple);
-            
+
             setTimeout(() => {
                 ripple.remove();
             }, 600);
         });
     });
-    
-    // Parallax effect for transport apps section
 
+    // Parallax effect for transport apps section
 }
 
 // Add CSS animation keyframes for bounce and ripple effects
@@ -498,4 +565,3 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-
