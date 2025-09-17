@@ -815,7 +815,7 @@ function createUserRow(user) {
     const row = document.createElement('tr');
 
     row.innerHTML = `
-        <td>${user.id}</td>
+        <td>${user.userId}</td>
         <td>${user.username}</td>
         <td>${user.email}</td>
         <td><span class="user-role-badge ${user.role}">${getRoleText(user.role)}</span></td>
