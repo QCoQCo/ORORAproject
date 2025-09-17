@@ -90,19 +90,30 @@ async function initializeAdmin() {
 
 // 헤더 컴포넌트 로드
 function loadHeaderComponent() {
-    fetch('../../components/header.html')
-        .then((response) => response.text())
-        .then((data) => {
-            document.getElementById('header-container').innerHTML = data;
+    // header-loader.js의 loadHeader 함수 사용
+    if (typeof loadHeader === 'function') {
+        loadHeader();
+    } else {
+        // fallback: 직접 헤더 로드
+        fetch('../../components/header.html')
+            .then((response) => response.text())
+            .then((data) => {
+                document.getElementById('header-container').innerHTML = data;
 
-            // 헤더 로드 후 네비게이션 기능 초기화
-            if (typeof initMobileMenu === 'function') {
-                initMobileMenu();
-            }
-        })
-        .catch((error) => {
-            console.error('헤더 로드 실패:', error);
-        });
+                // 헤더 로드 후 네비게이션 기능 초기화
+                if (typeof initMobileMenu === 'function') {
+                    initMobileMenu();
+                }
+
+                // 헤더 로드 후 사용자 상태에 따라 헤더 업데이트
+                if (typeof updateHeader === 'function') {
+                    updateHeader();
+                }
+            })
+            .catch((error) => {
+                console.error('헤더 로드 실패:', error);
+            });
+    }
 }
 
 // 관광지 데이터 로드
@@ -1099,3 +1110,4 @@ document.addEventListener('keydown', function (event) {
         });
     }
 });
+//관리자로 로그인 후 관리자 페이지 접근시 헤더에서 로그인 버튼이 표시되는 버그
