@@ -33,7 +33,7 @@ loginBtn.addEventListener('click', async function () {
         const data = await response.json();
         const users = data.users;
 
-        const foundUser = users.find((user) => user.username === userInputId);
+        const foundUser = users.find((user) => user.userId === userInputId);
 
         // users.json의 비밀번호와 입력한 비밀번호가 일치하는지 확인
         if (foundUser && userInputPsw === foundUser.password) {
