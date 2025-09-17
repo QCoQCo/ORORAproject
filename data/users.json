@@ -3,7 +3,7 @@
         {
             "id": 1,
             "userId": "admin",
-            "username": "admin",
+            "username": "관리자",
             "email": "admin@aratabusan.com",
             "password": "1234",
             "role": "admin",
@@ -19,7 +19,7 @@
         {
             "id": 2,
             "userId": "user001",
-            "username": "user001",
+            "username": "테스트유저",
             "email": "user001@gmail.com",
             "password": "user001",
             "role": "member",
@@ -35,7 +35,7 @@
         {
             "id": 3,
             "userId": "vipuser",
-            "username": "vipuser",
+            "username": "vip유저",
             "email": "vip@example.com",
             "password": "vip1234",
             "role": "vip",
@@ -51,7 +51,7 @@
         {
             "id": 4,
             "userId": "testuser",
-            "username": "testuser",
+            "username": "테스트유저1",
             "email": "test@test.com",
             "password": "test1234",
             "role": "member",
@@ -67,7 +67,7 @@
         {
             "id": 5,
             "userId": "suspended_user",
-            "username": "suspended_user",
+            "username": "정지된유저",
             "email": "suspended@example.com",
             "password": "suspended1234",
             "role": "member",

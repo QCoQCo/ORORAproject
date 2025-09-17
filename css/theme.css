@@ -46,6 +46,17 @@ p {
     position: relative;
 }
 
+/* No Data State */
+.no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--neutral-500);
+    font-size: 1.1rem;
+    background-color: var(--neutral-100);
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
 .section-title::after {
     content: '';
     position: absolute;
@@ -128,6 +139,19 @@ p {
     gap: 2rem;
     padding: 0.5rem;
     min-width: min-content;
+    transition: all 0.3s ease;
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* 그리드 모드 (더보기 버튼 클릭 후) */
+.theme-grid.grid-mode {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+    width: 100%;
+    overflow: visible;
 }
 
 /* Theme Item Cards */
@@ -141,6 +165,61 @@ p {
     position: relative;
     flex: 0 0 280px;
     width: 280px;
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* 그리드 모드에서의 아이템 스타일 */
+.theme-grid.grid-mode .item {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+    flex: none;
+}
+
+/* 그리드 아이템 등장 애니메이션 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 아이템별 지연 애니메이션 */
+.theme-grid .item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+.theme-grid .item:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.theme-grid .item:nth-child(3) {
+    animation-delay: 0.3s;
+}
+.theme-grid .item:nth-child(4) {
+    animation-delay: 0.4s;
+}
+.theme-grid .item:nth-child(5) {
+    animation-delay: 0.5s;
+}
+.theme-grid .item:nth-child(6) {
+    animation-delay: 0.6s;
+}
+.theme-grid .item:nth-child(7) {
+    animation-delay: 0.7s;
+}
+.theme-grid .item:nth-child(8) {
+    animation-delay: 0.8s;
+}
+.theme-grid .item:nth-child(9) {
+    animation-delay: 0.9s;
+}
+.theme-grid .item:nth-child(10) {
+    animation-delay: 1s;
 }
 
 .theme-grid .item:hover {
@@ -307,16 +386,33 @@ p {
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .theme-grid.grid-mode {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .theme-grid .item {
         flex: 0 0 250px;
         width: 250px;
     }
-    
+
+    .theme-grid.grid-mode .item {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .theme-grid.grid-mode {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
     #wrapper .container {
         padding: 30px 15px;
     }
-    
+
     .theme-section {
         padding: 2rem;
         margin-bottom: 3rem;
@@ -328,26 +424,37 @@ p {
         flex: 0 0 220px;
         width: 220px;
     }
-    
+
+    .theme-grid.grid-mode .item {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .theme-grid.grid-mode {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
     .section-title {
         font-size: 1.75rem;
         margin-bottom: 1.5rem;
     }
-    
+
     .theme-subtitle {
         font-size: 1.25rem;
         padding: 0.75rem 1.5rem;
     }
-    
+
     .theme-section {
         padding: 1.5rem;
         margin-bottom: 2rem;
     }
-    
+
     .theme-grid .item-info {
         padding: 1rem;
     }
-    
+
     .theme-grid-container {
         padding: 0.5rem 0;
     }
@@ -358,21 +465,32 @@ p {
         flex: 0 0 200px;
         width: 200px;
     }
-    
+
+    .theme-grid.grid-mode .item {
+        width: 100%;
+        max-width: 250px;
+    }
+
+    .theme-grid.grid-mode {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0.25rem;
+    }
+
     .section-title {
         font-size: 1.5rem;
     }
-    
+
     .theme-section {
         padding: 1rem;
         border-radius: 12px;
     }
-    
+
     .more-btn {
         padding: 0.75rem 1.5rem;
         font-size: 0.9rem;
     }
-    
+
     .theme-grid {
         gap: 1rem;
     }
