@@ -1,200 +1,223 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>부산 관광지 상세정보</title>
-    <link rel="stylesheet" as="style" crossorigin
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
-    <link rel="stylesheet" href="../../css/reset.css">
-    <link rel="stylesheet" href="../../css/header.css">
-    <link rel="stylesheet" href="../../css/footer.css">
-    <link rel="stylesheet" href="../../css/detailPage.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-</head>
-<body>
-    <div id="header-container"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>부산 관광지 상세정보</title>
+        <link
+            rel="stylesheet"
+            as="style"
+            crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
+        <link rel="stylesheet" href="../../css/reset.css" />
+        <link rel="stylesheet" href="../../css/header.css" />
+        <link rel="stylesheet" href="../../css/footer.css" />
+        <link rel="stylesheet" href="../../css/detailPage.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+        />
+    </head>
+    <body>
+        <div id="header-container"></div>
 
-    <!-- Back Button -->
-    <div class="back-button-container">
-        <a href="javascript:history.back()" class="back-button">
-            이전 페이지로 돌아가기
-        </a>
-    </div>
+        <!-- Back Button -->
+        <div class="back-button-container">
+            <a href="javascript:history.back()" class="back-button"> 이전 페이지로 돌아가기 </a>
+        </div>
 
-    <div id="Wrapper">
-        <div class="inner">
-            <div class="title">
-                <h2 id="spot-title">관광지명</h2>
-                <p class="local" id="spot-location">부산 지역구</p>
-                <p class="descript" id="spot-description">관광지 설명</p>
-            </div>
-            <div class="middleButtons">
-                <div class="left">
-                    <div class="like">
-                        <p class="likeBtn"></p>
-                        <p class="likeCount">0</p>
-                    </div>
-                    <div class="eyes">
-                        <p class="eyesPho"></p>
-                        <p class="eyesCount">0</p>
-                    </div>
+        <div id="Wrapper">
+            <div class="inner">
+                <div class="title">
+                    <h2 id="spot-title">관광지명</h2>
+                    <p class="local" id="spot-location">부산 지역구</p>
+                    <p class="descript" id="spot-description">관광지 설명</p>
                 </div>
-                <div class="right">
-                    <div class="save">
-                        <p class="saveBtn"></p>
-                    </div>
-                    <div class="print">
-                        <p class="printPho"></p>
-                    </div>
-                    <div class="map">
-                        <p class="mapPho"></p>
-                    </div>
-                    <div class="share">
-                        <p class="sharePho"></p>
-                        <p class="shareCount">0</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tap">
-                <ul id="subTitle">
-                    <li id="photo"  class="section">사진보기</li>
-                    <li id="detail" class="section">상세정보</li>
-                    <li id="location" class="section">위치</li>
-                    <li id="comment" class="section">댓글</li>
-                </ul>
-            </div>
-            <div class="subPic">
-                <button class="submitPicture"><span></span>사진등록하기</button>
-            </div>
-
-            <div class="photo sectionList">
-                <div style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff" class="swiper mySwiper2">
-                    <div class="swiper-wrapper" id="main-slider">
-                        <!-- 메인 이미지들이 동적으로 추가됩니다 -->
-                    </div>
-                    <div class="swiper-button-next"></div>
-                    <div class="swiper-button-prev"></div>
-                </div>
-                <div thumbsSlider="" class="swiper mySwiper">
-                    <div class="swiper-wrapper" id="thumb-slider">
-                        <!-- 썸네일 이미지들이 동적으로 추가됩니다 -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="detail sectionList">
-                <h3>상세정보</h3>
-                <button class="detailPicture"><span></span>관광정보 수정요청</button>
-            </div>
-
-            <div class="detailScript">
-                <p id="detailed-description">상세 설명이 여기에 표시됩니다.</p>
-            </div>
-
-            <div id="map-container" class="sectionList">
-                <h3>위치 정보</h3>
-                <div id="kakao-map" style="width: 100%; height: 400px; margin: 20px 0;"></div>
-            </div>
-
-            <div class="aboutAhop" id="spot-info">
-                <!-- 관광지 정보가 동적으로 추가됩니다 -->
-            </div>
-
-            <div class="tag" id="hashtags">
-                <!-- 해시태그들이 동적으로 추가됩니다 -->
-            </div>
-
-            <div class="goodBad">
-                <div class="left">
-                    <strong class="goodBadTitle">해당 여행지가 마음에 드시나요?</strong>
-                    <p class="goodBadscr">평가를 해주시면 개인화 추천 시 활용하여 최적의 여행지를 추천해 드리겠습니다.</p>
-                </div>
-                <div class="right">
-                    <button class="good">
-                        <span class="likeIco"></span>
-                        <span>좋아요!</span>
-                    </button>
-                    <button class="bad">
-                        <span class="dislikeIco"></span>
-                        <span>별로예요</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="comment sectionList">
-                <div class="commentTitle">
-                    <h3>리뷰</h3>
-                    <p>(<span id="review-count">0</span>)</p>
-                </div>
-                
-                <!-- 리뷰 작성 폼 -->
-                <div class="reviewWriteForm">
-                    <div class="reviewFormTop">
-                        <input type="text" id="review-title" placeholder="리뷰 제목을 입력해주세요" maxlength="50">
-                        <div class="rating-input">
-                            <span>별점:</span>
-                            <div class="stars">
-                                <button type="button" class="star" data-rating="1">★</button>
-                                <button type="button" class="star" data-rating="2">★</button>
-                                <button type="button" class="star" data-rating="3">★</button>
-                                <button type="button" class="star" data-rating="4">★</button>
-                                <button type="button" class="star" data-rating="5">★</button>
-                            </div>
-                            <span class="rating-text">별점을 선택해주세요</span>
+                <div class="middleButtons">
+                    <div class="left">
+                        <div class="like">
+                            <p class="likeBtn"></p>
+                            <p class="likeCount">0</p>
+                        </div>
+                        <div class="eyes">
+                            <p class="eyesPho"></p>
+                            <p class="eyesCount">0</p>
                         </div>
                     </div>
-                    <textarea placeholder="이 관광지에 대한 후기를 작성해주세요. (최대 1000자)" id="review-content" name="review-content" maxlength="1000"></textarea>
-                    <div class="reviewFormBottom">
-                        <div class="reviewFormInfo">
-                            <span class="char-count"><span id="char-count">0</span>/1000</span>
+                    <div class="right">
+                        <div class="save">
+                            <p class="saveBtn"></p>
                         </div>
-                        <div class="commentPicture">
-                            <button class="pho"><span></span>사진</button>
-                            <button class="sub" id="submit-review">리뷰 등록</button>
+                        <div class="print">
+                            <p class="printPho"></p>
+                        </div>
+                        <div class="map">
+                            <p class="mapPho"></p>
+                        </div>
+                        <div class="share">
+                            <p class="sharePho"></p>
+                            <p class="shareCount">0</p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="userPhotoCo">
-                <div class="up">
-                    <h3>사진 후기</h3>
-                    <p>전체보기</p>
-                </div>
-                <div class="userPhoto">
-                    <p>유저사진</p>
-                </div>
-                <div class="usercheck">
-                    <button>사진 후기만</button>
-                    <ul>
-                        <li><button>최신순</button></li>
-                        <li><button>추천순</button></li>
+                <div class="tap">
+                    <ul id="subTitle">
+                        <li id="photo" class="section">사진보기</li>
+                        <li id="detail" class="section">상세정보</li>
+                        <li id="location" class="section">위치</li>
+                        <li id="comment" class="section">댓글</li>
                     </ul>
                 </div>
-            </div>
+                <div class="subPic">
+                    <button class="submitPicture"><span></span>사진등록하기</button>
+                </div>
 
-            <!-- 리뷰 목록 컨테이너 -->
-            <div id="reviews-container">
-                <!-- 리뷰들이 동적으로 추가됩니다 -->
-            </div>
+                <div class="photo sectionList">
+                    <div
+                        style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
+                        class="swiper mySwiper2"
+                    >
+                        <div class="swiper-wrapper" id="main-slider">
+                            <!-- 메인 이미지들이 동적으로 추가됩니다 -->
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+                    <div thumbsSlider="" class="swiper mySwiper">
+                        <div class="swiper-wrapper" id="thumb-slider">
+                            <!-- 썸네일 이미지들이 동적으로 추가됩니다 -->
+                        </div>
+                    </div>
+                </div>
 
-            <!-- 리뷰가 없을 때 표시되는 메시지 -->
-            <div id="no-reviews-message" class="no-reviews" style="display: none;">
-                <p>아직 작성된 리뷰가 없습니다. 첫 번째 리뷰를 작성해보세요!</p>
+                <div class="detail sectionList">
+                    <h3>상세정보</h3>
+                    <button class="detailPicture"><span></span>관광정보 수정요청</button>
+                </div>
+
+                <div class="detailScript">
+                    <p id="detailed-description">상세 설명이 여기에 표시됩니다.</p>
+                </div>
+
+                <div id="map-container" class="sectionList">
+                    <h3>위치 정보</h3>
+                    <div id="kakao-map" style="width: 100%; height: 400px; margin: 20px 0"></div>
+                </div>
+
+                <div class="aboutAhop" id="spot-info">
+                    <!-- 관광지 정보가 동적으로 추가됩니다 -->
+                </div>
+
+                <div class="tag" id="hashtags">
+                    <!-- 해시태그들이 동적으로 추가됩니다 -->
+                </div>
+
+                <div class="goodBad">
+                    <div class="left">
+                        <strong class="goodBadTitle">해당 여행지가 마음에 드시나요?</strong>
+                        <p class="goodBadscr">
+                            평가를 해주시면 개인화 추천 시 활용하여 최적의 여행지를 추천해
+                            드리겠습니다.
+                        </p>
+                    </div>
+                    <div class="right">
+                        <button class="good">
+                            <span class="likeIco"></span>
+                            <span>좋아요!</span>
+                        </button>
+                        <button class="bad">
+                            <span class="dislikeIco"></span>
+                            <span>별로예요</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comment sectionList">
+                    <div class="commentTitle">
+                        <h3>리뷰</h3>
+                        <p>(<span id="review-count">0</span>)</p>
+                    </div>
+
+                    <!-- 리뷰 작성 폼 -->
+                    <div class="reviewWriteForm">
+                        <div class="reviewFormTop">
+                            <input
+                                type="text"
+                                id="review-title"
+                                placeholder="리뷰 제목을 입력해주세요"
+                                maxlength="50"
+                            />
+                            <div class="rating-input">
+                                <span>별점:</span>
+                                <div class="stars">
+                                    <button type="button" class="star" data-rating="1">★</button>
+                                    <button type="button" class="star" data-rating="2">★</button>
+                                    <button type="button" class="star" data-rating="3">★</button>
+                                    <button type="button" class="star" data-rating="4">★</button>
+                                    <button type="button" class="star" data-rating="5">★</button>
+                                </div>
+                                <span class="rating-text">별점을 선택해주세요</span>
+                            </div>
+                        </div>
+                        <textarea
+                            placeholder="이 관광지에 대한 후기를 작성해주세요. (최대 1000자)"
+                            id="review-content"
+                            name="review-content"
+                            maxlength="1000"
+                        ></textarea>
+                        <div class="reviewFormBottom">
+                            <div class="reviewFormInfo">
+                                <span class="char-count"><span id="char-count">0</span>/1000</span>
+                            </div>
+                            <div class="commentPicture">
+                                <button class="pho"><span></span>사진</button>
+                                <button class="sub" id="submit-review">리뷰 등록</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="userPhotoCo">
+                    <div class="up">
+                        <h3>사진 후기</h3>
+                        <p>전체보기</p>
+                    </div>
+                    <div class="userPhoto">
+                        <p>유저사진</p>
+                    </div>
+                    <div class="usercheck">
+                        <button>사진 후기만</button>
+                        <ul>
+                            <li><button>최신순</button></li>
+                            <li><button>추천순</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 리뷰 목록 컨테이너 -->
+                <div id="reviews-container">
+                    <!-- 리뷰들이 동적으로 추가됩니다 -->
+                </div>
+
+                <!-- 리뷰가 없을 때 표시되는 메시지 -->
+                <div id="no-reviews-message" class="no-reviews" style="display: none">
+                    <p>아직 작성된 리뷰가 없습니다. 첫 번째 리뷰를 작성해보세요!</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="footer-container"></div>
+        <div id="footer-container"></div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script type="text/javascript"
-        src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=[API_KEY_REMOVED]&libraries=services"></script>
-    <script src="../../js/header-loader.js"></script>
-    <script src="../../js/footer-loader.js"></script>
-    <script src="../../js/detailPage.js"></script>
-</body>
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+        <script
+            type="text/javascript"
+            src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=[API_KEY_REMOVED]&libraries=services"
+        ></script>
+        <script src="../../js/header-loader.js"></script>
+        <script src="../../js/footer-loader.js"></script>
+        <script src="../../js/detailPage.js"></script>
+    </body>
 </html>
