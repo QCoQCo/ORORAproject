@@ -80,8 +80,8 @@ class TagSearchSystem {
         this.allSpots.forEach((spot) => {
             if (spot.hashtags && Array.isArray(spot.hashtags)) {
                 spot.hashtags.forEach((tag) => {
-                    // # 제거하고 정리
-                    const cleanTag = tag.replace('#', '').trim();
+                    // 데이터베이스에서 # 기호 없이 저장되므로 그대로 사용
+                    const cleanTag = tag.trim();
                     if (cleanTag) {
                         const count = this.allTags.get(cleanTag) || 0;
                         this.allTags.set(cleanTag, count + 1);
@@ -216,7 +216,7 @@ class TagSearchSystem {
         this.filteredSpots = this.allSpots.filter((spot) => {
             // 선택된 태그로 필터링
             if (this.selectedTags.size > 0) {
-                const spotTags = spot.hashtags.map((tag) => tag.replace('#', '').trim());
+                const spotTags = spot.hashtags.map((tag) => tag.trim());
                 const hasSelectedTag = Array.from(this.selectedTags).some((selectedTag) =>
                     spotTags.includes(selectedTag)
                 );
@@ -354,7 +354,7 @@ class TagSearchSystem {
     }
 
     countTagMatches(spot) {
-        const spotTags = spot.hashtags.map((tag) => tag.replace('#', '').trim());
+        const spotTags = spot.hashtags.map((tag) => tag.trim());
         return Array.from(this.selectedTags).filter((selectedTag) => spotTags.includes(selectedTag))
             .length;
     }
@@ -437,11 +437,11 @@ class TagSearchSystem {
             // 선택된 태그는 강조 표시
             const hashtagText = spot.hashtags
                 .map((tag) => {
-                    const cleanTag = tag.replace('#', '').trim();
+                    const cleanTag = tag.trim();
                     if (this.selectedTags.has(cleanTag)) {
-                        return `<strong>${tag}</strong>`;
+                        return `<strong>#${tag}</strong>`;
                     }
-                    return tag;
+                    return `#${tag}`;
                 })
                 .join(' ');
             hashtagElement.innerHTML = hashtagText;
