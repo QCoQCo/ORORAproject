@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>searchByPlace</title>
+        <title data-translate="place.title">searchByPlace</title>
         <link
             rel="stylesheet"
             as="style"
@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="../../css/footer.css" />
         <link rel="stylesheet" href="../../css/searchBy/place.css" />
         <link rel="stylesheet" href="../../css/list-component.css" />
+        <link rel="stylesheet" href="../../css/loading-animation.css" />
     </head>
     <body>
         <div id="wrapper">
@@ -24,8 +25,8 @@
             <section class="hero-section">
                 <div class="hero-background"></div>
                 <div class="hero-content">
-                    <h1 class="hero-title">부산 지역별 관광지</h1>
-                    <p class="hero-subtitle">
+                    <h1 class="hero-title" data-translate="place.title">부산 지역별 관광지</h1>
+                    <p class="hero-subtitle" data-translate="place.subtitle">
                         지도에서 원하는 지역을 선택하여 관광지를 탐색해보세요
                     </p>
                 </div>
@@ -37,21 +38,33 @@
                     <div class="control-panel">
                         <div class="control-toggle">
                             <button class="toggle-button" id="controlToggle">
-                                <span class="toggle-text">지역 선택 옵션</span>
+                                <span class="toggle-text" data-translate="place.control_toggle"
+                                    >지역 선택 옵션</span
+                                >
                                 <span class="toggle-icon">▼</span>
                             </button>
                         </div>
                         <div class="control-content" id="controlContent">
                             <div class="control-header">
                                 <div class="control-description">
-                                    <p id="selection-info">
+                                    <p id="selection-info" data-translate="place.selection_info">
                                         지도에서 지역을 클릭하여 선택/해제할 수 있습니다.
                                     </p>
                                 </div>
                             </div>
                             <div class="control-buttons">
-                                <button class="control-button btn-secondary">전체 해제</button>
-                                <button class="control-button btn-primary">선택된 지역 보기</button>
+                                <button
+                                    class="control-button btn-secondary"
+                                    data-translate="place.clear_all"
+                                >
+                                    전체 해제
+                                </button>
+                                <button
+                                    class="control-button btn-primary"
+                                    data-translate="place.view_selected"
+                                >
+                                    선택된 지역 보기
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -63,8 +76,12 @@
                             <div class="map-section">
                                 <div class="map-card">
                                     <div class="map-header">
-                                        <h3>부산 지역 지도</h3>
-                                        <p>지역을 클릭하여 관광지를 확인하세요</p>
+                                        <h3 data-translate="place.busan_region_map">
+                                            부산 지역 지도
+                                        </h3>
+                                        <p data-translate="place.click_region_desc">
+                                            지역을 클릭하여 관광지를 확인하세요
+                                        </p>
                                     </div>
                                     <div id="map-container">
                                         <svg
@@ -83,7 +100,9 @@
                             <div class="list-section">
                                 <div class="list-card">
                                     <div class="list-header">
-                                        <h3>부산 관광지</h3>
+                                        <h3 data-translate="place.busan_attractions">
+                                            부산 관광지
+                                        </h3>
                                         <p id="region-subtitle">
                                             지도에서 지역을 클릭하면 해당 지역의 관광지를 확인할 수
                                             있습니다.
@@ -108,6 +127,8 @@
         <!-- 푸터 컨테이너 -->
         <div id="footer-container"></div>
 
+        <script src="../../js/loading-loader.js"></script>
+        <script src="../../js/language.js"></script>
         <script src="../../js/list-loader.js"></script>
         <script src="../../js/header-loader.js"></script>
         <script src="../../js/footer-loader.js"></script>

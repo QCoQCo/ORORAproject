@@ -2,7 +2,8 @@
 class ListLoader {
     constructor(options = {}) {
         this.containerSelector = options.containerSelector || '.list-wrap';
-        this.templateContainerSelector = options.templateContainerSelector || '#list-template-container';
+        this.templateContainerSelector =
+            options.templateContainerSelector || '#list-template-container';
         this.dataUrl = options.dataUrl || null;
         this.data = options.data || null;
         this.fallbackImage = options.fallbackImage || 'logo.png';
@@ -15,13 +16,13 @@ class ListLoader {
         try {
             const templatePath = this.getTemplatePath();
             const response = await fetch(templatePath);
-            
+
             if (!response.ok) {
                 throw new Error('템플릿 로드 실패');
             }
-            
+
             const templateHTML = await response.text();
-            
+
             // 템플릿 컨테이너에 HTML 삽입
             const templateContainer = document.querySelector(this.templateContainerSelector);
             if (templateContainer) {
@@ -30,7 +31,7 @@ class ListLoader {
                 // 템플릿 컨테이너가 없으면 body에 추가
                 document.body.insertAdjacentHTML('beforeend', templateHTML);
             }
-            
+
             return true;
         } catch (error) {
             console.error('템플릿 로드 중 오류:', error);
@@ -41,7 +42,7 @@ class ListLoader {
     // 현재 페이지 위치에 따른 템플릿 경로 결정
     getTemplatePath() {
         const currentPath = window.location.pathname;
-        
+
         if (currentPath.includes('/pages/')) {
             return '../../components/list-item.html';
         } else {
@@ -54,7 +55,7 @@ class ListLoader {
         if (this.data) {
             return this.data;
         }
-        
+
         if (!this.dataUrl) {
             throw new Error('데이터 URL이 제공되지 않았습니다.');
         }
@@ -66,7 +67,7 @@ class ListLoader {
             }
             return await response.json();
         } catch (error) {
-            console.error("데이터 로드 실패:", error);
+            console.error('데이터 로드 실패:', error);
             throw error;
         }
     }
@@ -75,14 +76,14 @@ class ListLoader {
     navigateToDetail(itemData) {
         const currentPath = window.location.pathname;
         let detailPagePath;
-        
+
         // 현재 경로에 따라 상세 페이지 경로 결정
         if (currentPath.includes('/pages/')) {
             detailPagePath = '../detailed/detailed.html';
         } else {
             detailPagePath = './pages/detailed/detailed.html';
         }
-        
+
         // 관광지 제목을 URL 파라미터로 전달
         const encodedTitle = encodeURIComponent(itemData.title);
         window.location.href = `${detailPagePath}?title=${encodedTitle}`;
@@ -116,8 +117,8 @@ class ListLoader {
 
         const hashtagElement = itemFragment.querySelector('.hash-tag');
         if (hashtagElement && itemData.hashtags) {
-            hashtagElement.textContent = Array.isArray(itemData.hashtags) 
-                ? itemData.hashtags.join(' ') 
+            hashtagElement.textContent = Array.isArray(itemData.hashtags)
+                ? itemData.hashtags.join(' ')
                 : itemData.hashtags;
         }
 
@@ -140,7 +141,7 @@ class ListLoader {
                 e.preventDefault();
                 e.stopPropagation();
                 likeBtn.classList.toggle('liked');
-                
+
                 if (this.onLikeClick) {
                     this.onLikeClick(itemData, likeBtn.classList.contains('liked'));
                 }
@@ -176,7 +177,7 @@ class ListLoader {
 
             // 데이터 로드
             const data = await this.loadData();
-            
+
             // 컨테이너 찾기
             const listContainer = document.querySelector(this.containerSelector);
             if (!listContainer) {
@@ -187,7 +188,7 @@ class ListLoader {
             listContainer.innerHTML = '';
 
             // 아이템 생성 및 추가
-            data.forEach(itemData => {
+            data.forEach((itemData) => {
                 const itemElement = this.createListItem(itemData);
                 if (itemElement) {
                     listContainer.appendChild(itemElement);
@@ -202,7 +203,7 @@ class ListLoader {
 }
 
 // 간편 사용을 위한 전역 함수
-window.loadListComponent = async function(options) {
+window.loadListComponent = async function (options) {
     const loader = new ListLoader(options);
     await loader.render();
     return loader;
@@ -219,4 +220,4 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('자동 로드 설정 파싱 오류:', error);
         }
     }
-}); 
+});
