@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>searchByTheme</title>
+        <title data-translate="theme.title">searchByTheme</title>
         <link
             rel="stylesheet"
             as="style"
@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="../../css/theme.css" />
         <link rel="stylesheet" href="../../css/footer.css" />
         <link rel="stylesheet" href="../../css/list-component.css" />
+        <link rel="stylesheet" href="../../css/loading-animation.css" />
     </head>
     <body>
         <div id="wrapper">
@@ -22,9 +23,11 @@
             <section>
                 <div class="container">
                     <div class="theme-section">
-                        <h2 class="section-title">오로라 추천 테마</h2>
+                        <h2 class="section-title" data-translate="theme.title">오로라 추천 테마</h2>
                         <div class="theme-content">
-                            <p class="theme-subtitle">부산 대표 관광지</p>
+                            <p class="theme-subtitle" data-translate="theme.subtitle">
+                                부산 대표 관광지
+                            </p>
                             <div class="theme-grid-container">
                                 <div class="theme-grid" id="aurora-carousel">
                                     <!-- 테마 아이템 추가 -->
@@ -32,7 +35,7 @@
                             </div>
                             <div class="theme-actions">
                                 <button class="more-btn" data-carousel="aurora-carousel">
-                                    <span>더보기</span>
+                                    <span data-translate="theme.more_button">더보기</span>
                                     <svg
                                         width="16"
                                         height="16"
@@ -49,15 +52,27 @@
                     </div>
 
                     <div class="theme-section">
-                        <h2 class="section-title">유저 추천 테마</h2>
+                        <h2 class="section-title" data-translate="theme.user_recommended">
+                            유저 추천 테마
+                        </h2>
                         <div class="theme-content">
                             <div class="theme-selector">
                                 <select name="theme" id="theme">
-                                    <option value="kpop">K-POP 여행</option>
-                                    <option value="culture">문화 여행</option>
-                                    <option value="nature">자연 여행</option>
-                                    <option value="food">음식 여행</option>
-                                    <option value="shopping">쇼핑 여행</option>
+                                    <option value="kpop" data-translate="theme.kpop_travel">
+                                        K-POP 여행
+                                    </option>
+                                    <option value="culture" data-translate="theme.culture_travel">
+                                        문화 여행
+                                    </option>
+                                    <option value="nature" data-translate="theme.nature_travel">
+                                        자연 여행
+                                    </option>
+                                    <option value="food" data-translate="theme.food_travel">
+                                        음식 여행
+                                    </option>
+                                    <option value="shopping" data-translate="theme.shopping_travel">
+                                        쇼핑 여행
+                                    </option>
                                 </select>
                             </div>
 
@@ -68,7 +83,7 @@
                             </div>
                             <div class="theme-actions">
                                 <button class="more-btn" data-carousel="user-carousel">
-                                    <span>더보기</span>
+                                    <span data-translate="theme.more_button">더보기</span>
                                     <svg
                                         width="16"
                                         height="16"
@@ -91,6 +106,8 @@
         </div>
         <div id="footer-container"></div>
 
+        <script src="../../js/loading-loader.js"></script>
+        <script src="../../js/language.js"></script>
         <script src="../../js/theme.js"></script>
         <script src="../../js/header-loader.js"></script>
         <script src="../../js/footer-loader.js"></script>
