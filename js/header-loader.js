@@ -18,6 +18,14 @@ async function loadHeader() {
             // 헤더 로드 후 이벤트 초기화
             initHeaderEvents();
 
+            // 언어 선택기 재설정 및 현재 언어 다시 적용
+            if (window.languageManager) {
+                window.languageManager.setupLanguageSelector();
+                // 헤더 로드 후 현재 언어를 다시 적용하여 페이지 내용도 번역
+                const currentLang = window.languageManager.currentLanguage;
+                window.languageManager.applyLanguage(currentLang, true);
+            }
+
             // header.js 동적 로드 후 검색 기능 초기화
             loadHeaderScript();
 

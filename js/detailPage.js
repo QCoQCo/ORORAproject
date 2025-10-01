@@ -384,9 +384,9 @@ function updateSpotInfo(spot, regionName) {
             <li>
                 <p>이용요금</p>
                 <p class="cont">${
-                    spot.hashtags && spot.hashtags.includes('#무료')
+                    spot.hashtags && spot.hashtags.includes('무료')
                         ? '무료'
-                        : spot.hashtags && spot.hashtags.includes('#유료')
+                        : spot.hashtags && spot.hashtags.includes('유료')
                         ? '유료 (현장 문의)'
                         : '현장 문의'
                 }</p>
@@ -394,13 +394,13 @@ function updateSpotInfo(spot, regionName) {
             <li>
                 <p>주차</p>
                 <p class="cont">${
-                    spot.hashtags && spot.hashtags.includes('#주차가능') ? '가능' : '현장 문의'
+                    spot.hashtags && spot.hashtags.includes('주차가능') ? '가능' : '현장 문의'
                 }</p>
             </li>
             <li>
                 <p>이용시간</p>
                 <p class="cont">${
-                    spot.hashtags && spot.hashtags.includes('#실내')
+                    spot.hashtags && spot.hashtags.includes('실내')
                         ? '시설 운영시간 내'
                         : '상시 이용 가능'
                 }</p>

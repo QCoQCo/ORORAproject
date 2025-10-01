@@ -35,7 +35,7 @@ function getCategoryFromHashtags(hashtags) {
     if (!hashtags || !Array.isArray(hashtags)) return 'culture';
 
     for (const hashtag of hashtags) {
-        const cleanTag = hashtag.replace('#', '');
+        const cleanTag = hashtag.trim();
         for (const [keyword, category] of Object.entries(hashtagToCategory)) {
             if (cleanTag.includes(keyword)) {
                 return category;
