@@ -137,7 +137,7 @@ function getCategoryFromHashtags(hashtags) {
     if (!hashtags || !Array.isArray(hashtags)) return 'culture';
 
     for (const hashtag of hashtags) {
-        const cleanTag = hashtag.replace('#', '');
+        const cleanTag = hashtag.trim();
         for (const [keyword, category] of Object.entries(hashtagToCategory)) {
             if (cleanTag.includes(keyword)) {
                 return category;
@@ -346,7 +346,7 @@ function handleAddTouristSpot(event) {
         .value.split(',')
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0)
-        .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`));
+        .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag));
 
     const newSpot = {
         title: document.getElementById('spot-title').value,
@@ -413,7 +413,7 @@ function handleEditTouristSpot(event) {
         .value.split(',')
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0)
-        .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`));
+        .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag));
 
     const updatedSpot = {
         title: document.getElementById('edit-spot-title').value,
