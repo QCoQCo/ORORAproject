@@ -48,11 +48,23 @@ function updateHeader() {
 
     if (loginBtn && btnsContainer) {
         if (isLoggedInUser && user) {
-            // 로그인된 상태: 사용자명과 로그아웃 버튼 표시
+            // 로그인된 상태: 사용자명 드롭다운 메뉴 표시
             loginBtn.innerHTML = `
-                <div class="user-info">
-                    <span class="username">${user.username}</span>
-                    <button class="logout-btn" onclick="logout()">로그아웃</button>
+                <div class="user-dropdown">
+                    <button class="user-dropdown-btn">
+                        <span class="username">${user.username}</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="user-dropdown-menu">
+                        <a href="/pages/mypage/mypage.html" class="dropdown-item">
+                            <span class="dropdown-icon">👤</span>
+                            마이페이지
+                        </a>
+                        <button class="dropdown-item logout-item" onclick="logout()">
+                            <span class="dropdown-icon">🚪</span>
+                            로그아웃
+                        </button>
+                    </div>
                 </div>
             `;
         } else {
@@ -76,10 +88,43 @@ function updateHeader() {
     });
 }
 
+// 사용자 드롭다운 메뉴 초기화
+function initUserDropdown() {
+    const userDropdownBtn = document.querySelector('.user-dropdown-btn');
+    const userDropdownMenu = document.querySelector('.user-dropdown-menu');
+
+    if (userDropdownBtn && userDropdownMenu) {
+        // 드롭다운 버튼 클릭 이벤트
+        userDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdownMenu.classList.toggle('active');
+        });
+
+        // 외부 클릭 시 드롭다운 닫기
+        document.addEventListener('click', (e) => {
+            if (!userDropdownBtn.contains(e.target) && !userDropdownMenu.contains(e.target)) {
+                userDropdownMenu.classList.remove('active');
+            }
+        });
+
+        // 드롭다운 메뉴 항목 클릭 시 닫기
+        const dropdownItems = userDropdownMenu.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach((item) => {
+            item.addEventListener('click', () => {
+                userDropdownMenu.classList.remove('active');
+            });
+        });
+    }
+}
+
 // 페이지 로드 시 헤더 업데이트
 document.addEventListener('DOMContentLoaded', function () {
     // 헤더가 로드된 후 업데이트
-    setTimeout(updateHeader, 100);
+    setTimeout(() => {
+        updateHeader();
+        // 드롭다운 메뉴 초기화
+        setTimeout(initUserDropdown, 200);
+    }, 100);
 });
 
 // 로그인 성공 후 헤더 업데이트를 위한 전역 함수
