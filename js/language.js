@@ -16,14 +16,36 @@ class LanguageManager {
         this.setupLanguageSelectorWithRetry();
     }
 
+    // 현재 페이지 위치에 따른 데이터 경로 결정
+    getDataPath() {
+        const currentPath = window.location.pathname;
+        const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
+
+        // 루트 디렉토리인 경우
+        if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+            return './data/';
+        }
+
+        // pages 디렉토리 내부인 경우
+        if (currentPath.includes('/pages/')) {
+            return '../../data/';
+        }
+
+        // 기타 경우 (안전장치)
+        return './data/';
+    }
+
     async loadTranslations() {
         try {
+            // 현재 페이지 위치에 따른 데이터 경로 결정
+            const dataPath = this.getDataPath();
+
             // 영어 번역 데이터 로드
-            const enResponse = await fetch('/data/translations-en.json');
+            const enResponse = await fetch(`${dataPath}translations-en.json`);
             this.translations.en = await enResponse.json();
 
             // 일본어 번역 데이터 로드
-            const jpResponse = await fetch('/data/translations-jp.json');
+            const jpResponse = await fetch(`${dataPath}translations-jp.json`);
             this.translations.jp = await jpResponse.json();
 
             // 한국어는 기본값으로 사용

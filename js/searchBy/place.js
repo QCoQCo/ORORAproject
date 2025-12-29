@@ -1,6 +1,44 @@
 let listLoader = null;
 let touristData = null;
 
+// 현재 페이지 위치에 따른 맵 경로 결정
+function getMapPath() {
+    const currentPath = window.location.pathname;
+    const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
+
+    // 루트 디렉토리인 경우
+    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+        return './images/map.svg';
+    }
+
+    // pages 디렉토리 내부인 경우
+    if (currentPath.includes('/pages/')) {
+        return '../../images/map.svg';
+    }
+
+    // 기타 경우 (안전장치)
+    return './images/map.svg';
+}
+
+// 현재 페이지 위치에 따른 데이터 경로 결정
+function getDataPath() {
+    const currentPath = window.location.pathname;
+    const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
+
+    // 루트 디렉토리인 경우
+    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+        return './data/';
+    }
+
+    // pages 디렉토리 내부인 경우
+    if (currentPath.includes('/pages/')) {
+        return '../../data/';
+    }
+
+    // 기타 경우 (안전장치)
+    return './data/';
+}
+
 // 컨트롤 패널 토글 기능 초기화
 function initControlPanelToggle() {
     const toggleButton = document.getElementById('controlToggle');
@@ -42,7 +80,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // console.log('SVG 로드 시작...');
-    fetch('../../images/map.svg')
+    const mapPath = getMapPath();
+    fetch(mapPath)
         .then((response) => {
             // console.log('SVG 응답 상태:', response.status);
             if (!response.ok) {
@@ -103,8 +142,10 @@ async function loadTouristData() {
     try {
         // console.log('관광지 데이터 로드 시작...');
         // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-        // 예: const response = await fetch('/api/tourist-spots');
-        const response = await fetch('../../data/busanTouristSpots.json');
+        // 백엔드 API 엔드포인트: GET /api/tourist-spots
+        // 응답 형식: { regions: { area01: { name: "기장군", spots: [...] }, ... } }
+        const dataPath = getDataPath();
+        const response = await fetch(`${dataPath}busanTouristSpots.json`);
         if (!response.ok) {
             throw new Error('데이터 로드 실패');
         }
