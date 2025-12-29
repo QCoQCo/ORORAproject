@@ -120,7 +120,8 @@ function loadHeaderComponent() {
 async function loadTouristSpots() {
     try {
         // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-        // 예: const response = await fetch('/api/admin/tourist-spots');
+        // 백엔드 API 엔드포인트: GET /api/admin/tourist-spots
+        // 응답 형식: { regions: { area01: { name: "기장군", spots: [...] }, ... } }
         const response = await fetch('../../data/busanTouristSpots.json');
         const data = await response.json();
         touristSpots = data.regions || {};
@@ -356,6 +357,11 @@ function handleAddTouristSpot(event) {
         link: document.getElementById('spot-link').value || '#',
     };
 
+    // TODO: 백엔드 연결 시 API 호출로 변경
+    // 백엔드 API 엔드포인트: POST /api/admin/tourist-spots
+    // 요청 형식: { regionId, title, description, hashtags, imageUrl, linkUrl }
+    // 응답 형식: { success: true, spot: { id, ... } }
+
     if (!touristSpots[regionKey]) {
         touristSpots[regionKey] = {
             name: regionNames[regionKey] || regionKey,
@@ -425,6 +431,11 @@ function handleEditTouristSpot(event) {
 
     const newRegion = document.getElementById('edit-spot-region').value;
 
+    // TODO: 백엔드 연결 시 API 호출로 변경
+    // 백엔드 API 엔드포인트: PUT /api/admin/tourist-spots/{spotId}
+    // 요청 형식: { regionId, title, description, hashtags, imageUrl, linkUrl }
+    // 응답 형식: { success: true, spot: { id, ... } }
+
     // 지역이 변경된 경우
     if (newRegion !== currentEditRegion) {
         // 기존 지역에서 제거
@@ -464,6 +475,10 @@ function handleEditTouristSpot(event) {
 // 관광지 삭제
 function deleteTouristSpot(regionKey, index) {
     if (confirm('정말로 이 관광지를 삭제하시겠습니까?')) {
+        // TODO: 백엔드 연결 시 API 호출로 변경
+        // 백엔드 API 엔드포인트: DELETE /api/admin/tourist-spots/{spotId}
+        // 응답 형식: { success: true, message: string }
+
         touristSpots[regionKey].spots.splice(index, 1);
 
         // 지역에 관광지가 없으면 spots 배열만 비워둠 (지역 정보는 유지)
@@ -776,7 +791,8 @@ function exportAllData() {
 async function initializeUsers() {
     try {
         // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-        // 예: const response = await fetch('/api/admin/users');
+        // 백엔드 API 엔드포인트: GET /api/admin/users
+        // 응답 형식: { users: [{ id, userId, username, email, role, status, ... }] }
         const response = await fetch('../../data/users.json');
         const data = await response.json();
         users = data.users;
@@ -911,6 +927,11 @@ function handleAddUser(event) {
         lastLogin: '-',
     };
 
+    // TODO: 백엔드 연결 시 API 호출로 변경
+    // 백엔드 API 엔드포인트: POST /api/admin/users
+    // 요청 형식: { username, email, role, password }
+    // 응답 형식: { success: true, user: { id, ... } }
+
     // 중복 확인
     if (users.some((u) => u.username === newUser.username || u.email === newUser.email)) {
         showNotification('이미 존재하는 사용자명 또는 이메일입니다.', 'error');
@@ -955,6 +976,11 @@ function handleEditUser(event) {
 
     const updatedUsername = document.getElementById('edit-username').value;
     const updatedEmail = document.getElementById('edit-email').value;
+
+    // TODO: 백엔드 연결 시 API 호출로 변경
+    // 백엔드 API 엔드포인트: PUT /api/admin/users/{userId}
+    // 요청 형식: { username, email, role, status }
+    // 응답 형식: { success: true, user: { id, ... } }
 
     // 중복 확인 (자신 제외)
     const duplicateUser = users.find(
@@ -1012,6 +1038,10 @@ function deleteUser(userId) {
     if (!user) return;
 
     if (confirm(`정말로 사용자 "${user.username}"을(를) 삭제하시겠습니까?`)) {
+        // TODO: 백엔드 연결 시 API 호출로 변경
+        // 백엔드 API 엔드포인트: DELETE /api/admin/users/{userId}
+        // 응답 형식: { success: true, message: string }
+
         users = users.filter((u) => u.id !== userId);
         filteredUsers = [...users];
         displayUsers();
