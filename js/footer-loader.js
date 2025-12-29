@@ -4,21 +4,21 @@ async function loadFooter() {
         // 현재 페이지의 위치에 따라 경로 조정
         const footerPath = getFooterPath();
         const response = await fetch(footerPath);
-        
+
         if (!response.ok) {
             throw new Error('푸터 로드 실패');
         }
-        
+
         const footerHTML = await response.text();
-        
+
         // 푸터 컨테이너에 HTML 삽입
         const footerContainer = document.getElementById('footer-container');
         if (footerContainer) {
             footerContainer.innerHTML = footerHTML;
-            
+
             // 로고 이미지 경로 조정
             adjustLogoImagePath();
-            
+
             // 푸터 로드 후 이벤트 초기화
             initFooterEvents();
         } else {
@@ -38,12 +38,20 @@ async function loadFooter() {
 // 현재 페이지 위치에 따른 푸터 경로 결정
 function getFooterPath() {
     const currentPath = window.location.pathname;
-    
-    if (currentPath.includes('/pages/')) {
-        return '../../components/footer.html';
-    } else {
+    const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
+
+    // 루트 디렉토리인 경우
+    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
         return './components/footer.html';
     }
+
+    // pages 디렉토리 내부인 경우
+    if (currentPath.includes('/pages/')) {
+        return '../../components/footer.html';
+    }
+
+    // 기타 경우 (안전장치)
+    return './components/footer.html';
 }
 
 // 로고 이미지 경로 조정
@@ -51,7 +59,7 @@ function adjustLogoImagePath() {
     const logoImage = document.querySelector('.footer-logo-image');
     if (logoImage) {
         const currentPath = window.location.pathname;
-        
+
         if (currentPath.includes('/pages/')) {
             logoImage.src = '../../images/logo.png';
         } else {
@@ -64,7 +72,7 @@ function adjustLogoImagePath() {
 function initFooterEvents() {
     // 소셜 링크 클릭 이벤트 (분석 등을 위한 트래킹)
     const socialLinks = document.querySelectorAll('.footer-social a');
-    socialLinks.forEach(link => {
+    socialLinks.forEach((link) => {
         link.addEventListener('click', (e) => {
             const platform = link.title || 'Unknown';
             console.log(`소셜 링크 클릭: ${platform}`);
@@ -74,7 +82,7 @@ function initFooterEvents() {
 
     // 내부 링크 클릭 이벤트
     const internalLinks = document.querySelectorAll('.footer-links a, .footer-info a[href^="/"]');
-    internalLinks.forEach(link => {
+    internalLinks.forEach((link) => {
         link.addEventListener('click', (e) => {
             const linkText = link.textContent.trim();
             console.log(`푸터 내부 링크 클릭: ${linkText}`);
@@ -84,7 +92,7 @@ function initFooterEvents() {
 
     // 현재 연도 자동 업데이트
     updateCopyright();
-    
+
     // 스크롤 투 탑 기능 (선택사항)
     addScrollToTopFeature();
 }
@@ -93,8 +101,8 @@ function initFooterEvents() {
 function updateCopyright() {
     const currentYear = new Date().getFullYear();
     const copyrightElements = document.querySelectorAll('.footer-bottom-content p');
-    
-    copyrightElements.forEach(element => {
+
+    copyrightElements.forEach((element) => {
         if (element.textContent.includes('2024')) {
             element.textContent = element.textContent.replace('2024', currentYear);
         }
@@ -106,23 +114,23 @@ function addScrollToTopFeature() {
     // 푸터 로고 클릭 시 맨 위로 스크롤
     const footerLogo = document.querySelector('.footer-logo');
     const footerLogoImage = document.querySelector('.footer-logo-image');
-    
+
     if (footerLogo) {
         footerLogo.style.cursor = 'pointer';
         footerLogo.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
-                behavior: 'smooth'
+                behavior: 'smooth',
             });
         });
     }
-    
+
     if (footerLogoImage) {
         footerLogoImage.style.cursor = 'pointer';
         footerLogoImage.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
-                behavior: 'smooth'
+                behavior: 'smooth',
             });
         });
     }
@@ -131,17 +139,20 @@ function addScrollToTopFeature() {
 // 푸터 애니메이션 효과 (선택사항)
 function initFooterAnimations() {
     // Intersection Observer를 사용한 애니메이션
-    const footerObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
+    const footerObserver = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        },
+        {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px',
+        }
+    );
 
     // 푸터 섹션들에 애니메이션 적용
     const footerSections = document.querySelectorAll('.footer-section');
@@ -149,8 +160,10 @@ function initFooterAnimations() {
         // 초기 상태 설정
         section.style.opacity = '0';
         section.style.transform = 'translateY(30px)';
-        section.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
-        
+        section.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${
+            index * 0.2
+        }s`;
+
         // 관찰 시작
         footerObserver.observe(section);
     });
@@ -159,7 +172,7 @@ function initFooterAnimations() {
 // DOM 로드 완료 후 푸터 로드
 document.addEventListener('DOMContentLoaded', async () => {
     await loadFooter();
-    
+
     // 애니메이션 초기화 (선택사항)
     setTimeout(() => {
         initFooterAnimations();
@@ -167,4 +180,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // 전역 함수로 내보내기 (필요한 경우)
-window.loadFooter = loadFooter; 
+window.loadFooter = loadFooter;

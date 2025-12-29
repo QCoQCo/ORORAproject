@@ -42,22 +42,38 @@ async function loadHeader() {
 // 현재 페이지 위치에 따른 헤더 경로 결정
 function getHeaderPath() {
     const currentPath = window.location.pathname;
+    const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
 
-    if (currentPath.includes('/pages/')) {
-        return '../../components/header.html';
-    } else {
+    // 루트 디렉토리인 경우
+    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
         return './components/header.html';
     }
+
+    // pages 디렉토리 내부인 경우
+    if (currentPath.includes('/pages/')) {
+        return '../../components/header.html';
+    }
+
+    // 기타 경우 (안전장치)
+    return './components/header.html';
 }
 
 // header.js 동적 로드 함수
 function loadHeaderScript() {
     const currentPath = window.location.pathname;
+    const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
     let scriptPath;
 
-    if (currentPath.includes('/pages/')) {
+    // 루트 디렉토리인 경우
+    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+        scriptPath = './js/header.js';
+    }
+    // pages 디렉토리 내부인 경우
+    else if (currentPath.includes('/pages/')) {
         scriptPath = '../../js/header.js';
-    } else {
+    }
+    // 기타 경우 (안전장치)
+    else {
         scriptPath = './js/header.js';
     }
 
