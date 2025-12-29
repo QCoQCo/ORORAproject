@@ -28,6 +28,11 @@ function isAdmin() {
 
 // 로그아웃
 function logout() {
+    // TODO: 백엔드 연결 시 API 호출로 변경
+    // 백엔드 API 엔드포인트: POST /api/auth/logout
+    // 요청 형식: { token: "jwt_token" }
+    // 응답 형식: { success: true, message: string }
+
     sessionStorage.removeItem('loggedInUser');
     // 모든 페이지에서 로그아웃 후 메인 페이지로 이동
     window.location.href = '/index.html';
