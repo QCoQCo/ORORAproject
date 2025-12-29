@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>관리자 페이지 - arataBUSAN</title>
+        <link
+            rel="stylesheet"
+            as="style"
+            crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
+        <link rel="stylesheet" href="../../css/reset.css" />
+        <link rel="stylesheet" href="../../css/header.css" />
+        <link rel="stylesheet" href="../../css/admin.css" />
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="header-container"></div>
+            <section class="admin-page">
+                <div class="container">
+                    <div class="admin-header">
+                        <h1>관리자 페이지</h1>
+                        <p>부산 관광지 정보를 관리할 수 있습니다.</p>
+                    </div>
+
+                    <div class="admin-tabs">
+                        <button class="tab-btn active" data-tab="list">관광지 목록</button>
+                        <button class="tab-btn" data-tab="add">관광지 추가</button>
+                        <button class="tab-btn" data-tab="users">사용자 관리</button>
+                        <button class="tab-btn" data-tab="stats">통계</button>
+                    </div>
+
+                    <div class="tab-content active" id="list-tab">
+                        <div class="search-filter">
+                            <input
+                                type="text"
+                                id="search-input"
+                                placeholder="관광지명으로 검색..."
+                            />
+                            <select id="region-filter">
+                                <option value="">전체 지역</option>
+                                <option value="area01">기장군</option>
+                                <option value="area02">금정구</option>
+                                <option value="area03">해운대구</option>
+                                <option value="area04">동래구</option>
+                                <option value="area05">북구</option>
+                                <option value="area06">강서구</option>
+                                <option value="area07">사상구</option>
+                                <option value="area08">부산진구</option>
+                                <option value="area09">남구</option>
+                                <option value="area10">사하구</option>
+                                <option value="area11">동구</option>
+                                <option value="area12">서구</option>
+                                <option value="area13">중구</option>
+                                <option value="area14">연제구</option>
+                                <option value="area15">수영구</option>
+                                <option value="area16">영도구</option>
+                            </select>
+                        </div>
+
+                        <div class="tourist-spots-grid" id="tourist-spots-grid">
+                            <!-- 관광지 목록이 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="add-tab">
+                        <form class="add-form" id="add-tourist-spot-form">
+                            <div class="form-group">
+                                <label for="spot-title">관광지명</label>
+                                <input type="text" id="spot-title" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="spot-region">지역</label>
+                                <select id="spot-region" required>
+                                    <option value="">지역 선택</option>
+                                    <option value="area01">기장군</option>
+                                    <option value="area02">금정구</option>
+                                    <option value="area03">해운대구</option>
+                                    <option value="area04">동래구</option>
+                                    <option value="area05">북구</option>
+                                    <option value="area06">강서구</option>
+                                    <option value="area07">사상구</option>
+                                    <option value="area08">부산진구</option>
+                                    <option value="area09">남구</option>
+                                    <option value="area10">사하구</option>
+                                    <option value="area11">동구</option>
+                                    <option value="area12">서구</option>
+                                    <option value="area13">중구</option>
+                                    <option value="area14">연제구</option>
+                                    <option value="area15">수영구</option>
+                                    <option value="area16">영도구</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="spot-hashtags">해시태그 (쉼표로 구분)</label>
+                                <input
+                                    type="text"
+                                    id="spot-hashtags"
+                                    placeholder="#해변, #관광, #부산"
+                                    required
+                                />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="spot-img">이미지 경로</label>
+                                <input
+                                    type="text"
+                                    id="spot-img"
+                                    placeholder="../../images/example.jpg"
+                                />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="spot-link">링크</label>
+                                <input type="text" id="spot-link" placeholder="#" value="#" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="spot-description">설명</label>
+                                <textarea id="spot-description" rows="4" required></textarea>
+                            </div>
+
+                            <button type="submit" class="submit-btn">관광지 추가</button>
+                        </form>
+                    </div>
+
+                    <div class="tab-content" id="users-tab">
+                        <div class="users-header">
+                            <div class="users-controls">
+                                <div class="search-filter">
+                                    <input
+                                        type="text"
+                                        id="user-search-input"
+                                        placeholder="사용자명, 이메일로 검색..."
+                                    />
+                                    <select id="user-role-filter">
+                                        <option value="">전체 권한</option>
+                                        <option value="admin">관리자</option>
+                                        <option value="member">일반회원</option>
+                                        <option value="vip">VIP회원</option>
+                                    </select>
+                                    <select id="user-status-filter">
+                                        <option value="">전체 상태</option>
+                                        <option value="active">활성</option>
+                                        <option value="inactive">비활성</option>
+                                        <option value="suspended">정지</option>
+                                    </select>
+                                </div>
+                                <button class="add-user-btn" onclick="openAddUserModal()">
+                                    새 사용자 추가
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="users-table-container">
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>사용자명</th>
+                                        <th>이메일</th>
+                                        <th>권한</th>
+                                        <th>상태</th>
+                                        <th>가입일</th>
+                                        <th>마지막 로그인</th>
+                                        <th>작업</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- 사용자 목록이 동적으로 생성됩니다 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="users-pagination" id="users-pagination">
+                            <!-- 페이지네이션이 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="stats-tab">
+                        <div class="stats-section">
+                            <h3>관광지 통계</h3>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <h3>총 관광지 수</h3>
+                                    <div class="stat-number" id="total-spots">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>해변</h3>
+                                    <div class="stat-number" id="beach-count">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>산/공원</h3>
+                                    <div class="stat-number" id="mountain-count">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>문화</h3>
+                                    <div class="stat-number" id="culture-count">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>전통시장</h3>
+                                    <div class="stat-number" id="food-count">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>쇼핑</h3>
+                                    <div class="stat-number" id="shopping-count">0</div>
+                                </div>
+                            </div>
+
+                            <div class="category-chart">
+                                <h3>카테고리별 분포</h3>
+                                <div class="chart-container" id="category-chart">
+                                    <!-- 차트가 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+
+                            <div class="region-chart">
+                                <h3>지역별 분포</h3>
+                                <div class="chart-container" id="region-chart">
+                                    <!-- 차트가 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-section">
+                            <h3>사용자 통계</h3>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <h3>총 사용자 수</h3>
+                                    <div class="stat-number" id="total-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>활성 사용자</h3>
+                                    <div class="stat-number" id="active-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>관리자</h3>
+                                    <div class="stat-number" id="admin-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>VIP 회원</h3>
+                                    <div class="stat-number" id="vip-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>일반 회원</h3>
+                                    <div class="stat-number" id="member-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>정지된 사용자</h3>
+                                    <div class="stat-number" id="suspended-users">0</div>
+                                </div>
+                            </div>
+
+                            <div class="user-chart">
+                                <h3>사용자 권한별 분포</h3>
+                                <div class="chart-container" id="user-role-chart">
+                                    <!-- 차트가 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-section">
+                            <h3>데이터 관리</h3>
+                            <div class="export-buttons">
+                                <button class="export-btn" onclick="exportAllData()">
+                                    전체 데이터 백업
+                                </button>
+                                <button class="export-btn" onclick="exportTouristSpotsData()">
+                                    관광지 데이터 내보내기
+                                </button>
+                                <button class="export-btn" onclick="exportUsersData()">
+                                    사용자 데이터 내보내기
+                                </button>
+                            </div>
+                            <div class="export-info">
+                                <p><strong>키보드 단축키:</strong></p>
+                                <ul>
+                                    <li>Ctrl + S: 전체 데이터 백업</li>
+                                    <li>Ctrl + Shift + T: 관광지 데이터만 내보내기</li>
+                                    <li>Ctrl + Shift + U: 사용자 데이터만 내보내기</li>
+                                    <li>ESC: 모달 창 닫기</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 관광지 수정 모달 -->
+        <div class="modal" id="edit-modal">
+            <div class="modal-content">
+                <span class="close" id="close-modal">&times;</span>
+                <h2>관광지 정보 수정</h2>
+                <form id="edit-tourist-spot-form">
+                    <div class="form-group">
+                        <label for="edit-spot-title">관광지명</label>
+                        <input type="text" id="edit-spot-title" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-spot-region">지역</label>
+                        <select id="edit-spot-region" required>
+                            <option value="area01">기장군</option>
+                            <option value="area02">금정구</option>
+                            <option value="area03">해운대구</option>
+                            <option value="area04">동래구</option>
+                            <option value="area05">북구</option>
+                            <option value="area06">강서구</option>
+                            <option value="area07">사상구</option>
+                            <option value="area08">부산진구</option>
+                            <option value="area09">남구</option>
+                            <option value="area10">사하구</option>
+                            <option value="area11">동구</option>
+                            <option value="area12">서구</option>
+                            <option value="area13">중구</option>
+                            <option value="area14">연제구</option>
+                            <option value="area15">수영구</option>
+                            <option value="area16">영도구</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-spot-hashtags">해시태그 (쉼표로 구분)</label>
+                        <input
+                            type="text"
+                            id="edit-spot-hashtags"
+                            placeholder="#해변, #관광, #부산"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-spot-img">이미지 경로</label>
+                        <input
+                            type="text"
+                            id="edit-spot-img"
+                            placeholder="../../images/example.jpg"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-spot-link">링크</label>
+                        <input type="text" id="edit-spot-link" placeholder="#" value="#" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-spot-description">설명</label>
+                        <textarea id="edit-spot-description" rows="4" required></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">수정 완료</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 사용자 추가 모달 -->
+        <div class="modal" id="add-user-modal">
+            <div class="modal-content">
+                <span class="close" id="close-add-user-modal">&times;</span>
+                <h2>새 사용자 추가</h2>
+                <form id="add-user-form">
+                    <div class="form-group">
+                        <label for="new-username">사용자명</label>
+                        <input type="text" id="new-username" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-email">이메일</label>
+                        <input type="email" id="new-email" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-password">비밀번호</label>
+                        <input type="password" id="new-password" required minlength="6" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-user-role">권한</label>
+                        <select id="new-user-role" required>
+                            <option value="member">일반회원</option>
+                            <option value="vip">VIP회원</option>
+                            <option value="admin">관리자</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">사용자 추가</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 사용자 수정 모달 -->
+        <div class="modal" id="edit-user-modal">
+            <div class="modal-content">
+                <span class="close" id="close-edit-user-modal">&times;</span>
+                <h2>사용자 정보 수정</h2>
+                <form id="edit-user-form">
+                    <div class="form-group">
+                        <label for="edit-username">사용자명</label>
+                        <input type="text" id="edit-username" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-email">이메일</label>
+                        <input type="email" id="edit-email" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-user-role">권한</label>
+                        <select id="edit-user-role" required>
+                            <option value="member">일반회원</option>
+                            <option value="vip">VIP회원</option>
+                            <option value="admin">관리자</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-user-status">상태</label>
+                        <select id="edit-user-status" required>
+                            <option value="active">활성</option>
+                            <option value="inactive">비활성</option>
+                            <option value="suspended">정지</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">수정 완료</button>
+                </form>
+            </div>
+        </div>
+
+        <script src="../../js/header-loader.js"></script>
+        <script src="../../js/auth.js"></script>
+        <script src="../../js/admin.js"></script>
+    </body>
+</html>
