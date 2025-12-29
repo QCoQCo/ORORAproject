@@ -25,7 +25,10 @@ loginBtn.addEventListener('click', async function () {
 
     try {
         // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-        // 예: const response = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({username, password}) });
+        // 백엔드 API 엔드포인트: POST /api/auth/login
+        // 요청 형식: { userId, password }
+        // 응답 형식: { success: true, user: { id, userId, username, email, role, ... }, token: "jwt_token" }
+
         const response = await fetch('../../data/users.json');
         if (!response.ok) {
             throw new Error('사용자 데이터를 불러오는 데 실패했습니다.');

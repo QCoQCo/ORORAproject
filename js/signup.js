@@ -2,54 +2,54 @@
 class SignupValidator {
     constructor() {
         this.fields = {
-            putId: { 
+            putId: {
                 element: document.getElementById('putId'),
                 errorElement: document.getElementById('needId'),
                 rules: ['required', 'minLength:4', 'maxLength:20'],
-                valid: false
+                valid: false,
             },
-            putPsw: { 
+            putPsw: {
                 element: document.getElementById('putPsw'),
                 errorElement: document.getElementById('needPsw'),
                 rules: ['required', 'strongPassword'],
-                valid: false
+                valid: false,
             },
-            putRePsw: { 
+            putRePsw: {
                 element: document.getElementById('putRePsw'),
                 errorElement: document.getElementById('needRePsw'),
                 rules: ['required', 'passwordMatch'],
-                valid: false
+                valid: false,
             },
-            userName: { 
+            userName: {
                 element: document.getElementById('userName'),
                 errorElement: null,
                 rules: ['required', 'minLength:2'],
-                valid: false
+                valid: false,
             },
-            userBirth: { 
+            userBirth: {
                 element: document.getElementById('userBirth'),
                 errorElement: null,
                 rules: ['dateFormat'],
-                valid: false
+                valid: false,
             },
-            userPhone: { 
+            userPhone: {
                 element: document.getElementById('userPhone'),
                 errorElement: null,
                 rules: ['phoneFormat'],
-                valid: false
+                valid: false,
             },
-            userEmail: { 
+            userEmail: {
                 element: document.getElementById('userEmail'),
                 errorElement: null,
                 rules: ['emailFormat'],
-                valid: false
-            }
+                valid: false,
+            },
         };
 
         this.sameElement = document.getElementById('same');
         this.submitButton = document.getElementById('submit');
         this.overlapButton = document.getElementById('overlap');
-        
+
         this.init();
     }
 
@@ -80,7 +80,7 @@ class SignupValidator {
             if (!value) return true; // 선택사항
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return regex.test(value);
-        }
+        },
     };
 
     // 에러 메시지
@@ -92,7 +92,7 @@ class SignupValidator {
         passwordMatch: '비밀번호가 일치하지 않습니다.',
         dateFormat: '올바른 날짜 형식(YYYY-MM-DD)으로 입력해주세요.',
         phoneFormat: '올바른 휴대폰 번호 형식으로 입력해주세요.',
-        emailFormat: '올바른 이메일 형식으로 입력해주세요.'
+        emailFormat: '올바른 이메일 형식으로 입력해주세요.',
     };
 
     init() {
@@ -102,7 +102,7 @@ class SignupValidator {
 
     setupEventListeners() {
         // 각 필드에 실시간 유효성 검사 이벤트 리스너 추가
-        Object.keys(this.fields).forEach(fieldName => {
+        Object.keys(this.fields).forEach((fieldName) => {
             const field = this.fields[fieldName];
             if (field.element) {
                 field.element.addEventListener('input', () => {
@@ -146,17 +146,18 @@ class SignupValidator {
         for (const rule of field.rules) {
             const [ruleName, ruleParam] = rule.split(':');
             const ruleFunction = this.validationRules[ruleName];
-            
+
             if (ruleFunction) {
-                const result = ruleParam ? 
-                    ruleFunction(value, parseInt(ruleParam)) : 
-                    ruleFunction(value);
-                
+                const result = ruleParam
+                    ? ruleFunction(value, parseInt(ruleParam))
+                    : ruleFunction(value);
+
                 if (!result) {
                     isValid = false;
-                    errorMessage = typeof this.errorMessages[ruleName] === 'function' ? 
-                        this.errorMessages[ruleName](ruleParam) : 
-                        this.errorMessages[ruleName];
+                    errorMessage =
+                        typeof this.errorMessages[ruleName] === 'function'
+                            ? this.errorMessages[ruleName](ruleParam)
+                            : this.errorMessages[ruleName];
                     break;
                 }
             }
@@ -175,7 +176,7 @@ class SignupValidator {
 
     showFieldError(fieldName, isValid, errorMessage) {
         const field = this.fields[fieldName];
-        
+
         if (field.errorElement) {
             if (isValid) {
                 field.errorElement.style.display = 'none';
@@ -188,8 +189,11 @@ class SignupValidator {
     }
 
     showPasswordMatch() {
-        if (this.fields.putPsw.element.value && this.fields.putRePsw.element.value && 
-            this.fields.putPsw.element.value === this.fields.putRePsw.element.value) {
+        if (
+            this.fields.putPsw.element.value &&
+            this.fields.putRePsw.element.value &&
+            this.fields.putPsw.element.value === this.fields.putRePsw.element.value
+        ) {
             this.sameElement.style.display = 'block';
             this.sameElement.textContent = '비밀번호가 일치합니다.';
             this.sameElement.style.color = 'green';
@@ -208,10 +212,12 @@ class SignupValidator {
             return;
         }
 
-        // 실제 중복 체크 로직 (현재는 임시)
-        // TODO: 서버 API 호출로 실제 중복 체크 구현
+        // TODO: 백엔드 연결 시 API 호출로 변경
+        // 백엔드 API 엔드포인트: GET /api/auth/check-id?userId={userId}
+        // 응답 형식: { available: true/false, message: string }
+
         const isAvailable = this.checkIdAvailability(userId);
-        
+
         if (isAvailable) {
             alert('사용 가능한 아이디입니다.');
             this.fields.putId.duplicateChecked = true;
@@ -219,7 +225,7 @@ class SignupValidator {
             alert('이미 사용 중인 아이디입니다.');
             this.fields.putId.duplicateChecked = false;
         }
-        
+
         this.updateSubmitButton();
     }
 
@@ -230,12 +236,12 @@ class SignupValidator {
     }
 
     updateSubmitButton() {
-        const allFieldsValid = Object.values(this.fields).every(field => 
-            !field.element || field.valid || field.rules.length === 0
+        const allFieldsValid = Object.values(this.fields).every(
+            (field) => !field.element || field.valid || field.rules.length === 0
         );
-        
-        const requiredFieldsValid = ['putId', 'putPsw', 'putRePsw'].every(fieldName => 
-            this.fields[fieldName].valid
+
+        const requiredFieldsValid = ['putId', 'putPsw', 'putRePsw'].every(
+            (fieldName) => this.fields[fieldName].valid
         );
 
         this.submitButton.disabled = !requiredFieldsValid;
@@ -244,7 +250,7 @@ class SignupValidator {
 
     handleSubmit() {
         // 전체 필드 재검증
-        const allValid = Object.keys(this.fields).every(fieldName => 
+        const allValid = Object.keys(this.fields).every((fieldName) =>
             this.validateField(fieldName)
         );
 
@@ -269,13 +275,17 @@ class SignupValidator {
             name: this.fields.userName.element.value,
             birth: this.fields.userBirth.element.value,
             phone: this.fields.userPhone.element.value,
-            email: this.fields.userEmail.element.value
+            email: this.fields.userEmail.element.value,
         };
 
-        // TODO: 실제 회원가입 API 호출
+        // TODO: 백엔드 연결 시 API 호출로 변경
+        // 백엔드 API 엔드포인트: POST /api/auth/signup
+        // 요청 형식: { userId, password, username, email, phoneNumber, birthDate, address }
+        // 응답 형식: { success: true, user: { id, userId, username, ... }, message: string }
+
         console.log('회원가입 데이터:', formData);
         alert('회원가입이 완료되었습니다!');
-        
+
         // 로그인 페이지로 이동
         window.location.href = './login.html';
     }
@@ -285,4 +295,3 @@ class SignupValidator {
 document.addEventListener('DOMContentLoaded', () => {
     new SignupValidator();
 });
-
