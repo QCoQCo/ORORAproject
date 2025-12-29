@@ -1,60 +1,76 @@
-const likeBtn = document.querySelector('.likeBtn');
-const like = document.querySelector('.like');
-const sectionEl = document.querySelectorAll('.section');
-// const photoEl = document.querySelector(".photo");
-// const detailEl = document.querySelector(".detail");
-// const locationEl = document.querySelector("#map-container");
-// const commentEl = document.querySelector(".comment");
-const sectionList = document.querySelectorAll('.sectionList');
-//els{0,1,2,3}
+// DOM 요소들을 함수 내부에서 초기화하도록 변경
+let likeBtn, like, sectionEl, sectionList, doc;
 
-// 버튼 눌렀을 때 위치 이동
-sectionEl.forEach((el, i) => {
-    el.addEventListener('click', function () {
-        sectionList.forEach((e, idx) => {
-            let minus = 0;
-            if (idx === 0) {
-                minus = 70;
-            }
-            if (i === idx) {
-                let sectionTop = sectionList[idx].offsetTop - minus;
-                window.scrollTo({ top: sectionTop, behavior: 'smooth' });
-            }
+// DOM 요소 초기화 함수
+function initDOMElements() {
+    likeBtn = document.querySelector('.likeBtn');
+    like = document.querySelector('.like');
+    sectionEl = document.querySelectorAll('.section');
+    sectionList = document.querySelectorAll('.sectionList');
+    doc = document.documentElement;
+}
+
+// 상수 정의
+const HEADER_OFFSET = 70;
+
+// 스크롤 위치에 따른 섹션 활성화 함수
+function updateActiveSection() {
+    const scrollTop = doc.scrollTop;
+
+    if (sectionList[0].offsetTop - HEADER_OFFSET > scrollTop) {
+        sectionEl.forEach((se) => se.classList.remove('active'));
+    } else if (
+        sectionList[0].offsetTop - HEADER_OFFSET <= scrollTop &&
+        sectionList[1].offsetTop > scrollTop
+    ) {
+        sectionEl.forEach((se) => se.classList.remove('active'));
+        sectionEl[0].classList.add('active');
+    } else if (sectionList[1].offsetTop <= scrollTop && sectionList[2].offsetTop > scrollTop) {
+        sectionEl.forEach((se) => se.classList.remove('active'));
+        sectionEl[1].classList.add('active');
+    } else if (sectionList[2].offsetTop <= scrollTop && sectionList[3].offsetTop > scrollTop) {
+        sectionEl.forEach((se) => se.classList.remove('active'));
+        sectionEl[2].classList.add('active');
+    } else {
+        sectionEl.forEach((se) => se.classList.remove('active'));
+        sectionEl[3].classList.add('active');
+    }
+}
+
+// 섹션 클릭 시 스크롤 이동 함수
+function scrollToSection(sectionIndex) {
+    const targetSection = sectionList[sectionIndex];
+    if (targetSection) {
+        const offset = sectionIndex === 0 ? HEADER_OFFSET : 0;
+        const sectionTop = targetSection.offsetTop - offset;
+        window.scrollTo({ top: sectionTop, behavior: 'smooth' });
+    }
+}
+
+// 이벤트 리스너 등록
+function initSectionNavigation() {
+    // DOM 요소 초기화
+    initDOMElements();
+
+    // 섹션 버튼 클릭 이벤트
+    sectionEl.forEach((el, i) => {
+        el.addEventListener('click', function () {
+            scrollToSection(i);
         });
     });
+
+    // 스크롤 이벤트 (throttle 적용)
+    let scrollTimeout;
     window.addEventListener('scroll', function () {
-        sectionList.forEach((e, idx) => {
-            if (sectionList[0].offsetTop - 70 > doc.scrollTop) {
-                sectionEl.forEach((se) => se.classList.remove('active'));
-            } else if (
-                sectionList[0].offsetTop - 70 <= doc.scrollTop &&
-                sectionList[1].offsetTop > doc.scrollTop
-            ) {
-                sectionEl.forEach((se) => se.classList.remove('active'));
-                sectionEl[0].classList.add('active');
-            } else if (
-                sectionList[1].offsetTop <= doc.scrollTop &&
-                sectionList[2].offsetTop > doc.scrollTop
-            ) {
-                sectionEl.forEach((se) => se.classList.remove('active'));
-                sectionEl[1].classList.add('active');
-            } else if (
-                sectionList[2].offsetTop <= doc.scrollTop &&
-                sectionList[3].offsetTop > doc.scrollTop
-            ) {
-                sectionEl.forEach((se) => se.classList.remove('active'));
-                sectionEl[2].classList.add('active');
-            } else {
-                sectionEl.forEach((se) => se.classList.remove('active'));
-                sectionEl[3].classList.add('active');
-            }
-        });
+        if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+        }
+        scrollTimeout = setTimeout(updateActiveSection, 10);
     });
-});
+}
 
-// 위치에 따라 버튼 체크
-const doc = document.documentElement;
-const docHeight = window.pageYOffset;
+// DOM 로드 완료 후 초기화
+document.addEventListener('DOMContentLoaded', initSectionNavigation);
 
 //   const scrollPosition = window.scrollY;
 
@@ -225,6 +241,8 @@ function getDataPath() {
     const currentPath = window.location.pathname;
 
     // TODO: 백엔드 연결 시 '/api/tourist-spots'로 통일
+    // 백엔드 API 엔드포인트: GET /api/tourist-spots
+    // 응답 형식: { regions: { area01: { name: "기장군", spots: [...] }, ... } }
     if (currentPath.includes('/pages/')) {
         return '../../data/busanTouristSpots.json';
     } else {
@@ -539,6 +557,8 @@ async function loadReviews() {
 function getReviewDataPath() {
     const currentPath = window.location.pathname;
     // TODO: 백엔드 연결 시 '/api/reviews'로 통일
+    // 백엔드 API 엔드포인트: GET /api/reviews?spotTitle={title}
+    // 응답 형식: { reviews: [{ id, userId, spotTitle, title, content, rating, createdAt, ... }] }
     if (currentPath.includes('/pages/')) {
         return '../../data/userReview.json';
     } else {
@@ -775,6 +795,11 @@ function submitReview() {
         return;
     }
 
+    // TODO: 백엔드 연결 시 API 호출로 변경
+    // 백엔드 API 엔드포인트: POST /api/reviews
+    // 요청 형식: { spotTitle, title, content, rating, userId }
+    // 응답 형식: { success: true, review: { id, ... } }
+
     // 새로운 리뷰 객체 생성
     const newReview = {
         id: Date.now(), // 간단한 ID 생성
@@ -833,6 +858,11 @@ function resetReviewForm() {
 
 // 리뷰 좋아요 토글
 function toggleReviewLike(reviewId) {
+    // TODO: 백엔드 연결 시 API 호출로 변경
+    // 백엔드 API 엔드포인트: POST /api/reviews/{reviewId}/like
+    // 요청 형식: { userId, action: 'like' | 'unlike' }
+    // 응답 형식: { success: true, likes: number }
+
     // 로컬 스토리지에서 좋아요 정보 관리
     const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
     const isLiked = likedReviews.includes(reviewId);
@@ -873,6 +903,11 @@ function toggleReviewLike(reviewId) {
 // 리뷰 신고
 function reportReview(reviewId) {
     if (confirm('이 리뷰를 신고하시겠습니까?')) {
+        // TODO: 백엔드 연결 시 API 호출로 변경
+        // 백엔드 API 엔드포인트: POST /api/reviews/{reviewId}/report
+        // 요청 형식: { userId, reason: string }
+        // 응답 형식: { success: true, message: string }
+
         alert('신고가 접수되었습니다. 검토 후 조치하겠습니다.');
     }
 }
