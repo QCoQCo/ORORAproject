@@ -4,9 +4,9 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": 0,
-    "scrollLeft": -455.5324,
-    "zoomLevel": 1,
+    "scrollTop": -469.9915,
+    "scrollLeft": -686.24,
+    "zoomLevel": 0.8,
     "show": 431,
     "database": 4,
     "databaseName": "arata_busan",
@@ -345,15 +345,15 @@
           "4dYk_D1LrZ5sPuxDfkMh4"
         ],
         "ui": {
-          "x": 878,
-          "y": 999,
+          "x": 877,
+          "y": 947,
           "zIndex": 2,
           "widthName": 70,
           "widthComment": 60,
           "color": ""
         },
         "meta": {
-          "updateAt": 1767018431471,
+          "updateAt": 1767064873790,
           "createAt": 1759148689503
         }
       },
@@ -444,15 +444,15 @@
           "RvwImgsCrtAt2025"
         ],
         "ui": {
-          "x": 1473,
-          "y": 1536,
+          "x": 1464,
+          "y": 1513,
           "zIndex": 2,
           "widthName": 85,
           "widthComment": 60,
           "color": ""
         },
         "meta": {
-          "updateAt": 1767018447304,
+          "updateAt": 1767064881759,
           "createAt": 1767018316001
         }
       },
@@ -1036,7 +1036,7 @@
       "txTGSmmog5ji4VHOslmbj": {
         "id": "txTGSmmog5ji4VHOslmbj",
         "tableId": "knwr2P1d0dp8rSZ_XCnTe",
-        "name": "user_id",
+        "name": "login_id",
         "comment": "",
         "dataType": "VARCHAR(50)",
         "default": "",
@@ -2550,8 +2550,8 @@
           "columnIds": [
             "VhfzagDRSPtSkHUXtmC68"
           ],
-          "x": 878,
-          "y": 1075,
+          "x": 877,
+          "y": 1023,
           "direction": 1
         },
         "meta": {
@@ -2578,8 +2578,8 @@
           "columnIds": [
             "LJsuXPzt1163MxZ5AXtno"
           ],
-          "x": 1330,
-          "y": 1075,
+          "x": 1329,
+          "y": 1023,
           "direction": 2
         },
         "meta": {
@@ -2690,8 +2690,8 @@
           "columnIds": [
             "RvwImgsRvwId2025"
           ],
-          "x": 1713.5,
-          "y": 1536,
+          "x": 1704.5,
+          "y": 1513,
           "direction": 4
         },
         "meta": {

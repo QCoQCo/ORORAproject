@@ -426,6 +426,21 @@ class LanguageManager {
             'orora.cho_yujung_work2': '로그인페이지 작성',
             'orora.cho_yujung_work3': '회원가입페이지 작성',
             'orora.cho_yujung_work4': '빠진부분찾기',
+
+            // Footer
+            'footer.description': '새로운 부산을 발견하다<br />부산의 숨겨진 매력을 함께 찾아보세요',
+            'footer.quick_links': '빠른 링크',
+            'footer.about_busan': '부산 소개',
+            'footer.region_tourist': '지역별 관광지',
+            'footer.tag_search': '태그별 검색',
+            'footer.theme_search': '테마별 검색',
+            'footer.project_info': '프로젝트 정보',
+            'footer.orora_team': '오로라 팀 소개',
+            'footer.travel_tips': '여행 팁',
+            'footer.development_period': '개발 기간: 2025년 7월',
+            'footer.platform_info': '부산 관광 정보 플랫폼',
+            'footer.copyright': '© 2025 arataBUSAN by Team ORORA. All rights reserved.',
+            'footer.disclaimer': '본 사이트는 교육 목적으로 제작되었습니다. 관광 정보는 참고용이며, 실제 여행 계획 시 공식 기관 정보를 확인해주세요.',
         };
     }
 

@@ -56,7 +56,7 @@ INSERT INTO hashtags (name) VALUES
 ('봄'), ('부산가족축제'), ('가족'), ('놀이'), ('아이'), ('부모'), ('함께'), ('즐거움');
 
 -- 3. 사용자 데이터 삽입 (기존 users.json 기반)
-INSERT INTO users (user_id, username, email, password_hash, role, status, profile_image, phone_number, address, birth_date, gender, join_date, last_login) VALUES
+INSERT INTO users (login_id, username, email, password_hash, role, status, profile_image, phone_number, address, birth_date, gender, join_date, last_login) VALUES
 ('admin', '관리자', 'admin@aratabusan.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'admin', 'active', NULL, '010-1234-5678', '부산광역시 해운대구', '1985-03-15', 'male', '2024-01-01', '2024-12-19 10:30:00'),
 ('user001', '테스트유저', 'user001@gmail.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'member', 'active', NULL, '010-2345-6789', '부산광역시 중구', '1990-07-22', 'female', '2024-02-15', '2024-12-18 14:20:00'),
 ('vipuser', 'vip유저', 'vip@example.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'vip', 'active', NULL, '010-3456-7890', '부산광역시 부산진구', '1988-11-08', 'male', '2024-03-10', '2024-12-17 16:45:00'),
