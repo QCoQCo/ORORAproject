@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.user.mapper.UserMapper">
+    <insert id="insertUser" parameterType="UserDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (login_id, username, email, password_hash, role_code, status_code, profile_image, phone_number, address, birth_date, gender_code, join_date, last_login)
+        VALUES (#{loginId}, #{username}, #{email}, #{passwordHash}, #{roleCode}, #{statusCode}, #{profileImage}, #{phoneNumber}, #{address}, #{birthDate}, #{genderCode}, #{joinDate}, #{lastLogin})
+    </insert>
+</mapper>       

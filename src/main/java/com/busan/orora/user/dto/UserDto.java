@@ -29,6 +29,7 @@ CREATE TABLE users (
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -43,5 +44,11 @@ public class UserDto {
     private String statusCode;
     private String profileImage;
     private String phoneNumber;
-
+    private String address;
+    private LocalDateTime birthDate;
+    private String genderCode;
+    private LocalDateTime joinDate;
+    private LocalDateTime lastLogin;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
