@@ -474,7 +474,7 @@ class ThemeCarousel {
 
     async loadListTemplate() {
         try {
-            const response = await fetch('../../components/list-item.html');
+            const response = await fetch('/components/list-item.html');
             const templateHTML = await response.text();
 
             const templateContainer = document.getElementById('list-template-container');

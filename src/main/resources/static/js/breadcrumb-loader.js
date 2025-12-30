@@ -8,8 +8,16 @@ function loadBreadcrumb() {
     const breadcrumbContainer = document.getElementById('breadcrumb-container');
     if (!breadcrumbContainer) return;
 
-    fetch('./breadcrumb.html')
-        .then(response => response.text())
+    // 현재 경로에 따라 breadcrumb.html 경로 결정
+    const breadcrumbPath = getBreadcrumbPath();
+    
+    fetch(breadcrumbPath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
         .then(html => {
             breadcrumbContainer.innerHTML = html;
             updateBreadcrumb();
@@ -17,6 +25,12 @@ function loadBreadcrumb() {
         .catch(error => {
             console.error('브레드크럼 로드 실패:', error);
         });
+}
+
+// 현재 페이지 위치에 따른 breadcrumb.html 경로 결정
+function getBreadcrumbPath() {
+    // components 디렉토리에서 로드 (다른 컴포넌트들과 일관성 유지)
+    return '/components/breadcrumb.html';
 }
 
 // 브레드크럼 업데이트 함수
