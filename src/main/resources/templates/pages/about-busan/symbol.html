@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+<head>
+    <title layout:fragment="title">부산 소개</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+        <link rel="stylesheet" th:href="@{/css/sidenav.css}" />
+        <link rel="stylesheet" th:href="@{/css/about-Busan.css}" />
+        <link rel="stylesheet" th:href="@{/css/breadcrumb.css}" />
+    </th:block>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div id="breadcrumb-container"></div>
+        <section class="abBusan">
+            <div class="swiper main_bg">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="../../images/main_symbol01.jpg" alt="지역 상징_동백꽃"></div>
+                    <div class="swiper-slide"><img src="../../images/main_symbol02.jpg" alt="지역 상징_갈매기"></div>
+                    <div class="swiper-slide"><img src="../../images/main_symbol03.jpg" alt="지역 상징_고등어"></div>
+                </div>
+                <h2 class="title">지역 상징</h2>
+            </div>
+            <div class="container">
+                <div id="sidenav-container"></div>
+                <main id="contents">
+                    
+                    <div class="symbols">
+                        <ul>
+                            <li class="symbol">
+                                <div>
+                                    <span class="seagull"></span>
+                                    <p>동백꽃</p>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <p><img src="../../images/flower.jpg" alt="동백꽃"></p>
+                                    </li>
+                                    <li class="symbolText">
+                                        <p>
+                                            시화 - 동백꽃 1970. 3. 1. 지정<br>
+                                            시목 - 동백나무 1970. 7. 1. 지정
+                                        </p>
+                                        <p>
+                                            진녹색의 잎과 진홍색의 꽃의 조화는 푸른 바다와, 사랑이 많은 시민의 정신을 그려내고, <br>싱싱하고 빛이 나는 진녹색 활엽은 시민의
+                                            젊음과
+                                            의욕을
+                                            나타낸다.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="symbol">
+                                <div>
+                                    <span class="seagull"></span>
+                                    <p>갈매기</p>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <p><img src="../../images/bird.jpg" alt="갈매기"></p>
+                                    </li>
+                                    <li class="symbolText">
+                                        <p>
+                                            시조 - 갈매기 1978. 7. 1. 지정
+                                        </p>
+                                        <p>
+                                            새하얀 날개와 몸은 백의민족을 상징한다. 끈기있게 먼 뱃길을 따라 하늘을 나는 갈매기의 강인함은 <br>부산 시민의 정신을 잘 나타내기
+                                            때문에
+                                            부산의
+                                            새로 선정되었다.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="symbol">
+                                <div>
+                                    <span class="seagull"></span>
+                                    <p>고등어</p>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <p><img src="../../images/fish.jpg" alt="고등어"></p>
+                                    </li>
+                                    <li class="symbolText">
+                                        <p>
+                                            시어 - 고등어 2011. 7. 6. 지정
+                                        </p>
+                                        <p>
+                                            『Dynamic, Powerful, Speedy』<br>
+                                            태평양을 누비는 강한 힘으로 목표를 향해 끊임없이 도약하는 해양수산도시 부산을 상징한다.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <p class="photo"></p>
+                        <p class="description"></p>
+                    </div>
+                </main>
+                <button title="클릭하시면 최상단으로 이동합니다" id="scrollTop"></button>
+            </div>
+        </section>
+    </div>
+    <th:block layout:fragment="script">
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+        <script th:src="@{/js/sidenav-loader.js}"></script>
+        <script th:src="@{/js/busan.js}"></script>
+        <script th:src="@{/js/breadcrumb-loader.js}"></script>
+    </th:block>
+</body>
+
+</html>
