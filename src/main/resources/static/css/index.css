@@ -724,6 +724,7 @@ body {
     height: 180px;
     object-fit: cover;
     transition: transform 0.3s ease;
+    opacity: 1 !important;
 }
 
 .transport-card:hover .transport-image {
@@ -814,6 +815,7 @@ body {
     border-radius: 12px;
     object-fit: cover;
     flex-shrink: 0;
+    opacity: 1 !important;
 }
 
 .app-info h4 {
@@ -1361,8 +1363,8 @@ body {
 
 /* Transportation Section Animations */
 .transport-card {
-    opacity: 0;
-    transform: translateY(30px);
+    opacity: 1;
+    transform: translateY(0);
     /* animation: fadeInUp 0.6s ease-out forwards; */
 }
 
@@ -1377,9 +1379,9 @@ body {
 }
 
 .app-item {
-    opacity: 0;
-    transform: translateX(-20px);
-    animation: fadeInRight 0.5s ease-out forwards;
+    opacity: 1;
+    transform: translateX(0);
+    /* animation: fadeInRight 0.5s ease-out forwards; */
 }
 
 .app-item:nth-child(1) {

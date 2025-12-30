@@ -333,7 +333,8 @@ function animateStatNumber(element) {
 
 // Loading animation for images
 function initImageLoading() {
-    const images = document.querySelectorAll('img');
+    // Exclude transport and app images from loading animation
+    const images = document.querySelectorAll('img:not(.transport-image):not(.app-icon)');
 
     images.forEach((img) => {
         // Check if image is already loaded
@@ -362,6 +363,14 @@ function initImageLoading() {
         img.style.opacity = '0';
         img.style.transform = 'scale(0.9)';
         img.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    });
+
+    // Ensure transport and app images are always visible
+    const transportImages = document.querySelectorAll('.transport-image, .app-icon');
+    transportImages.forEach((img) => {
+        img.style.opacity = '1';
+        img.style.transform = 'scale(1)';
+        img.style.transition = 'transform 0.3s ease';
     });
 }
 

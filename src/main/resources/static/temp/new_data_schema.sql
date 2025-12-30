@@ -62,7 +62,7 @@ CREATE TABLE tourist_spot_hashtags (
 -- 6. 사용자 테이블
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id VARCHAR(50) NOT NULL UNIQUE,
+    login_id VARCHAR(50) NOT NULL UNIQUE, -- 사용자가 직접 설정한 로그인 ID
     username VARCHAR(50) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE users (
     last_login TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_user_id (user_id),
+    INDEX idx_login_id (login_id),
     INDEX idx_email (email),
     INDEX idx_role (role),
     INDEX idx_status (status)
