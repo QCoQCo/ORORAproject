@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+    <head>
+        <title layout:fragment="title">signup</title>
+        <th:block layout:fragment="css">
+            <link rel="stylesheet" th:href="@{/css/sginup.css}" />
+        </th:block>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <h2>회원가입</h2>
+            <div>
+                <div>
+                    <p>아이디</p>
+                    <label
+                        ><input type="text" placeholder=" 아이디를 입력해 주세요." id="putId"
+                    /></label>
+                    <div id="needId">필수입력 사항입니다.</div>
+                    <button id="overlap">중복체크</button>
+                </div>
+                <div>
+                    <p>비밀번호</p>
+                    <label
+                        ><input type="password" placeholder=" 비밀번호를 입력하세요." id="putPsw"
+                    /></label>
+                    <div id="needPsw">필수입력 사항입니다.</div>
+                </div>
+                <div class="repsw">
+                    <p>비밀번호 재입력</p>
+                    <label
+                        ><input
+                            type="password"
+                            placeholder=" 비밀번호를 재입력하세요."
+                            id="putRePsw"
+                    /></label>
+                    <div id="needRePsw">필수입력 사항입니다.</div>
+                </div>
+                <div id="same"></div>
+                <div class="userName">
+                    <p>이름</p>
+                    <label
+                        ><input type="text" placeholder=" 이름을 입력해 주세요." id="userName"
+                    /></label>
+                </div>
+                <div>
+                    <p class="">생년월일</p>
+                    <label><input type="text" placeholder=" 0000-00-00" id="userBirth" /></label>
+                </div>
+                <div>
+                    <p class="">전화번호</p>
+                    <label
+                        ><input type="tel" placeholder=" -을 빼고 입력해주세요" id="userPhone"
+                    /></label>
+                </div>
+                <div>
+                    <p class="">이메일</p>
+                    <label
+                        ><input type="email" placeholder=" 예 : orora@orora.com" id="userEmail"
+                    /></label>
+                </div>
+            </div>
+            <button id="submit">입력완료</button>
+        </div>
+        <th:block layout:fragment="script">
+            <script th:src="@{/js/signup.js}"></script>
+        </th:block>
+    </body>
+</html>

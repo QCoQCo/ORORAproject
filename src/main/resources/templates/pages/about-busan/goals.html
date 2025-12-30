@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+<head>
+    <title layout:fragment="title">부산 소개</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+        <link rel="stylesheet" th:href="@{/css/sidenav.css}" />
+        <link rel="stylesheet" th:href="@{/css/about-Busan.css}" />
+        <link rel="stylesheet" th:href="@{/css/breadcrumb.css}" />
+    </th:block>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div id="breadcrumb-container"></div>
+        <section class="abBusan">
+            <div class="swiper main_bg">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="../../images/main_goal01.jpg" alt="도시비전과 목표"></div>
+                    <div class="swiper-slide"><img src="../../images/main_goal02.jpg" alt="도시비전과 목표"></div>
+                    <div class="swiper-slide"><img src="../../images/main_goal03.jpg" alt="도시비전과 목표"></div>
+                </div>
+                <h2 class="title">도시비전과 목표</h2>
+            </div>
+            <div class="container">
+                <div id="sidenav-container"></div>
+                <main id="contents">
+
+                    <div class="vg">
+                        <div class="vision">
+                            <div>
+                                <span class="seagull"></span>
+                                <p>도시 비전</p>
+                            </div>
+                            <span class="line-gray"></span>
+                            <p class="photo"><img src="../../images/vision.jpg" alt="도시 비전"></p>
+                        </div>
+                        <div class="goal">
+                            <div>
+                                <span class="seagull"></span>
+                                <p>도시 목표</p>
+                            </div>
+                            <span class="line-gray"></span>
+                            <p class="photo"><img src="../../images/goal.jpg" alt="도시 목표"></p>
+                        </div>
+                    </div>
+                </main>
+                <button title="클릭하시면 최상단으로 이동합니다" id="scrollTop"></button>
+            </div>
+        </section>
+    </div>
+    <th:block layout:fragment="script">
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+        <script th:src="@{/js/sidenav-loader.js}"></script>
+        <script th:src="@{/js/busan.js}"></script>
+        <script th:src="@{/js/breadcrumb-loader.js}"></script>
+    </th:block>
+</body>
+
+</html>

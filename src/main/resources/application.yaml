@@ -1,0 +1,9 @@
+spring:
+    application:
+        name: orora
+
+    devtools:
+        livereload:
+            enabled: true
+        restart:
+            enabled: true
