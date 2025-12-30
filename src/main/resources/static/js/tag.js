@@ -392,7 +392,7 @@ class TagSearchSystem {
         try {
             const templateContainer = document.getElementById('list-template-container');
             if (templateContainer && !templateContainer.innerHTML.trim()) {
-                const response = await fetch('../../components/list-item.html');
+                const response = await fetch('/components/list-item.html');
                 const templateHTML = await response.text();
                 templateContainer.innerHTML = templateHTML;
             }

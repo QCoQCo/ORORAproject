@@ -41,13 +41,8 @@ class ListLoader {
 
     // 현재 페이지 위치에 따른 템플릿 경로 결정
     getTemplatePath() {
-        const currentPath = window.location.pathname;
-
-        if (currentPath.includes('/pages/')) {
-            return '../../components/list-item.html';
-        } else {
-            return './components/list-item.html';
-        }
+        // 절대 경로 사용
+        return '/components/list-item.html';
     }
 
     // 데이터 로드
