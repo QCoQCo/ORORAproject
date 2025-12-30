@@ -1,5 +1,10 @@
 -- 부산 관광 가이드 데이터베이스 스키마
 -- Database: arata_busan
+-- 
+-- 주의: 이 스키마는 공통코드 테이블(common_code_groups, common_codes)을 사용합니다.
+-- 공통코드 테이블 스키마는 common_code_schema.sql 파일을 참조하세요.
+-- ENUM 대신 VARCHAR로 코드값을 저장하며, 공통코드 테이블의 코드값을 참조합니다.
+--
 CREATE DATABASE arata_busan;
 USE arata_busan;
 
@@ -19,7 +24,7 @@ CREATE TABLE tourist_spots (
     title VARCHAR(80) NOT NULL,
     description TEXT,
     link_url VARCHAR(500),
-    category ENUM('beach', 'mountain', 'culture', 'food', 'shopping', 'cafe') DEFAULT 'culture',
+    category_code VARCHAR(50) DEFAULT 'CULTURE' COMMENT '관광지 카테고리 코드 (SPOT_CATEGORY 그룹 참조)',
     is_active BOOLEAN DEFAULT TRUE,
     view_count INT DEFAULT 0,
     rating_avg DECIMAL(3,2) DEFAULT 0.00,
@@ -28,7 +33,7 @@ CREATE TABLE tourist_spots (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE,
     INDEX idx_region_id (region_id),
-    INDEX idx_category (category),
+    INDEX idx_category_code (category_code),
     INDEX idx_is_active (is_active)
 );
 
@@ -66,21 +71,22 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'vip', 'member') DEFAULT 'member',
-    status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
+    role_code VARCHAR(50) DEFAULT 'MEMBER' COMMENT '사용자 역할 코드 (USER_ROLE 그룹 참조)',
+    status_code VARCHAR(50) DEFAULT 'ACTIVE' COMMENT '사용자 상태 코드 (USER_STATUS 그룹 참조)',
     profile_image VARCHAR(500),
     phone_number VARCHAR(20),
     address VARCHAR(80),
     birth_date DATE,
-    gender ENUM('male', 'female', 'other'),
+    gender_code VARCHAR(50) COMMENT '성별 코드 (GENDER 그룹 참조)',
     join_date DATE NOT NULL,
     last_login TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_login_id (login_id),
     INDEX idx_email (email),
-    INDEX idx_role (role),
-    INDEX idx_status (status)
+    INDEX idx_role_code (role_code),
+    INDEX idx_status_code (status_code),
+    INDEX idx_gender_code (gender_code)
 );
 
 -- 7. 리뷰 테이블
@@ -161,17 +167,30 @@ CREATE TABLE review_reports (
     user_id INT NOT NULL,
     review_id INT NOT NULL,
     reason TEXT NOT NULL,
-    status ENUM('pending', 'reviewed', 'resolved', 'dismissed') DEFAULT 'pending',
+    status_code VARCHAR(50) DEFAULT 'PENDING' COMMENT '신고 상태 코드 (REPORT_STATUS 그룹 참조)',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
     INDEX idx_review_id (review_id),
     INDEX idx_user_id (user_id),
-    INDEX idx_status (status),
+    INDEX idx_status_code (status_code),
     UNIQUE KEY unique_user_review_report (user_id, review_id)
 );
 
+-- 만들었던 테이블 지우는 명령어
+DROP TABLE IF EXISTS regions;
+DROP TABLE IF EXISTS tourist_spots;
+DROP TABLE IF EXISTS tourist_spot_images;
+DROP TABLE IF EXISTS hashtags;
+DROP TABLE IF EXISTS tourist_spot_hashtags;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS review_likes;
+DROP TABLE IF EXISTS review_comments;
+DROP TABLE IF EXISTS review_reports;
+DROP TABLE IF EXISTS review_images;
+DROP TABLE IF EXISTS tourist_spot_likes;
 
 
 -- -- 7. 축제/이벤트 테이블
@@ -188,3 +207,15 @@ CREATE TABLE review_reports (
 --     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 -- );
 
+-- ============================================
+-- 공통코드 테이블 스키마
+-- ============================================
+-- 이 스키마를 실행하기 전에 common_code_schema.sql 파일을 먼저 실행하여
+-- common_code_groups와 common_codes 테이블을 생성해야 합니다.
+-- 
+-- 사용되는 공통코드 그룹:
+-- - USER_ROLE: 사용자 역할 (ADMIN, VIP, MEMBER)
+-- - USER_STATUS: 사용자 상태 (ACTIVE, INACTIVE, SUSPENDED)
+-- - GENDER: 성별 (MALE, FEMALE, OTHER)
+-- - SPOT_CATEGORY: 관광지 카테고리 (BEACH, MOUNTAIN, CULTURE, FOOD, SHOPPING, CAFE)
+-- - REPORT_STATUS: 신고 상태 (PENDING, REVIEWED, RESOLVED, DISMISSED)
