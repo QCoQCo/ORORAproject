@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+    <head>
+        <title layout:fragment="title">리스트 컴포넌트 - 간단 사용법</title>
+        <th:block layout:fragment="css">
+            <link rel="stylesheet" th:href="@{/css/list-component.css}" />
+            <style>
+                body {
+                    background-color: #f0f2f5;
+                }
+                .container {
+                    padding: 20px;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                h1 {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    color: #333;
+                }
+            </style>
+        </th:block>
+    </head>
+    <body>
+        <div layout:fragment="content">
+
+            <div class="container">
+                <h1>부산 관광지 추천</h1>
+
+                <!-- 자동 로드 설정 (data-list-config 속성 사용) -->
+                <!-- TODO: 백엔드 연결 시 dataUrl을 API 엔드포인트로 변경 필요 -->
+                <div
+                    data-list-config='{"containerSelector": ".list-wrap", "dataUrl": "../list-example/data.json", "fallbackImage": "../list-example/logo.png"}'
+                >
+                    <ul class="list-wrap"></ul>
+                </div>
+
+                <!-- 템플릿 컨테이너 -->
+                <div id="list-template-container"></div>
+            </div>
+        </div>
+        <th:block layout:fragment="script">
+            <script th:src="@{/js/list-loader.js}"></script>
+        </th:block>
+    </body>
+</html>

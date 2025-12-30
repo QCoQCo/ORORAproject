@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+    <header id="header" th:fragment="header">
+    <div class="logo">
+        <p class="logo-text"><a href="/index.html">arataBUSAN</a></p>
+    </div>
+
+    <nav id="nav">
+        <ul class="d1">
+            <li>
+                <a href="/pages/about-busan/busan.html" data-translate="header.about_busan"
+                    >about BUSAN</a
+                >
+                <div class="sub">
+                    <ul class="d2">
+                        <li>
+                            <a
+                                href="/pages/about-busan/busan.html"
+                                data-translate="header.busan_today"
+                                >부산의 오늘</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                href="/pages/about-busan/symbol.html"
+                                data-translate="header.busan_symbol"
+                                >부산의 상징</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                href="/pages/about-busan/character.html"
+                                data-translate="header.communication_character"
+                                >소통 캐릭터</a
+                            >
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li>
+                <a href="/pages/search-place/place.html" data-translate="header.tourist_search"
+                    >부산 관광지 검색</a
+                >
+                <div class="sub">
+                    <ul class="d2">
+                        <li>
+                            <a
+                                href="/pages/search-place/place.html"
+                                data-translate="header.region_search"
+                                >지역 검색</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                href="/pages/search-place/tag.html"
+                                data-translate="header.tag_search"
+                                >관광지 태그 검색</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                href="/pages/search-place/theme.html"
+                                data-translate="header.theme_search"
+                                >관광지 테마 검색</a
+                            >
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li>
+                <a
+                    href="/pages/about-orora/orora-introduce.html"
+                    data-translate="header.orora_intro"
+                    >오로라 소개</a
+                >
+            </li>
+            <li><a href="/pages/tip/tip.html" data-translate="header.travel_tips">여행팁</a></li>
+            <li>
+                <a href="/pages/admin/admin.html" data-translate="header.admin">관리자</a>
+                <div class="sub">
+                    <ul class="d2">
+                        <li>
+                            <a href="/pages/admin/admin.html" data-translate="header.admin"
+                                >관리자</a
+                            >
+                        </li>
+                        <li><a href="/pages/search-place/list-simple.html">리스트 예시</a></li>
+                        <li><a href="/pages/search-place/list-test.html">리스트 예시2</a></li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <div class="btns">
+        <p class="btn1">
+            <a href="/pages/login/login.html" data-translate="header.login">로그인</a>
+        </p>
+        <button class="btn2" data-translate="header.search">검색</button>
+        <select name="" id="lang">
+            <option value="ko">한국어</option>
+            <option value="jp">日本語</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="search-box">
+        <input
+            type="text"
+            placeholder="검색어를 입력하세요."
+            id="search-input"
+            data-translate="header.search_placeholder"
+        />
+        <button data-translate="header.search">검색</button>
+    </div>
+</header>
+</body>
+</html>
