@@ -2,8 +2,10 @@ package com.busan.orora.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.busan.orora.user.mapper.UserMapper;
+import com.busan.orora.user.mapper.UserProfileImageMapper;
 import org.springframework.stereotype.Service;
 import com.busan.orora.user.dto.UserDto;
+import com.busan.orora.user.dto.UserProfileImageDto;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,9 @@ public class UserService {
     private UserMapper userMapper;
 
     @Autowired
+    private UserProfileImageMapper userProfileImageMapper;
+
+    @Autowired
     private FileService fileService;
 
     @Value("${file.upload.profileImgLocation}")
@@ -28,6 +33,10 @@ public class UserService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public void insertUser(UserDto userDto, String rawPassword) {
+        insertUser(userDto, rawPassword, null);
+    }
+
+    public void insertUser(UserDto userDto, String rawPassword, MultipartFile profileImage) {
         // 비밀번호 암호화
         userDto.setPasswordHash(passwordEncoder.encode(rawPassword));
 
@@ -42,7 +51,31 @@ public class UserService {
             userDto.setJoinDate(LocalDateTime.now());
         }
 
+        // 사용자 정보 먼저 저장 (ID를 얻기 위해)
         userMapper.insertUser(userDto);
+
+        // 프로필 이미지가 제공된 경우 저장
+        if (profileImage != null && !profileImage.isEmpty()) {
+            try {
+                String oriImgName = profileImage.getOriginalFilename();
+                String imgName = fileService.uploadFile(profileImgLocation, oriImgName, profileImage.getBytes());
+                String imgUrl = "/images/upload/profiles/" + imgName;
+
+                // user_profile_images 테이블에 저장
+                UserProfileImageDto profileImageDto = new UserProfileImageDto();
+                profileImageDto.setUserId(userDto.getId());
+                profileImageDto.setImgName(imgName);
+                profileImageDto.setOriImgName(oriImgName);
+                profileImageDto.setImageUrl(imgUrl);
+
+                userProfileImageMapper.insertImage(profileImageDto);
+            } catch (Exception e) {
+                // 프로필 이미지 저장 실패 시에도 회원가입은 성공하도록 처리
+                // (선택사항이므로 예외를 로그만 남기고 계속 진행)
+                System.err.println("프로필 이미지 저장 중 오류 발생: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
     public UserDto login(String loginId, String password) {
@@ -85,17 +118,18 @@ public class UserService {
         }
 
         // 기존 프로필 이미지가 있으면 삭제
-        UserDto existingUser = userMapper.findById(userId);
-        if (existingUser != null && existingUser.getProfileImage() != null
-                && !existingUser.getProfileImage().isEmpty()) {
+        UserProfileImageDto existingImage = userProfileImageMapper.findRepImageByUserId(userId);
+        if (existingImage != null) {
             // 기존 파일 삭제
-            String existingImageUrl = existingUser.getProfileImage();
+            String existingImageUrl = existingImage.getImageUrl();
             // URL에서 파일명 추출 (예: /images/upload/profiles/uuid.jpg -> uuid.jpg)
-            if (existingImageUrl.contains("/")) {
+            if (existingImageUrl != null && existingImageUrl.contains("/")) {
                 String existingFileName = existingImageUrl.substring(existingImageUrl.lastIndexOf("/") + 1);
                 String filePath = profileImgLocation + File.separator + existingFileName;
                 fileService.deleteFile(filePath);
             }
+            // 기존 이미지 삭제
+            userProfileImageMapper.deleteImage(existingImage.getId());
         }
 
         // 새 파일 업로드
@@ -103,8 +137,14 @@ public class UserService {
         String imgName = fileService.uploadFile(profileImgLocation, oriImgName, profileImgFile.getBytes());
         String imgUrl = "/images/upload/profiles/" + imgName;
 
-        // 데이터베이스 업데이트
-        userMapper.updateProfileImage(userId, imgUrl);
+        // user_profile_images 테이블에 저장
+        UserProfileImageDto profileImageDto = new UserProfileImageDto();
+        profileImageDto.setUserId(userId);
+        profileImageDto.setImgName(imgName);
+        profileImageDto.setOriImgName(oriImgName);
+        profileImageDto.setImageUrl(imgUrl);
+
+        userProfileImageMapper.insertImage(profileImageDto);
 
         return imgUrl;
     }
@@ -117,18 +157,19 @@ public class UserService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteProfileImage(Long userId) throws Exception {
-        UserDto user = userMapper.findById(userId);
-        if (user != null && user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-            // 파일 삭제
-            String imageUrl = user.getProfileImage();
-            if (imageUrl.contains("/")) {
-                String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                String filePath = profileImgLocation + File.separator + fileName;
-                fileService.deleteFile(filePath);
+        List<UserProfileImageDto> images = userProfileImageMapper.findImagesByUserId(userId);
+        if (images != null && !images.isEmpty()) {
+            for (UserProfileImageDto image : images) {
+                // 파일 삭제
+                String imageUrl = image.getImageUrl();
+                if (imageUrl != null && imageUrl.contains("/")) {
+                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                    String filePath = profileImgLocation + File.separator + fileName;
+                    fileService.deleteFile(filePath);
+                }
             }
-
-            // 데이터베이스에서 프로필 이미지 URL 제거
-            userMapper.updateProfileImage(userId, null);
+            // 데이터베이스에서 프로필 이미지 삭제
+            userProfileImageMapper.deleteImagesByUserId(userId);
         }
     }
 
@@ -139,6 +180,43 @@ public class UserService {
      * @return 사용자 DTO
      */
     public UserDto getUserById(Long userId) {
+        return userMapper.findById(userId);
+    }
+
+    /**
+     * 사용자 프로필 정보를 업데이트합니다.
+     * 
+     * @param userId       사용자 ID
+     * @param userDto      업데이트할 사용자 정보
+     * @param profileImage 프로필 이미지 파일 (선택사항)
+     * @return 업데이트된 사용자 DTO
+     * @throws Exception 업데이트 중 오류 발생 시
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UserDto updateUserProfile(Long userId, UserDto userDto, MultipartFile profileImage) throws Exception {
+        // 기존 사용자 정보 가져오기
+        UserDto existingUser = userMapper.findById(userId);
+        if (existingUser == null) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
+
+        // 업데이트할 정보 설정
+        existingUser.setUsername(userDto.getUsername());
+        existingUser.setEmail(userDto.getEmail());
+        existingUser.setPhoneNumber(userDto.getPhoneNumber());
+        existingUser.setAddress(userDto.getAddress());
+        existingUser.setBirthDate(userDto.getBirthDate());
+        existingUser.setGenderCode(userDto.getGenderCode());
+
+        // 사용자 정보 업데이트
+        userMapper.updateUser(existingUser);
+
+        // 프로필 이미지가 제공된 경우 업데이트
+        if (profileImage != null && !profileImage.isEmpty()) {
+            saveProfileImage(userId, profileImage);
+        }
+
+        // 업데이트된 사용자 정보 반환
         return userMapper.findById(userId);
     }
 }
