@@ -24,34 +24,48 @@ loginBtn.addEventListener('click', async function () {
     }
 
     try {
-        // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-        // 백엔드 API 엔드포인트: POST /api/auth/login
-        // 요청 형식: { userId, password }
-        // 응답 형식: { success: true, user: { id, userId, username, email, role, ... }, token: "jwt_token" }
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                loginId: userInputId,
+                password: userInputPsw,
+            }),
+        });
 
-        const response = await fetch('../../data/users.json');
         if (!response.ok) {
-            throw new Error('사용자 데이터를 불러오는 데 실패했습니다.');
+            throw new Error('로그인 요청 실패');
         }
+
         const data = await response.json();
-        const users = data.users;
 
-        const foundUser = users.find((user) => user.userId === userInputId);
-
-        // users.json의 비밀번호와 입력한 비밀번호가 일치하는지 확인
-        if (foundUser && userInputPsw === foundUser.password) {
-            alert(`${foundUser.username}님 환영합니다!`);
+        if (data.success) {
+            alert(`${data.user.username}님 환영합니다!`);
             // 로그인 성공 시 사용자 정보를 세션 스토리지에 저장
-            sessionStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+            sessionStorage.setItem('loggedInUser', JSON.stringify(data.user));
+
+            console.log('로그인 성공, 사용자 정보:', data.user);
+            console.log('sessionStorage 저장 확인:', sessionStorage.getItem('loggedInUser'));
 
             // 헤더 업데이트 (auth.js의 함수 호출)
             if (typeof updateHeaderAfterLogin === 'function') {
                 updateHeaderAfterLogin();
+                // 드롭다운 메뉴 초기화
+                setTimeout(() => {
+                    if (typeof initUserDropdown === 'function') {
+                        initUserDropdown();
+                    }
+                }, 100);
             }
 
-            window.location.href = '../../index.html'; // 메인 페이지로 이동
+            // 페이지 이동 전에 약간의 지연을 두어 헤더 업데이트가 완료되도록 함
+            setTimeout(() => {
+                window.location.href = '/'; // 메인 페이지로 이동
+            }, 200);
         } else {
-            alert('아이디 또는 비밀번호가 일치하지 않습니다.');
+            alert(data.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
         }
     } catch (error) {
         console.error('로그인 오류:', error);

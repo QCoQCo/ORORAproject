@@ -112,10 +112,9 @@
             </section>
 
             <!-- 템플릿 컨테이너 -->
-            <div id="list-template-container"></div>
+            <div id="list-template-container" th:replace="~{components/list-item.html :: list-item-template}"></div>
         </div>
         <th:block layout:fragment="script">
-            <script th:src="@{/js/loading-loader.js}"></script>
             <script th:src="@{/js/list-loader.js}"></script>
             <script th:src="@{/js/searchBy/place.js}"></script>
         </th:block>

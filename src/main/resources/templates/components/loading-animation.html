@@ -1,8 +1,15 @@
-<!-- Language Loading Animation -->
-<div id="languageLoading" class="language-loading">
-    <div class="wave-overlay"></div>
-    <div class="logoWrapper">
-        <img src="/images/logo.png" alt="Arata Busan Logo" class="loading-logo" />
-        <div class="logoText">あらた釜山</div>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Language Loading Animation Fragment -->
+    <div th:fragment="loading-animation">
+        <div id="languageLoading" class="language-loading">
+            <div class="wave-overlay"></div>
+            <div class="logoWrapper">
+                <img th:src="@{/images/logo.png}" alt="Arata Busan Logo" class="loading-logo" />
+                <div class="logoText">あらた釜山</div>
+            </div>
+        </div>
     </div>
-</div>
+</body>
+</html>

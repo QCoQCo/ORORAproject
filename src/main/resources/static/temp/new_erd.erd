@@ -118,8 +118,6 @@
           "TstSpCatCode2025",
           "ea0KN7iT5kZ_8NI5yBdlz",
           "pEtSlv3EwrGuCIMQMshAE",
-          "_ttHdik-B_OKEbvi_0CHv",
-          "4_tDMM3Ohhu0K5Mpmo4U3",
           "4CIVF_T4pHWgGeY12WdBv",
           "ev7uVlFeSwoFDjxBYiBtb"
         ],
@@ -132,8 +130,6 @@
           "TstSpCatCode2025",
           "ea0KN7iT5kZ_8NI5yBdlz",
           "pEtSlv3EwrGuCIMQMshAE",
-          "_ttHdik-B_OKEbvi_0CHv",
-          "4_tDMM3Ohhu0K5Mpmo4U3",
           "4CIVF_T4pHWgGeY12WdBv",
           "ev7uVlFeSwoFDjxBYiBtb"
         ],
@@ -407,15 +403,23 @@
         "comment": "",
         "columnIds": [
           "TstSpImgsId2025",
+          "TstSpImgsImgName2025",
+          "TstSpImgsOriImgName2025",
           "TstSpImgsTstSpId2025",
           "TstSpImgsImgUrl2025",
-          "TstSpImgsCrtAt2025"
+          "TstSpImgsRepImgYn2025",
+          "TstSpImgsRegTime2025",
+          "TstSpImgsUpdTime2025"
         ],
         "seqColumnIds": [
           "TstSpImgsId2025",
+          "TstSpImgsImgName2025",
+          "TstSpImgsOriImgName2025",
           "TstSpImgsTstSpId2025",
           "TstSpImgsImgUrl2025",
-          "TstSpImgsCrtAt2025"
+          "TstSpImgsRepImgYn2025",
+          "TstSpImgsRegTime2025",
+          "TstSpImgsUpdTime2025"
         ],
         "ui": {
           "x": 772,
@@ -797,46 +801,6 @@
         "ui": {
           "keys": 0,
           "widthName": 65,
-          "widthComment": 60,
-          "widthDataType": 60,
-          "widthDefault": 60
-        },
-        "meta": {
-          "updateAt": 1759148689501,
-          "createAt": 1759148689501
-        }
-      },
-      "_ttHdik-B_OKEbvi_0CHv": {
-        "id": "_ttHdik-B_OKEbvi_0CHv",
-        "tableId": "dRKU_DzdlhJNayK4xtdLl",
-        "name": "rating_avg",
-        "comment": "",
-        "dataType": "DECIMAL(3,2)",
-        "default": "0.00",
-        "options": 0,
-        "ui": {
-          "keys": 0,
-          "widthName": 62,
-          "widthComment": 60,
-          "widthDataType": 82,
-          "widthDefault": 60
-        },
-        "meta": {
-          "updateAt": 1767018316001,
-          "createAt": 1759148689501
-        }
-      },
-      "4_tDMM3Ohhu0K5Mpmo4U3": {
-        "id": "4_tDMM3Ohhu0K5Mpmo4U3",
-        "tableId": "dRKU_DzdlhJNayK4xtdLl",
-        "name": "rating_count",
-        "comment": "",
-        "dataType": "INT",
-        "default": "0",
-        "options": 0,
-        "ui": {
-          "keys": 0,
-          "widthName": 74,
           "widthComment": 60,
           "widthDataType": 60,
           "widthDefault": 60
@@ -2066,24 +2030,104 @@
           "createAt": 1767018316001
         }
       },
-      "TstSpImgsCrtAt2025": {
-        "id": "TstSpImgsCrtAt2025",
+      "TstSpImgsImgName2025": {
+        "id": "TstSpImgsImgName2025",
         "tableId": "TstSpImgsTbl2025",
-        "name": "created_at",
-        "comment": "",
-        "dataType": "TIMESTAMP",
+        "name": "img_name",
+        "comment": "저장된 파일명",
+        "dataType": "VARCHAR(255)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 90,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767079963797,
+          "createAt": 1767079963797
+        }
+      },
+      "TstSpImgsOriImgName2025": {
+        "id": "TstSpImgsOriImgName2025",
+        "tableId": "TstSpImgsTbl2025",
+        "name": "ori_img_name",
+        "comment": "원본 파일명",
+        "dataType": "VARCHAR(255)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 90,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767079963797,
+          "createAt": 1767079963797
+        }
+      },
+      "TstSpImgsRepImgYn2025": {
+        "id": "TstSpImgsRepImgYn2025",
+        "tableId": "TstSpImgsTbl2025",
+        "name": "rep_img_yn",
+        "comment": "대표 이미지 여부 (Y/N)",
+        "dataType": "VARCHAR(1)",
+        "default": "N",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 83,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767079963797,
+          "createAt": 1767079963797
+        }
+      },
+      "TstSpImgsRegTime2025": {
+        "id": "TstSpImgsRegTime2025",
+        "tableId": "TstSpImgsTbl2025",
+        "name": "reg_time",
+        "comment": "등록 시간",
+        "dataType": "DATETIME",
         "default": "CURRENT_TIMESTAMP",
         "options": 0,
         "ui": {
           "keys": 0,
-          "widthName": 63,
+          "widthName": 60,
           "widthComment": 60,
           "widthDataType": 71,
           "widthDefault": 133
         },
         "meta": {
-          "updateAt": 1767018316001,
-          "createAt": 1767018316001
+          "updateAt": 1767079963797,
+          "createAt": 1767079963797
+        }
+      },
+      "TstSpImgsUpdTime2025": {
+        "id": "TstSpImgsUpdTime2025",
+        "tableId": "TstSpImgsTbl2025",
+        "name": "update_time",
+        "comment": "수정 시간",
+        "dataType": "DATETIME",
+        "default": "CURRENT_TIMESTAMP",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 71,
+          "widthDefault": 133
+        },
+        "meta": {
+          "updateAt": 1767079963797,
+          "createAt": 1767079963797
         }
       },
       "RvwImgsId2025": {

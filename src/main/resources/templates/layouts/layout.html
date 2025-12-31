@@ -13,6 +13,7 @@
     <link rel="stylesheet" th:href="@{/css/reset.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/loading-animation.css}">
     
     <!-- 페이지별 추가 CSS -->
     <th:block layout:fragment="css"></th:block>
@@ -24,6 +25,9 @@
     <th:block layout:fragment="head-script"></th:block>
 </head>
 <body>
+    <!-- Loading Animation -->
+    <div th:replace="~{components/loading-animation.html :: loading-animation}"></div>
+    
     <div id="wrapper">
         <!-- Header 영역 -->
         <div th:replace="~{components/header.html :: header}"></div>
