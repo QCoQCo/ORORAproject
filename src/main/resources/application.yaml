@@ -22,3 +22,8 @@ spring:
 mybatis:
     mapper-locations: classpath:/mapper/*.xml
     config-location: classpath:/mybatis-config.xml
+
+file:
+    upload:
+        spotImgLocation: upload/spots # 관광지 이미지 저장 경로
+        profileImgLocation: upload/profiles # 사용자 프로필 이미지 저장 경로

@@ -14,4 +14,6 @@ public interface UserMapper {
     int countByEmail(String email);
     void updateLastLogin(@Param("id") Long id, @Param("lastLogin") LocalDateTime lastLogin);
     List<UserDto> findAllUsers();
+    UserDto findById(@Param("id") Long id);
+    void updateProfileImage(@Param("id") Long id, @Param("profileImage") String profileImage);
 }

@@ -54,4 +54,16 @@
         FROM users
         ORDER BY created_at DESC
     </select>
+
+    <select id="findById" parameterType="Long" resultMap="UserResultMap">
+        SELECT id, login_id, username, email, password_hash, role_code, status_code, profile_image, phone_number, address, birth_date, gender_code, join_date, last_login, created_at, updated_at
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateProfileImage">
+        UPDATE users
+        SET profile_image = #{profileImage}
+        WHERE id = #{id}
+    </update>
 </mapper>       
