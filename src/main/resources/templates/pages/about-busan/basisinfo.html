@@ -13,7 +13,7 @@
 
 <body>
     <div layout:fragment="content">
-        <div id="breadcrumb-container"></div>
+        <div th:replace="~{components/breadcrumb.html :: breadcrumb}"></div>
         <section class="abBusan">
             <div class="swiper main_bg">
                 <div class="swiper-wrapper">
@@ -24,7 +24,7 @@
                 <h2 class="title">기본현황</h2>
             </div>
             <div class="container">
-                <div id="sidenav-container"></div>
+                <div th:replace="~{components/sidenav-busan.html :: sidenav-busan}"></div>
                 <main id="contents">
                     <ul class="basisinfo">
                         <li class="place">
@@ -230,9 +230,10 @@
     </div>
     <th:block layout:fragment="script">
         <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+        <!-- sidenav-loader.js는 이벤트 리스너만 사용합니다. -->
         <script th:src="@{/js/sidenav-loader.js}"></script>
         <script th:src="@{/js/busan.js}"></script>
-        <script th:src="@{/js/breadcrumb-loader.js}"></script>
+        <!-- breadcrumb-loader.js는 더 이상 필요하지 않습니다. Thymeleaf fragment로 대체되었습니다. -->
     </th:block>
 </body>
 

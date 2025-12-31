@@ -7,7 +7,7 @@
     height: 100%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     z-index: 9999;
-    display: flex;
+    display: none; /* 기본적으로 숨김 */
     justify-content: center;
     align-items: center;
     opacity: 0;
@@ -16,6 +16,7 @@
 }
 
 .language-loading.active {
+    display: flex; /* active일 때만 표시 */
     opacity: 1;
     visibility: visible;
 }

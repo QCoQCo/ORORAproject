@@ -84,52 +84,65 @@ async function initializeAdmin() {
     await loadTouristSpots();
     await initializeUsers();
     initializeTabs();
-    initializeEventListeners();
-    loadHeaderComponent();
-}
-
-// 헤더 컴포넌트 로드
-function loadHeaderComponent() {
-    // header-loader.js의 loadHeader 함수 사용
-    if (typeof loadHeader === 'function') {
-        loadHeader();
-    } else {
-        // fallback: 직접 헤더 로드
-        fetch('../../components/header.html')
-            .then((response) => response.text())
-            .then((data) => {
-                document.getElementById('header-container').innerHTML = data;
-
-                // 헤더 로드 후 네비게이션 기능 초기화
-                if (typeof initMobileMenu === 'function') {
-                    initMobileMenu();
-                }
-
-                // 헤더 로드 후 사용자 상태에 따라 헤더 업데이트
-                if (typeof updateHeader === 'function') {
-                    updateHeader();
-                }
-            })
-            .catch((error) => {
-                console.error('헤더 로드 실패:', error);
-            });
-    }
+    
+    // DOM이 완전히 준비된 후 이벤트 리스너 초기화
+    setTimeout(() => {
+        initializeEventListeners();
+    }, 100);
+    
+    // 헤더는 layout.html에서 Thymeleaf로 이미 포함되므로 별도 로드 불필요
+    // 헤더 업데이트만 수행 (페이지 로드 시에만)
+    setTimeout(() => {
+        if (typeof updateHeader === 'function' && !window.headerUpdated) {
+            updateHeader();
+            window.headerUpdated = true;
+        }
+    }, 200);
 }
 
 // 관광지 데이터 로드
 async function loadTouristSpots() {
     try {
-        // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-        // 백엔드 API 엔드포인트: GET /api/admin/tourist-spots
-        // 응답 형식: { regions: { area01: { name: "기장군", spots: [...] }, ... } }
-        const response = await fetch('../../data/busanTouristSpots.json');
+        const response = await fetch('/api/admin/tourist-spots');
         const data = await response.json();
-        touristSpots = data.regions || {};
-        displayTouristSpots();
-        updateStatistics();
+        
+        if (data.success && data.spots) {
+            // 백엔드 데이터를 프론트엔드 형식으로 변환
+            touristSpots = {};
+            data.spots.forEach(spot => {
+                // regionId를 area01 형식으로 변환 (임시로 regionId를 키로 사용)
+                const regionKey = `area${String(spot.regionId).padStart(2, '0')}`;
+                
+                if (!touristSpots[regionKey]) {
+                    touristSpots[regionKey] = {
+                        name: regionNames[regionKey] || `지역 ${spot.regionId}`,
+                        code: '',
+                        spots: []
+                    };
+                }
+                
+                // 해시태그는 임시로 빈 배열 (나중에 해시태그 API 추가 시 수정)
+                touristSpots[regionKey].spots.push({
+                    id: spot.id,
+                    title: spot.title,
+                    description: spot.description || '',
+                    hashtags: [], // TODO: 해시태그 API 추가 시 수정
+                    img: '', // TODO: 이미지 API 추가 시 수정
+                    link: spot.linkUrl || '#',
+                    categoryCode: spot.categoryCode,
+                    isActive: spot.isActive
+                });
+            });
+            
+            displayTouristSpots();
+            updateStatistics();
+        } else {
+            throw new Error(data.message || '관광지 데이터를 불러오는데 실패했습니다.');
+        }
     } catch (error) {
         console.error('관광지 데이터 로드 실패:', error);
         showNotification('데이터를 불러오는데 실패했습니다.', 'error');
+        touristSpots = {};
     }
 }
 
@@ -184,30 +197,40 @@ function initializeEventListeners() {
     const searchInput = document.getElementById('search-input');
     const regionFilter = document.getElementById('region-filter');
 
-    searchInput.addEventListener('input', filterTouristSpots);
-    regionFilter.addEventListener('change', filterTouristSpots);
+    if (searchInput) {
+        searchInput.addEventListener('input', filterTouristSpots);
+    }
+    if (regionFilter) {
+        regionFilter.addEventListener('change', filterTouristSpots);
+    }
 
     // 관광지 추가 폼
     const addForm = document.getElementById('add-tourist-spot-form');
-    addForm.addEventListener('submit', handleAddTouristSpot);
+    if (addForm) {
+        addForm.addEventListener('submit', handleAddTouristSpot);
+    }
 
     // 수정 폼
     const editForm = document.getElementById('edit-tourist-spot-form');
-    editForm.addEventListener('submit', handleEditTouristSpot);
+    if (editForm) {
+        editForm.addEventListener('submit', handleEditTouristSpot);
+    }
 
     // 모달 닫기
     const closeModal = document.getElementById('close-modal');
     const modal = document.getElementById('edit-modal');
 
-    closeModal.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
+    if (closeModal && modal) {
+        closeModal.addEventListener('click', () => {
             modal.style.display = 'none';
-        }
-    });
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
 
     // 사용자 관리 이벤트 리스너
     initializeUserEventListeners();
@@ -271,7 +294,7 @@ function displayTouristSpots(filteredSpots = null) {
         const region = spots[regionKey];
         if (region.spots && Array.isArray(region.spots)) {
             region.spots.forEach((spot, index) => {
-                const card = createTouristSpotCard(spot, regionKey, index, region.name);
+                const card = createTouristSpotCard(spot, regionKey, spot.id || index, region.name);
                 grid.appendChild(card);
             });
         }
@@ -279,23 +302,23 @@ function displayTouristSpots(filteredSpots = null) {
 }
 
 // 관광지 카드 생성
-function createTouristSpotCard(spot, regionKey, index, regionName) {
+function createTouristSpotCard(spot, regionKey, spotId, regionName) {
     const card = document.createElement('div');
     card.className = 'tourist-spot-card';
 
-    const category = getCategoryFromHashtags(spot.hashtags);
+    const category = spot.categoryCode ? spot.categoryCode.toLowerCase() : getCategoryFromHashtags(spot.hashtags);
     const hashtags = spot.hashtags ? spot.hashtags.join(' ') : '';
 
     card.innerHTML = `
         <h3>${spot.title}</h3>
-        <div class="spot-category">${regionName} (${categoryNames[category]})</div>
+        <div class="spot-category">${regionName} (${categoryNames[category] || category})</div>
         <div class="spot-info">
-            해시태그: ${hashtags}
+            해시태그: ${hashtags || '없음'}
         </div>
-        <div class="spot-description">${spot.description}</div>
+        <div class="spot-description">${spot.description || ''}</div>
         <div class="spot-actions">
-            <button class="edit-btn" onclick="openEditModal('${regionKey}', ${index})">수정</button>
-            <button class="delete-btn" onclick="deleteTouristSpot('${regionKey}', ${index})">삭제</button>
+            <button class="edit-btn" onclick="openEditModal('${regionKey}', ${spotId})">수정</button>
+            <button class="delete-btn" onclick="deleteTouristSpot('${regionKey}', ${spotId})">삭제</button>
         </div>
     `;
 
@@ -387,10 +410,24 @@ function handleAddTouristSpot(event) {
 }
 
 // 수정 모달 열기
-function openEditModal(regionKey, index) {
-    const spot = touristSpots[regionKey].spots[index];
+function openEditModal(regionKey, spotId) {
+    // spotId로 관광지 찾기
+    let spot = null;
+    let foundIndex = -1;
+    if (touristSpots[regionKey] && touristSpots[regionKey].spots) {
+        foundIndex = touristSpots[regionKey].spots.findIndex(s => s.id === spotId);
+        if (foundIndex !== -1) {
+            spot = touristSpots[regionKey].spots[foundIndex];
+        }
+    }
+    
+    if (!spot) {
+        showNotification('관광지를 찾을 수 없습니다.', 'error');
+        return;
+    }
+    
     currentEditRegion = regionKey;
-    currentEditIndex = index;
+    currentEditIndex = foundIndex;
 
     // 폼에 기존 데이터 입력
     document.getElementById('edit-spot-title').value = spot.title;
@@ -473,13 +510,19 @@ function handleEditTouristSpot(event) {
 }
 
 // 관광지 삭제
-function deleteTouristSpot(regionKey, index) {
+function deleteTouristSpot(regionKey, spotId) {
     if (confirm('정말로 이 관광지를 삭제하시겠습니까?')) {
         // TODO: 백엔드 연결 시 API 호출로 변경
         // 백엔드 API 엔드포인트: DELETE /api/admin/tourist-spots/{spotId}
         // 응답 형식: { success: true, message: string }
 
-        touristSpots[regionKey].spots.splice(index, 1);
+        // spotId로 관광지 찾아서 삭제
+        if (touristSpots[regionKey] && touristSpots[regionKey].spots) {
+            const index = touristSpots[regionKey].spots.findIndex(s => s.id === spotId);
+            if (index !== -1) {
+                touristSpots[regionKey].spots.splice(index, 1);
+            }
+        }
 
         // 지역에 관광지가 없으면 spots 배열만 비워둠 (지역 정보는 유지)
         if (touristSpots[regionKey].spots.length === 0) {
@@ -787,26 +830,38 @@ function exportAllData() {
 
 // ========== 사용자 관리 기능 ==========
 
-// 사용자 데이터 초기화 (JSON 파일에서 로드)
+// 사용자 데이터 초기화
 async function initializeUsers() {
     try {
-        // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-        // 백엔드 API 엔드포인트: GET /api/admin/users
-        // 응답 형식: { users: [{ id, userId, username, email, role, status, ... }] }
-        const response = await fetch('../../data/users.json');
+        const response = await fetch('/api/admin/users');
         const data = await response.json();
-        users = data.users;
-        filteredUsers = [...users];
+        
+        if (data.success && data.users) {
+            // 백엔드 데이터를 프론트엔드 형식으로 변환
+            users = data.users.map(user => ({
+                id: user.id,
+                userId: user.loginId,
+                username: user.username,
+                email: user.email,
+                role: user.roleCode ? user.roleCode.toLowerCase() : 'member', // ADMIN -> admin
+                status: user.statusCode ? user.statusCode.toLowerCase() : 'active', // ACTIVE -> active
+                joinDate: user.joinDate ? new Date(user.joinDate).toISOString().split('T')[0] : '-',
+                lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString() : '-'
+            }));
+            filteredUsers = [...users];
 
-        // 사용자 관리 탭이 활성화된 경우 사용자 목록 표시
-        const currentTab = document.querySelector('.tab-btn.active');
-        if (currentTab && currentTab.getAttribute('data-tab') === 'users') {
-            displayUsers();
-        }
+            // 사용자 관리 탭이 활성화된 경우 사용자 목록 표시
+            const currentTab = document.querySelector('.tab-btn.active');
+            if (currentTab && currentTab.getAttribute('data-tab') === 'users') {
+                displayUsers();
+            }
 
-        // 통계 탭이 활성화된 경우 사용자 통계 업데이트
-        if (currentTab && currentTab.getAttribute('data-tab') === 'stats') {
-            updateUserStatistics();
+            // 통계 탭이 활성화된 경우 사용자 통계 업데이트
+            if (currentTab && currentTab.getAttribute('data-tab') === 'stats') {
+                updateUserStatistics();
+            }
+        } else {
+            throw new Error(data.message || '사용자 데이터를 불러오는데 실패했습니다.');
         }
     } catch (error) {
         console.error('사용자 데이터 로드 실패:', error);

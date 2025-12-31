@@ -52,23 +52,25 @@ INSERT INTO users (login_id, username, email, password_hash, role_code, status_c
 -- 4. 관광지 데이터 (6개)
 -- ============================================
 -- 공통코드 사용: category_code (BEACH, MOUNTAIN, CULTURE, FOOD, SHOPPING, CAFE)
-INSERT INTO tourist_spots (region_id, title, description, link_url, category_code, is_active, view_count, rating_avg, rating_count) VALUES
-(1, '해운대 해수욕장', '부산의 대표 해수욕장으로 매년 수많은 관광객이 찾는 곳입니다.', 'https://www.busan.go.kr', 'BEACH', TRUE, 3500, 4.8, 245),
-(2, '광안리 해수욕장', '광안대교의 아름다운 야경을 감상할 수 있는 해수욕장입니다.', 'https://www.busan.go.kr', 'BEACH', TRUE, 3200, 4.8, 245),
-(3, '동래온천', '부산의 대표적인 온천지로 천연 온천수를 즐길 수 있습니다.', 'https://www.busan.go.kr', 'CULTURE', TRUE, 1200, 4.4, 87),
-(4, '자갈치시장', '부산 대표 수산시장으로 신선한 해산물을 맛볼 수 있습니다.', 'https://www.busan.go.kr', 'FOOD', TRUE, 2200, 4.6, 167),
-(1, '신세계 센텀시티', '세계 최대 규모의 백화점으로 기네스북에 등재된 대형 쇼핑몰입니다.', 'https://www.busan.go.kr', 'SHOPPING', TRUE, 2800, 4.4, 189),
-(2, '카페리프 송정점', '송정해수욕장 뷰가 한눈에 보이는 카페입니다.', 'https://www.busan.go.kr', 'CAFE', TRUE, 320, 4.2, 24);
+-- 주의: rating_avg와 rating_count는 리뷰 테이블에서 계산하여 표시합니다.
+INSERT INTO tourist_spots (region_id, title, description, link_url, category_code, is_active, view_count) VALUES
+(1, '해운대 해수욕장', '부산의 대표 해수욕장으로 매년 수많은 관광객이 찾는 곳입니다.', 'https://www.busan.go.kr', 'BEACH', TRUE, 3500),
+(2, '광안리 해수욕장', '광안대교의 아름다운 야경을 감상할 수 있는 해수욕장입니다.', 'https://www.busan.go.kr', 'BEACH', TRUE, 3200),
+(3, '동래온천', '부산의 대표적인 온천지로 천연 온천수를 즐길 수 있습니다.', 'https://www.busan.go.kr', 'CULTURE', TRUE, 1200),
+(4, '자갈치시장', '부산 대표 수산시장으로 신선한 해산물을 맛볼 수 있습니다.', 'https://www.busan.go.kr', 'FOOD', TRUE, 2200),
+(1, '신세계 센텀시티', '세계 최대 규모의 백화점으로 기네스북에 등재된 대형 쇼핑몰입니다.', 'https://www.busan.go.kr', 'SHOPPING', TRUE, 2800),
+(2, '카페리프 송정점', '송정해수욕장 뷰가 한눈에 보이는 카페입니다.', 'https://www.busan.go.kr', 'CAFE', TRUE, 320);
 
 -- ============================================
 -- 5. 관광지 이미지 데이터 (5개)
 -- ============================================
-INSERT INTO tourist_spot_images (tourist_spot_id, image_url) VALUES
-(1, '../../images/haeundae-beach-1.jpg'),
-(1, '../../images/haeundae-beach-2.jpg'),
-(2, '../../images/gwangalli-beach-1.jpg'),
-(3, '../../images/dongnae-onsen-1.jpg'),
-(4, '../../images/jagalchi-market-1.jpg');
+-- rep_img_yn: Y = 대표 이미지, N = 일반 이미지
+INSERT INTO tourist_spot_images (img_name, ori_img_name, tourist_spot_id, image_url, rep_img_yn) VALUES
+('haeundae-beach-1-uuid.jpg', 'haeundae-beach-1.jpg', 1, '../../images/haeundae-beach-1.jpg', 'Y'),
+('haeundae-beach-2-uuid.jpg', 'haeundae-beach-2.jpg', 1, '../../images/haeundae-beach-2.jpg', 'N'),
+('gwangalli-beach-1-uuid.jpg', 'gwangalli-beach-1.jpg', 2, '../../images/gwangalli-beach-1.jpg', 'Y'),
+('dongnae-onsen-1-uuid.jpg', 'dongnae-onsen-1.jpg', 3, '../../images/dongnae-onsen-1.jpg', 'Y'),
+('jagalchi-market-1-uuid.jpg', 'jagalchi-market-1.jpg', 4, '../../images/jagalchi-market-1.jpg', 'Y');
 
 -- ============================================
 -- 6. 관광지-해시태그 연결 데이터 (5개)

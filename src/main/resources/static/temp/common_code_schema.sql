@@ -156,3 +156,7 @@ INSERT INTO common_codes (group_code, code, code_name, code_name_en, code_name_j
 --    ALTER TABLE users DROP COLUMN role;
 -- 
 -- ============================================
+
+
+-- 특정 유저를 관리자로 변경
+UPDATE users SET role_code = 'ADMIN' WHERE id = 7;

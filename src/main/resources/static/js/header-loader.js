@@ -29,9 +29,16 @@ async function loadHeader() {
             // header.js 동적 로드 후 검색 기능 초기화
             loadHeaderScript();
 
-            // 로그인 상태에 따른 헤더 업데이트
-            if (typeof updateHeader === 'function') {
+            // 로그인 상태에 따른 헤더 업데이트 (페이지 로드 시에만)
+            if (typeof updateHeader === 'function' && !window.headerUpdated) {
                 updateHeader();
+                window.headerUpdated = true;
+                // 드롭다운 메뉴 초기화
+                setTimeout(() => {
+                    if (typeof initUserDropdown === 'function') {
+                        initUserDropdown();
+                    }
+                }, 200);
             }
         }
     } catch (error) {

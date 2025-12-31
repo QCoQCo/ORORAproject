@@ -1,19 +1,23 @@
 @charset "utc-8";
 
-p{
+p {
     margin: 0;
     padding: 0;
 }
 
-input{
+input {
     padding: 0;
 }
-
 #wrapper {
-    width: 500px;
-    /* margin-left: auto;
-    margin-right: auto; */
-    margin: 120px auto 220px auto;
+    width: 100%;
+}
+
+.container {
+    width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 80px;
+    position: relative;
 }
 
 #wrapper h2 {
@@ -21,32 +25,43 @@ input{
     margin-bottom: 30px;
 }
 
-#wrapper div > div{
+#wrapper div > div {
     margin-bottom: 30px;
 }
 
-#wrapper>div>div>p {
+#wrapper > div > div > p {
     font-size: 16px;
-    color: #1D1D1F;
+    color: #1d1d1f;
     margin-bottom: 10px;
     font-weight: bold;
 }
 
-#wrapper>div>div>label>input {
+#wrapper > div > div > label > input,
+#wrapper > div > div > label > select {
     width: 496px;
     font-size: 16px;
     height: 38px;
+    border: 1px solid #ccc;
+    padding: 0 10px;
+    box-sizing: border-box;
 }
 
-#wrapper #needId, #wrapper #needPsw, #wrapper #needRePsw{
+#wrapper > div > div > label > select {
+    background-color: white;
+    cursor: pointer;
+}
+
+#wrapper #needId,
+#wrapper #needPsw,
+#wrapper #needRePsw {
     color: rgb(219, 24, 24);
 }
 
-#wrapper #needId{
+#wrapper #needId {
     margin: 0;
 }
 
-#wrapper #overlap{
+#wrapper #overlap {
     margin-top: 7px;
     background-color: black;
     color: white;
@@ -56,22 +71,22 @@ input{
     border-radius: 5px;
 }
 
-#wrapper .repsw{
+#wrapper .repsw {
     margin-bottom: 5px;
 }
 
-#wrapper #same{
+#wrapper #same {
     display: none;
     height: 20px;
     font-size: 14px;
     margin-left: 5px;
 }
 
-#wrapper .userName{
+#wrapper .userName {
     margin-top: 30px;
 }
 
-#wrapper #submit{
+#wrapper #submit {
     width: 100%;
     height: 47px;
     border: 1px solid black;
@@ -82,7 +97,7 @@ input{
     transition: opacity 0.3s ease;
 }
 
-#wrapper #submit:disabled{
+#wrapper #submit:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }

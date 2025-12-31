@@ -1,16 +1,14 @@
 @charset "utf-8";
 
-a{
+a {
     color: black;
     text-decoration: none;
 }
 
-#wrapper{
+#wrapper {
     width: 100%;
-    margin-top: 120px;
-    margin-bottom: 220px;
 }
-.container{
+.container {
     width: 480px;
     margin-left: auto;
     margin-right: auto;
@@ -18,7 +16,7 @@ a{
     position: relative;
 }
 
-.container .back-button{
+.container .back-button {
     display: block;
     width: 30px;
     height: 30px;
@@ -35,48 +33,50 @@ a{
     align-items: center;
 }
 
-.container h2{
+.container h2 {
     text-align: center;
     margin-bottom: 60px;
 }
 
-.container .id, .container .psw{
+.container .id,
+.container .psw {
     font-size: 14px;
     line-height: 14px;
     font-weight: bold;
 }
 
-.container #putId, .container #putPsw{
+.container #putId,
+.container #putPsw {
     width: 100%;
     border-width: 0 0 1px;
     padding: 11px 0;
 }
 
-.container #putId, .container #putPsw:focus{
+.container #putId,
+.container #putPsw:focus {
     outline: none;
 }
 
-.container #putId{
+.container #putId {
     margin-bottom: 25px;
 }
 
-.container #putPsw{
+.container #putPsw {
     margin-bottom: 10px;
 }
 
-.container .check{
+.container .check {
     font-size: 14px;
     margin-bottom: 35px;
 }
 
-.container .check > div > label > input{
+.container .check > div > label > input {
     cursor: pointer;
     margin-top: 4px;
-    margin-right: 2px
-    
+    margin-right: 2px;
 }
 
-.container button{
+.container button {
     width: 100%;
     height: 47px;
     border: none;
@@ -86,32 +86,29 @@ a{
     cursor: pointer;
 }
 
-.container .aboutLogin{
+.container .aboutLogin {
     display: flex;
     gap: 10px;
     justify-content: center;
     font-size: 12px;
-    
 }
 
-.container .aboutLogin a p{
+.container .aboutLogin a p {
     display: block;
-    color: #9D9DA0;
+    color: #9d9da0;
     line-height: 14px;
     height: 14px;
     text-align: center;
 }
-.container .aboutLogin a p::after{
-    content: "";
+.container .aboutLogin a p::after {
+    content: '';
     display: inline-block;
     width: 1px;
     height: 11px;
     margin-left: 10px;
-    background-color: #9D9DA0;
+    background-color: #9d9da0;
 }
 
-.container .aboutLogin .newPsw::after{
+.container .aboutLogin .newPsw::after {
     content: none;
 }
-
-

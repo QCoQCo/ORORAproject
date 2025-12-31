@@ -32,7 +32,7 @@
                 <ul class="list-wrap"></ul>
 
                 <!-- 템플릿 컨테이너 -->
-                <div id="list-template-container"></div>
+                <div id="list-template-container" th:replace="~{components/list-item.html :: list-item-template}"></div>
             </div>
         </div>
         <th:block layout:fragment="script">

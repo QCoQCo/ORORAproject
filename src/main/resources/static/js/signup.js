@@ -30,19 +30,31 @@ class SignupValidator {
                 element: document.getElementById('userBirth'),
                 errorElement: null,
                 rules: ['dateFormat'],
-                valid: false,
+                valid: true, // 선택사항이므로 기본값 true
             },
             userPhone: {
                 element: document.getElementById('userPhone'),
                 errorElement: null,
                 rules: ['phoneFormat'],
-                valid: false,
+                valid: true, // 선택사항이므로 기본값 true
             },
             userEmail: {
                 element: document.getElementById('userEmail'),
                 errorElement: null,
                 rules: ['emailFormat'],
-                valid: false,
+                valid: true, // 선택사항이므로 기본값 true
+            },
+            userAddress: {
+                element: document.getElementById('userAddress'),
+                errorElement: null,
+                rules: [], // 선택사항이므로 validation 없음
+                valid: true,
+            },
+            userGender: {
+                element: document.getElementById('userGender'),
+                errorElement: null,
+                rules: [], // 선택사항이므로 validation 없음
+                valid: true,
             },
         };
 
@@ -123,6 +135,13 @@ class SignupValidator {
             this.validateField('putRePsw'); // 재입력 비밀번호도 다시 검사
         });
 
+        // select 요소에 change 이벤트 추가
+        if (this.fields.userGender && this.fields.userGender.element) {
+            this.fields.userGender.element.addEventListener('change', () => {
+                this.updateSubmitButton();
+            });
+        }
+
         // 중복체크 버튼
         this.overlapButton.addEventListener('click', () => {
             this.checkIdDuplicate();
@@ -137,11 +156,17 @@ class SignupValidator {
 
     validateField(fieldName) {
         const field = this.fields[fieldName];
-        if (!field || !field.element) return;
+        if (!field || !field.element) return true; // 필드가 없으면 유효하다고 간주
 
-        const value = field.element.value;
+        const value = field.element.value.trim();
         let isValid = true;
         let errorMessage = '';
+
+        // 규칙이 없으면 항상 유효 (선택사항 필드)
+        if (field.rules.length === 0) {
+            field.valid = true;
+            return true;
+        }
 
         for (const rule of field.rules) {
             const [ruleName, ruleParam] = rule.split(':');
@@ -205,47 +230,60 @@ class SignupValidator {
         this.sameElement.textContent = '';
     }
 
-    checkIdDuplicate() {
+    async checkIdDuplicate() {
         const userId = this.fields.putId.element.value;
         if (!userId) {
             alert('아이디를 입력해주세요.');
             return;
         }
 
-        // TODO: 백엔드 연결 시 API 호출로 변경
-        // 백엔드 API 엔드포인트: GET /api/auth/check-id?userId={userId}
-        // 응답 형식: { available: true/false, message: string }
+        try {
+            const response = await fetch(`/api/auth/check-id?userId=${encodeURIComponent(userId)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
-        const isAvailable = this.checkIdAvailability(userId);
+            if (!response.ok) {
+                throw new Error('아이디 확인 요청 실패');
+            }
 
-        if (isAvailable) {
-            alert('사용 가능한 아이디입니다.');
-            this.fields.putId.duplicateChecked = true;
-        } else {
-            alert('이미 사용 중인 아이디입니다.');
+            const data = await response.json();
+
+            if (data.available) {
+                alert(data.message || '사용 가능한 아이디입니다.');
+                this.fields.putId.duplicateChecked = true;
+            } else {
+                alert(data.message || '이미 사용 중인 아이디입니다.');
+                this.fields.putId.duplicateChecked = false;
+            }
+        } catch (error) {
+            console.error('아이디 중복 체크 오류:', error);
+            alert('아이디 확인 중 오류가 발생했습니다.');
             this.fields.putId.duplicateChecked = false;
         }
 
         this.updateSubmitButton();
     }
 
-    checkIdAvailability(userId) {
-        // 임시 중복 체크 로직 (실제로는 서버 API 호출)
-        const existingIds = ['admin', 'test', 'user123']; // 예시 데이터
-        return !existingIds.includes(userId);
-    }
-
     updateSubmitButton() {
-        const allFieldsValid = Object.values(this.fields).every(
-            (field) => !field.element || field.valid || field.rules.length === 0
+        // 필수 필드만 체크 (putId, putPsw, putRePsw, userName)
+        const requiredFields = ['putId', 'putPsw', 'putRePsw', 'userName'];
+        const requiredFieldsValid = requiredFields.every(
+            (fieldName) => {
+                const field = this.fields[fieldName];
+                return field && field.element && field.valid;
+            }
         );
 
-        const requiredFieldsValid = ['putId', 'putPsw', 'putRePsw'].every(
-            (fieldName) => this.fields[fieldName].valid
-        );
+        // 아이디 중복 체크도 확인
+        const idDuplicateChecked = this.fields.putId.duplicateChecked === true;
 
-        this.submitButton.disabled = !requiredFieldsValid;
-        this.submitButton.style.opacity = requiredFieldsValid ? '1' : '0.5';
+        const canSubmit = requiredFieldsValid && idDuplicateChecked;
+
+        this.submitButton.disabled = !canSubmit;
+        this.submitButton.style.opacity = canSubmit ? '1' : '0.5';
     }
 
     handleSubmit() {
@@ -268,26 +306,44 @@ class SignupValidator {
         this.processSignup();
     }
 
-    processSignup() {
+    async processSignup() {
         const formData = {
-            id: this.fields.putId.element.value,
+            loginId: this.fields.putId.element.value.trim(),
             password: this.fields.putPsw.element.value,
-            name: this.fields.userName.element.value,
-            birth: this.fields.userBirth.element.value,
-            phone: this.fields.userPhone.element.value,
-            email: this.fields.userEmail.element.value,
+            username: this.fields.userName.element.value.trim(),
+            birthDate: this.fields.userBirth.element.value.trim() || null,
+            phoneNumber: this.fields.userPhone.element.value.trim() || null,
+            email: this.fields.userEmail.element.value.trim() || null,
+            address: this.fields.userAddress.element.value.trim() || null,
+            genderCode: this.fields.userGender.element.value || null,
         };
 
-        // TODO: 백엔드 연결 시 API 호출로 변경
-        // 백엔드 API 엔드포인트: POST /api/auth/signup
-        // 요청 형식: { userId, password, username, email, phoneNumber, birthDate, address }
-        // 응답 형식: { success: true, user: { id, userId, username, ... }, message: string }
+        try {
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
 
-        console.log('회원가입 데이터:', formData);
-        alert('회원가입이 완료되었습니다!');
+            if (!response.ok) {
+                throw new Error('회원가입 요청 실패');
+            }
 
-        // 로그인 페이지로 이동
-        window.location.href = './login.html';
+            const data = await response.json();
+
+            if (data.success) {
+                alert(data.message || '회원가입이 완료되었습니다!');
+                // 로그인 페이지로 이동
+                window.location.href = '/pages/login/login.html';
+            } else {
+                alert(data.message || '회원가입 처리 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('회원가입 오류:', error);
+            alert('회원가입 처리 중 오류가 발생했습니다.');
+        }
     }
 }
 

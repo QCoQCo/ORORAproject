@@ -1,131 +1,20 @@
-// 부산 소개 사이드 네비게이션 로더
+// ============================================
+// 부산 소개 사이드 네비게이션 이벤트 리스너
+// sidenav은 이제 Thymeleaf fragment로 서버에서 렌더링됩니다.
+// 이 파일은 메뉴 이벤트 리스너만 제공합니다.
+// ============================================
+
+// 부산 소개 사이드 네비게이션 이벤트 관리자
 class SideNavLoader {
     constructor(options = {}) {
-        this.containerSelector = options.containerSelector || '#sidenav-container';
-        this.autoActivate = options.autoActivate !== false; // 기본값 true
         this.onMenuClick = options.onMenuClick || null;
         this.animationDuration = 300; // 애니메이션 지속 시간
     }
 
-    // 사이드 네비게이션 템플릿 로드
-    async loadSideNav() {
-        try {
-            const sideNavPath = this.getSideNavPath();
-            const response = await fetch(sideNavPath);
-            
-            if (!response.ok) {
-                throw new Error('사이드 네비게이션 로드 실패');
-            }
-            
-            const sideNavHTML = await response.text();
-            
-            // 사이드 네비게이션 컨테이너에 HTML 삽입
-            const sideNavContainer = document.querySelector(this.containerSelector);
-            if (sideNavContainer) {
-                sideNavContainer.innerHTML = sideNavHTML;
-                
-                // 로드 후 초기화
-                this.initSideNav();
-                
-                return true;
-            } else {
-                throw new Error(`사이드 네비게이션 컨테이너를 찾을 수 없습니다: ${this.containerSelector}`);
-            }
-        } catch (error) {
-            console.error('사이드 네비게이션 로드 중 오류:', error);
-            return false;
-        }
-    }
-
-    // 현재 페이지 위치에 따른 사이드 네비게이션 경로 결정
-    getSideNavPath() {
-        const currentPath = window.location.pathname;
-        
-        if (currentPath.includes('/pages/about-busan/')) {
-            return '../../components/sidenav-busan.html';
-        } else if (currentPath.includes('/pages/')) {
-            return '../components/sidenav-busan.html';
-        } else {
-            return './components/sidenav-busan.html';
-        }
-    }
-
-    // 사이드 네비게이션 초기화
+    // 사이드 네비게이션 초기화 (이벤트 리스너만 설정)
     initSideNav() {
-        if (this.autoActivate) {
-            this.setActiveMenu();
-        }
-        
         this.initMenuEvents();
         this.initSubMenuDisplay();
-    }
-
-    // 현재 페이지에 따른 활성 메뉴 설정
-    setActiveMenu() {
-        const currentPath = window.location.pathname;
-        const fileName = currentPath.split('/').pop();
-        
-        // 모든 active 클래스 제거
-        const allMenuItems = document.querySelectorAll('#sideNav li');
-        allMenuItems.forEach(item => item.classList.remove('active'));
-        
-        // 현재 페이지에 해당하는 메뉴 활성화
-        let activeInfo = this.getActiveMenuInfo(fileName);
-        
-        if (activeInfo) {
-            // 서브메뉴 활성화
-            if (activeInfo.subMenuSelector) {
-                const subMenuItem = document.querySelector(activeInfo.subMenuSelector);
-                if (subMenuItem) {
-                    subMenuItem.classList.add('active');
-                }
-            }
-            
-            // 부모 메뉴 활성화
-            if (activeInfo.parentMenuSelector) {
-                const parentMenuItem = document.querySelector(activeInfo.parentMenuSelector);
-                if (parentMenuItem) {
-                    parentMenuItem.classList.add('active');
-                    
-                    // 서브메뉴가 있는 경우에만 표시
-                    const hasSubMenu = parentMenuItem.querySelector('ul');
-                    if (hasSubMenu) {
-                        this.showSubMenu(parentMenuItem, false);
-                    }
-                }
-            }
-        }
-    }
-
-    // 파일명에 따른 활성 메뉴 정보 반환
-    getActiveMenuInfo(fileName) {
-        const menuMap = {
-            'busan.html': {
-                subMenuSelector: '#sideNav .bsInfo li:first-child',
-                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:first-child'
-            },
-            'goals.html': {
-                subMenuSelector: '#sideNav .bsInfo li:nth-child(2)',
-                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:first-child'
-            },
-            'basisinfo.html': {
-                subMenuSelector: '#sideNav .bsInfo li:nth-child(3)',
-                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:first-child'
-            },
-            'symbol.html': {
-                subMenuSelector: '#sideNav .symbol li:first-child',
-                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:nth-child(2)'
-            },
-            'character.html': {
-                subMenuSelector: '#sideNav .sns li:first-child', // 캐릭터 소개 메뉴
-                parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:nth-child(3)'
-            }
-        };
-        
-        return menuMap[fileName] || {
-            subMenuSelector: '#sideNav .bsInfo li:first-child',
-            parentMenuSelector: '#sideNav > .sideNavMenu > ul > li:first-child'
-        };
     }
 
     // 서브메뉴 초기 표시 상태 설정
@@ -309,7 +198,7 @@ class SideNavLoader {
         }, 1000);
     }
 
-    // 특정 메뉴 활성화
+    // 특정 메뉴 활성화 (필요한 경우에만 사용)
     activateMenu(menuId) {
         // 모든 active 클래스 제거
         const allMenuItems = document.querySelectorAll('#sideNav li');
@@ -334,9 +223,8 @@ class SideNavLoader {
         }
     }
 
-    // 사이드네비게이션 새로고침
+    // 사이드네비게이션 새로고침 (이벤트 리스너만 재초기화)
     refresh() {
-        this.setActiveMenu();
         this.initSubMenuDisplay();
     }
 }
@@ -366,17 +254,17 @@ style.textContent = `
 document.head.appendChild(style);
 
 // 간편 사용을 위한 전역 함수
-window.loadSideNav = async function(options = {}) {
+window.initSideNav = function(options = {}) {
     const loader = new SideNavLoader(options);
-    const success = await loader.loadSideNav();
-    return success ? loader : null;
+    loader.initSideNav();
+    return loader;
 };
 
 // DOM 로드 완료 후 자동 실행
-document.addEventListener('DOMContentLoaded', async () => {
-    // about-busan 페이지에서만 자동 로드
+document.addEventListener('DOMContentLoaded', () => {
+    // about-busan 페이지에서만 이벤트 리스너 초기화
     if (window.location.pathname.includes('/about-busan/')) {
-        const sideNavLoader = await window.loadSideNav();
+        const sideNavLoader = window.initSideNav();
         
         // 전역 변수로 접근 가능하도록 설정
         window.sideNavLoader = sideNavLoader;

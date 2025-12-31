@@ -389,15 +389,11 @@ class TagSearchSystem {
     }
 
     async loadListTemplate() {
-        try {
-            const templateContainer = document.getElementById('list-template-container');
-            if (templateContainer && !templateContainer.innerHTML.trim()) {
-                const response = await fetch('/components/list-item.html');
-                const templateHTML = await response.text();
-                templateContainer.innerHTML = templateHTML;
-            }
-        } catch (error) {
-            console.error('템플릿 로드 실패:', error);
+        // 템플릿은 이제 Thymeleaf fragment로 제공되므로 로드 불필요
+        // 템플릿이 이미 DOM에 있는지 확인만 수행
+        const template = document.getElementById('list-item');
+        if (!template) {
+            console.warn('리스트 템플릿을 찾을 수 없습니다. Thymeleaf fragment가 포함되어 있는지 확인하세요.');
         }
     }
 

@@ -27,8 +27,6 @@ CREATE TABLE tourist_spots (
     category_code VARCHAR(50) DEFAULT 'CULTURE' COMMENT '관광지 카테고리 코드 (SPOT_CATEGORY 그룹 참조)',
     is_active BOOLEAN DEFAULT TRUE,
     view_count INT DEFAULT 0,
-    rating_avg DECIMAL(3,2) DEFAULT 0.00,
-    rating_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE,
@@ -36,14 +34,21 @@ CREATE TABLE tourist_spots (
     INDEX idx_category_code (category_code),
     INDEX idx_is_active (is_active)
 );
+-- 주의: rating_avg와 rating_count는 리뷰 테이블에서 계산하여 표시합니다.
 
 -- 3. 관광지 이미지 테이블
 CREATE TABLE tourist_spot_images (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    img_name VARCHAR(255) COMMENT '저장된 파일명',
+    ori_img_name VARCHAR(255) COMMENT '원본 파일명',
     tourist_spot_id INT NOT NULL,
     image_url VARCHAR(500) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tourist_spot_id) REFERENCES tourist_spots(id) ON DELETE CASCADE
+    rep_img_yn VARCHAR(1) DEFAULT 'N' COMMENT '대표 이미지 여부 (Y/N)',
+    reg_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록 시간',
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 시간',
+    FOREIGN KEY (tourist_spot_id) REFERENCES tourist_spots(id) ON DELETE CASCADE,
+    INDEX idx_tourist_spot_id (tourist_spot_id),
+    INDEX idx_rep_img_yn (rep_img_yn)
 );
 
 -- 4. 해시태그 테이블

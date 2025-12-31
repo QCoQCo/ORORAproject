@@ -2,8 +2,7 @@
 class ListLoader {
     constructor(options = {}) {
         this.containerSelector = options.containerSelector || '.list-wrap';
-        this.templateContainerSelector =
-            options.templateContainerSelector || '#list-template-container';
+        // templateContainerSelector는 더 이상 사용되지 않음 (Thymeleaf fragment로 제공)
         this.dataUrl = options.dataUrl || null;
         this.data = options.data || null;
         this.fallbackImage = options.fallbackImage || 'logo.png';
@@ -11,38 +10,15 @@ class ListLoader {
         this.onLikeClick = options.onLikeClick || null;
     }
 
-    // 리스트 템플릿 로드
+    // 리스트 템플릿 로드 (이제 Thymeleaf fragment로 제공되므로 로드 불필요)
     async loadTemplate() {
-        try {
-            const templatePath = this.getTemplatePath();
-            const response = await fetch(templatePath);
-
-            if (!response.ok) {
-                throw new Error('템플릿 로드 실패');
-            }
-
-            const templateHTML = await response.text();
-
-            // 템플릿 컨테이너에 HTML 삽입
-            const templateContainer = document.querySelector(this.templateContainerSelector);
-            if (templateContainer) {
-                templateContainer.innerHTML = templateHTML;
-            } else {
-                // 템플릿 컨테이너가 없으면 body에 추가
-                document.body.insertAdjacentHTML('beforeend', templateHTML);
-            }
-
-            return true;
-        } catch (error) {
-            console.error('템플릿 로드 중 오류:', error);
+        // 템플릿이 이미 DOM에 있으므로 확인만 수행
+        const template = document.getElementById('list-item');
+        if (!template) {
+            console.warn('리스트 템플릿을 찾을 수 없습니다. Thymeleaf fragment가 포함되어 있는지 확인하세요.');
             return false;
         }
-    }
-
-    // 현재 페이지 위치에 따른 템플릿 경로 결정
-    getTemplatePath() {
-        // 절대 경로 사용
-        return '/components/list-item.html';
+        return true;
     }
 
     // 데이터 로드
@@ -164,10 +140,10 @@ class ListLoader {
     // 리스트 렌더링
     async render() {
         try {
-            // 템플릿 로드
+            // 템플릿 확인 (이미 DOM에 있음)
             const templateLoaded = await this.loadTemplate();
             if (!templateLoaded) {
-                throw new Error('템플릿 로드 실패');
+                throw new Error('템플릿을 찾을 수 없습니다');
             }
 
             // 데이터 로드
