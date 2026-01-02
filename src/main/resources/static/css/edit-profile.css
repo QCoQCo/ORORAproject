@@ -1,0 +1,194 @@
+@charset "utf-8";
+
+.edit-profile-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 80px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.edit-profile-container h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2rem;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.profile-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.current-profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.current-profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-image-upload {
+    width: 100%;
+    text-align: center;
+}
+
+.profile-image-upload p {
+    font-size: 16px;
+    color: #1d1d1f;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.form-field p {
+    font-size: 16px;
+    color: #1d1d1f;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.form-field label {
+    display: block;
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    font-size: 16px;
+    height: 45px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-field select {
+    background-color: white;
+    cursor: pointer;
+}
+
+.error-message {
+    color: rgb(219, 24, 24);
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.cancel-btn,
+.submit-btn {
+    flex: 1;
+    height: 50px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.submit-btn {
+    background-color: #667eea;
+    color: white;
+}
+
+.submit-btn:hover {
+    background-color: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#profileImagePreview {
+    margin-top: 15px;
+}
+
+#profileImagePreview img {
+    border: 3px solid #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .edit-profile-container {
+        margin: 40px 20px;
+        padding: 30px 20px;
+    }
+
+    .edit-profile-container h2 {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+    }
+
+    .profile-image-section {
+        padding: 20px;
+    }
+
+    .current-profile-image {
+        width: 120px;
+        height: 120px;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .cancel-btn,
+    .submit-btn {
+        width: 100%;
+    }
+}

@@ -20,24 +20,64 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // 사용자 정보 표시
-function displayUserInfo() {
+async function displayUserInfo() {
     const user = getCurrentUser();
     if (!user) return;
 
-    // 사용자 정보 업데이트
-    document.getElementById('user-name').textContent = user.username;
-    document.getElementById('user-email').textContent = user.email;
+    try {
+        // 최신 사용자 정보를 API에서 가져오기
+        const response = await fetch(`/api/users/${user.id}`);
+        const data = await response.json();
 
-    // 가입일 표시 (join_date가 있는 경우)
-    if (user.join_date) {
-        document.getElementById('join-date').textContent = `가입일: ${user.join_date}`;
-    } else {
-        document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
-    }
+        if (data.success && data.user) {
+            const userInfo = data.user;
 
-    // 프로필 이미지 설정 (있는 경우)
-    if (user.profile_image) {
-        document.getElementById('profile-image').src = user.profile_image;
+            // 사용자 정보 업데이트
+            document.getElementById('user-name').textContent = userInfo.username;
+            document.getElementById('user-email').textContent = userInfo.email;
+
+            // 가입일 표시
+            if (userInfo.join_date) {
+                const joinDate = new Date(userInfo.join_date);
+                document.getElementById('join-date').textContent = `가입일: ${joinDate.toLocaleDateString('ko-KR')}`;
+            } else {
+                document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
+            }
+
+            // 프로필 이미지 설정
+            const profileImageUrl = userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
+            document.getElementById('profile-image').src = profileImageUrl;
+
+            // sessionStorage 업데이트 (최신 정보로)
+            sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+        } else {
+            // API 호출 실패 시 sessionStorage의 정보 사용
+            document.getElementById('user-name').textContent = user.username;
+            document.getElementById('user-email').textContent = user.email;
+
+            if (user.join_date) {
+                document.getElementById('join-date').textContent = `가입일: ${user.join_date}`;
+            } else {
+                document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
+            }
+
+            const profileImageUrl = user.profileImage || user.profile_image || '/images/defaultProfile.png';
+            document.getElementById('profile-image').src = profileImageUrl;
+        }
+    } catch (error) {
+        console.error('사용자 정보 로드 오류:', error);
+        // 에러 발생 시 sessionStorage의 정보 사용
+        document.getElementById('user-name').textContent = user.username;
+        document.getElementById('user-email').textContent = user.email;
+
+        if (user.join_date) {
+            document.getElementById('join-date').textContent = `가입일: ${user.join_date}`;
+        } else {
+            document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
+        }
+
+        const profileImageUrl = user.profileImage || user.profile_image || '/images/defaultProfile.png';
+        document.getElementById('profile-image').src = profileImageUrl;
     }
 }
 
