@@ -7,7 +7,7 @@ function getMapPath() {
     const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
 
     // 루트 디렉토리인 경우
-    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+    if (currentPath === '/' || currentPath === '/index' || currentDir === '') {
         return './images/map.svg';
     }
 
@@ -26,7 +26,7 @@ function getDataPath() {
     const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
 
     // 루트 디렉토리인 경우
-    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+    if (currentPath === '/' || currentPath === '/index' || currentDir === '') {
         return './data/';
     }
 

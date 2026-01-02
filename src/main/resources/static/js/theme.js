@@ -554,7 +554,7 @@ class ThemeCarousel {
     // 상세 페이지로 이동하는 함수
     navigateToDetail(itemData) {
         const encodedTitle = encodeURIComponent(itemData.title);
-        window.location.href = `../detailed/detailed.html?title=${encodedTitle}`;
+        window.location.href = `../detailed/detailed?title=${encodedTitle}`;
     }
 
     updateMoreButton(carouselId, totalItems) {
