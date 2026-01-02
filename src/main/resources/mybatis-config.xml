@@ -12,5 +12,6 @@
     <typeAliases>
         <typeAlias type="com.busan.orora.user.dto.UserDto" alias="UserDto" />
         <typeAlias type="com.busan.orora.spot.dto.SpotDto" alias="SpotDto" />
+        <typeAlias type="com.busan.orora.hashtag.dto.HashtagDto" alias="HashtagDto" />
     </typeAliases>
 </configuration>
