@@ -77,7 +77,7 @@ async function initializeAdmin() {
     // 관리자 권한 확인
     if (!isAdmin()) {
         alert('관리자 권한이 필요합니다.');
-        window.location.href = '/index.html';
+        window.location.href = '/';
         return;
     }
 
@@ -186,6 +186,12 @@ function initializeTabs() {
             // 사용자 관리 탭을 클릭한 경우 사용자 목록 표시
             if (targetTab === 'users') {
                 displayUsers();
+            }
+
+            // 공통코드 관리 탭을 클릭한 경우 공통코드 목록 표시
+            if (targetTab === 'common-codes') {
+                loadCommonCodeGroups();
+                loadCommonCodes();
             }
         });
     });
@@ -1309,7 +1315,15 @@ document.addEventListener('keydown', function (event) {
 
     // ESC로 모달 닫기
     if (event.key === 'Escape') {
-        const modals = ['edit-modal', 'add-user-modal', 'edit-user-modal'];
+        const modals = [
+            'edit-modal',
+            'add-user-modal',
+            'edit-user-modal',
+            'add-group-modal',
+            'edit-group-modal',
+            'add-code-modal',
+            'edit-code-modal',
+        ];
         modals.forEach((modalId) => {
             const modal = document.getElementById(modalId);
             if (modal && modal.style.display === 'block') {
@@ -1318,4 +1332,495 @@ document.addEventListener('keydown', function (event) {
         });
     }
 });
+
+// ========== 공통코드 관리 기능 ==========
+
+// 전역 변수
+let commonCodeGroups = [];
+let commonCodes = [];
+let currentEditGroupId = null;
+let currentEditCodeId = null;
+
+// 코드 그룹 목록 로드
+async function loadCommonCodeGroups() {
+    try {
+        const response = await fetch('/api/admin/common-code-groups');
+        const data = await response.json();
+
+        if (data.success && data.groups) {
+            commonCodeGroups = data.groups;
+            displayCodeGroups();
+            updateGroupFilter();
+            updateCodeGroupSelect();
+        } else {
+            throw new Error(data.message || '코드 그룹 목록을 불러오는데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 그룹 데이터 로드 실패:', error);
+        showNotification('코드 그룹 목록을 불러오는데 실패했습니다.', 'error');
+        commonCodeGroups = [];
+    }
+}
+
+// 코드 목록 로드
+async function loadCommonCodes(groupCode = null) {
+    try {
+        const url = groupCode
+            ? `/api/admin/common-codes?groupCode=${encodeURIComponent(groupCode)}`
+            : '/api/admin/common-codes';
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.success && data.codes) {
+            commonCodes = data.codes;
+            displayCodes();
+        } else {
+            throw new Error(data.message || '코드 목록을 불러오는데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 데이터 로드 실패:', error);
+        showNotification('코드 목록을 불러오는데 실패했습니다.', 'error');
+        commonCodes = [];
+    }
+}
+
+// 코드 그룹 목록 표시
+function displayCodeGroups() {
+    const grid = document.getElementById('code-groups-grid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+
+    if (commonCodeGroups.length === 0) {
+        grid.innerHTML = '<p>등록된 코드 그룹이 없습니다.</p>';
+        return;
+    }
+
+    commonCodeGroups.forEach((group) => {
+        const card = document.createElement('div');
+        card.className = 'code-group-card';
+        card.innerHTML = `
+            <div class="code-group-header">
+                <h4>${group.groupName}</h4>
+                <span class="code-group-code">${group.groupCode}</span>
+            </div>
+            <div class="code-group-info">
+                <p><strong>영어:</strong> ${group.groupNameEn || '-'}</p>
+                <p><strong>일본어:</strong> ${group.groupNameJp || '-'}</p>
+                <p><strong>설명:</strong> ${group.description || '-'}</p>
+                <p><strong>상태:</strong> ${group.isActive ? '활성' : '비활성'}</p>
+                <p><strong>정렬 순서:</strong> ${group.sortOrder || 0}</p>
+            </div>
+            <div class="code-group-actions">
+                <button class="edit-btn" onclick="openEditGroupModal(${group.id})">수정</button>
+                <button class="delete-btn" onclick="deleteCodeGroup(${group.id})">삭제</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// 코드 목록 표시
+function displayCodes() {
+    const tbody = document.getElementById('codes-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (commonCodes.length === 0) {
+        tbody.innerHTML =
+            '<tr><td colspan="9" style="text-align: center;">등록된 코드가 없습니다.</td></tr>';
+        return;
+    }
+
+    commonCodes.forEach((code) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${code.id}</td>
+            <td>${code.groupCode}</td>
+            <td>${code.code}</td>
+            <td>${code.codeName || '-'}</td>
+            <td>${code.codeNameEn || '-'}</td>
+            <td>${code.codeNameJp || '-'}</td>
+            <td>${code.sortOrder || 0}</td>
+            <td>${code.isActive ? '활성' : '비활성'}</td>
+            <td>
+                <button class="edit-btn" onclick="openEditCodeModal(${code.id})">수정</button>
+                <button class="delete-btn" onclick="deleteCode(${code.id})">삭제</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 그룹 필터 업데이트
+function updateGroupFilter() {
+    const filter = document.getElementById('code-group-filter');
+    if (!filter) return;
+
+    // 기존 옵션 제거 (전체 그룹 제외)
+    while (filter.children.length > 1) {
+        filter.removeChild(filter.lastChild);
+    }
+
+    commonCodeGroups.forEach((group) => {
+        const option = document.createElement('option');
+        option.value = group.groupCode;
+        option.textContent = `${group.groupName} (${group.groupCode})`;
+        filter.appendChild(option);
+    });
+
+    // 필터 변경 이벤트
+    filter.addEventListener('change', (e) => {
+        const selectedGroupCode = e.target.value;
+        loadCommonCodes(selectedGroupCode || null);
+    });
+}
+
+// 코드 그룹 선택 드롭다운 업데이트
+function updateCodeGroupSelect() {
+    const select = document.getElementById('new-code-group-code');
+    if (!select) return;
+
+    // 기존 옵션 제거 (그룹 선택 제외)
+    while (select.children.length > 1) {
+        select.removeChild(select.lastChild);
+    }
+
+    commonCodeGroups.forEach((group) => {
+        const option = document.createElement('option');
+        option.value = group.groupCode;
+        option.textContent = `${group.groupName} (${group.groupCode})`;
+        select.appendChild(option);
+    });
+}
+
+// 코드 그룹 추가 모달 열기
+function openAddGroupModal() {
+    const modal = document.getElementById('add-group-modal');
+    if (!modal) {
+        setTimeout(() => openAddGroupModal(), 100);
+        return;
+    }
+    modal.style.display = 'block';
+    document.getElementById('add-group-form').reset();
+}
+
+// 코드 그룹 수정 모달 열기
+function openEditGroupModal(groupId) {
+    const group = commonCodeGroups.find((g) => g.id === groupId);
+    if (!group) {
+        showNotification('코드 그룹을 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    const modal = document.getElementById('edit-group-modal');
+    if (!modal) {
+        setTimeout(() => openEditGroupModal(groupId), 100);
+        return;
+    }
+
+    currentEditGroupId = groupId;
+    document.getElementById('edit-group-code').value = group.groupCode;
+    document.getElementById('edit-group-name').value = group.groupName || '';
+    document.getElementById('edit-group-name-en').value = group.groupNameEn || '';
+    document.getElementById('edit-group-name-jp').value = group.groupNameJp || '';
+    document.getElementById('edit-group-description').value = group.description || '';
+    document.getElementById('edit-group-sort-order').value = group.sortOrder || 0;
+    document.getElementById('edit-group-active').value = group.isActive ? 'true' : 'false';
+    modal.style.display = 'block';
+}
+
+// 코드 추가 모달 열기
+function openAddCodeModal() {
+    const modal = document.getElementById('add-code-modal');
+    if (!modal) {
+        setTimeout(() => openAddCodeModal(), 100);
+        return;
+    }
+    modal.style.display = 'block';
+    document.getElementById('add-code-form').reset();
+}
+
+// 코드 수정 모달 열기
+function openEditCodeModal(codeId) {
+    const code = commonCodes.find((c) => c.id === codeId);
+    if (!code) {
+        showNotification('코드를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    const modal = document.getElementById('edit-code-modal');
+    if (!modal) {
+        setTimeout(() => openEditCodeModal(codeId), 100);
+        return;
+    }
+
+    currentEditCodeId = codeId;
+    document.getElementById('edit-code-group-code').value = code.groupCode;
+    document.getElementById('edit-code-code').value = code.code;
+    document.getElementById('edit-code-name').value = code.codeName || '';
+    document.getElementById('edit-code-name-en').value = code.codeNameEn || '';
+    document.getElementById('edit-code-name-jp').value = code.codeNameJp || '';
+    document.getElementById('edit-code-description').value = code.description || '';
+    document.getElementById('edit-code-sort-order').value = code.sortOrder || 0;
+    document.getElementById('edit-code-active').value = code.isActive ? 'true' : 'false';
+    modal.style.display = 'block';
+}
+
+// 코드 그룹 추가
+async function handleAddGroup(event) {
+    event.preventDefault();
+    try {
+        const formData = {
+            groupCode: document.getElementById('new-group-code').value,
+            groupName: document.getElementById('new-group-name').value,
+            groupNameEn: document.getElementById('new-group-name-en').value,
+            groupNameJp: document.getElementById('new-group-name-jp').value,
+            description: document.getElementById('new-group-description').value,
+            sortOrder: parseInt(document.getElementById('new-group-sort-order').value) || 0,
+        };
+
+        const response = await fetch('/api/admin/common-code-groups', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드 그룹이 추가되었습니다.', 'success');
+            document.getElementById('add-group-modal').style.display = 'none';
+            await loadCommonCodeGroups();
+        } else {
+            throw new Error(data.message || '코드 그룹 추가에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 그룹 추가 실패:', error);
+        showNotification(error.message || '코드 그룹 추가에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 그룹 수정
+async function handleEditGroup(event) {
+    event.preventDefault();
+    try {
+        const formData = {
+            groupName: document.getElementById('edit-group-name').value,
+            groupNameEn: document.getElementById('edit-group-name-en').value,
+            groupNameJp: document.getElementById('edit-group-name-jp').value,
+            description: document.getElementById('edit-group-description').value,
+            sortOrder: parseInt(document.getElementById('edit-group-sort-order').value) || 0,
+            isActive: document.getElementById('edit-group-active').value === 'true',
+        };
+
+        const response = await fetch(`/api/admin/common-code-groups/${currentEditGroupId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드 그룹이 수정되었습니다.', 'success');
+            document.getElementById('edit-group-modal').style.display = 'none';
+            await loadCommonCodeGroups();
+        } else {
+            throw new Error(data.message || '코드 그룹 수정에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 그룹 수정 실패:', error);
+        showNotification(error.message || '코드 그룹 수정에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 그룹 삭제
+async function deleteCodeGroup(groupId) {
+    if (
+        !confirm('코드 그룹을 삭제하면 해당 그룹의 모든 코드도 삭제됩니다. 정말 삭제하시겠습니까?')
+    ) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/common-code-groups/${groupId}`, {
+            method: 'DELETE',
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드 그룹이 삭제되었습니다.', 'success');
+            await loadCommonCodeGroups();
+            await loadCommonCodes();
+        } else {
+            throw new Error(data.message || '코드 그룹 삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 그룹 삭제 실패:', error);
+        showNotification(error.message || '코드 그룹 삭제에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 추가
+async function handleAddCode(event) {
+    event.preventDefault();
+    try {
+        const formData = {
+            groupCode: document.getElementById('new-code-group-code').value,
+            code: document.getElementById('new-code-code').value,
+            codeName: document.getElementById('new-code-name').value,
+            codeNameEn: document.getElementById('new-code-name-en').value,
+            codeNameJp: document.getElementById('new-code-name-jp').value,
+            description: document.getElementById('new-code-description').value,
+            sortOrder: parseInt(document.getElementById('new-code-sort-order').value) || 0,
+        };
+
+        const response = await fetch('/api/admin/common-codes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드가 추가되었습니다.', 'success');
+            document.getElementById('add-code-modal').style.display = 'none';
+            await loadCommonCodes();
+        } else {
+            throw new Error(data.message || '코드 추가에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 추가 실패:', error);
+        showNotification(error.message || '코드 추가에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 수정
+async function handleEditCode(event) {
+    event.preventDefault();
+    try {
+        const formData = {
+            codeName: document.getElementById('edit-code-name').value,
+            codeNameEn: document.getElementById('edit-code-name-en').value,
+            codeNameJp: document.getElementById('edit-code-name-jp').value,
+            description: document.getElementById('edit-code-description').value,
+            sortOrder: parseInt(document.getElementById('edit-code-sort-order').value) || 0,
+            isActive: document.getElementById('edit-code-active').value === 'true',
+        };
+
+        const response = await fetch(`/api/admin/common-codes/${currentEditCodeId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드가 수정되었습니다.', 'success');
+            document.getElementById('edit-code-modal').style.display = 'none';
+            await loadCommonCodes();
+        } else {
+            throw new Error(data.message || '코드 수정에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 수정 실패:', error);
+        showNotification(error.message || '코드 수정에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 삭제
+async function deleteCode(codeId) {
+    if (!confirm('코드를 삭제하시겠습니까?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/common-codes/${codeId}`, {
+            method: 'DELETE',
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드가 삭제되었습니다.', 'success');
+            await loadCommonCodes();
+        } else {
+            throw new Error(data.message || '코드 삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 삭제 실패:', error);
+        showNotification(error.message || '코드 삭제에 실패했습니다.', 'error');
+    }
+}
+
+// 전역 스코프에 함수 바인딩
+window.openAddGroupModal = openAddGroupModal;
+window.openEditGroupModal = openEditGroupModal;
+window.openAddCodeModal = openAddCodeModal;
+window.openEditCodeModal = openEditCodeModal;
+window.deleteCodeGroup = deleteCodeGroup;
+window.deleteCode = deleteCode;
+
+// 모달 닫기 이벤트 리스너
+document.addEventListener('DOMContentLoaded', function () {
+    // 코드 그룹 추가 모달
+    const addGroupModal = document.getElementById('add-group-modal');
+    if (addGroupModal) {
+        const closeBtn = document.getElementById('close-add-group-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                addGroupModal.style.display = 'none';
+            });
+        }
+        const addGroupForm = document.getElementById('add-group-form');
+        if (addGroupForm) {
+            addGroupForm.addEventListener('submit', handleAddGroup);
+        }
+    }
+
+    // 코드 그룹 수정 모달
+    const editGroupModal = document.getElementById('edit-group-modal');
+    if (editGroupModal) {
+        const closeBtn = document.getElementById('close-edit-group-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                editGroupModal.style.display = 'none';
+            });
+        }
+        const editGroupForm = document.getElementById('edit-group-form');
+        if (editGroupForm) {
+            editGroupForm.addEventListener('submit', handleEditGroup);
+        }
+    }
+
+    // 코드 추가 모달
+    const addCodeModal = document.getElementById('add-code-modal');
+    if (addCodeModal) {
+        const closeBtn = document.getElementById('close-add-code-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                addCodeModal.style.display = 'none';
+            });
+        }
+        const addCodeForm = document.getElementById('add-code-form');
+        if (addCodeForm) {
+            addCodeForm.addEventListener('submit', handleAddCode);
+        }
+    }
+
+    // 코드 수정 모달
+    const editCodeModal = document.getElementById('edit-code-modal');
+    if (editCodeModal) {
+        const closeBtn = document.getElementById('close-edit-code-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                editCodeModal.style.display = 'none';
+            });
+        }
+        const editCodeForm = document.getElementById('edit-code-form');
+        if (editCodeForm) {
+            editCodeForm.addEventListener('submit', handleEditCode);
+        }
+    }
+});
+
 //관리자로 로그인 후 관리자 페이지 접근시 헤더에서 로그인 버튼이 표시되는 버그

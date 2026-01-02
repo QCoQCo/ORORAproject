@@ -562,6 +562,7 @@
 .user-delete-btn,
 .user-toggle-btn {
     padding: 6px 12px;
+    width: 70px;
     border: none;
     border-radius: 6px;
     font-size: 0.8rem;
@@ -700,110 +701,110 @@
     .admin-page {
         padding: 20px 0;
     }
-    
+
     .admin-page .container {
         padding: 0 15px;
     }
-    
+
     .admin-header {
         padding: 20px;
         margin-bottom: 30px;
     }
-    
+
     .admin-header h1 {
         font-size: 2rem;
     }
-    
+
     .admin-tabs {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .tab-btn {
         margin: 0;
         padding: 12px 20px;
     }
-    
+
     .tab-content {
         padding: 20px;
     }
-    
+
     .search-filter {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .tourist-spots-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .chart-container {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .modal-content {
         margin: 10% auto;
         padding: 20px;
         width: 95%;
     }
-    
+
     .users-controls {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .add-user-btn {
         width: 100%;
         margin-top: 15px;
     }
-    
+
     .users-table th,
     .users-table td {
         padding: 8px 6px;
         font-size: 0.8rem;
     }
-    
+
     .user-actions {
         flex-direction: column;
         gap: 4px;
     }
-    
+
     .user-edit-btn,
     .user-delete-btn,
     .user-toggle-btn {
         font-size: 0.7rem;
         padding: 4px 8px;
     }
-    
+
     .users-pagination {
         flex-wrap: wrap;
         gap: 5px;
     }
-    
+
     .pagination-btn {
         padding: 8px 12px;
         font-size: 0.8rem;
     }
-    
+
     .export-buttons {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .export-btn {
         width: 100%;
         max-width: 300px;
     }
-    
+
     .export-info {
         padding: 15px;
     }
-    
+
     .export-info ul {
         padding-left: 15px;
     }
@@ -813,11 +814,11 @@
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .spot-actions {
         flex-direction: column;
     }
-    
+
     .admin-header h1 {
         font-size: 1.8rem;
     }

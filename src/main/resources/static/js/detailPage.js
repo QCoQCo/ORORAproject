@@ -498,9 +498,9 @@ function initBackButton() {
                 // 현재 경로에 따라 메인 페이지 경로 결정
                 const currentPath = window.location.pathname;
                 if (currentPath.includes('/pages/')) {
-                    window.location.href = '../../index.html';
+                    window.location.href = '../../';
                 } else {
-                    window.location.href = './index.html';
+                    window.location.href = './';
                 }
             }
         });
