@@ -35,11 +35,11 @@
                                     JOIN    tourist_spot_hashtags tsh   ON ts.id = tsh.tourist_spot_id
                                     JOIN    hashtags h                  ON tsh.hashtag_id = h.id
         WHERE r.sigungu_code IN
-        <foreach collection="regionIds"
-                item="id"
-                open="("
-                separator=","
-                close=")">
+        <foreach collection="list"
+             item="id"
+             open="("
+             separator=","
+             close=")">
             #{id}
         </foreach>
         AND tsi.rep_img_yn = 'Y'

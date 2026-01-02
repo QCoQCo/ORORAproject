@@ -30,7 +30,7 @@ public class RegionService {
         return regionMapper.searchSpotsByRegion(regionId);
     };
 
-    public List<SearchSpotsByRegionDto> searchSpotsByRegionIds(List<Long> regionIds) {
+    public List<SearchSpotsByRegionDto> searchSpotsByRegionIds(List<Integer> regionIds) {
         return regionMapper.searchSpotsByRegionIds(regionIds);
     };
 }
