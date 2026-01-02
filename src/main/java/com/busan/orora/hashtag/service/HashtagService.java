@@ -19,6 +19,10 @@ public class HashtagService {
         return hashtagMapper.findHashtagById(id);
     }
 
+    public HashtagDto getHashtagByName(String name) {
+        return hashtagMapper.findHashtagByName(name);
+    }
+
     public List<HashtagDto> getHashtagsBySpotId(Long spotId) {
         return hashtagMapper.findHashtagsBySpotId(spotId);
     }
