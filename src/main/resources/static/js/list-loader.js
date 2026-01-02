@@ -50,9 +50,9 @@ class ListLoader {
 
         // 현재 경로에 따라 상세 페이지 경로 결정
         if (currentPath.includes('/pages/')) {
-            detailPagePath = '../detailed/detailed.html';
+            detailPagePath = '../detailed/detailed';
         } else {
-            detailPagePath = './pages/detailed/detailed.html';
+            detailPagePath = './pages/detailed/detailed';
         }
 
         // 관광지 제목을 URL 파라미터로 전달

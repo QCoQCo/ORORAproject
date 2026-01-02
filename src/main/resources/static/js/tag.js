@@ -517,7 +517,7 @@ class TagSearchSystem {
     navigateToDetail(spot) {
         const encodedTitle = encodeURIComponent(spot.title);
         // Thymeleaf 경로 사용
-        window.location.href = `/pages/detailed/detailed.html?title=${encodedTitle}`;
+        window.location.href = `/pages/detailed/detailed?title=${encodedTitle}`;
     }
 
     loadMore() {
