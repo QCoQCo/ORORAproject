@@ -8,6 +8,8 @@ import java.util.List;
 @Mapper
 public interface SpotMapper {
     void insertSpot(SpotDto spotDto);
+    void updateSpot(SpotDto spotDto);
+    void deleteSpot(@Param("id") Long id);
     List<SpotDto> findAllSpots();
     List<SpotDto> findSpotsByRegion(@Param("regionId") Long regionId);
     SpotDto findSpotById(@Param("id") Long id);
