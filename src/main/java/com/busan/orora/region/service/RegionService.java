@@ -1,6 +1,7 @@
 package com.busan.orora.region.service;
 
 import com.busan.orora.region.dto.RegionDto;
+import com.busan.orora.region.dto.SearchSpotsByRegionDto;
 import com.busan.orora.region.mapper.RegionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,4 +23,12 @@ public class RegionService {
     public RegionDto getRegionByAreaCode(Integer areaCode) {
         return regionMapper.findRegionByAreaCode(areaCode);
     }
+
+    public List<SearchSpotsByRegionDto> searchSpotsByRegion(Long regionId) {
+        
+
+        return regionMapper.searchSpotsByRegion(regionId);
+    };
+
+    
 }
