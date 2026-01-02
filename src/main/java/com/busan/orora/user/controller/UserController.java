@@ -21,21 +21,15 @@ public class UserController {
     private UserService userService;
 
     // 로그인 페이지
-    @GetMapping("/pages/login/login.html")
+    @GetMapping("/pages/login/login")
     public String loginPage() {
         return "pages/login/login";
     }
 
     // 회원가입 페이지
-    @GetMapping("/pages/login/signup.html")
+    @GetMapping("/pages/login/signup")
     public String signupPage() {
         return "pages/login/signup";
-    }
-
-    // 관리자 페이지
-    @GetMapping("/pages/admin/admin.html")
-    public String adminPage() {
-        return "pages/admin/admin";
     }
 
     // 로그인 API
@@ -218,7 +212,7 @@ public class UserController {
     }
 
     // 프로필 수정 페이지
-    @GetMapping("/pages/mypage/edit-profile.html")
+    @GetMapping("/pages/mypage/edit-profile")
     public String editProfilePage() {
         return "pages/mypage/edit-profile";
     }

@@ -7,6 +7,10 @@ import com.busan.orora.user.service.UserService;
 import com.busan.orora.hashtag.service.HashtagService;
 import com.busan.orora.hashtag.dto.HashtagDto;
 import com.busan.orora.hashtag.mapper.HashtagMapper;
+import com.busan.orora.commoncode.dto.CommonCodeGroupDto;
+import com.busan.orora.commoncode.dto.CommonCodeDto;
+import com.busan.orora.commoncode.service.CommonCodeGroupService;
+import com.busan.orora.commoncode.service.CommonCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +34,12 @@ public class AdminController {
 
     @Autowired
     private HashtagMapper hashtagMapper;
+
+    @Autowired
+    private CommonCodeGroupService commonCodeGroupService;
+
+    @Autowired
+    private CommonCodeService commonCodeService;
 
     // 관광지 목록 조회
     @GetMapping("/tourist-spots")
@@ -292,6 +302,232 @@ public class AdminController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "사용자 삭제에 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // ========== 공통코드 관리 API ==========
+
+    // 코드 그룹 목록 조회
+    @GetMapping("/common-code-groups")
+    @ResponseBody
+    public Map<String, Object> getCommonCodeGroups() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<CommonCodeGroupDto> groups = commonCodeGroupService.getAllGroups();
+            response.put("success", true);
+            response.put("groups", groups);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "코드 그룹 목록을 불러오는데 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 코드 그룹 추가
+    @PostMapping("/common-code-groups")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> addCommonCodeGroup(@RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            CommonCodeGroupDto groupDto = new CommonCodeGroupDto();
+            groupDto.setGroupCode((String) request.get("groupCode"));
+            groupDto.setGroupName((String) request.get("groupName"));
+            groupDto.setGroupNameEn((String) request.get("groupNameEn"));
+            groupDto.setGroupNameJp((String) request.get("groupNameJp"));
+            groupDto.setDescription((String) request.get("description"));
+            if (request.get("isActive") != null) {
+                groupDto.setIsActive((Boolean) request.get("isActive"));
+            }
+            if (request.get("sortOrder") != null) {
+                groupDto.setSortOrder(((Number) request.get("sortOrder")).intValue());
+            }
+
+            commonCodeGroupService.addGroup(groupDto);
+            response.put("success", true);
+            response.put("group", groupDto);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "코드 그룹 추가에 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 코드 그룹 수정
+    @PutMapping("/common-code-groups/{groupId}")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> updateCommonCodeGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            CommonCodeGroupDto groupDto = commonCodeGroupService.getGroupById(groupId);
+            if (groupDto == null) {
+                response.put("success", false);
+                response.put("message", "코드 그룹을 찾을 수 없습니다.");
+                return response;
+            }
+
+            if (request.get("groupName") != null) {
+                groupDto.setGroupName((String) request.get("groupName"));
+            }
+            if (request.get("groupNameEn") != null) {
+                groupDto.setGroupNameEn((String) request.get("groupNameEn"));
+            }
+            if (request.get("groupNameJp") != null) {
+                groupDto.setGroupNameJp((String) request.get("groupNameJp"));
+            }
+            if (request.get("description") != null) {
+                groupDto.setDescription((String) request.get("description"));
+            }
+            if (request.get("isActive") != null) {
+                groupDto.setIsActive((Boolean) request.get("isActive"));
+            }
+            if (request.get("sortOrder") != null) {
+                groupDto.setSortOrder(((Number) request.get("sortOrder")).intValue());
+            }
+
+            commonCodeGroupService.updateGroup(groupDto);
+            response.put("success", true);
+            response.put("group", groupDto);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "코드 그룹 수정에 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 코드 그룹 삭제
+    @DeleteMapping("/common-code-groups/{groupId}")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> deleteCommonCodeGroup(@PathVariable Long groupId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            commonCodeGroupService.deleteGroup(groupId);
+            response.put("success", true);
+            response.put("message", "코드 그룹이 삭제되었습니다.");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "코드 그룹 삭제에 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 코드 목록 조회 (그룹별)
+    @GetMapping("/common-codes")
+    @ResponseBody
+    public Map<String, Object> getCommonCodes(@RequestParam(required = false) String groupCode) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<CommonCodeDto> codes;
+            if (groupCode != null && !groupCode.isEmpty()) {
+                codes = commonCodeService.getCodesByGroupCode(groupCode);
+            } else {
+                codes = commonCodeService.getAllCodes();
+            }
+            response.put("success", true);
+            response.put("codes", codes);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "코드 목록을 불러오는데 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 코드 추가
+    @PostMapping("/common-codes")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> addCommonCode(@RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            CommonCodeDto codeDto = new CommonCodeDto();
+            codeDto.setGroupCode((String) request.get("groupCode"));
+            codeDto.setCode((String) request.get("code"));
+            codeDto.setCodeName((String) request.get("codeName"));
+            codeDto.setCodeNameEn((String) request.get("codeNameEn"));
+            codeDto.setCodeNameJp((String) request.get("codeNameJp"));
+            codeDto.setDescription((String) request.get("description"));
+            if (request.get("isActive") != null) {
+                codeDto.setIsActive((Boolean) request.get("isActive"));
+            }
+            if (request.get("sortOrder") != null) {
+                codeDto.setSortOrder(((Number) request.get("sortOrder")).intValue());
+            }
+            if (request.get("extraData") != null) {
+                codeDto.setExtraData((String) request.get("extraData"));
+            }
+
+            commonCodeService.addCode(codeDto);
+            response.put("success", true);
+            response.put("code", codeDto);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "코드 추가에 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 코드 수정
+    @PutMapping("/common-codes/{codeId}")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> updateCommonCode(@PathVariable Long codeId, @RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            CommonCodeDto codeDto = commonCodeService.getCodeById(codeId);
+            if (codeDto == null) {
+                response.put("success", false);
+                response.put("message", "코드를 찾을 수 없습니다.");
+                return response;
+            }
+
+            if (request.get("codeName") != null) {
+                codeDto.setCodeName((String) request.get("codeName"));
+            }
+            if (request.get("codeNameEn") != null) {
+                codeDto.setCodeNameEn((String) request.get("codeNameEn"));
+            }
+            if (request.get("codeNameJp") != null) {
+                codeDto.setCodeNameJp((String) request.get("codeNameJp"));
+            }
+            if (request.get("description") != null) {
+                codeDto.setDescription((String) request.get("description"));
+            }
+            if (request.get("isActive") != null) {
+                codeDto.setIsActive((Boolean) request.get("isActive"));
+            }
+            if (request.get("sortOrder") != null) {
+                codeDto.setSortOrder(((Number) request.get("sortOrder")).intValue());
+            }
+            if (request.get("extraData") != null) {
+                codeDto.setExtraData((String) request.get("extraData"));
+            }
+
+            commonCodeService.updateCode(codeDto);
+            response.put("success", true);
+            response.put("code", codeDto);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "코드 수정에 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 코드 삭제
+    @DeleteMapping("/common-codes/{codeId}")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> deleteCommonCode(@PathVariable Long codeId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            commonCodeService.deleteCode(codeId);
+            response.put("success", true);
+            response.put("message", "코드가 삭제되었습니다.");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "코드 삭제에 실패했습니다: " + e.getMessage());
         }
         return response;
     }

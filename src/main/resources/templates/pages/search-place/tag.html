@@ -23,7 +23,7 @@
                         >
                         <select name="category" id="category-filter">
                             <option value="all" data-translate="tag.category_all">전체</option>
-                            <option value="attraction" data-translate="tag.category_attraction">
+                            <option value="attraction" data-translate="tag.category_attr">
                                 관광명소
                             </option>
                             <option value="nature" data-translate="tag.category_nature">
@@ -94,6 +94,9 @@
                         </h3>
                         <div class="all-tags collapsible" id="all-tags">
                             <!-- 동적으로 생성됩니다 -->
+                             <ul>
+                                <li th:each="tag : ${hashtags}" th:text="${tag.name}">해시태그 이름</li>
+                            </ul>
                         </div>
                     </div>
 
@@ -161,7 +164,7 @@
 
                     <!-- 로고 -->
                     <div class="main-brand-story-wrap">
-                        <a class="main-brand-story-wrap--inner" href="../../index.html">
+                        <a class="main-brand-story-wrap--inner" href="../../">
                             <img src="../../images/logo.png" alt="부산 관광 로고" />
                         </a>
                     </div>

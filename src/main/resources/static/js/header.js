@@ -179,8 +179,8 @@ function performSearch() {
     if (searchTerm) {
         console.log('검색어:', searchTerm);
 
-        // 검색 페이지로 이동 (태그 검색 페이지 사용)
-        window.location.href = `/pages/search-place/tag.html?search=${encodeURIComponent(searchTerm)}`;
+        // 통합 검색 페이지로 이동
+        window.location.href = `/pages/search-place/search?q=${encodeURIComponent(searchTerm)}`;
 
         // 검색 박스 닫기
         searchBox.classList.remove('active');

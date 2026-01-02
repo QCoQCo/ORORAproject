@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 로그인 상태 확인
     if (!isLoggedIn()) {
         alert('로그인이 필요합니다.');
-        window.location.href = '/pages/login/login.html';
+        window.location.href = '/pages/login/login';
         return;
     }
 
@@ -261,7 +261,7 @@ function createReviewHTML(review) {
                     <span class="stars">${stars}</span>
                     <span>${review.rating}/5</span>
                 </div>
-                <a href="/pages/detailed/detailed.html?title=${
+                <a href="/pages/detailed/detailed?title=${
                     review.tourist_spot_name
                 }" class="tourist-spot">
                     ${review.tourist_spot_name}
@@ -282,7 +282,7 @@ function createCommentHTML(comment) {
             </div>
             <div class="item-content">${comment.content}</div>
             <div class="item-meta">
-                <a href="/pages/detailed/detailed.html?id=${
+                <a href="/pages/detailed/detailed?id=${
                     comment.tourist_spot_id
                 }" class="tourist-spot">
                     ${comment.tourist_spot_name}
@@ -302,7 +302,7 @@ function createLikeHTML(like) {
             </div>
             <div class="item-content">${like.description || '좋아요한 관광지입니다.'}</div>
             <div class="item-meta">
-                <a href="/pages/detailed/detailed.html?id=${
+                <a href="/pages/detailed/detailed?id=${
                     like.tourist_spot_id
                 }" class="tourist-spot">
                     자세히 보기
