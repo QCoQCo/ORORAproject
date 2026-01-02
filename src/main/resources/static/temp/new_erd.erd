@@ -4,7 +4,7 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -129.1649,
+    "scrollTop": -128.1649,
     "scrollLeft": -376.9645,
     "zoomLevel": 1,
     "show": 431,
@@ -44,8 +44,7 @@
       "Xbgy2E8cTplG44kY-9PNn",
       "TstSpImgsTbl2025",
       "RvwImgsTbl2025",
-      "RvwRptsTbl2025",
-      "UsrPrfImgsTbl2025"
+      "RvwRptsTbl2025"
     ],
     "relationshipIds": [
       "i4FySu7aFAYUPuJtTitKR",
@@ -61,7 +60,6 @@
       "s46iQb1eM8JL-FfA2gZ02",
       "TstSpImgsRel2025",
       "RvwImgsRel2025",
-      "UsrPrfImgsRel2025",
       "RvwRptsUsrRel2025",
       "RvwRptsRvwRel2025",
       "RelCCGCC2025",
@@ -501,41 +499,6 @@
         },
         "meta": {
           "updateAt": 1767079973864,
-          "createAt": 1767018316001
-        }
-      },
-      "UsrPrfImgsTbl2025": {
-        "id": "UsrPrfImgsTbl2025",
-        "name": "user_profile_images",
-        "comment": "",
-        "columnIds": [
-          "UsrPrfImgsId2025",
-          "UsrPrfImgsImgName2025",
-          "UsrPrfImgsOriImgName2025",
-          "UsrPrfImgsUsrId2025",
-          "UsrPrfImgsImgUrl2025",
-          "UsrPrfImgsRegTime2025",
-          "UsrPrfImgsUpdTime2025"
-        ],
-        "seqColumnIds": [
-          "UsrPrfImgsId2025",
-          "UsrPrfImgsImgName2025",
-          "UsrPrfImgsOriImgName2025",
-          "UsrPrfImgsUsrId2025",
-          "UsrPrfImgsImgUrl2025",
-          "UsrPrfImgsRegTime2025",
-          "UsrPrfImgsUpdTime2025"
-        ],
-        "ui": {
-          "x": 300,
-          "y": 1200,
-          "zIndex": 2,
-          "widthName": 118,
-          "widthComment": 60,
-          "color": ""
-        },
-        "meta": {
-          "updateAt": 1767079963797,
           "createAt": 1767018316001
         }
       },
@@ -2167,146 +2130,6 @@
           "createAt": 1767079963797
         }
       },
-      "UsrPrfImgsId2025": {
-        "id": "UsrPrfImgsId2025",
-        "tableId": "UsrPrfImgsTbl2025",
-        "name": "id",
-        "comment": "",
-        "dataType": "INT",
-        "default": "",
-        "options": 11,
-        "ui": {
-          "keys": 1,
-          "widthName": 60,
-          "widthComment": 60,
-          "widthDataType": 60,
-          "widthDefault": 60
-        },
-        "meta": {
-          "updateAt": 1767018462736,
-          "createAt": 1767018316001
-        }
-      },
-      "UsrPrfImgsImgName2025": {
-        "id": "UsrPrfImgsImgName2025",
-        "tableId": "UsrPrfImgsTbl2025",
-        "name": "img_name",
-        "comment": "저장된 파일명",
-        "dataType": "VARCHAR(255)",
-        "default": "",
-        "options": 0,
-        "ui": {
-          "keys": 0,
-          "widthName": 60,
-          "widthComment": 60,
-          "widthDataType": 90,
-          "widthDefault": 60
-        },
-        "meta": {
-          "updateAt": 1767079963797,
-          "createAt": 1767079963797
-        }
-      },
-      "UsrPrfImgsOriImgName2025": {
-        "id": "UsrPrfImgsOriImgName2025",
-        "tableId": "UsrPrfImgsTbl2025",
-        "name": "ori_img_name",
-        "comment": "원본 파일명",
-        "dataType": "VARCHAR(255)",
-        "default": "",
-        "options": 0,
-        "ui": {
-          "keys": 0,
-          "widthName": 60,
-          "widthComment": 60,
-          "widthDataType": 90,
-          "widthDefault": 60
-        },
-        "meta": {
-          "updateAt": 1767079963797,
-          "createAt": 1767079963797
-        }
-      },
-      "UsrPrfImgsUsrId2025": {
-        "id": "UsrPrfImgsUsrId2025",
-        "tableId": "UsrPrfImgsTbl2025",
-        "name": "user_id",
-        "comment": "",
-        "dataType": "INT",
-        "default": "ON DELETE CASCADE",
-        "options": 8,
-        "ui": {
-          "keys": 2,
-          "widthName": 60,
-          "widthComment": 60,
-          "widthDataType": 60,
-          "widthDefault": 128
-        },
-        "meta": {
-          "updateAt": 1767018316001,
-          "createAt": 1767018316001
-        }
-      },
-      "UsrPrfImgsImgUrl2025": {
-        "id": "UsrPrfImgsImgUrl2025",
-        "tableId": "UsrPrfImgsTbl2025",
-        "name": "image_url",
-        "comment": "",
-        "dataType": "VARCHAR(500)",
-        "default": "",
-        "options": 8,
-        "ui": {
-          "keys": 0,
-          "widthName": 60,
-          "widthComment": 60,
-          "widthDataType": 90,
-          "widthDefault": 60
-        },
-        "meta": {
-          "updateAt": 1767018316001,
-          "createAt": 1767018316001
-        }
-      },
-      "UsrPrfImgsRegTime2025": {
-        "id": "UsrPrfImgsRegTime2025",
-        "tableId": "UsrPrfImgsTbl2025",
-        "name": "reg_time",
-        "comment": "등록 시간",
-        "dataType": "DATETIME",
-        "default": "CURRENT_TIMESTAMP",
-        "options": 0,
-        "ui": {
-          "keys": 0,
-          "widthName": 60,
-          "widthComment": 60,
-          "widthDataType": 71,
-          "widthDefault": 133
-        },
-        "meta": {
-          "updateAt": 1767079963797,
-          "createAt": 1767079963797
-        }
-      },
-      "UsrPrfImgsUpdTime2025": {
-        "id": "UsrPrfImgsUpdTime2025",
-        "tableId": "UsrPrfImgsTbl2025",
-        "name": "update_time",
-        "comment": "수정 시간",
-        "dataType": "DATETIME",
-        "default": "CURRENT_TIMESTAMP",
-        "options": 0,
-        "ui": {
-          "keys": 0,
-          "widthName": 60,
-          "widthComment": 60,
-          "widthDataType": 71,
-          "widthDefault": 133
-        },
-        "meta": {
-          "updateAt": 1767079963797,
-          "createAt": 1767079963797
-        }
-      },
       "RvwImgsId2025": {
         "id": "RvwImgsId2025",
         "tableId": "RvwImgsTbl2025",
@@ -3447,34 +3270,6 @@
           "x": 1729,
           "y": 1733,
           "direction": 4
-        },
-        "meta": {
-          "updateAt": 1767018316001,
-          "createAt": 1767018316001
-        }
-      },
-      "UsrPrfImgsRel2025": {
-        "id": "UsrPrfImgsRel2025",
-        "identification": false,
-        "relationshipType": 4,
-        "startRelationshipType": 2,
-        "start": {
-          "tableId": "knwr2P1d0dp8rSZ_XCnTe",
-          "columnIds": [
-            "WiTWYpjwbgvTqFekcExWq"
-          ],
-          "x": 653,
-          "y": 1200,
-          "direction": 1
-        },
-        "end": {
-          "tableId": "UsrPrfImgsTbl2025",
-          "columnIds": [
-            "UsrPrfImgsUsrId2025"
-          ],
-          "x": 300,
-          "y": 1200,
-          "direction": 2
         },
         "meta": {
           "updateAt": 1767018316001,

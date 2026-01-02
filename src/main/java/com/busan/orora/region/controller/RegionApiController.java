@@ -29,8 +29,21 @@ public class RegionApiController {
     }
 
     // ✅ JSON API
-    @GetMapping("/{regionId}/spots")
-    public List<SearchSpotsByRegionDto> getSpots(@PathVariable Long regionId) {
-        return regionService.searchSpotsByRegion(regionId);
+    // @GetMapping("/{regionId}/spots")
+    // public List<SearchSpotsByRegionDto> getSpots(@PathVariable Long regionId) {
+    //     return regionService.searchSpotsByRegion(regionId);
+    // }
+
+    @GetMapping("/spots")
+    public ResponseEntity<List<SearchSpotsByRegionDto>> getSpotsByRegions(
+            @RequestParam("regionIds") List<Integer> regionIds
+    ) {
+        System.out.println("받은 regionIds = " + regionIds);
+
+        return ResponseEntity.ok(
+            regionService.searchSpotsByRegionIds(regionIds)
+        );
     }
+    
+    
 }
