@@ -97,7 +97,28 @@
             address = #{address},
             birth_date = #{birthDate},
             gender_code = #{genderCode},
+            role_code = #{roleCode},
+            status_code = #{statusCode},
             updated_at = CURRENT_TIMESTAMP
         WHERE id = #{id}
     </update>
+
+    <update id="updateUserStatus">
+        UPDATE users
+        SET status_code = #{statusCode},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserRole">
+        UPDATE users
+        SET role_code = #{roleCode},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteUser" parameterType="Long">
+        DELETE FROM users
+        WHERE id = #{id}
+    </delete>
 </mapper>       

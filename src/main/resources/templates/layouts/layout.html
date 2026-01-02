@@ -30,7 +30,9 @@
     
     <div id="wrapper">
         <!-- Header 영역 -->
-        <div th:replace="~{components/header.html :: header}"></div>
+        <div id="header-container">
+            <div th:replace="~{components/header.html :: header}"></div>
+        </div>
         
         <!-- Content 영역 -->
         <div layout:fragment="content">
