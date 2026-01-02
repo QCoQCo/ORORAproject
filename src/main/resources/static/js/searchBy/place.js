@@ -199,32 +199,39 @@ function bindRegionClick() {
  *************************/
 async function fetchRegionSpots(regionIds) {
     const ul = document.getElementById('tourist-spots-list');
-    ul.innerHTML = '';
+    if (!ul) {
+        console.error('tourist-spots-list 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    ul.innerHTML = '<li style="padding: 20px; text-align: center; color: #999;">로딩 중...</li>';
 
     if (regionIds.length === 0) {
-        ul.innerHTML = '<li>지도에서 지역을 클릭하면 관광지가 나옵니다.</li>';
+        ul.innerHTML =
+            '<li style="padding: 20px; text-align: center; color: #999;">지도에서 지역을 클릭하면 관광지가 나옵니다.</li>';
         return;
     }
 
     try {
         const query = regionIds.join(',');
         const res = await fetch(`/api/regions/spots?regionIds=${query}`);
-        if (!res.ok) throw new Error('API 터짐');
+        if (!res.ok) throw new Error('API 요청 실패');
 
         const spots = await res.json();
         console.log('API 응답:', spots);
 
-        renderSpotList(spots);
+        await renderSpotList(spots);
     } catch (e) {
-        console.error(e);
-        ul.innerHTML = '<li>관광지 데이터를 불러오지 못했습니다.</li>';
+        console.error('관광지 데이터 로드 오류:', e);
+        ul.innerHTML =
+            '<li style="padding: 20px; text-align: center; color: #999;">관광지 데이터를 불러오지 못했습니다.</li>';
     }
 }
 
 /*************************
  * 관광지 리스트 렌더링
  *************************/
-function renderSpotList(spots) {
+async function renderSpotList(spots) {
     const ul = document.getElementById('tourist-spots-list');
     if (!ul) {
         console.error('tourist-spots-list 요소를 찾을 수 없습니다.');
@@ -239,50 +246,69 @@ function renderSpotList(spots) {
         return;
     }
 
-    // ListLoader를 사용하여 렌더링 (list-loader.js가 로드되어 있다고 가정)
-    if (typeof ListLoader !== 'undefined' && listLoader === null) {
-        const templateContainer = document.getElementById('list-template-container');
-        if (templateContainer) {
+    // ListLoader를 사용하여 렌더링
+    if (typeof ListLoader !== 'undefined') {
+        try {
+            // 데이터 변환
+            const listData = spots.map((spot) => {
+                // hashtags가 문자열인 경우 배열로 변환 (쉼표로 구분)
+                let hashtagsArray = [];
+                if (spot.hashtags) {
+                    if (Array.isArray(spot.hashtags)) {
+                        hashtagsArray = spot.hashtags;
+                    } else if (typeof spot.hashtags === 'string') {
+                        // 쉼표로 구분된 문자열을 배열로 변환
+                        hashtagsArray = spot.hashtags
+                            .split(',')
+                            .map((tag) => tag.trim())
+                            .filter((tag) => tag.length > 0);
+                    }
+                }
+
+                return {
+                    id: spot.id,
+                    title: spot.title || '제목 없음',
+                    description: spot.description || '',
+                    hashtags: hashtagsArray,
+                    img: spot.imageUrl || spot.image_url || '',
+                    link: spot.linkUrl || spot.link_url || '#',
+                    categoryCode: spot.categoryCode || spot.category_code || 'culture',
+                    isActive: spot.isActive !== false,
+                };
+            });
+
+            // 매번 새로운 ListLoader 인스턴스 생성 (데이터가 변경될 때마다)
             listLoader = new ListLoader({
                 containerSelector: '#tourist-spots-list',
-                templateContainerSelector: '#list-template-container',
-                data: spots.map((spot) => ({
-                    id: spot.id,
-                    title: spot.title,
-                    description: spot.description || '',
-                    hashtags: spot.hashtags || [],
-                    img: spot.imageUrl || '',
-                    link: spot.linkUrl || `#`,
-                    categoryCode: spot.categoryCode || 'culture',
-                    isActive: spot.isActive !== false,
-                })),
+                data: listData,
                 fallbackImage: '../../images/logo.png',
                 onItemClick: (itemData, event) => {
+                    // 상세 페이지로 이동
                     window.location.href = `/pages/detailed/detailPage?id=${itemData.id}`;
                 },
+                onLikeClick: (itemData, isLiked) => {
+                    // 좋아요 기능 (필요시 구현)
+                    console.log(`${itemData.title} 좋아요: ${isLiked}`);
+                },
             });
-            listLoader.render().catch((err) => {
-                console.error('리스트 렌더링 오류:', err);
-                // 폴백: 간단한 리스트로 표시
-                spots.forEach((spot) => {
-                    const li = document.createElement('li');
-                    li.textContent = spot.title;
-                    ul.appendChild(li);
-                });
-            });
-        } else {
-            // 템플릿이 없으면 간단한 리스트로 표시
+
+            // 렌더링 실행
+            await listLoader.render();
+        } catch (err) {
+            console.error('리스트 렌더링 오류:', err);
+            // 폴백: 간단한 리스트로 표시
             spots.forEach((spot) => {
                 const li = document.createElement('li');
-                li.textContent = spot.title;
+                li.textContent = spot.title || '제목 없음';
                 ul.appendChild(li);
             });
         }
     } else {
         // ListLoader가 없으면 간단한 리스트로 표시
+        console.warn('ListLoader를 사용할 수 없습니다. 간단한 리스트로 표시합니다.');
         spots.forEach((spot) => {
             const li = document.createElement('li');
-            li.textContent = spot.title;
+            li.textContent = spot.title || '제목 없음';
             ul.appendChild(li);
         });
     }
