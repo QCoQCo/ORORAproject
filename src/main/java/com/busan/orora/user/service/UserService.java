@@ -219,4 +219,63 @@ public class UserService {
         // 업데이트된 사용자 정보 반환
         return userMapper.findById(userId);
     }
+
+    /**
+     * 사용자 상태를 업데이트합니다.
+     * 
+     * @param userId     사용자 ID
+     * @param statusCode 상태 코드 (ACTIVE, INACTIVE, SUSPENDED)
+     */
+    @Transactional
+    public void updateUserStatus(Long userId, String statusCode) {
+        userMapper.updateUserStatus(userId, statusCode);
+    }
+
+    /**
+     * 사용자 권한을 업데이트합니다.
+     * 
+     * @param userId   사용자 ID
+     * @param roleCode 권한 코드 (MEMBER, VIP, ADMIN)
+     */
+    @Transactional
+    public void updateUserRole(Long userId, String roleCode) {
+        userMapper.updateUserRole(userId, roleCode);
+    }
+
+    /**
+     * 사용자 정보를 업데이트합니다 (관리자용).
+     * 
+     * @param userId  사용자 ID
+     * @param userDto 업데이트할 사용자 정보
+     * @return 업데이트된 사용자 DTO
+     */
+    @Transactional
+    public UserDto updateUser(Long userId, UserDto userDto) {
+        UserDto existingUser = userMapper.findById(userId);
+        if (existingUser == null) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
+
+        existingUser.setUsername(userDto.getUsername());
+        existingUser.setEmail(userDto.getEmail());
+        if (userDto.getRoleCode() != null) {
+            existingUser.setRoleCode(userDto.getRoleCode());
+        }
+        if (userDto.getStatusCode() != null) {
+            existingUser.setStatusCode(userDto.getStatusCode());
+        }
+
+        userMapper.updateUser(existingUser);
+        return userMapper.findById(userId);
+    }
+
+    /**
+     * 사용자를 삭제합니다.
+     * 
+     * @param userId 사용자 ID
+     */
+    @Transactional
+    public void deleteUser(Long userId) {
+        userMapper.deleteUser(userId);
+    }
 }
