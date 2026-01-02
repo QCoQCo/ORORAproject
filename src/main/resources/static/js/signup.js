@@ -399,7 +399,7 @@ class SignupValidator {
             if (data.success) {
                 alert(data.message || '회원가입이 완료되었습니다!');
                 // 로그인 페이지로 이동
-                window.location.href = '/pages/login/login.html';
+                window.location.href = '/pages/login/login';
             } else {
                 alert(data.message || '회원가입 처리 중 오류가 발생했습니다.');
             }

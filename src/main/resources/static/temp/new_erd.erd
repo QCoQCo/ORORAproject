@@ -4,9 +4,9 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -128.1649,
-    "scrollLeft": -376.9645,
-    "zoomLevel": 1,
+    "scrollTop": -117,
+    "scrollLeft": -662,
+    "zoomLevel": 0.76,
     "show": 431,
     "database": 4,
     "databaseName": "arata_busan",
@@ -83,14 +83,16 @@
           "u4FkyfDhvOPdz8O2dAGGc",
           "uWpEkB3XwKfFulaikYmJr",
           "nv_qUCA8p3OZiiT6p23xb",
-          "33Gde-Ult-Uc3CC23qw0e"
+          "33Gde-Ult-Uc3CC23qw0e",
+          "SigunguCode2025"
         ],
         "seqColumnIds": [
           "oB8KsBLh92jektvt23PCy",
           "u4FkyfDhvOPdz8O2dAGGc",
           "uWpEkB3XwKfFulaikYmJr",
           "nv_qUCA8p3OZiiT6p23xb",
-          "33Gde-Ult-Uc3CC23qw0e"
+          "33Gde-Ult-Uc3CC23qw0e",
+          "SigunguCode2025"
         ],
         "ui": {
           "x": 1025,
@@ -688,6 +690,26 @@
         "meta": {
           "updateAt": 1759148689501,
           "createAt": 1759148689501
+        }
+      },
+      "SigunguCode2025": {
+        "id": "SigunguCode2025",
+        "tableId": "La_byz7frvIy7FTCW9CRL",
+        "name": "sigungu_code",
+        "comment": "",
+        "dataType": "INT",
+        "default": "",
+        "options": 12,
+        "ui": {
+          "keys": 0,
+          "widthName": 80,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767079818860,
+          "createAt": 1767079818860
         }
       },
       "ZmabEPw9obD0MfIcu7ZQV": {

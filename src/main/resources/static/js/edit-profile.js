@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 로그인 상태 확인
     if (!isLoggedIn()) {
         alert('로그인이 필요합니다.');
-        window.location.href = '/pages/login/login.html';
+        window.location.href = '/pages/login/login';
         return;
     }
 
@@ -21,7 +21,7 @@ async function loadUserInfo() {
     const user = getCurrentUser();
     if (!user) {
         alert('사용자 정보를 불러올 수 없습니다.');
-        window.location.href = '/pages/mypage/mypage.html';
+        window.location.href = '/pages/mypage/mypage';
         return;
     }
 
@@ -90,7 +90,7 @@ function setupEventListeners() {
     // 취소 버튼
     document.getElementById('cancelBtn').addEventListener('click', function () {
         if (confirm('수정을 취소하시겠습니까?')) {
-            window.location.href = '/pages/mypage/mypage.html';
+            window.location.href = '/pages/mypage/mypage';
         }
     });
 
@@ -175,7 +175,7 @@ async function saveProfile() {
             }
 
             // 마이페이지로 이동
-            window.location.href = '/pages/mypage/mypage.html';
+            window.location.href = '/pages/mypage/mypage';
         } else {
             alert(data.message || '프로필 수정 중 오류가 발생했습니다.');
             submitBtn.disabled = false;
