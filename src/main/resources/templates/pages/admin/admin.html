@@ -27,7 +27,7 @@
                         <div class="search-filter">
                             <input
                                 type="text"
-                                id="search-input"
+                                id="admin-search-input"
                                 placeholder="관광지명으로 검색..."
                             />
                             <select id="region-filter">
@@ -280,10 +280,9 @@
                     </div>
                 </div>
             </section>
-        </div>
 
-        <!-- 관광지 수정 모달 -->
-        <div class="modal" id="edit-modal">
+            <!-- 관광지 수정 모달 -->
+            <div class="modal" id="edit-modal">
             <div class="modal-content">
                 <span class="close" id="close-modal">&times;</span>
                 <h2>관광지 정보 수정</h2>
@@ -347,10 +346,10 @@
                     <button type="submit" class="submit-btn">수정 완료</button>
                 </form>
             </div>
-        </div>
+            </div>
 
-        <!-- 사용자 추가 모달 -->
-        <div class="modal" id="add-user-modal">
+            <!-- 사용자 추가 모달 -->
+            <div class="modal" id="add-user-modal">
             <div class="modal-content">
                 <span class="close" id="close-add-user-modal">&times;</span>
                 <h2>새 사용자 추가</h2>
@@ -382,10 +381,10 @@
                     <button type="submit" class="submit-btn">사용자 추가</button>
                 </form>
             </div>
-        </div>
+            </div>
 
-        <!-- 사용자 수정 모달 -->
-        <div class="modal" id="edit-user-modal">
+            <!-- 사용자 수정 모달 -->
+            <div class="modal" id="edit-user-modal">
             <div class="modal-content">
                 <span class="close" id="close-edit-user-modal">&times;</span>
                 <h2>사용자 정보 수정</h2>
@@ -420,6 +419,7 @@
 
                     <button type="submit" class="submit-btn">수정 완료</button>
                 </form>
+            </div>
             </div>
         </div>
         <th:block layout:fragment="script">

@@ -84,12 +84,12 @@ async function initializeAdmin() {
     await loadTouristSpots();
     await initializeUsers();
     initializeTabs();
-    
+
     // DOM이 완전히 준비된 후 이벤트 리스너 초기화
     setTimeout(() => {
         initializeEventListeners();
     }, 100);
-    
+
     // 헤더는 layout.html에서 Thymeleaf로 이미 포함되므로 별도 로드 불필요
     // 헤더 업데이트만 수행 (페이지 로드 시에만)
     setTimeout(() => {
@@ -105,35 +105,35 @@ async function loadTouristSpots() {
     try {
         const response = await fetch('/api/admin/tourist-spots');
         const data = await response.json();
-        
+
         if (data.success && data.spots) {
             // 백엔드 데이터를 프론트엔드 형식으로 변환
             touristSpots = {};
-            data.spots.forEach(spot => {
+            data.spots.forEach((spot) => {
                 // regionId를 area01 형식으로 변환 (임시로 regionId를 키로 사용)
                 const regionKey = `area${String(spot.regionId).padStart(2, '0')}`;
-                
+
                 if (!touristSpots[regionKey]) {
                     touristSpots[regionKey] = {
                         name: regionNames[regionKey] || `지역 ${spot.regionId}`,
                         code: '',
-                        spots: []
+                        spots: [],
                     };
                 }
-                
-                // 해시태그는 임시로 빈 배열 (나중에 해시태그 API 추가 시 수정)
+
+                // 해시태그는 백엔드에서 전달받은 데이터 사용
                 touristSpots[regionKey].spots.push({
                     id: spot.id,
                     title: spot.title,
                     description: spot.description || '',
-                    hashtags: [], // TODO: 해시태그 API 추가 시 수정
+                    hashtags: spot.hashtags || [], // 백엔드에서 해시태그 배열 전달
                     img: '', // TODO: 이미지 API 추가 시 수정
                     link: spot.linkUrl || '#',
                     categoryCode: spot.categoryCode,
-                    isActive: spot.isActive
+                    isActive: spot.isActive,
                 });
             });
-            
+
             displayTouristSpots();
             updateStatistics();
         } else {
@@ -194,7 +194,7 @@ function initializeTabs() {
 // 이벤트 리스너 초기화
 function initializeEventListeners() {
     // 검색 기능
-    const searchInput = document.getElementById('search-input');
+    const searchInput = document.getElementById('admin-search-input');
     const regionFilter = document.getElementById('region-filter');
 
     if (searchInput) {
@@ -306,14 +306,26 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
     const card = document.createElement('div');
     card.className = 'tourist-spot-card';
 
-    const category = spot.categoryCode ? spot.categoryCode.toLowerCase() : getCategoryFromHashtags(spot.hashtags);
-    const hashtags = spot.hashtags ? spot.hashtags.join(' ') : '';
+    const category = spot.categoryCode
+        ? spot.categoryCode.toLowerCase()
+        : getCategoryFromHashtags(spot.hashtags);
+
+    // 해시태그 배열을 문자열로 변환 (# 접두사 추가)
+    let hashtagsDisplay = '없음';
+    if (spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0) {
+        hashtagsDisplay = spot.hashtags
+            .map((tag) => {
+                // 이미 #이 있으면 그대로, 없으면 추가
+                return tag.startsWith('#') ? tag : '#' + tag;
+            })
+            .join(' ');
+    }
 
     card.innerHTML = `
         <h3>${spot.title}</h3>
         <div class="spot-category">${regionName} (${categoryNames[category] || category})</div>
         <div class="spot-info">
-            해시태그: ${hashtags || '없음'}
+            해시태그: ${hashtagsDisplay}
         </div>
         <div class="spot-description">${spot.description || ''}</div>
         <div class="spot-actions">
@@ -327,7 +339,8 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
 
 // 관광지 필터링
 function filterTouristSpots() {
-    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const searchInput = document.getElementById('admin-search-input');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
     const selectedRegion = document.getElementById('region-filter').value;
 
     const filteredSpots = {};
@@ -361,7 +374,7 @@ function filterTouristSpots() {
 }
 
 // 관광지 추가
-function handleAddTouristSpot(event) {
+async function handleAddTouristSpot(event) {
     event.preventDefault();
 
     const regionKey = document.getElementById('spot-region').value;
@@ -372,85 +385,114 @@ function handleAddTouristSpot(event) {
         .filter((tag) => tag.length > 0)
         .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag));
 
-    const newSpot = {
+    const requestData = {
+        regionKey: regionKey,
         title: document.getElementById('spot-title').value,
         description: document.getElementById('spot-description').value,
         hashtags: hashtags,
-        img: document.getElementById('spot-img').value || '../../images/common.jpg',
-        link: document.getElementById('spot-link').value || '#',
+        linkUrl: document.getElementById('spot-link').value || '#',
+        categoryCode: 'CULTURE', // 기본값, 필요시 수정
     };
 
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: POST /api/admin/tourist-spots
-    // 요청 형식: { regionId, title, description, hashtags, imageUrl, linkUrl }
-    // 응답 형식: { success: true, spot: { id, ... } }
+    try {
+        const response = await fetch('/api/admin/tourist-spots', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
 
-    if (!touristSpots[regionKey]) {
-        touristSpots[regionKey] = {
-            name: regionNames[regionKey] || regionKey,
-            code: '',
-            spots: [],
-        };
+        const data = await response.json();
+
+        if (data.success) {
+            // 폼 초기화
+            event.target.reset();
+
+            // 목록 갱신
+            await loadTouristSpots();
+            updateStatistics();
+
+            showNotification('관광지가 성공적으로 추가되었습니다!', 'success');
+        } else {
+            showNotification(data.message || '관광지 추가에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('관광지 추가 실패:', error);
+        showNotification('관광지 추가 중 오류가 발생했습니다.', 'error');
     }
-
-    if (!touristSpots[regionKey].spots) {
-        touristSpots[regionKey].spots = [];
-    }
-
-    touristSpots[regionKey].spots.push(newSpot);
-
-    // 폼 초기화
-    event.target.reset();
-
-    // 목록 갱신
-    displayTouristSpots();
-    updateStatistics();
-
-    showNotification('관광지가 성공적으로 추가되었습니다!', 'success');
 }
 
 // 수정 모달 열기
 function openEditModal(regionKey, spotId) {
-    // spotId로 관광지 찾기
-    let spot = null;
-    let foundIndex = -1;
-    if (touristSpots[regionKey] && touristSpots[regionKey].spots) {
-        foundIndex = touristSpots[regionKey].spots.findIndex(s => s.id === spotId);
-        if (foundIndex !== -1) {
-            spot = touristSpots[regionKey].spots[foundIndex];
+    // DOM이 완전히 로드될 때까지 기다림
+    const tryOpenModal = () => {
+        const editModal = document.getElementById('edit-modal');
+        if (!editModal) {
+            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
+            setTimeout(tryOpenModal, 100);
+            return;
         }
-    }
-    
-    if (!spot) {
-        showNotification('관광지를 찾을 수 없습니다.', 'error');
-        return;
-    }
-    
-    currentEditRegion = regionKey;
-    currentEditIndex = foundIndex;
 
-    // 폼에 기존 데이터 입력
-    document.getElementById('edit-spot-title').value = spot.title;
-    document.getElementById('edit-spot-region').value = regionKey;
-    document.getElementById('edit-spot-description').value = spot.description;
-    document.getElementById('edit-spot-hashtags').value = spot.hashtags
-        ? spot.hashtags.join(', ')
-        : '';
-    document.getElementById('edit-spot-img').value = spot.img || '';
-    document.getElementById('edit-spot-link').value = spot.link || '';
+        // spotId로 관광지 찾기
+        let spot = null;
+        let foundIndex = -1;
+        if (touristSpots[regionKey] && touristSpots[regionKey].spots) {
+            foundIndex = touristSpots[regionKey].spots.findIndex((s) => s.id === spotId);
+            if (foundIndex !== -1) {
+                spot = touristSpots[regionKey].spots[foundIndex];
+            }
+        }
 
-    // 모달 표시
-    document.getElementById('edit-modal').style.display = 'block';
+        if (!spot) {
+            showNotification('관광지를 찾을 수 없습니다.', 'error');
+            return;
+        }
+
+        currentEditRegion = regionKey;
+        currentEditIndex = foundIndex;
+
+        // 폼에 기존 데이터 입력
+        const titleInput = document.getElementById('edit-spot-title');
+        const regionSelect = document.getElementById('edit-spot-region');
+        const descriptionTextarea = document.getElementById('edit-spot-description');
+        const hashtagsInput = document.getElementById('edit-spot-hashtags');
+        const imgInput = document.getElementById('edit-spot-img');
+        const linkInput = document.getElementById('edit-spot-link');
+
+        if (titleInput) titleInput.value = spot.title;
+        if (regionSelect) regionSelect.value = regionKey;
+        if (descriptionTextarea) descriptionTextarea.value = spot.description || '';
+        if (hashtagsInput) hashtagsInput.value = spot.hashtags ? spot.hashtags.join(', ') : '';
+        if (imgInput) imgInput.value = spot.img || '';
+        if (linkInput) linkInput.value = spot.link || '';
+
+        // 모달 표시
+        editModal.style.display = 'block';
+    };
+
+    tryOpenModal();
 }
 
+// 전역 스코프에 함수 바인딩 (인라인 onclick 핸들러에서 접근 가능하도록)
+window.openEditModal = openEditModal;
+
 // 관광지 수정
-function handleEditTouristSpot(event) {
+async function handleEditTouristSpot(event) {
     event.preventDefault();
 
     if (currentEditRegion === null || currentEditIndex === null) {
         return;
     }
 
+    // spotId 가져오기
+    const spot = touristSpots[currentEditRegion].spots[currentEditIndex];
+    if (!spot || !spot.id) {
+        showNotification('관광지 정보를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    const spotId = spot.id;
     const hashtags = document
         .getElementById('edit-spot-hashtags')
         .value.split(',')
@@ -458,83 +500,78 @@ function handleEditTouristSpot(event) {
         .filter((tag) => tag.length > 0)
         .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag));
 
-    const updatedSpot = {
+    const newRegion = document.getElementById('edit-spot-region').value;
+
+    const requestData = {
+        regionKey: newRegion,
         title: document.getElementById('edit-spot-title').value,
         description: document.getElementById('edit-spot-description').value,
         hashtags: hashtags,
-        img: document.getElementById('edit-spot-img').value || '../../images/common.jpg',
-        link: document.getElementById('edit-spot-link').value || '#',
+        linkUrl: document.getElementById('edit-spot-link').value || '#',
+        categoryCode: spot.categoryCode || 'CULTURE',
     };
 
-    const newRegion = document.getElementById('edit-spot-region').value;
+    try {
+        const response = await fetch(`/api/admin/tourist-spots/${spotId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
 
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: PUT /api/admin/tourist-spots/{spotId}
-    // 요청 형식: { regionId, title, description, hashtags, imageUrl, linkUrl }
-    // 응답 형식: { success: true, spot: { id, ... } }
+        const data = await response.json();
 
-    // 지역이 변경된 경우
-    if (newRegion !== currentEditRegion) {
-        // 기존 지역에서 제거
-        touristSpots[currentEditRegion].spots.splice(currentEditIndex, 1);
+        if (data.success) {
+            // 모달 닫기
+            document.getElementById('edit-modal').style.display = 'none';
 
-        // 새 지역에 추가
-        if (!touristSpots[newRegion]) {
-            touristSpots[newRegion] = {
-                name: regionNames[newRegion] || newRegion,
-                code: '',
-                spots: [],
-            };
+            // 목록 갱신
+            await loadTouristSpots();
+            updateStatistics();
+
+            showNotification('관광지 정보가 성공적으로 수정되었습니다!', 'success');
+
+            // 편집 상태 초기화
+            currentEditRegion = null;
+            currentEditIndex = null;
+        } else {
+            showNotification(data.message || '관광지 수정에 실패했습니다.', 'error');
         }
-        if (!touristSpots[newRegion].spots) {
-            touristSpots[newRegion].spots = [];
-        }
-        touristSpots[newRegion].spots.push(updatedSpot);
-    } else {
-        // 같은 지역 내에서 수정
-        touristSpots[currentEditRegion].spots[currentEditIndex] = updatedSpot;
+    } catch (error) {
+        console.error('관광지 수정 실패:', error);
+        showNotification('관광지 수정 중 오류가 발생했습니다.', 'error');
     }
-
-    // 모달 닫기
-    document.getElementById('edit-modal').style.display = 'none';
-
-    // 목록 갱신
-    displayTouristSpots();
-    updateStatistics();
-
-    showNotification('관광지 정보가 성공적으로 수정되었습니다!', 'success');
-
-    // 편집 상태 초기화
-    currentEditRegion = null;
-    currentEditIndex = null;
 }
 
 // 관광지 삭제
-function deleteTouristSpot(regionKey, spotId) {
+async function deleteTouristSpot(regionKey, spotId) {
     if (confirm('정말로 이 관광지를 삭제하시겠습니까?')) {
-        // TODO: 백엔드 연결 시 API 호출로 변경
-        // 백엔드 API 엔드포인트: DELETE /api/admin/tourist-spots/{spotId}
-        // 응답 형식: { success: true, message: string }
+        try {
+            const response = await fetch(`/api/admin/tourist-spots/${spotId}`, {
+                method: 'DELETE',
+            });
 
-        // spotId로 관광지 찾아서 삭제
-        if (touristSpots[regionKey] && touristSpots[regionKey].spots) {
-            const index = touristSpots[regionKey].spots.findIndex(s => s.id === spotId);
-            if (index !== -1) {
-                touristSpots[regionKey].spots.splice(index, 1);
+            const data = await response.json();
+
+            if (data.success) {
+                // 목록 갱신
+                await loadTouristSpots();
+                updateStatistics();
+
+                showNotification('관광지가 성공적으로 삭제되었습니다!', 'success');
+            } else {
+                showNotification(data.message || '관광지 삭제에 실패했습니다.', 'error');
             }
+        } catch (error) {
+            console.error('관광지 삭제 실패:', error);
+            showNotification('관광지 삭제 중 오류가 발생했습니다.', 'error');
         }
-
-        // 지역에 관광지가 없으면 spots 배열만 비워둠 (지역 정보는 유지)
-        if (touristSpots[regionKey].spots.length === 0) {
-            touristSpots[regionKey].spots = [];
-        }
-
-        displayTouristSpots();
-        updateStatistics();
-
-        showNotification('관광지가 성공적으로 삭제되었습니다!', 'success');
     }
 }
+
+// 전역 스코프에 함수 바인딩
+window.deleteTouristSpot = deleteTouristSpot;
 
 // 통계 업데이트
 function updateStatistics() {
@@ -828,6 +865,11 @@ function exportAllData() {
     URL.revokeObjectURL(url);
 }
 
+// 전역 스코프에 함수 바인딩
+window.exportAllData = exportAllData;
+window.exportTouristSpotsData = exportTouristSpotsData;
+window.exportUsersData = exportUsersData;
+
 // ========== 사용자 관리 기능 ==========
 
 // 사용자 데이터 초기화
@@ -835,10 +877,10 @@ async function initializeUsers() {
     try {
         const response = await fetch('/api/admin/users');
         const data = await response.json();
-        
+
         if (data.success && data.users) {
             // 백엔드 데이터를 프론트엔드 형식으로 변환
-            users = data.users.map(user => ({
+            users = data.users.map((user) => ({
                 id: user.id,
                 userId: user.loginId,
                 username: user.username,
@@ -846,7 +888,7 @@ async function initializeUsers() {
                 role: user.roleCode ? user.roleCode.toLowerCase() : 'member', // ADMIN -> admin
                 status: user.statusCode ? user.statusCode.toLowerCase() : 'active', // ACTIVE -> active
                 joinDate: user.joinDate ? new Date(user.joinDate).toISOString().split('T')[0] : '-',
-                lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString() : '-'
+                lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString() : '-',
             }));
             filteredUsers = [...users];
 
@@ -965,145 +1007,226 @@ function filterUsers() {
 
 // 사용자 추가 모달 열기
 function openAddUserModal() {
-    document.getElementById('add-user-modal').style.display = 'block';
+    const tryOpenModal = () => {
+        const addUserModal = document.getElementById('add-user-modal');
+        if (!addUserModal) {
+            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
+            setTimeout(tryOpenModal, 100);
+            return;
+        }
+        addUserModal.style.display = 'block';
+    };
+    tryOpenModal();
 }
 
+// 전역 스코프에 함수 바인딩
+window.openAddUserModal = openAddUserModal;
+
 // 사용자 추가 처리
-function handleAddUser(event) {
+async function handleAddUser(event) {
     event.preventDefault();
 
-    const newUser = {
-        id: Math.max(...users.map((u) => u.id)) + 1,
+    const requestData = {
+        loginId: document.getElementById('new-username').value, // 임시로 username을 loginId로 사용
         username: document.getElementById('new-username').value,
         email: document.getElementById('new-email').value,
         role: document.getElementById('new-user-role').value,
-        status: 'active',
-        joinDate: new Date().toISOString().split('T')[0],
-        lastLogin: '-',
+        password: document.getElementById('new-password').value,
     };
 
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: POST /api/admin/users
-    // 요청 형식: { username, email, role, password }
-    // 응답 형식: { success: true, user: { id, ... } }
+    try {
+        const response = await fetch('/api/admin/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
 
-    // 중복 확인
-    if (users.some((u) => u.username === newUser.username || u.email === newUser.email)) {
-        showNotification('이미 존재하는 사용자명 또는 이메일입니다.', 'error');
-        return;
+        const data = await response.json();
+
+        if (data.success) {
+            // 폼 초기화 및 모달 닫기
+            event.target.reset();
+            document.getElementById('add-user-modal').style.display = 'none';
+
+            // 목록 갱신
+            await initializeUsers();
+            displayUsers();
+            updateUserStatistics();
+
+            showNotification('새 사용자가 성공적으로 추가되었습니다!', 'success');
+        } else {
+            showNotification(data.message || '사용자 추가에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('사용자 추가 실패:', error);
+        showNotification('사용자 추가 중 오류가 발생했습니다.', 'error');
     }
-
-    users.push(newUser);
-    filteredUsers = [...users];
-
-    // 폼 초기화 및 모달 닫기
-    event.target.reset();
-    document.getElementById('add-user-modal').style.display = 'none';
-
-    displayUsers();
-    updateUserStatistics();
-    showNotification('새 사용자가 성공적으로 추가되었습니다!', 'success');
 }
 
 // 사용자 수정 모달 열기
 function openEditUserModal(userId) {
-    const user = users.find((u) => u.id === userId);
-    if (!user) return;
+    const tryOpenModal = () => {
+        const editUserModal = document.getElementById('edit-user-modal');
+        if (!editUserModal) {
+            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
+            setTimeout(tryOpenModal, 100);
+            return;
+        }
 
-    currentEditUserId = userId;
+        const user = users.find((u) => u.id === userId);
+        if (!user) {
+            console.error('사용자를 찾을 수 없습니다:', userId);
+            return;
+        }
 
-    document.getElementById('edit-username').value = user.username;
-    document.getElementById('edit-email').value = user.email;
-    document.getElementById('edit-user-role').value = user.role;
-    document.getElementById('edit-user-status').value = user.status;
+        currentEditUserId = userId;
 
-    document.getElementById('edit-user-modal').style.display = 'block';
+        const usernameInput = document.getElementById('edit-username');
+        const emailInput = document.getElementById('edit-email');
+        const roleSelect = document.getElementById('edit-user-role');
+        const statusSelect = document.getElementById('edit-user-status');
+
+        if (usernameInput) usernameInput.value = user.username;
+        if (emailInput) emailInput.value = user.email;
+        if (roleSelect) roleSelect.value = user.role;
+        if (statusSelect) statusSelect.value = user.status;
+
+        editUserModal.style.display = 'block';
+    };
+    tryOpenModal();
 }
 
+// 전역 스코프에 함수 바인딩
+window.openEditUserModal = openEditUserModal;
+
 // 사용자 수정 처리
-function handleEditUser(event) {
+async function handleEditUser(event) {
     event.preventDefault();
 
     if (!currentEditUserId) return;
 
-    const userIndex = users.findIndex((u) => u.id === currentEditUserId);
-    if (userIndex === -1) return;
-
-    const updatedUsername = document.getElementById('edit-username').value;
-    const updatedEmail = document.getElementById('edit-email').value;
-
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: PUT /api/admin/users/{userId}
-    // 요청 형식: { username, email, role, status }
-    // 응답 형식: { success: true, user: { id, ... } }
-
-    // 중복 확인 (자신 제외)
-    const duplicateUser = users.find(
-        (u) =>
-            u.id !== currentEditUserId &&
-            (u.username === updatedUsername || u.email === updatedEmail)
-    );
-
-    if (duplicateUser) {
-        showNotification('이미 존재하는 사용자명 또는 이메일입니다.', 'error');
-        return;
-    }
-
-    users[userIndex] = {
-        ...users[userIndex],
-        username: updatedUsername,
-        email: updatedEmail,
+    const requestData = {
+        username: document.getElementById('edit-username').value,
+        email: document.getElementById('edit-email').value,
         role: document.getElementById('edit-user-role').value,
         status: document.getElementById('edit-user-status').value,
     };
 
-    filteredUsers = [...users];
+    try {
+        const response = await fetch(`/api/admin/users/${currentEditUserId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
 
-    // 모달 닫기
-    document.getElementById('edit-user-modal').style.display = 'none';
-    currentEditUserId = null;
+        const data = await response.json();
 
-    displayUsers();
-    updateUserStatistics();
-    showNotification('사용자 정보가 성공적으로 수정되었습니다!', 'success');
+        if (data.success) {
+            // 모달 닫기
+            document.getElementById('edit-user-modal').style.display = 'none';
+            currentEditUserId = null;
+
+            // 목록 갱신
+            await initializeUsers();
+            displayUsers();
+            updateUserStatistics();
+
+            showNotification('사용자 정보가 성공적으로 수정되었습니다!', 'success');
+        } else {
+            showNotification(data.message || '사용자 수정에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('사용자 수정 실패:', error);
+        showNotification('사용자 수정 중 오류가 발생했습니다.', 'error');
+    }
 }
 
 // 사용자 상태 토글
-function toggleUserStatus(userId) {
+async function toggleUserStatus(userId) {
     const user = users.find((u) => u.id === userId);
-    if (!user) return;
-
-    if (user.status === 'active') {
-        user.status = 'inactive';
-    } else if (user.status === 'inactive') {
-        user.status = 'active';
-    } else {
-        user.status = 'active'; // suspended -> active
+    if (!user) {
+        console.error('사용자를 찾을 수 없습니다:', userId);
+        return;
     }
 
-    filteredUsers = [...users];
-    displayUsers();
-    updateUserStatistics();
-    showNotification(`사용자 ${user.username}의 상태가 변경되었습니다.`, 'success');
+    let newStatus = 'active';
+    if (user.status === 'active') {
+        newStatus = 'inactive';
+    } else if (user.status === 'inactive') {
+        newStatus = 'active';
+    } else {
+        newStatus = 'active'; // suspended -> active
+    }
+
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 목록 갱신
+            await initializeUsers();
+            displayUsers();
+            updateUserStatistics();
+
+            showNotification(`사용자 ${user.username}의 상태가 변경되었습니다.`, 'success');
+        } else {
+            showNotification(data.message || '사용자 상태 변경에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('사용자 상태 변경 실패:', error);
+        showNotification('사용자 상태 변경 중 오류가 발생했습니다.', 'error');
+    }
 }
+
+// 전역 스코프에 함수 바인딩
+window.toggleUserStatus = toggleUserStatus;
 
 // 사용자 삭제
-function deleteUser(userId) {
+async function deleteUser(userId) {
     const user = users.find((u) => u.id === userId);
-    if (!user) return;
+    if (!user) {
+        console.error('사용자를 찾을 수 없습니다:', userId);
+        return;
+    }
 
     if (confirm(`정말로 사용자 "${user.username}"을(를) 삭제하시겠습니까?`)) {
-        // TODO: 백엔드 연결 시 API 호출로 변경
-        // 백엔드 API 엔드포인트: DELETE /api/admin/users/{userId}
-        // 응답 형식: { success: true, message: string }
+        try {
+            const response = await fetch(`/api/admin/users/${userId}`, {
+                method: 'DELETE',
+            });
 
-        users = users.filter((u) => u.id !== userId);
-        filteredUsers = [...users];
-        displayUsers();
-        updateUserStatistics();
-        showNotification('사용자가 성공적으로 삭제되었습니다!', 'success');
+            const data = await response.json();
+
+            if (data.success) {
+                // 목록 갱신
+                await initializeUsers();
+                displayUsers();
+                updateUserStatistics();
+
+                showNotification('사용자가 성공적으로 삭제되었습니다!', 'success');
+            } else {
+                showNotification(data.message || '사용자 삭제에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error('사용자 삭제 실패:', error);
+            showNotification('사용자 삭제 중 오류가 발생했습니다.', 'error');
+        }
     }
 }
+
+// 전역 스코프에 함수 바인딩
+window.deleteUser = deleteUser;
 
 // 페이지네이션 업데이트
 function updateUsersPagination() {
