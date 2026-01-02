@@ -20,6 +20,7 @@
                         <button class="tab-btn active" data-tab="list">관광지 목록</button>
                         <button class="tab-btn" data-tab="add">관광지 추가</button>
                         <button class="tab-btn" data-tab="users">사용자 관리</button>
+                        <button class="tab-btn" data-tab="common-codes">공통코드 관리</button>
                         <button class="tab-btn" data-tab="stats">통계</button>
                     </div>
 
@@ -169,6 +170,59 @@
 
                         <div class="users-pagination" id="users-pagination">
                             <!-- 페이지네이션이 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="common-codes-tab">
+                        <div class="common-codes-header">
+                            <div class="common-codes-controls">
+                                <div class="search-filter">
+                                    <select id="code-group-filter">
+                                        <option value="">전체 그룹</option>
+                                    </select>
+                                    <button class="add-group-btn" onclick="openAddGroupModal()">
+                                        코드 그룹 추가
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="common-codes-container">
+                            <div class="code-groups-section">
+                                <h3>코드 그룹 목록</h3>
+                                <div class="code-groups-grid" id="code-groups-grid">
+                                    <!-- 코드 그룹 목록이 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+
+                            <div class="codes-section">
+                                <h3>코드 목록</h3>
+                                <div class="codes-controls">
+                                    <button class="add-code-btn" onclick="openAddCodeModal()">
+                                        코드 추가
+                                    </button>
+                                </div>
+                                <div class="codes-table-container">
+                                    <table class="codes-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>그룹 코드</th>
+                                                <th>코드</th>
+                                                <th>코드명 (한국어)</th>
+                                                <th>코드명 (영어)</th>
+                                                <th>코드명 (일본어)</th>
+                                                <th>정렬 순서</th>
+                                                <th>활성화</th>
+                                                <th>작업</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="codes-table-body">
+                                            <!-- 코드 목록이 동적으로 생성됩니다 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -414,6 +468,198 @@
                             <option value="active">활성</option>
                             <option value="inactive">비활성</option>
                             <option value="suspended">정지</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">수정 완료</button>
+                </form>
+            </div>
+            </div>
+
+            <!-- 코드 그룹 추가 모달 -->
+            <div class="modal" id="add-group-modal">
+            <div class="modal-content">
+                <span class="close" id="close-add-group-modal">&times;</span>
+                <h2>코드 그룹 추가</h2>
+                <form id="add-group-form">
+                    <div class="form-group">
+                        <label for="new-group-code">그룹 코드</label>
+                        <input type="text" id="new-group-code" placeholder="예: USER_ROLE" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-group-name">그룹명 (한국어)</label>
+                        <input type="text" id="new-group-name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-group-name-en">그룹명 (영어)</label>
+                        <input type="text" id="new-group-name-en" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-group-name-jp">그룹명 (일본어)</label>
+                        <input type="text" id="new-group-name-jp" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-group-description">설명</label>
+                        <textarea id="new-group-description" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-group-sort-order">정렬 순서</label>
+                        <input type="number" id="new-group-sort-order" value="0" />
+                    </div>
+
+                    <button type="submit" class="submit-btn">그룹 추가</button>
+                </form>
+            </div>
+            </div>
+
+            <!-- 코드 그룹 수정 모달 -->
+            <div class="modal" id="edit-group-modal">
+            <div class="modal-content">
+                <span class="close" id="close-edit-group-modal">&times;</span>
+                <h2>코드 그룹 수정</h2>
+                <form id="edit-group-form">
+                    <div class="form-group">
+                        <label for="edit-group-code">그룹 코드</label>
+                        <input type="text" id="edit-group-code" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-group-name">그룹명 (한국어)</label>
+                        <input type="text" id="edit-group-name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-group-name-en">그룹명 (영어)</label>
+                        <input type="text" id="edit-group-name-en" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-group-name-jp">그룹명 (일본어)</label>
+                        <input type="text" id="edit-group-name-jp" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-group-description">설명</label>
+                        <textarea id="edit-group-description" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-group-sort-order">정렬 순서</label>
+                        <input type="number" id="edit-group-sort-order" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-group-active">활성화</label>
+                        <select id="edit-group-active">
+                            <option value="true">활성</option>
+                            <option value="false">비활성</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">수정 완료</button>
+                </form>
+            </div>
+            </div>
+
+            <!-- 코드 추가 모달 -->
+            <div class="modal" id="add-code-modal">
+            <div class="modal-content">
+                <span class="close" id="close-add-code-modal">&times;</span>
+                <h2>코드 추가</h2>
+                <form id="add-code-form">
+                    <div class="form-group">
+                        <label for="new-code-group-code">그룹 코드</label>
+                        <select id="new-code-group-code" required>
+                            <option value="">그룹 선택</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-code-code">코드</label>
+                        <input type="text" id="new-code-code" placeholder="예: ADMIN" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-code-name">코드명 (한국어)</label>
+                        <input type="text" id="new-code-name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-code-name-en">코드명 (영어)</label>
+                        <input type="text" id="new-code-name-en" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-code-name-jp">코드명 (일본어)</label>
+                        <input type="text" id="new-code-name-jp" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-code-description">설명</label>
+                        <textarea id="new-code-description" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-code-sort-order">정렬 순서</label>
+                        <input type="number" id="new-code-sort-order" value="0" />
+                    </div>
+
+                    <button type="submit" class="submit-btn">코드 추가</button>
+                </form>
+            </div>
+            </div>
+
+            <!-- 코드 수정 모달 -->
+            <div class="modal" id="edit-code-modal">
+            <div class="modal-content">
+                <span class="close" id="close-edit-code-modal">&times;</span>
+                <h2>코드 수정</h2>
+                <form id="edit-code-form">
+                    <div class="form-group">
+                        <label for="edit-code-group-code">그룹 코드</label>
+                        <input type="text" id="edit-code-group-code" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-code-code">코드</label>
+                        <input type="text" id="edit-code-code" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-code-name">코드명 (한국어)</label>
+                        <input type="text" id="edit-code-name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-code-name-en">코드명 (영어)</label>
+                        <input type="text" id="edit-code-name-en" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-code-name-jp">코드명 (일본어)</label>
+                        <input type="text" id="edit-code-name-jp" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-code-description">설명</label>
+                        <textarea id="edit-code-description" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-code-sort-order">정렬 순서</label>
+                        <input type="number" id="edit-code-sort-order" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-code-active">활성화</label>
+                        <select id="edit-code-active">
+                            <option value="true">활성</option>
+                            <option value="false">비활성</option>
                         </select>
                     </div>
 
