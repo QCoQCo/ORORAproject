@@ -14,7 +14,7 @@
                                     JOIN    tourist_spot_images tsi     ON ts.id = tsi.tourist_spot_id
                                     JOIN    tourist_spot_hashtags tsh   ON ts.id = tsh.tourist_spot_id
                                     JOIN    hashtags h                  ON tsh.hashtag_id = h.id
-        WHERE   r.id = #{regionId}
+        WHERE   r.sigungu_code = #{sigunguCode}
         AND     tsi.rep_img_yn = 'Y'
         GROUP BY ts.id,
                  ts.title,
@@ -23,6 +23,32 @@
     </select>
     
     <!-- 2. 지역 선택하기(지도에서 지역 중복 선택) -->
+    <select id="searchSpotsByRegionIds" parameterType="list" resultType="com.busan.orora.region.dto.SearchSpotsByRegionDto">
+
+        SELECT  ts.id
+                , ts.title
+                , ts.description
+                , tsi.image_url AS imageUrl
+                , GROUP_CONCAT(DISTINCT h.name ORDER BY h.name SEPARATOR ', ') AS hashtags
+        FROM    tourist_spots ts    JOIN    regions r                   ON ts.region_id = r.id 
+                                    JOIN    tourist_spot_images tsi     ON ts.id = tsi.tourist_spot_id
+                                    JOIN    tourist_spot_hashtags tsh   ON ts.id = tsh.tourist_spot_id
+                                    JOIN    hashtags h                  ON tsh.hashtag_id = h.id
+        WHERE r.sigungu_code IN
+        <foreach collection="regionIds"
+                item="id"
+                open="("
+                separator=","
+                close=")">
+            #{id}
+        </foreach>
+        AND tsi.rep_img_yn = 'Y'
+        GROUP BY ts.id
+                 , ts.title
+                 , ts.description
+                 , tsi.image_url
+
+    </select>   
 
 
 </mapper>

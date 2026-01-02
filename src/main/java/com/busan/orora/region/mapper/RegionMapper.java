@@ -13,4 +13,7 @@ public interface RegionMapper {
     RegionDto findRegionByAreaCode(Integer areaCode);
     
     List<SearchSpotsByRegionDto> searchSpotsByRegion(Long regionId);
+
+    // <select id="searchSpotsByRegionIds" parameterType="list" resultType="com.busan.orora.region.dto.SearchSpotsByRegionDto">
+    List<SearchSpotsByRegionDto> searchSpotsByRegionIds(List<Long> regionIds);
 }
