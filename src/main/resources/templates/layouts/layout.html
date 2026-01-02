@@ -30,7 +30,9 @@
     
     <div id="wrapper">
         <!-- Header 영역 -->
-        <div th:replace="~{components/header.html :: header}"></div>
+        <div id="header-container">
+            <div th:replace="~{components/header.html :: header}"></div>
+        </div>
         
         <!-- Content 영역 -->
         <div layout:fragment="content">
@@ -44,6 +46,7 @@
     <!-- 기본 스크립트 -->
     <script th:src="@{/js/language.js}"></script>
     <script th:src="@{/js/auth.js}"></script>
+    <script th:src="@{/js/header.js}"></script>
     
     <!-- 페이지별 추가 스크립트 (body) -->
     <th:block layout:fragment="script"></th:block>

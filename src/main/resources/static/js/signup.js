@@ -40,9 +40,9 @@ class SignupValidator {
             },
             userEmail: {
                 element: document.getElementById('userEmail'),
-                errorElement: null,
-                rules: ['emailFormat'],
-                valid: true, // 선택사항이므로 기본값 true
+                errorElement: document.getElementById('needEmail'),
+                rules: ['required', 'emailFormat'],
+                valid: false,
             },
             userAddress: {
                 element: document.getElementById('userAddress'),
@@ -89,7 +89,6 @@ class SignupValidator {
             return regex.test(value);
         },
         emailFormat: (value) => {
-            if (!value) return true; // 선택사항
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return regex.test(value);
         },
@@ -109,7 +108,47 @@ class SignupValidator {
 
     init() {
         this.setupEventListeners();
+        this.setupProfileImagePreview();
         this.updateSubmitButton();
+    }
+
+    setupProfileImagePreview() {
+        const profileImageInput = document.getElementById('profileImage');
+        const previewContainer = document.getElementById('profileImagePreview');
+        const previewImg = document.getElementById('previewImg');
+
+        if (profileImageInput && previewContainer && previewImg) {
+            profileImageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // 파일 타입 검증
+                    if (!file.type.startsWith('image/')) {
+                        alert('이미지 파일만 업로드 가능합니다.');
+                        e.target.value = '';
+                        previewContainer.style.display = 'none';
+                        return;
+                    }
+
+                    // 파일 크기 검증 (10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('파일 크기는 10MB 이하여야 합니다.');
+                        e.target.value = '';
+                        previewContainer.style.display = 'none';
+                        return;
+                    }
+
+                    // 미리보기 표시
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        previewImg.src = event.target.result;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewContainer.style.display = 'none';
+                }
+            });
+        }
     }
 
     setupEventListeners() {
@@ -268,8 +307,8 @@ class SignupValidator {
     }
 
     updateSubmitButton() {
-        // 필수 필드만 체크 (putId, putPsw, putRePsw, userName)
-        const requiredFields = ['putId', 'putPsw', 'putRePsw', 'userName'];
+        // 필수 필드만 체크 (putId, putPsw, putRePsw, userName, userEmail)
+        const requiredFields = ['putId', 'putPsw', 'putRePsw', 'userName', 'userEmail'];
         const requiredFieldsValid = requiredFields.every(
             (fieldName) => {
                 const field = this.fields[fieldName];
@@ -307,24 +346,48 @@ class SignupValidator {
     }
 
     async processSignup() {
-        const formData = {
-            loginId: this.fields.putId.element.value.trim(),
-            password: this.fields.putPsw.element.value,
-            username: this.fields.userName.element.value.trim(),
-            birthDate: this.fields.userBirth.element.value.trim() || null,
-            phoneNumber: this.fields.userPhone.element.value.trim() || null,
-            email: this.fields.userEmail.element.value.trim() || null,
-            address: this.fields.userAddress.element.value.trim() || null,
-            genderCode: this.fields.userGender.element.value || null,
-        };
+        // FormData 생성 (파일 업로드를 위해)
+        const formData = new FormData();
+        
+        // 텍스트 필드 추가
+        formData.append('loginId', this.fields.putId.element.value.trim());
+        formData.append('password', this.fields.putPsw.element.value);
+        formData.append('username', this.fields.userName.element.value.trim());
+        
+        const birthDate = this.fields.userBirth.element.value.trim();
+        if (birthDate) {
+            formData.append('birthDate', birthDate);
+        }
+        
+        const phoneNumber = this.fields.userPhone.element.value.trim();
+        if (phoneNumber) {
+            formData.append('phoneNumber', phoneNumber);
+        }
+        
+        const email = this.fields.userEmail.element.value.trim();
+        formData.append('email', email);
+        
+        const address = this.fields.userAddress.element.value.trim();
+        if (address) {
+            formData.append('address', address);
+        }
+        
+        const genderCode = this.fields.userGender.element.value;
+        if (genderCode) {
+            formData.append('genderCode', genderCode);
+        }
+        
+        // 프로필 이미지 파일 추가 (선택사항)
+        const profileImageInput = document.getElementById('profileImage');
+        if (profileImageInput && profileImageInput.files && profileImageInput.files[0]) {
+            formData.append('profileImage', profileImageInput.files[0]);
+        }
 
         try {
             const response = await fetch('/api/auth/signup', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
+                // FormData를 사용할 때는 Content-Type 헤더를 설정하지 않아야 브라우저가 자동으로 boundary를 설정합니다
+                body: formData,
             });
 
             if (!response.ok) {

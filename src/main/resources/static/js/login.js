@@ -4,6 +4,21 @@ const loginBtn = document.getElementById('loginBtn');
 const checkId = document.getElementById('checkId');
 const checkLogin = document.getElementById('checkLogin');
 
+// 엔터키로 로그인 버튼 클릭
+putId.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        loginBtn.click();
+    }
+});
+
+putPsw.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        loginBtn.click();
+    }
+});
+
 // 패스워드 글자 6~15자, 영문, 숫자, 특수문자 최소 1회
 // function strongPassword(str) {
 //     return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,15}$/.test(str);

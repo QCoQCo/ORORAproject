@@ -16,4 +16,8 @@ public interface UserMapper {
     List<UserDto> findAllUsers();
     UserDto findById(@Param("id") Long id);
     void updateProfileImage(@Param("id") Long id, @Param("profileImage") String profileImage);
+    void updateUser(UserDto userDto);
+    void updateUserStatus(@Param("id") Long id, @Param("statusCode") String statusCode);
+    void updateUserRole(@Param("id") Long id, @Param("roleCode") String roleCode);
+    void deleteUser(@Param("id") Long id);
 }
