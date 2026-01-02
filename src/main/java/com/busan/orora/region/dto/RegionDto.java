@@ -11,7 +11,8 @@ CREATE TABLE regions (
     area_code INT NOT NULL UNIQUE,
     name VARCHAR(30) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    sigungu_code INT UNIQUE
 );
 */
 @Data
@@ -23,4 +24,5 @@ public class RegionDto {
     private String name;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Integer sigunguCode;
 }
