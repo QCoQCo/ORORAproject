@@ -147,12 +147,16 @@ INSERT INTO review_reports (user_id, review_id, reason, status_code) VALUES
 SELECT * FROM regions;
 SELECT * FROM hashtags;
 SELECT * FROM users;
+SELECT * FROM user_profile_images;
 SELECT * FROM tourist_spots;
 SELECT * FROM tourist_spot_images;
 SELECT * FROM tourist_spot_hashtags;
 SELECT * FROM reviews;
 SELECT * FROM review_images;
 SELECT * FROM tourist_spot_likes;
+SELECT * FROM review_likes;
+SELECT * FROM review_comments;
+SELECT * FROM review_reports;
 
 -- ============================================
 -- 테스트용 복잡한 조회 쿼리
