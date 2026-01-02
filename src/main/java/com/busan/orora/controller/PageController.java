@@ -75,6 +75,11 @@ public class PageController {
         return "pages/search-place/theme";
     }
 
+    @GetMapping("/pages/search-place/search")
+    public String search() {
+        return "pages/search-place/search";
+    }
+
     // About Orora page
     @GetMapping("/pages/about-orora/orora-introduce")
     public String ororaIntroduce() {
