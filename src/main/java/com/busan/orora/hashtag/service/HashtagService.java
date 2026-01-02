@@ -22,4 +22,8 @@ public class HashtagService {
     public List<HashtagDto> getHashtagsBySpotId(Long spotId) {
         return hashtagMapper.findHashtagsBySpotId(spotId);
     }
+
+  
+
+
 }
