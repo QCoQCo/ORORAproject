@@ -645,6 +645,207 @@
     margin: 0 15px;
 }
 
+/* ============================================
+   공통코드 관리 영역 스타일
+   ============================================ */
+
+/* 공통코드 탭 컨텐츠 */
+#common-codes-tab {
+}
+
+/* 공통코드 헤더 영역 */
+.common-codes-header {
+}
+
+.common-codes-controls {
+}
+
+.common-codes-controls .search-filter {
+}
+
+/* 코드 그룹 필터 */
+#code-group-filter {
+}
+
+/* 그룹 추가 버튼 */
+.add-group-btn {
+}
+
+/* 공통코드 메인 컨테이너 */
+.common-codes-container {
+}
+
+/* 코드 그룹 섹션 */
+.code-groups-section {
+}
+
+.code-groups-section h3 {
+}
+
+/* 코드 그룹 그리드 */
+.code-groups-grid {
+}
+
+/* 코드 그룹 카드 */
+.code-group-card {
+}
+
+.code-group-header {
+}
+
+.code-group-header h4 {
+}
+
+.code-group-code {
+}
+
+.code-group-info {
+}
+
+.code-group-info p {
+}
+
+.code-group-actions {
+}
+
+.code-group-actions .edit-btn {
+}
+
+.code-group-actions .delete-btn {
+}
+
+/* 코드 섹션 */
+.codes-section {
+}
+
+.codes-section h3 {
+}
+
+/* 코드 컨트롤 */
+.codes-controls {
+}
+
+.add-code-btn {
+}
+
+/* 코드 테이블 컨테이너 */
+.codes-table-container {
+}
+
+/* 코드 테이블 */
+.codes-table {
+}
+
+.codes-table thead {
+}
+
+.codes-table thead th {
+}
+
+.codes-table tbody {
+}
+
+.codes-table tbody tr {
+}
+
+.codes-table tbody td {
+}
+
+.codes-table tbody .edit-btn {
+}
+
+.codes-table tbody .delete-btn {
+}
+
+/* 코드 그룹 추가 모달 */
+#add-group-modal {
+}
+
+#add-group-modal .modal-content {
+}
+
+#add-group-modal .form-group {
+}
+
+#add-group-modal label {
+}
+
+#add-group-modal input[type='text'],
+#add-group-modal input[type='number'],
+#add-group-modal textarea {
+}
+
+#add-group-modal .submit-btn {
+}
+
+/* 코드 그룹 수정 모달 */
+#edit-group-modal {
+}
+
+#edit-group-modal .modal-content {
+}
+
+#edit-group-modal .form-group {
+}
+
+#edit-group-modal label {
+}
+
+#edit-group-modal input[type='text'],
+#edit-group-modal input[type='number'],
+#edit-group-modal input[readonly],
+#edit-group-modal textarea,
+#edit-group-modal select {
+}
+
+#edit-group-modal .submit-btn {
+}
+
+/* 코드 추가 모달 */
+#add-code-modal {
+}
+
+#add-code-modal .modal-content {
+}
+
+#add-code-modal .form-group {
+}
+
+#add-code-modal label {
+}
+
+#add-code-modal input[type='text'],
+#add-code-modal input[type='number'],
+#add-code-modal select,
+#add-code-modal textarea {
+}
+
+#add-code-modal .submit-btn {
+}
+
+/* 코드 수정 모달 */
+#edit-code-modal {
+}
+
+#edit-code-modal .modal-content {
+}
+
+#edit-code-modal .form-group {
+}
+
+#edit-code-modal label {
+}
+
+#edit-code-modal input[type='text'],
+#edit-code-modal input[type='number'],
+#edit-code-modal input[readonly],
+#edit-code-modal select,
+#edit-code-modal textarea {
+}
+
+#edit-code-modal .submit-btn {
+}
+
 /* 데이터 관리 스타일 */
 .export-buttons {
     display: flex;
