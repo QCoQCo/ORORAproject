@@ -70,12 +70,54 @@ function initControlPanelToggle() {
     }
 }
 
+// 컨트롤 버튼 이벤트 초기화
+function initControlButtons() {
+    // 전체 해제 버튼
+    const clearAllBtn = document.querySelector('.control-button.btn-secondary');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', function () {
+            // 모든 선택 해제
+            selectedRegionIds.clear();
+
+            // 지도에서 선택 표시 제거
+            document.querySelectorAll('.c-click.selected').forEach((region) => {
+                region.classList.remove('selected');
+            });
+
+            // 리스트 초기화
+            const ul = document.getElementById('tourist-spots-list');
+            if (ul) {
+                ul.innerHTML =
+                    '<li style="padding: 20px; text-align: center; color: #999;">지도에서 지역을 클릭하면 관광지가 나옵니다.</li>';
+            }
+
+            // 선택 정보 업데이트
+            updateSelectionInfo();
+        });
+    }
+
+    // 선택된 지역 보기 버튼
+    const viewSelectedBtn = document.querySelector('.control-button.btn-primary');
+    if (viewSelectedBtn) {
+        viewSelectedBtn.addEventListener('click', function () {
+            if (selectedRegionIds.size > 0) {
+                fetchRegionSpots([...selectedRegionIds]);
+            } else {
+                alert('선택된 지역이 없습니다.');
+            }
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // 컨트롤 패널 토글 기능 초기화
     initControlPanelToggle();
 
-    // 관광지 데이터 로드
-    loadTouristData();
+    // 컨트롤 버튼 이벤트 초기화
+    initControlButtons();
+
+    // 지도 로드
+    loadMap();
 });
 
 /*************************
@@ -83,17 +125,43 @@ document.addEventListener('DOMContentLoaded', function () {
  *************************/
 function loadMap() {
     const mapContainer = document.getElementById('mapSvg');
-    if (!mapContainer) return;
+    if (!mapContainer) {
+        console.error('mapSvg 요소를 찾을 수 없습니다.');
+        return;
+    }
 
-    fetch('/images/map.svg')
-        .then((res) => res.text())
+    const mapPath = getMapPath();
+    console.log('지도 경로:', mapPath);
+
+    fetch(mapPath)
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.text();
+        })
         .then((svg) => {
-            mapContainer.innerHTML = svg;
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(svg, 'image/svg+xml');
+            const svgElement = svgDoc.documentElement;
+
+            // 파서 오류 확인
+            const parserError = svgDoc.querySelector('parsererror');
+            if (parserError) {
+                throw new Error('SVG 파싱 오류');
+            }
+
+            // 기존 SVG 내용 제거 후 새 SVG 삽입
+            mapContainer.innerHTML = '';
+            mapContainer.appendChild(svgElement);
+
+            // 지도 로드 후 클릭 이벤트 바인딩
             bindRegionClick();
         })
         .catch((err) => {
-            console.error(err);
-            mapContainer.innerHTML = '지도를 로드할 수 없습니다.';
+            console.error('지도 로드 오류:', err);
+            mapContainer.innerHTML =
+                '<p style="padding: 20px; text-align: center; color: #999;">지도를 로드할 수 없습니다.</p>';
         });
 }
 
@@ -158,18 +226,66 @@ async function fetchRegionSpots(regionIds) {
  *************************/
 function renderSpotList(spots) {
     const ul = document.getElementById('tourist-spots-list');
-    ul.innerHTML = '';
-
-    if (!spots || spots.length === 0) {
-        ul.innerHTML = '<li>관광지가 없습니다.</li>';
+    if (!ul) {
+        console.error('tourist-spots-list 요소를 찾을 수 없습니다.');
         return;
     }
 
-    spots.forEach((spot) => {
-        const li = document.createElement('li');
-        li.textContent = spot.title; // DTO 기준
-        ul.appendChild(li);
-    });
+    ul.innerHTML = '';
+
+    if (!spots || spots.length === 0) {
+        ul.innerHTML =
+            '<li style="padding: 20px; text-align: center; color: #999;">관광지가 없습니다.</li>';
+        return;
+    }
+
+    // ListLoader를 사용하여 렌더링 (list-loader.js가 로드되어 있다고 가정)
+    if (typeof ListLoader !== 'undefined' && listLoader === null) {
+        const templateContainer = document.getElementById('list-template-container');
+        if (templateContainer) {
+            listLoader = new ListLoader({
+                containerSelector: '#tourist-spots-list',
+                templateContainerSelector: '#list-template-container',
+                data: spots.map((spot) => ({
+                    id: spot.id,
+                    title: spot.title,
+                    description: spot.description || '',
+                    hashtags: spot.hashtags || [],
+                    img: spot.imageUrl || '',
+                    link: spot.linkUrl || `#`,
+                    categoryCode: spot.categoryCode || 'culture',
+                    isActive: spot.isActive !== false,
+                })),
+                fallbackImage: '../../images/logo.png',
+                onItemClick: (itemData, event) => {
+                    window.location.href = `/pages/detailed/detailPage?id=${itemData.id}`;
+                },
+            });
+            listLoader.render().catch((err) => {
+                console.error('리스트 렌더링 오류:', err);
+                // 폴백: 간단한 리스트로 표시
+                spots.forEach((spot) => {
+                    const li = document.createElement('li');
+                    li.textContent = spot.title;
+                    ul.appendChild(li);
+                });
+            });
+        } else {
+            // 템플릿이 없으면 간단한 리스트로 표시
+            spots.forEach((spot) => {
+                const li = document.createElement('li');
+                li.textContent = spot.title;
+                ul.appendChild(li);
+            });
+        }
+    } else {
+        // ListLoader가 없으면 간단한 리스트로 표시
+        spots.forEach((spot) => {
+            const li = document.createElement('li');
+            li.textContent = spot.title;
+            ul.appendChild(li);
+        });
+    }
 }
 
 /*************************
