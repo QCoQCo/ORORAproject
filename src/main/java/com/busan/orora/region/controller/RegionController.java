@@ -20,15 +20,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/api/regions")
-public class RegionApiController {
+public class RegionController {
 
     private final RegionService regionService;
 
-    public RegionApiController(RegionService regionService) {
+    public RegionController(RegionService regionService) {
         this.regionService = regionService;
     }
 
-    // ✅ JSON API
+    // JSON API
     // @GetMapping("/{regionId}/spots")
     // public List<SearchSpotsByRegionDto> getSpots(@PathVariable Long regionId) {
     //     return regionService.searchSpotsByRegion(regionId);

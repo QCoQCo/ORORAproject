@@ -4,6 +4,8 @@ import com.busan.orora.region.dto.RegionDto;
 import com.busan.orora.region.dto.SearchSpotsByRegionDto;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 @Mapper
@@ -15,5 +17,5 @@ public interface RegionMapper {
     List<SearchSpotsByRegionDto> searchSpotsByRegion(Long regionId);
 
     // <select id="searchSpotsByRegionIds" parameterType="list" resultType="com.busan.orora.region.dto.SearchSpotsByRegionDto">
-    List<SearchSpotsByRegionDto> searchSpotsByRegionIds(List<Long> regionIds);
+    List<SearchSpotsByRegionDto> searchSpotsByRegionIds(@Param("list") List<Integer> regionIds);
 }
