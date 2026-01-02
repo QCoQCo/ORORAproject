@@ -12,6 +12,10 @@ public interface HashtagMapper {
     HashtagDto findHashtagByName(String name);
     List<HashtagDto> findHashtagsBySpotId(@Param("spotId") Long spotId);
     void insertHashtag(HashtagDto hashtagDto);
+
+    //여기서 부터 작성
+
+    // 관광지 해시태그
     void insertSpotHashtag(@Param("spotId") Long spotId, @Param("hashtagId") Long hashtagId);
     void deleteSpotHashtags(@Param("spotId") Long spotId);
 }

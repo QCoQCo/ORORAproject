@@ -94,6 +94,9 @@
                         </h3>
                         <div class="all-tags collapsible" id="all-tags">
                             <!-- 동적으로 생성됩니다 -->
+                             <ul>
+                                <li th:each="tag : ${hashtags}" th:text="${tag.name}">해시태그 이름</li>
+                            </ul>
                         </div>
                     </div>
 
