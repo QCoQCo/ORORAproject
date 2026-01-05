@@ -175,32 +175,46 @@
 
                     <div class="tab-content" id="common-codes-tab">
                         <div class="common-codes-header">
-                            <div class="common-codes-controls">
-                                <div class="search-filter">
-                                    <select id="code-group-filter">
-                                        <option value="">전체 그룹</option>
-                                    </select>
-                                    <button class="add-group-btn" onclick="openAddGroupModal()">
-                                        코드 그룹 추가
-                                    </button>
-                                </div>
-                            </div>
+                            <h2>공통코드 관리</h2>
+                            <p class="section-description">
+                                공통코드는 그룹 테이블(common_code_groups)과 코드 테이블(common_codes)로 구성됩니다.
+                                그룹은 코드의 카테고리를 정의하고, 코드는 실제 코드값을 저장합니다.
+                            </p>
                         </div>
 
                         <div class="common-codes-container">
+                            <!-- 코드 그룹 섹션 -->
                             <div class="code-groups-section">
-                                <h3>코드 그룹 목록</h3>
+                                <div class="section-header">
+                                    <h3>코드 그룹 관리 (common_code_groups)</h3>
+                                    <p class="section-subtitle">코드의 카테고리를 정의합니다. 예: USER_ROLE, USER_STATUS, GENDER 등</p>
+                                    <div class="section-controls">
+                                        <button class="add-group-btn" onclick="openAddGroupModal()">
+                                            + 코드 그룹 추가
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="code-groups-grid" id="code-groups-grid">
                                     <!-- 코드 그룹 목록이 동적으로 생성됩니다 -->
                                 </div>
                             </div>
 
+                            <!-- 코드 섹션 -->
                             <div class="codes-section">
-                                <h3>코드 목록</h3>
-                                <div class="codes-controls">
-                                    <button class="add-code-btn" onclick="openAddCodeModal()">
-                                        코드 추가
-                                    </button>
+                                <div class="section-header">
+                                    <h3>코드 관리 (common_codes)</h3>
+                                    <p class="section-subtitle">실제 코드값들을 저장합니다. 각 코드는 반드시 하나의 그룹에 속해야 합니다.</p>
+                                    <div class="section-controls">
+                                        <div class="search-filter">
+                                            <label for="code-group-filter">그룹 필터:</label>
+                                            <select id="code-group-filter">
+                                                <option value="">전체 그룹</option>
+                                            </select>
+                                        </div>
+                                        <button class="add-code-btn" onclick="openAddCodeModal()">
+                                            + 코드 추가
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="codes-table-container">
                                     <table class="codes-table">

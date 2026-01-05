@@ -2,57 +2,61 @@
 -- 공통코드 스키마
 -- Database: arata_busan
 -- 설명: 시스템 전반에서 사용되는 공통코드를 관리하는 테이블
+-- 구조: 그룹 테이블과 코드 테이블로 명확히 분리
 -- ============================================
-
--- sql
 
 USE arata_busan;
 
 -- ============================================
--- 1. 공통코드 그룹 테이블
+-- 1. 공통코드 그룹 테이블 (common_code_groups)
 -- ============================================
 -- 코드를 분류하는 그룹을 관리하는 테이블
 -- 예: USER_ROLE, USER_STATUS, GENDER, SPOT_CATEGORY 등
-CREATE TABLE common_code_groups (
+-- 이 테이블은 코드의 카테고리를 정의합니다.
+CREATE TABLE IF NOT EXISTS common_code_groups (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    group_code VARCHAR(50) NOT NULL UNIQUE COMMENT '코드 그룹 식별자 (예: USER_ROLE)',
-    group_name VARCHAR(100) NOT NULL COMMENT '코드 그룹명 (한국어)',
-    group_name_en VARCHAR(100) COMMENT '코드 그룹명 (영어)',
-    group_name_jp VARCHAR(100) COMMENT '코드 그룹명 (일본어)',
-    description TEXT COMMENT '그룹 설명',
-    is_active BOOLEAN DEFAULT TRUE COMMENT '사용 여부',
-    sort_order INT DEFAULT 0 COMMENT '정렬 순서',
+    group_code VARCHAR(50) NOT NULL UNIQUE ,
+    group_name VARCHAR(100) NOT NULL ,
+    group_name_en VARCHAR(100) ,
+    group_name_jp VARCHAR(100) ,
+    description TEXT ,
+    is_active BOOLEAN DEFAULT TRUE ,
+    sort_order INT DEFAULT 0 ,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_group_code (group_code),
     INDEX idx_is_active (is_active),
     INDEX idx_sort_order (sort_order)
-) COMMENT='공통코드 그룹 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 
 -- ============================================
--- 2. 공통코드 테이블
+-- 2. 공통코드 테이블 (common_codes)
 -- ============================================
 -- 실제 코드값들을 저장하는 테이블
-CREATE TABLE common_codes (
+-- 각 코드는 반드시 하나의 그룹에 속해야 합니다.
+-- 복합키 (group_code, code)로 그룹 내에서 코드의 유일성을 보장합니다.
+CREATE TABLE IF NOT EXISTS common_codes (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    group_code VARCHAR(50) NOT NULL COMMENT '코드 그룹 식별자',
-    code VARCHAR(50) NOT NULL COMMENT '코드값 (예: ADMIN, MEMBER)',
-    code_name VARCHAR(100) NOT NULL COMMENT '코드명 (한국어 표시용)',
-    code_name_en VARCHAR(100) COMMENT '코드명 (영어)',
-    code_name_jp VARCHAR(100) COMMENT '코드명 (일본어)',
-    description TEXT COMMENT '코드 상세 설명',
-    sort_order INT DEFAULT 0 COMMENT '정렬 순서',
-    is_active BOOLEAN DEFAULT TRUE COMMENT '사용 여부',
-    extra_data JSON COMMENT '추가 데이터 (JSON 형식)',
+    group_code VARCHAR(50) NOT NULL ,
+    code VARCHAR(50) NOT NULL ,
+    code_name VARCHAR(100) NOT NULL ,
+    code_name_en VARCHAR(100) ,
+    code_name_jp VARCHAR(100) ,
+    description TEXT ,
+    sort_order INT DEFAULT 0 ,
+    is_active BOOLEAN DEFAULT TRUE ,
+    extra_data JSON ,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (group_code) REFERENCES common_code_groups(group_code) ON DELETE CASCADE,
+    -- 그룹 테이블과의 외래키 관계
+    FOREIGN KEY (group_code) REFERENCES common_code_groups(group_code) ON DELETE CASCADE ON UPDATE CASCADE,
+    -- 그룹 내에서 코드의 유일성 보장
     UNIQUE KEY unique_group_code (group_code, code),
     INDEX idx_group_code (group_code),
     INDEX idx_code (code),
     INDEX idx_is_active (is_active),
     INDEX idx_sort_order (sort_order)
-) COMMENT='공통코드 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='공통코드 테이블';
 
 -- ============================================
 -- 3. 공통코드 그룹 초기 데이터
@@ -140,23 +144,72 @@ INSERT INTO common_codes (group_code, code, code_name, code_name_en, code_name_j
 -- ORDER BY sort_order;
 
 -- ============================================
--- 6. 기존 테이블과의 연동을 위한 마이그레이션 가이드
+-- 6. 테이블 관계 설명
+-- ============================================
+-- 
+-- 1. common_code_groups (그룹 테이블)
+--    - 코드의 카테고리를 정의합니다.
+--    - 예: USER_ROLE, USER_STATUS, GENDER 등
+--    - group_code가 PRIMARY KEY 역할을 합니다.
+-- 
+-- 2. common_codes (코드 테이블)
+--    - 실제 코드값들을 저장합니다.
+--    - 각 코드는 반드시 하나의 그룹에 속해야 합니다.
+--    - (group_code, code) 복합키로 그룹 내에서 코드의 유일성을 보장합니다.
+--    - group_code는 common_code_groups.group_code를 참조합니다.
+-- 
+-- 3. 다른 테이블과의 관계
+--    - users.role_code -> common_codes.code (단, group_code = 'USER_ROLE')
+--    - users.status_code -> common_codes.code (단, group_code = 'USER_STATUS')
+--    - users.gender_code -> common_codes.code (단, group_code = 'GENDER')
+--    - tourist_spots.category_code -> common_codes.code (단, group_code = 'SPOT_CATEGORY')
+--    - review_reports.status_code -> common_codes.code (단, group_code = 'REPORT_STATUS')
+-- 
+-- 주의: MySQL의 제약으로 인해 복합 외래키를 직접 설정할 수 없으므로,
+--      애플리케이션 레벨에서 group_code를 함께 확인해야 합니다.
+-- 
+-- ============================================
+-- 7. 기존 테이블과의 연동을 위한 마이그레이션 가이드
 -- ============================================
 -- 
 -- 기존 ENUM 컬럼을 공통코드로 변경하려면:
 -- 
--- 1. 기존 테이블에 새 컬럼 추가 (예: role_code VARCHAR(50))
--- 2. 기존 데이터 마이그레이션
+-- 1. 공통코드 테이블 생성 및 초기 데이터 삽입
+--    - 이 스키마 파일을 먼저 실행합니다.
+-- 
+-- 2. 기존 테이블에 새 컬럼 추가 (예: role_code VARCHAR(50))
+--    ALTER TABLE users ADD COLUMN role_code VARCHAR(50) DEFAULT 'MEMBER';
+-- 
+-- 3. 기존 데이터 마이그레이션
 --    UPDATE users SET role_code = 'ADMIN' WHERE role = 'admin';
 --    UPDATE users SET role_code = 'VIP' WHERE role = 'vip';
 --    UPDATE users SET role_code = 'MEMBER' WHERE role = 'member';
--- 3. 외래키 추가
---    ALTER TABLE users ADD FOREIGN KEY (role_code) REFERENCES common_codes(code);
--- 4. 기존 ENUM 컬럼 삭제 (선택사항)
+-- 
+-- 4. 외래키 추가 (선택사항 - MySQL 제약으로 인해 복합키 불가)
+--    -- 단일 컬럼 외래키만 가능 (code만 참조)
+--    -- ALTER TABLE users ADD FOREIGN KEY (role_code) REFERENCES common_codes(code);
+--    -- 주의: 이 경우 group_code를 함께 확인하는 트리거나 애플리케이션 로직이 필요합니다.
+-- 
+-- 5. 기존 ENUM 컬럼 삭제 (선택사항)
 --    ALTER TABLE users DROP COLUMN role;
+-- 
+-- ============================================
+-- 8. 참고사항
+-- ============================================
+-- 
+-- - 이 스키마는 그룹 테이블과 코드 테이블로 명확히 분리되어 있습니다.
+-- - common_code_groups: 코드의 카테고리 정의
+-- - common_codes: 실제 코드값 저장
+-- - 두 테이블은 group_code를 통해 연결됩니다.
+-- 
+-- - 다른 테이블에서 코드를 참조할 때는 common_codes.code를 참조하되,
+--   애플리케이션 레벨에서 적절한 group_code를 함께 확인해야 합니다.
 -- 
 -- ============================================
 
 
--- 특정 유저를 관리자로 변경
-UPDATE users SET role_code = 'ADMIN' WHERE id = 7;
+TRUNCATE TABLE common_code_groups;
+TRUNCATE TABLE common_codes;
+
+DROP TABLE common_code_groups;
+DROP TABLE common_codes;

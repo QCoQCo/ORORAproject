@@ -507,7 +507,7 @@
       "CommonCodeGroups2025": {
         "id": "CommonCodeGroups2025",
         "name": "common_code_groups",
-        "comment": "",
+        "comment": "공통코드 그룹 테이블 - 코드의 카테고리를 정의 (예: USER_ROLE, USER_STATUS)",
         "columnIds": [
           "ccg_id",
           "ccg_group_code",
@@ -548,7 +548,7 @@
       "CommonCodes2025": {
         "id": "CommonCodes2025",
         "name": "common_codes",
-        "comment": "",
+        "comment": "공통코드 테이블 - 실제 코드값들을 저장 (각 코드는 하나의 그룹에 속함)",
         "columnIds": [
           "cc_id",
           "cc_group_code",

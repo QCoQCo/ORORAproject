@@ -515,9 +515,13 @@ class TagSearchSystem {
 
     // 상세 페이지로 이동하는 함수
     navigateToDetail(spot) {
-        const encodedTitle = encodeURIComponent(spot.title);
-        // Thymeleaf 경로 사용
-        window.location.href = `/pages/detailed/detailed?title=${encodedTitle}`;
+        // 관광지 ID가 있으면 ID를 사용하고, 없으면 제목을 사용
+        if (spot.id) {
+            window.location.href = `/pages/detailed/detailed?id=${spot.id}`;
+        } else {
+            const encodedTitle = encodeURIComponent(spot.title);
+            window.location.href = `/pages/detailed/detailed?title=${encodedTitle}`;
+        }
     }
 
     loadMore() {

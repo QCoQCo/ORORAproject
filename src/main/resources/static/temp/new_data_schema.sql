@@ -13,9 +13,9 @@ CREATE TABLE regions (
     id INT PRIMARY KEY AUTO_INCREMENT,
     area_code INT NOT NULL UNIQUE,
     name VARCHAR(30) NOT NULL,
+    sigungu_code INT UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    sigungu_code INT UNIQUE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- 2. 관광지 테이블
@@ -210,6 +210,8 @@ DROP TABLE IF EXISTS review_comments;
 DROP TABLE IF EXISTS review_reports;
 DROP TABLE IF EXISTS review_images;
 DROP TABLE IF EXISTS tourist_spot_likes;
+
+ALTER TABLE regions MODIFY COLUMN sigungu_code INT UNIQUE AFTER name;
 
 
 -- -- 7. 축제/이벤트 테이블
