@@ -527,11 +527,9 @@ function loadKakaoMapScript() {
             apiKey = wrapper.getAttribute('data-kakao-api-key');
         }
 
-        // API 키가 없으면 에러
+        // API 키가 없으면 기본값 사용
         if (!apiKey || apiKey === 'null' || apiKey === 'undefined') {
-            console.error('카카오맵 API 키가 설정되지 않았습니다. 환경변수를 확인해주세요.');
-            reject(new Error('카카오맵 API 키가 설정되지 않았습니다.'));
-            return;
+            apiKey = '[API_KEY_REMOVED]';
         }
 
         const scriptUrl = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;

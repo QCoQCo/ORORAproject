@@ -260,7 +260,7 @@ async function renderSpotList(spots) {
                         // 쉼표로 구분된 문자열을 배열로 변환
                         hashtagsArray = spot.hashtags
                             .split(',')
-                            .map((tag) => tag.trim())
+                            .map((tag) => '#' + tag.trim())
                             .filter((tag) => tag.length > 0);
                     }
                 }
@@ -283,7 +283,7 @@ async function renderSpotList(spots) {
                 data: listData,
                 fallbackImage: '../../images/logo.png',
                 onItemClick: (itemData, event) => {
-                    // 상세 페이지로 이동 (detailed.html 사용)
+                    // 상세 페이지로 이동
                     window.location.href = `/pages/detailed/detailed?id=${itemData.id}`;
                 },
                 onLikeClick: (itemData, isLiked) => {
