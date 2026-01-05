@@ -1012,7 +1012,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (spotId || spotTitle) {
         loadTouristSpotDetail();
     } else {
-        // URL 파라미터가 없으면 기본 Swiper만 초기화 (detailPage.html용)
         setTimeout(() => {
             initSwiper();
         }, 100);
