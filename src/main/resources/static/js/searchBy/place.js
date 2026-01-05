@@ -284,7 +284,7 @@ async function renderSpotList(spots) {
                 fallbackImage: '../../images/logo.png',
                 onItemClick: (itemData, event) => {
                     // 상세 페이지로 이동
-                    window.location.href = `/pages/detailed/detailPage?id=${itemData.id}`;
+                    window.location.href = `/pages/detailed/detailed?id=${itemData.id}`;
                 },
                 onLikeClick: (itemData, isLiked) => {
                     // 좋아요 기능 (필요시 구현)
