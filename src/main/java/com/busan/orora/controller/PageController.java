@@ -109,11 +109,6 @@ public class PageController {
         return "pages/detailed/detailed";
     }
 
-    @GetMapping("/pages/detailed/detailPage")
-    public String detailPage() {
-        return "pages/detailed/detailPage";
-    }
-
     // MyPage
     @GetMapping("/pages/mypage/mypage")
     public String mypage() {
