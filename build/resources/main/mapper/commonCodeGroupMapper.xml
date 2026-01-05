@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.commoncode.mapper.CommonCodeGroupMapper">
+    <resultMap id="CommonCodeGroupResultMap" type="com.busan.orora.commoncode.dto.CommonCodeGroupDto">
+        <id property="id" column="id" />
+        <result property="groupCode" column="group_code" />
+        <result property="groupName" column="group_name" />
+        <result property="groupNameEn" column="group_name_en" />
+        <result property="groupNameJp" column="group_name_jp" />
+        <result property="description" column="description" />
+        <result property="isActive" column="is_active" />
+        <result property="sortOrder" column="sort_order" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <!-- 모든 코드 그룹 조회 -->
+    <select id="findAllGroups" resultMap="CommonCodeGroupResultMap">
+        SELECT id, group_code, group_name, group_name_en, group_name_jp, description, 
+               is_active, sort_order, created_at, updated_at
+        FROM common_code_groups
+        ORDER BY sort_order ASC, id ASC
+    </select>
+
+    <!-- 그룹 코드로 조회 -->
+    <select id="findGroupByCode" resultMap="CommonCodeGroupResultMap" parameterType="String">
+        SELECT id, group_code, group_name, group_name_en, group_name_jp, description, 
+               is_active, sort_order, created_at, updated_at
+        FROM common_code_groups
+        WHERE group_code = #{groupCode}
+    </select>
+
+    <!-- ID로 조회 -->
+    <select id="findGroupById" resultMap="CommonCodeGroupResultMap" parameterType="Long">
+        SELECT id, group_code, group_name, group_name_en, group_name_jp, description, 
+               is_active, sort_order, created_at, updated_at
+        FROM common_code_groups
+        WHERE id = #{id}
+    </select>
+
+    <!-- 코드 그룹 추가 -->
+    <insert id="insertGroup" parameterType="com.busan.orora.commoncode.dto.CommonCodeGroupDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO common_code_groups (group_code, group_name, group_name_en, group_name_jp, description, is_active, sort_order, created_at, updated_at)
+        VALUES (#{groupCode}, #{groupName}, #{groupNameEn}, #{groupNameJp}, #{description}, 
+                #{isActive}, #{sortOrder}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <!-- 코드 그룹 수정 -->
+    <update id="updateGroup" parameterType="com.busan.orora.commoncode.dto.CommonCodeGroupDto">
+        UPDATE common_code_groups
+        SET group_name = #{groupName},
+            group_name_en = #{groupNameEn},
+            group_name_jp = #{groupNameJp},
+            description = #{description},
+            is_active = #{isActive},
+            sort_order = #{sortOrder},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 코드 그룹 삭제 -->
+    <delete id="deleteGroup" parameterType="Long">
+        DELETE FROM common_code_groups
+        WHERE id = #{id}
+    </delete>
+</mapper>

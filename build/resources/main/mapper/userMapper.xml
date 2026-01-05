@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.user.mapper.UserMapper">
+    <resultMap id="UserResultMap" type="com.busan.orora.user.dto.UserDto">
+        <id property="id" column="id"/>
+        <result property="loginId" column="login_id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="passwordHash" column="password_hash"/>
+        <result property="roleCode" column="role_code"/>
+        <result property="statusCode" column="status_code"/>
+        <result property="profileImage" column="profile_image"/>
+        <result property="phoneNumber" column="phone_number"/>
+        <result property="address" column="address"/>
+        <result property="birthDate" column="birth_date"/>
+        <result property="genderCode" column="gender_code"/>
+        <result property="joinDate" column="join_date"/>
+        <result property="lastLogin" column="last_login"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertUser" parameterType="com.busan.orora.user.dto.UserDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (login_id, username, email, password_hash, role_code, status_code, phone_number, address, birth_date, gender_code, join_date, last_login)
+        VALUES (#{loginId}, #{username}, #{email}, #{passwordHash}, #{roleCode}, #{statusCode}, #{phoneNumber}, #{address}, #{birthDate}, #{genderCode}, #{joinDate}, #{lastLogin})
+    </insert>
+
+    <select id="findByLoginId" parameterType="String" resultMap="UserResultMap">
+        SELECT 
+            u.id, u.login_id, u.username, u.email, u.password_hash, u.role_code, u.status_code, 
+            u.phone_number, u.address, u.birth_date, u.gender_code, u.join_date, u.last_login, 
+            u.created_at, u.updated_at,
+            COALESCE(
+                (SELECT image_url FROM user_profile_images WHERE user_id = u.id ORDER BY reg_time DESC LIMIT 1),
+                '/images/defaultProfile.png'
+            ) as profile_image
+        FROM users u
+        WHERE u.login_id = #{loginId} AND u.status_code = 'ACTIVE'
+    </select>
+
+    <select id="countByLoginId" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE login_id = #{loginId}
+    </select>
+
+    <select id="countByEmail" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+    <update id="updateLastLogin">
+        UPDATE users
+        SET last_login = #{lastLogin}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findAllUsers" resultMap="UserResultMap">
+        SELECT 
+            u.id, u.login_id, u.username, u.email, u.password_hash, u.role_code, u.status_code, 
+            u.phone_number, u.address, u.birth_date, u.gender_code, u.join_date, u.last_login, 
+            u.created_at, u.updated_at,
+            COALESCE(
+                (SELECT image_url FROM user_profile_images WHERE user_id = u.id ORDER BY reg_time DESC LIMIT 1),
+                '/images/defaultProfile.png'
+            ) as profile_image
+        FROM users u
+        ORDER BY u.created_at DESC
+    </select>
+
+    <select id="findById" parameterType="Long" resultMap="UserResultMap">
+        SELECT 
+            u.id, u.login_id, u.username, u.email, u.password_hash, u.role_code, u.status_code, 
+            u.phone_number, u.address, u.birth_date, u.gender_code, u.join_date, u.last_login, 
+            u.created_at, u.updated_at,
+            COALESCE(
+                (SELECT image_url FROM user_profile_images WHERE user_id = u.id ORDER BY reg_time DESC LIMIT 1),
+                '/images/defaultProfile.png'
+            ) as profile_image
+        FROM users u
+        WHERE u.id = #{id}
+    </select>
+
+    <!-- deprecated: user_profile_images 테이블 사용 권장 -->
+    <update id="updateProfileImage">
+        UPDATE users
+        SET profile_image = #{profileImage}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUser" parameterType="com.busan.orora.user.dto.UserDto">
+        UPDATE users
+        SET username = #{username},
+            email = #{email},
+            phone_number = #{phoneNumber},
+            address = #{address},
+            birth_date = #{birthDate},
+            gender_code = #{genderCode},
+            role_code = #{roleCode},
+            status_code = #{statusCode},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserStatus">
+        UPDATE users
+        SET status_code = #{statusCode},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserRole">
+        UPDATE users
+        SET role_code = #{roleCode},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteUser" parameterType="Long">
+        DELETE FROM users
+        WHERE id = #{id}
+    </delete>
+</mapper>       

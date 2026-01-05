@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+    <head>
+        <title layout:fragment="title" data-translate="theme.title">searchByTheme</title>
+        <th:block layout:fragment="css">
+            <link rel="stylesheet" th:href="@{/css/theme.css}" />
+            <link rel="stylesheet" th:href="@{/css/list-component.css}" />
+            <link rel="stylesheet" th:href="@{/css/loading-animation.css}" />
+        </th:block>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <section>
+                <div class="container">
+                    <div class="theme-section">
+                        <h2 class="section-title" data-translate="theme.title">오로라 추천 테마</h2>
+                        <div class="theme-content">
+                            <p class="theme-subtitle" data-translate="theme.subtitle">
+                                부산 대표 관광지
+                            </p>
+                            <div class="theme-grid-container">
+                                <div class="theme-grid" id="aurora-carousel">
+                                    <!-- 테마 아이템 추가 -->
+                                </div>
+                            </div>
+                            <div class="theme-actions">
+                                <button class="more-btn" data-carousel="aurora-carousel">
+                                    <span data-translate="theme.more_button">더보기</span>
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="theme-section">
+                        <h2 class="section-title" data-translate="theme.user_recommended">
+                            유저 추천 테마
+                        </h2>
+                        <div class="theme-content">
+                            <div class="theme-selector">
+                                <select name="theme" id="theme">
+                                    <option value="kpop" data-translate="theme.kpop_travel">
+                                        K-POP 여행
+                                    </option>
+                                    <option value="culture" data-translate="theme.culture_travel">
+                                        문화 여행
+                                    </option>
+                                    <option value="nature" data-translate="theme.nature_travel">
+                                        자연 여행
+                                    </option>
+                                    <option value="food" data-translate="theme.food_travel">
+                                        음식 여행
+                                    </option>
+                                    <option value="shopping" data-translate="theme.shopping_travel">
+                                        쇼핑 여행
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="theme-grid-container">
+                                <div class="theme-grid" id="user-carousel">
+                                    <!-- 테마 아이템 추가 -->
+                                </div>
+                            </div>
+                            <div class="theme-actions">
+                                <button class="more-btn" data-carousel="user-carousel">
+                                    <span data-translate="theme.more_button">더보기</span>
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 리스트 아이템 템플릿 -->
+                    <div id="list-template-container" th:replace="~{components/list-item.html :: list-item-template}"></div>
+                </div>
+            </section>
+        </div>
+        <th:block layout:fragment="script">
+            <script th:src="@{/js/theme.js}"></script>
+            <script th:src="@{/js/list-loader.js}"></script>
+        </th:block>
+    </body>
+</html>
