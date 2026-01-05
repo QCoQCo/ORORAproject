@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.search.mapper.SearchMapper">
+    
+    <resultMap id="SearchResultMap" type="com.busan.orora.search.dto.SearchResultDto">
+        <result property="type" column="type" />
+        <result property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="content" column="content" />
+        <result property="description" column="description" />
+        <result property="linkUrl" column="link_url" />
+        <result property="touristSpotId" column="tourist_spot_id" />
+        <result property="touristSpotTitle" column="tourist_spot_title" />
+        <result property="userId" column="user_id" />
+        <result property="userName" column="user_name" />
+        <result property="createdAt" column="created_at" />
+        <result property="rating" column="rating" />
+        <result property="hashtagName" column="hashtag_name" />
+        <result property="reviewId" column="review_id" />
+        <result property="reviewTitle" column="review_title" />
+    </resultMap>
+
+    <!-- 관광지 검색 -->
+    <select id="searchSpots" resultMap="SearchResultMap" parameterType="String">
+        SELECT 
+            'spot' as type,
+            ts.id,
+            ts.title,
+            ts.description as content,
+            ts.description,
+            ts.link_url,
+            ts.id as tourist_spot_id,
+            ts.title as tourist_spot_title,
+            NULL as user_id,
+            NULL as user_name,
+            ts.created_at,
+            NULL as rating,
+            NULL as hashtag_name,
+            NULL as review_id,
+            NULL as review_title
+        FROM tourist_spots ts
+        WHERE ts.is_active = TRUE
+          AND (
+            ts.title LIKE CONCAT('%', #{keyword}, '%')
+            OR ts.description LIKE CONCAT('%', #{keyword}, '%')
+          )
+        ORDER BY ts.view_count DESC, ts.created_at DESC
+        LIMIT 20
+    </select>
+
+    <!-- 리뷰 검색 -->
+    <select id="searchReviews" resultMap="SearchResultMap" parameterType="String">
+        SELECT 
+            'review' as type,
+            r.id,
+            r.title,
+            r.content,
+            r.content as description,
+            NULL as link_url,
+            r.tourist_spot_id,
+            ts.title as tourist_spot_title,
+            r.user_id,
+            u.username as user_name,
+            r.created_at,
+            r.rating,
+            NULL as hashtag_name,
+            r.id as review_id,
+            r.title as review_title
+        FROM reviews r
+        LEFT JOIN tourist_spots ts ON r.tourist_spot_id = ts.id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.is_approved = TRUE
+          AND (
+            r.title LIKE CONCAT('%', #{keyword}, '%')
+            OR r.content LIKE CONCAT('%', #{keyword}, '%')
+          )
+        ORDER BY r.created_at DESC
+        LIMIT 20
+    </select>
+
+    <!-- 태그 검색 -->
+    <select id="searchHashtags" resultMap="SearchResultMap" parameterType="String">
+        SELECT 
+            'hashtag' as type,
+            h.id,
+            h.name as title,
+            h.name as content,
+            h.name as description,
+            NULL as link_url,
+            NULL as tourist_spot_id,
+            NULL as tourist_spot_title,
+            NULL as user_id,
+            NULL as user_name,
+            h.created_at,
+            NULL as rating,
+            h.name as hashtag_name,
+            NULL as review_id,
+            NULL as review_title
+        FROM hashtags h
+        WHERE h.name LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY h.created_at DESC
+        LIMIT 20
+    </select>
+
+    <!-- 댓글 검색 -->
+    <select id="searchComments" resultMap="SearchResultMap" parameterType="String">
+        SELECT 
+            'comment' as type,
+            rc.id,
+            LEFT(rc.content, 50) as title,
+            rc.content,
+            rc.content as description,
+            NULL as link_url,
+            r.tourist_spot_id,
+            ts.title as tourist_spot_title,
+            rc.user_id,
+            u.username as user_name,
+            rc.created_at,
+            NULL as rating,
+            NULL as hashtag_name,
+            rc.review_id,
+            r.title as review_title
+        FROM review_comments rc
+        LEFT JOIN reviews r ON rc.review_id = r.id
+        LEFT JOIN tourist_spots ts ON r.tourist_spot_id = ts.id
+        LEFT JOIN users u ON rc.user_id = u.id
+        WHERE rc.is_approved = TRUE
+          AND rc.content LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY rc.created_at DESC
+        LIMIT 20
+    </select>
+
+</mapper>

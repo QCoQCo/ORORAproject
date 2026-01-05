@@ -1,0 +1,33 @@
+spring:
+    application:
+        name: orora
+
+    devtools:
+        livereload:
+            enabled: true
+        restart:
+            enabled: true
+
+    datasource:
+        driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+        url: jdbc:log4jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+
+    servlet:
+        multipart:
+            max-file-size: 10MB
+            max-request-size: 10MB
+
+mybatis:
+    mapper-locations: classpath:/mapper/*.xml
+    config-location: classpath:/mybatis-config.xml
+
+file:
+    upload:
+        spotImgLocation: upload/spots # 관광지 이미지 저장 경로
+        profileImgLocation: upload/profiles # 사용자 프로필 이미지 저장 경로
+
+kakao:
+    map:
+        api-key: ${KAKAO_MAP_API_KEY:null} # 카카오맵 API 키 (환경변수 또는 기본값)

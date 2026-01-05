@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+    <head>
+        <title layout:fragment="title" data-translate="about.title">부산 소개</title>
+        <th:block layout:fragment="css">
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+            <link rel="stylesheet" th:href="@{/css/sidenav.css}" />
+            <link rel="stylesheet" th:href="@{/css/about-Busan.css}" />
+            <link rel="stylesheet" th:href="@{/css/breadcrumb.css}" />
+        </th:block>
+    </head>
+
+    <body>
+        <div layout:fragment="content">
+            <div th:replace="~{components/breadcrumb.html :: breadcrumb}"></div>
+            <section class="abBusan">
+                <div class="swiper main_bg">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <img src="../../images/main_busan01.jpg" alt="about BUSAN" />
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="../../images/main_busan02.jpg" alt="about BUSAN" />
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="../../images/main_busan03.jpg" alt="about BUSAN" />
+                        </div>
+                    </div>
+                    <h2 class="title" data-translate="about.title">about BUSAN</h2>
+                </div>
+                <div class="container">
+                    <div th:replace="~{components/sidenav-busan.html :: sidenav-busan}"></div>
+                    <main id="contents">
+                        <div class="busan">
+                            <div class="description">
+                                <ul class="origin">
+                                    <li class="leftPhoto">
+                                        <img src="../../images/origin_name02.jpg" alt="증산 사진" />
+                                    </li>
+                                    <li class="rightDesc">
+                                        <div>
+                                            부산(釜山)<br /><span
+                                                >: '가마솥(釜)을 닮은 산(山)'</span
+                                            >
+                                        </div>
+                                        <p>
+                                            부산의 지명은 지역의 산 모양이 가마솥을 닮았다는
+                                            특징에서 유래되었다.<br />
+                                            펄펄 끓는 열기로 많은 재료를 끓여내고 섞어내는
+                                            가마솥처럼 많은 문화접변을 이루어내고 다이내믹한
+                                            ‘섞임’의<br />허브가 된 대한민국 최고의 융복합도시이다.
+                                        </p>
+                                    </li>
+                                </ul>
+                                <ul class="global">
+                                    <li class="leftPhoto">
+                                        <img
+                                            src="../../images/marine_city.jpg"
+                                            alt="마린시티 사진"
+                                        />
+                                    </li>
+                                    <li class="rightDesc">
+                                        <div>한반도 최남단 글로벌 해양도시</div>
+                                        <p>
+                                            해운대, 광안리 등 수많은 해변에는 젊음과 생동감이<br />넘쳐나고,
+                                            미래지향적인 마천루들이 속속 스카이라인을 바꾸고
+                                            있다.<br />
+                                            항구와 부두에는 엄청난 양의 컨테이너와 수출입 무역<br />상품들이
+                                            즐비하며, 금융물류 중심의 글로벌허브도시로 성장해 나가고
+                                            있다.
+                                        </p>
+                                    </li>
+                                </ul>
+                                <ul class="history">
+                                    <li class="leftPhoto">
+                                        <img
+                                            src="../../images/fireworks.jpg"
+                                            alt="부산 불꽃축제 사진"
+                                        />
+                                    </li>
+                                    <li class="rightDesc">
+                                        <div>대전환의 역사가 살아 숨 쉬는 부산</div>
+                                        <p>
+                                            한국전쟁 당시 각 지역에서 온 피란민들은 낙동강을<br />보호막으로
+                                            한반도의 평화를 지켰고 경제 성장의 뿌리를 내렸다.<br />
+                                            각지에서 흘러든 이질적인 문화들이 융합되어 문화<br />예술의
+                                            향기가 한껏 피어오르는 예술도시로 성장하였다.<br />
+                                            거리와 공연장에는 문화와 예술의 향기가 가득하며,<br />국제영화제와
+                                            불꽃축제 등 낭만의 페스티벌들이 일년<br />내내 도시를
+                                            달군다.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+                <button title="클릭하시면 최상단으로 이동합니다" id="scrollTop"></button>
+            </section>
+        </div>
+        <th:block layout:fragment="script">
+            <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+            <!-- sidenav-loader.js는 이벤트 리스너만 사용합니다. -->
+            <script th:src="@{/js/sidenav-loader.js}"></script>
+            <script th:src="@{/js/busan.js}"></script>
+            <!-- breadcrumb-loader.js는 더 이상 필요하지 않습니다. Thymeleaf fragment로 대체되었습니다. -->
+        </th:block>
+    </body>
+</html>

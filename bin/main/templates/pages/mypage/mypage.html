@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+    <head>
+        <title layout:fragment="title">마이페이지 - arataBUSAN</title>
+        <th:block layout:fragment="css">
+            <link rel="stylesheet" th:href="@{/css/mypage.css}" />
+        </th:block>
+    </head>
+    <body>
+        <div layout:fragment="content">
+        <!-- 메인 콘텐츠 -->
+        <main class="mypage-container">
+            <div class="mypage-header">
+                <div class="user-profile">
+                    <div class="profile-avatar">
+                        <img
+                            src="../../images/default-avatar.png"
+                            alt="프로필 이미지"
+                            id="profile-image"
+                        />
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="username" id="user-name">사용자명</h1>
+                        <p class="user-email" id="user-email">user@example.com</p>
+                        <p class="join-date" id="join-date">가입일: 2024-01-01</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mypage-content">
+                <!-- 탭 네비게이션 -->
+                <nav class="tab-navigation">
+                    <button class="tab-btn active" data-tab="reviews">내 리뷰</button>
+                    <button class="tab-btn" data-tab="comments">내 댓글</button>
+                    <button class="tab-btn" data-tab="likes">좋아요한 관광지</button>
+                </nav>
+
+                <!-- 탭 콘텐츠 -->
+                <div class="tab-content">
+                    <!-- 내 리뷰 탭 -->
+                    <div class="tab-panel active" id="reviews-tab">
+                        <div class="section-header">
+                            <h2>내가 작성한 리뷰</h2>
+                            <span class="count" id="reviews-count">0개</span>
+                        </div>
+                        <div class="reviews-list" id="reviews-list">
+                            <!-- 리뷰 목록이 여기에 동적으로 추가됩니다 -->
+                        </div>
+                    </div>
+
+                    <!-- 내 댓글 탭 -->
+                    <div class="tab-panel" id="comments-tab">
+                        <div class="section-header">
+                            <h2>내가 작성한 댓글</h2>
+                            <span class="count" id="comments-count">0개</span>
+                        </div>
+                        <div class="comments-list" id="comments-list">
+                            <!-- 댓글 목록이 여기에 동적으로 추가됩니다 -->
+                        </div>
+                    </div>
+
+                    <!-- 좋아요한 관광지 탭 -->
+                    <div class="tab-panel" id="likes-tab">
+                        <div class="section-header">
+                            <h2>좋아요한 관광지</h2>
+                            <span class="count" id="likes-count">0개</span>
+                        </div>
+                        <div class="likes-list" id="likes-list">
+                            <!-- 좋아요한 관광지 목록이 여기에 동적으로 추가됩니다 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        </div>
+        <th:block layout:fragment="script">
+            <script th:src="@{/js/mypage.js}"></script>
+        </th:block>
+    </body>
+</html>
