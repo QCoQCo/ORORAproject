@@ -141,7 +141,7 @@ class SearchSystem {
         }
 
         container.innerHTML = results.map(spot => `
-            <div class="result-item spot-item" onclick="window.location.href='/pages/detailed/detailPage?id=${spot.touristSpotId || spot.id}'">
+            <div class="result-item spot-item" onclick="window.location.href='/pages/detailed/detailed?id=${spot.touristSpotId || spot.id}'">
                 <div class="item-content">
                     <h4 class="item-title">${this.highlightKeyword(spot.title, this.currentKeyword)}</h4>
                     ${spot.description ? `<p class="item-description">${this.highlightKeyword(spot.description.substring(0, 100), this.currentKeyword)}${spot.description.length > 100 ? '...' : ''}</p>` : ''}
@@ -164,7 +164,7 @@ class SearchSystem {
         }
 
         container.innerHTML = results.map(review => `
-            <div class="result-item review-item" onclick="window.location.href='/pages/detailed/detailPage?id=${review.touristSpotId}#review-${review.id}'">
+            <div class="result-item review-item" onclick="window.location.href='/pages/detailed/detailed?id=${review.touristSpotId}#review-${review.id}'">
                 <div class="item-header">
                     <h4 class="item-title">${this.highlightKeyword(review.title, this.currentKeyword)}</h4>
                     ${review.rating ? `<span class="rating-badge">⭐ ${review.rating}</span>` : ''}
@@ -211,7 +211,7 @@ class SearchSystem {
         }
 
         container.innerHTML = results.map(comment => `
-            <div class="result-item comment-item" onclick="window.location.href='/pages/detailed/detailPage?id=${comment.touristSpotId}#review-${comment.reviewId}'">
+            <div class="result-item comment-item" onclick="window.location.href='/pages/detailed/detailed?id=${comment.touristSpotId}#review-${comment.reviewId}'">
                 <div class="item-header">
                     <h4 class="item-title">${comment.reviewTitle || '댓글'}</h4>
                 </div>
