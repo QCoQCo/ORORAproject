@@ -27,3 +27,7 @@ file:
     upload:
         spotImgLocation: upload/spots # 관광지 이미지 저장 경로
         profileImgLocation: upload/profiles # 사용자 프로필 이미지 저장 경로
+
+kakao:
+    map:
+        api-key: ${KAKAO_MAP_API_KEY:[API_KEY_REMOVED]} # 카카오맵 API 키 (환경변수 또는 기본값)

@@ -1,5 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.busan.orora.review.mapper.ReviewMapper">
-    <!-- TODO: 리뷰 관련 SQL 쿼리 구현 -->
+    
+    <resultMap id="ReviewResultMap" type="com.busan.orora.review.dto.ReviewDto">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="touristSpotId" column="tourist_spot_id" />
+        <result property="title" column="title" />
+        <result property="content" column="content" />
+        <result property="rating" column="rating" />
+        <result property="isApproved" column="is_approved" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <!-- 관광지별 리뷰 조회 (사용자 정보, 좋아요 수, 댓글 수 포함) -->
+    <select id="findReviewsBySpotId" resultType="java.util.HashMap" parameterType="Long">
+        SELECT 
+            r.id,
+            r.user_id as userId,
+            r.tourist_spot_id as touristSpotId,
+            r.title,
+            r.content,
+            r.rating,
+            r.is_approved as isApproved,
+            r.created_at as createdAt,
+            r.updated_at as updatedAt,
+            u.username as userName,
+            COALESCE(upi.image_url, '/images/defaultProfile.png') as userProfileImage,
+            COALESCE(like_count.likes, 0) as likes,
+            COALESCE(comment_count.comments, 0) as replies
+        FROM reviews r
+        LEFT JOIN users u ON r.user_id = u.id
+        LEFT JOIN user_profile_images upi ON u.id = upi.user_id AND upi.id = (
+            SELECT id FROM user_profile_images 
+            WHERE user_id = u.id 
+            ORDER BY reg_time DESC 
+            LIMIT 1
+        )
+        LEFT JOIN (
+            SELECT review_id, COUNT(*) as likes
+            FROM review_likes
+            GROUP BY review_id
+        ) like_count ON r.id = like_count.review_id
+        LEFT JOIN (
+            SELECT review_id, COUNT(*) as comments
+            FROM review_comments
+            WHERE is_approved = TRUE
+            GROUP BY review_id
+        ) comment_count ON r.id = comment_count.review_id
+        WHERE r.tourist_spot_id = #{spotId}
+          AND r.is_approved = TRUE
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 사용자별 리뷰 조회 -->
+    <select id="findReviewsByUserId" resultMap="ReviewResultMap" parameterType="Long">
+        SELECT 
+            id,
+            user_id,
+            tourist_spot_id,
+            title,
+            content,
+            rating,
+            is_approved,
+            created_at,
+            updated_at
+        FROM reviews
+        WHERE user_id = #{userId}
+          AND is_approved = TRUE
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 리뷰 ID로 조회 -->
+    <select id="findReviewById" resultMap="ReviewResultMap" parameterType="Long">
+        SELECT 
+            id,
+            user_id,
+            tourist_spot_id,
+            title,
+            content,
+            rating,
+            is_approved,
+            created_at,
+            updated_at
+        FROM reviews
+        WHERE id = #{id}
+    </select>
+
+    <!-- 리뷰 작성 -->
+    <insert id="insertReview" parameterType="com.busan.orora.review.dto.ReviewDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO reviews (user_id, tourist_spot_id, title, content, rating, is_approved)
+        VALUES (#{userId}, #{touristSpotId}, #{title}, #{content}, #{rating}, COALESCE(#{isApproved}, TRUE))
+    </insert>
+
+    <!-- 리뷰 수정 -->
+    <update id="updateReview" parameterType="com.busan.orora.review.dto.ReviewDto">
+        UPDATE reviews
+        SET title = #{title},
+            content = #{content},
+            rating = #{rating},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 리뷰 삭제 -->
+    <delete id="deleteReview" parameterType="Long">
+        DELETE FROM reviews
+        WHERE id = #{id}
+    </delete>
+
 </mapper>
