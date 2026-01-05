@@ -553,8 +553,13 @@ class ThemeCarousel {
 
     // 상세 페이지로 이동하는 함수
     navigateToDetail(itemData) {
-        const encodedTitle = encodeURIComponent(itemData.title);
-        window.location.href = `../detailed/detailed?title=${encodedTitle}`;
+        // 관광지 ID가 있으면 ID를 사용하고, 없으면 제목을 사용
+        if (itemData.id) {
+            window.location.href = `../detailed/detailed?id=${itemData.id}`;
+        } else {
+            const encodedTitle = encodeURIComponent(itemData.title);
+            window.location.href = `../detailed/detailed?title=${encodedTitle}`;
+        }
     }
 
     updateMoreButton(carouselId, totalItems) {
