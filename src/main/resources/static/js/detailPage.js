@@ -194,8 +194,39 @@ async function loadTouristSpotDetail() {
     try {
         // URL 파라미터에서 관광지 정보 가져오기
         const urlParams = new URLSearchParams(window.location.search);
+        const spotId = urlParams.get('id');
         const spotTitle = urlParams.get('title') || decodeURIComponent(urlParams.get('spot') || '');
 
+        // ID가 있으면 백엔드 API를 통해 데이터 로드
+        if (spotId) {
+            try {
+                const response = await fetch(`/api/tourist-spots/${spotId}`);
+                if (response.ok) {
+                    const spotData = await response.json();
+                    // 백엔드 API 응답 형식에 맞게 데이터 변환
+                    const spot = {
+                        id: spotData.id,
+                        title: spotData.title,
+                        description: spotData.description || '',
+                        hashtags: spotData.hashtags || [],
+                        img: spotData.images && spotData.images.length > 0 
+                            ? spotData.images[0].imageUrl 
+                            : spotData.imageUrl || '',
+                        images: spotData.images || [],
+                        region: spotData.region || { name: '' }
+                    };
+                    const regionName = spotData.region ? spotData.region.name : '';
+                    updatePageContent(spot, regionName);
+                    return;
+                } else {
+                    console.warn('백엔드 API 호출 실패, 대체 방법 사용:', response.status);
+                }
+            } catch (apiError) {
+                console.warn('백엔드 API 호출 중 오류, 대체 방법 사용:', apiError);
+            }
+        }
+
+        // ID가 없거나 API 호출 실패 시 기존 방식 사용 (title 기반)
         if (!spotTitle) {
             console.error('관광지 정보가 없습니다.');
             return;
@@ -330,14 +361,24 @@ function updateImages(spot) {
 
     if (!mainSlider || !thumbSlider) return;
 
-    // 기본 이미지들 (실제로는 spot.img나 여러 이미지를 사용)
-    const images = [
-        spot.img,
-        getImagePath('spring.jpg'),
-        getImagePath('summer.jpg'),
-        getImagePath('fall.jpg'),
-        getImagePath('winter.jpg'),
-    ];
+    // 이미지 배열 구성
+    let images = [];
+    
+    // 백엔드 API에서 받은 images 배열이 있으면 사용
+    if (spot.images && Array.isArray(spot.images) && spot.images.length > 0) {
+        images = spot.images.map(img => img.imageUrl || img);
+    } else if (spot.img) {
+        // 단일 이미지가 있는 경우
+        images = [spot.img];
+    } else {
+        // 기본 이미지들 (폴백)
+        images = [
+            getImagePath('spring.jpg'),
+            getImagePath('summer.jpg'),
+            getImagePath('fall.jpg'),
+            getImagePath('winter.jpg'),
+        ];
+    }
 
     mainSlider.innerHTML = '';
     thumbSlider.innerHTML = '';
@@ -965,9 +1006,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
     const urlParams = new URLSearchParams(window.location.search);
+    const spotId = urlParams.get('id');
     const spotTitle = urlParams.get('title') || urlParams.get('spot');
 
-    if (spotTitle) {
+    if (spotId || spotTitle) {
         loadTouristSpotDetail();
     } else {
         // URL 파라미터가 없으면 기본 Swiper만 초기화 (detailPage.html용)
