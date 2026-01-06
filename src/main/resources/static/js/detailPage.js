@@ -233,35 +233,108 @@ async function loadTouristSpotDetail() {
             return;
         }
 
-        // JSON 데이터 로드 (경로 자동 감지)
-        const dataPath = getDataPath();
-        const response = await fetch(dataPath);
-        const data = await response.json();
+        // 백엔드 API를 통해 title로 검색 시도
+        try {
+            const searchResponse = await fetch(`/api/tourist-spots`);
+            if (searchResponse.ok) {
+                const searchData = await searchResponse.json();
 
-        // 해당 관광지 찾기
-        let foundSpot = null;
-        let regionName = '';
+                // 해당 관광지 찾기
+                let foundSpot = null;
+                let regionName = '';
 
-        for (const [regionKey, regionData] of Object.entries(data.regions)) {
-            if (regionData.spots) {
-                const spot = regionData.spots.find(
-                    (s) => s.title === spotTitle || s.title.includes(spotTitle)
-                );
-                if (spot) {
-                    foundSpot = spot;
-                    regionName = regionData.name;
-                    break;
+                // regions가 배열인 경우 (백엔드 API 응답 형식)
+                if (Array.isArray(searchData.regions)) {
+                    for (const regionData of searchData.regions) {
+                        if (regionData.spots && Array.isArray(regionData.spots)) {
+                            const spot = regionData.spots.find(
+                                (s) => s.title === spotTitle || s.title.includes(spotTitle)
+                            );
+                            if (spot) {
+                                foundSpot = spot;
+                                regionName = regionData.name;
+                                break;
+                            }
+                        }
+                    }
+                }
+                // regions가 객체인 경우 (기존 JSON 파일 형식)
+                else if (searchData.regions && typeof searchData.regions === 'object') {
+                    for (const [regionKey, regionData] of Object.entries(searchData.regions)) {
+                        if (regionData.spots) {
+                            const spot = regionData.spots.find(
+                                (s) => s.title === spotTitle || s.title.includes(spotTitle)
+                            );
+                            if (spot) {
+                                foundSpot = spot;
+                                regionName = regionData.name;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (foundSpot) {
+                    // 페이지 데이터 설정
+                    updatePageContent(foundSpot, regionName);
+                    return;
                 }
             }
+        } catch (searchError) {
+            console.warn('백엔드 API 검색 실패, 대체 방법 사용:', searchError);
         }
 
-        if (!foundSpot) {
-            console.error('해당 관광지를 찾을 수 없습니다:', spotTitle);
-            return;
-        }
+        // JSON 데이터 로드 (경로 자동 감지) - 대체 방법
+        try {
+            const dataPath = getDataPath();
+            const response = await fetch(dataPath);
+            const data = await response.json();
 
-        // 페이지 데이터 설정
-        updatePageContent(foundSpot, regionName);
+            // 해당 관광지 찾기
+            let foundSpot = null;
+            let regionName = '';
+
+            // regions가 배열인 경우
+            if (Array.isArray(data.regions)) {
+                for (const regionData of data.regions) {
+                    if (regionData.spots && Array.isArray(regionData.spots)) {
+                        const spot = regionData.spots.find(
+                            (s) => s.title === spotTitle || s.title.includes(spotTitle)
+                        );
+                        if (spot) {
+                            foundSpot = spot;
+                            regionName = regionData.name;
+                            break;
+                        }
+                    }
+                }
+            }
+            // regions가 객체인 경우
+            else if (data.regions && typeof data.regions === 'object') {
+                for (const [regionKey, regionData] of Object.entries(data.regions)) {
+                    if (regionData.spots) {
+                        const spot = regionData.spots.find(
+                            (s) => s.title === spotTitle || s.title.includes(spotTitle)
+                        );
+                        if (spot) {
+                            foundSpot = spot;
+                            regionName = regionData.name;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!foundSpot) {
+                console.error('해당 관광지를 찾을 수 없습니다:', spotTitle);
+                return;
+            }
+
+            // 페이지 데이터 설정
+            updatePageContent(foundSpot, regionName);
+        } catch (error) {
+            console.error('대체 데이터 로드 중 오류:', error);
+        }
     } catch (error) {
         console.error('데이터 로드 중 오류:', error);
     }
@@ -387,7 +460,7 @@ function updateHashtags(spot) {
     if (spot.hashtags) {
         spot.hashtags.forEach((tag) => {
             const button = document.createElement('button');
-            button.textContent = tag;
+            button.textContent = '#' + tag;
             hashtagsContainer.appendChild(button);
         });
     }
@@ -520,54 +593,72 @@ function loadKakaoMapScript() {
 
         // 스크립트 동적 로드
         // API 키는 HTML의 data 속성에서 가져오기
-        const wrapper = document.getElementById('Wrapper');
-        let apiKey = null;
-
-        if (wrapper) {
-            apiKey = wrapper.getAttribute('data-kakao-api-key');
-        }
-
-        // API 키가 없으면 기본값 사용
-        if (!apiKey || apiKey === 'null' || apiKey === 'undefined') {
-            apiKey = '[API_KEY_REMOVED]';
-        }
-
-        const scriptUrl = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
-
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = scriptUrl;
-        script.async = false; // 동기 로드로 변경하여 순서 보장
-        // crossOrigin 속성 제거 - 스크립트 태그는 기본적으로 CORS를 처리하므로 설정하면 오히려 문제 발생
-
-        script.onload = function () {
-            script.setAttribute('data-loaded', 'true');
-
-            if (
-                typeof kakao !== 'undefined' &&
-                typeof kakao.maps !== 'undefined' &&
-                typeof kakao.maps.load === 'function'
-            ) {
-                kakao.maps.load(function () {
-                    window.kakaoMapLoaded = true;
-                    resolve();
-                });
-            } else {
-                reject(new Error('kakao.maps.load 함수를 찾을 수 없습니다.'));
+        try {
+            const apiKey = getKakaoMapApiKey();
+            if (!apiKey) {
+                reject(new Error('카카오 맵 API 키를 가져올 수 없습니다.'));
+                return;
             }
-        };
 
-        script.onerror = function () {
-            reject(new Error('카카오맵 스크립트 로드 실패'));
-        };
-
-        if (document.body) {
-            document.body.appendChild(script);
-        } else {
-            document.head.appendChild(script);
+            const scriptUrl = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
+            loadScript(scriptUrl, resolve, reject);
+        } catch (error) {
+            reject(error);
         }
     });
 }
+
+// 카카오 맵 API 키 가져오기 (HTML의 data 속성에서만 가져옴)
+function getKakaoMapApiKey() {
+    const wrapper = document.getElementById('Wrapper');
+    if (!wrapper) {
+        throw new Error('Wrapper 요소를 찾을 수 없습니다.');
+    }
+
+    const apiKey = wrapper.getAttribute('data-kakao-api-key');
+    if (!apiKey || apiKey === 'null' || apiKey === 'undefined' || apiKey.trim() === '') {
+        throw new Error('카카오 맵 API 키를 찾을 수 없습니다. 서버 설정을 확인해주세요.');
+    }
+
+    return apiKey;
+}
+
+// 스크립트 로드 헬퍼 함수
+function loadScript(scriptUrl, resolve, reject) {
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = scriptUrl;
+    script.async = false;
+
+    script.onload = function () {
+        script.setAttribute('data-loaded', 'true');
+
+        if (
+            typeof kakao !== 'undefined' &&
+            typeof kakao.maps !== 'undefined' &&
+            typeof kakao.maps.load === 'function'
+        ) {
+            kakao.maps.load(function () {
+                window.kakaoMapLoaded = true;
+                resolve();
+            });
+        } else {
+            reject(new Error('kakao.maps.load 함수를 찾을 수 없습니다.'));
+        }
+    };
+
+    script.onerror = function () {
+        reject(new Error('카카오맵 스크립트 로드 실패'));
+    };
+
+    if (document.body) {
+        document.body.appendChild(script);
+    } else {
+        document.head.appendChild(script);
+    }
+}
+
+// 중복 함수 제거됨 - 532번째 줄의 loadKakaoMapScript() 함수 사용
 
 // 카카오 지도 초기화
 function initKakaoMap(spotTitle) {

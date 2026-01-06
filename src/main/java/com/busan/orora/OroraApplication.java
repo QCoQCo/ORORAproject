@@ -19,6 +19,8 @@ public class OroraApplication {
 			System.setProperty("DB_NAME", dotenv.get("DB_NAME", "arata_busan"));
 			System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME", "root"));
 			System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD", ""));
+			// 카카오맵 API 키 전달 (.env에 KAKAO_MAP_API_KEY가 없으면 빈 값)
+			System.setProperty("KAKAO_MAP_API_KEY", dotenv.get("KAKAO_MAP_API_KEY", ""));
 		} catch (Exception e) {
 			System.err.println(".env 파일 로드 실패: " + e.getMessage());
 		}
