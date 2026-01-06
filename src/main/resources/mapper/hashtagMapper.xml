@@ -5,6 +5,7 @@
         <id property="id" column="id" />
         <result property="name" column="name" />
         <result property="createdAt" column="created_at" />
+        <result property="touristSpotId" column="tourist_spot_id" />
     </resultMap>
 
     <!-- 모든 해시태그 조회 -->
@@ -35,6 +36,18 @@
         INNER JOIN tourist_spot_hashtags tsh ON h.id = tsh.hashtag_id
         WHERE tsh.tourist_spot_id = #{spotId}
         ORDER BY h.name ASC
+    </select>
+
+    <!-- 여러 관광지 ID로 해시태그 목록 배치 조회 -->
+    <select id="findHashtagsBySpotIds" resultMap="HashtagResultMap" parameterType="list">
+        SELECT h.id, h.name, h.created_at, tsh.tourist_spot_id AS touristSpotId
+        FROM hashtags h
+        INNER JOIN tourist_spot_hashtags tsh ON h.id = tsh.hashtag_id
+        WHERE tsh.tourist_spot_id IN
+        <foreach item="id" collection="spotIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY tsh.tourist_spot_id, h.name ASC
     </select>
 
     <!-- 해시태그 추가 -->

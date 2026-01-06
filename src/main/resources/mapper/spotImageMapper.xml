@@ -19,6 +19,24 @@
         ORDER BY rep_img_yn DESC, reg_time ASC
     </select>
 
+    <!-- 여러 관광지의 대표 이미지(Y)만 배치 조회 - 각 spot_id당 하나만 -->
+    <select id="findRepImagesBySpotIds" resultMap="SpotImageResultMap" parameterType="list">
+        SELECT tsi.id, tsi.img_name, tsi.ori_img_name, tsi.tourist_spot_id, tsi.image_url, tsi.rep_img_yn, tsi.reg_time, tsi.update_time
+        FROM tourist_spot_images tsi
+        INNER JOIN (
+            SELECT tourist_spot_id, MIN(id) as min_id
+            FROM tourist_spot_images
+            WHERE rep_img_yn = 'Y'
+              AND tourist_spot_id IN
+            <foreach item="id" collection="spotIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            GROUP BY tourist_spot_id
+        ) first_img ON tsi.tourist_spot_id = first_img.tourist_spot_id AND tsi.id = first_img.min_id
+        WHERE tsi.rep_img_yn = 'Y'
+        ORDER BY tsi.tourist_spot_id
+    </select>
+
     <insert id="insertImage" parameterType="com.busan.orora.spot.dto.SpotImageDto">
         INSERT INTO tourist_spot_images (img_name, ori_img_name, tourist_spot_id, image_url, rep_img_yn)
         VALUES (#{imgName}, #{oriImgName}, #{touristSpotId}, #{imageUrl}, #{repImgYn})

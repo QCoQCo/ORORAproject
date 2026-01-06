@@ -11,6 +11,7 @@ public interface HashtagMapper {
     HashtagDto findHashtagById(Long id);
     HashtagDto findHashtagByName(String name);
     List<HashtagDto> findHashtagsBySpotId(@Param("spotId") Long spotId);
+    List<HashtagDto> findHashtagsBySpotIds(@Param("spotIds") List<Long> spotIds);
     void insertHashtag(HashtagDto hashtagDto);
 
     //여기서 부터 작성
