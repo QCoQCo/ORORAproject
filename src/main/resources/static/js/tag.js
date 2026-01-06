@@ -72,7 +72,7 @@ class TagSearchSystem {
                             });
                         });
                     }
-                } 
+                }
                 // regions가 배열인 경우 (대체 형식)
                 else if (Array.isArray(data.regions)) {
                     data.regions.forEach((region) => {
@@ -237,13 +237,13 @@ class TagSearchSystem {
 
         // 검색 조건에 맞는 관광지 필터링
         this.filteredSpots = this.allSpots.filter((spot) => {
-            // 선택된 태그로 필터링
+            // 선택된 태그로 필터링 (AND 연산: 모든 선택된 태그를 포함해야 함)
             if (this.selectedTags.size > 0) {
                 const spotTags = spot.hashtags.map((tag) => tag.trim());
-                const hasSelectedTag = Array.from(this.selectedTags).some((selectedTag) =>
+                const hasAllSelectedTags = Array.from(this.selectedTags).every((selectedTag) =>
                     spotTags.includes(selectedTag)
                 );
-                if (!hasSelectedTag) return false;
+                if (!hasAllSelectedTags) return false;
             }
 
             // 검색어로 필터링
@@ -416,7 +416,9 @@ class TagSearchSystem {
         // 템플릿이 이미 DOM에 있는지 확인만 수행
         const template = document.getElementById('list-item');
         if (!template) {
-            console.warn('리스트 템플릿을 찾을 수 없습니다. Thymeleaf fragment가 포함되어 있는지 확인하세요.');
+            console.warn(
+                '리스트 템플릿을 찾을 수 없습니다. Thymeleaf fragment가 포함되어 있는지 확인하세요.'
+            );
         }
     }
 
@@ -516,11 +518,14 @@ class TagSearchSystem {
     // 상세 페이지로 이동하는 함수
     navigateToDetail(spot) {
         // 관광지 ID가 있으면 ID를 사용하고, 없으면 제목을 사용
-        if (spot.id) {
+        // spot.id가 null, undefined, 0이 아닌 경우에만 ID 사용
+        if (spot.id != null && spot.id !== undefined && spot.id !== '') {
             window.location.href = `/pages/detailed/detailed?id=${spot.id}`;
-        } else {
+        } else if (spot.title) {
             const encodedTitle = encodeURIComponent(spot.title);
             window.location.href = `/pages/detailed/detailed?title=${encodedTitle}`;
+        } else {
+            console.error('관광지 정보가 없습니다:', spot);
         }
     }
 
