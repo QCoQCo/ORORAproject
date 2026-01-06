@@ -44,9 +44,8 @@ class ThemeCarousel {
 
     async loadData() {
         try {
-            // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-            // 예: const response = await fetch('/api/tourist-spots');
-            const response = await fetch('../../data/busanTouristSpots.json');
+            // 백엔드 API 엔드포인트 호출
+            const response = await fetch('/api/tourist-spots');
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -493,7 +492,7 @@ class ThemeCarousel {
         // 이미지 설정
         const imgElement = itemFragment.querySelector('.item-photo img');
         if (imgElement) {
-            imgElement.src = itemData.img || '';
+            imgElement.src = itemData.imageUrl || '';
             imgElement.alt = itemData.title || '';
             imgElement.onerror = () => {
                 imgElement.src = '../../images/common.jpg';
@@ -555,10 +554,10 @@ class ThemeCarousel {
     navigateToDetail(itemData) {
         // 관광지 ID가 있으면 ID를 사용하고, 없으면 제목을 사용
         if (itemData.id) {
-            window.location.href = `../detailed/detailed?id=${itemData.id}`;
+            window.location.href = `/pages/detailed/detailed?id=${itemData.id}`;
         } else {
             const encodedTitle = encodeURIComponent(itemData.title);
-            window.location.href = `../detailed/detailed?title=${encodedTitle}`;
+            window.location.href = `/pages/detailed/detailed?title=${encodedTitle}`;
         }
     }
 
