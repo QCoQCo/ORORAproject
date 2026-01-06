@@ -192,166 +192,48 @@ function initSwiper() {
 // 상세 페이지 데이터 로드 및 초기화
 async function loadTouristSpotDetail() {
     try {
-        // URL 파라미터에서 관광지 정보 가져오기
+        // URL 파라미터에서 관광지 ID 가져오기 (title 기반 검색은 사용하지 않음)
         const urlParams = new URLSearchParams(window.location.search);
         const spotId = urlParams.get('id');
-        const spotTitle = urlParams.get('title') || decodeURIComponent(urlParams.get('spot') || '');
 
-        // ID가 있으면 백엔드 API를 통해 데이터 로드
-        if (spotId) {
-            try {
-                const response = await fetch(`/api/tourist-spots/${spotId}`);
-                if (response.ok) {
-                    const spotData = await response.json();
-                    // 백엔드 API 응답 형식에 맞게 데이터 변환
-                    const spot = {
-                        id: spotData.id,
-                        title: spotData.title,
-                        description: spotData.description || '',
-                        hashtags: spotData.hashtags || [],
-                        img:
-                            spotData.images && spotData.images.length > 0
-                                ? spotData.images[0].imageUrl
-                                : spotData.imageUrl || '',
-                        images: spotData.images || [],
-                        region: spotData.region || { name: '' },
-                    };
-                    const regionName = spotData.region ? spotData.region.name : '';
-                    updatePageContent(spot, regionName);
-                    return;
-                } else {
-                    console.warn('백엔드 API 호출 실패, 대체 방법 사용:', response.status);
-                }
-            } catch (apiError) {
-                console.warn('백엔드 API 호출 중 오류, 대체 방법 사용:', apiError);
-            }
-        }
-
-        // ID가 없거나 API 호출 실패 시 기존 방식 사용 (title 기반)
-        if (!spotTitle) {
-            console.error('관광지 정보가 없습니다.');
+        // ID가 없으면 에러
+        if (!spotId) {
+            console.error('관광지 ID가 없습니다. URL에 id 파라미터가 필요합니다.');
+            alert('관광지 정보를 불러올 수 없습니다. ID가 필요합니다.');
             return;
         }
 
-        // 백엔드 API를 통해 title로 검색 시도
+        // 백엔드 API를 통해 데이터 로드
         try {
-            const searchResponse = await fetch(`/api/tourist-spots`);
-            if (searchResponse.ok) {
-                const searchData = await searchResponse.json();
-
-                // 해당 관광지 찾기
-                let foundSpot = null;
-                let regionName = '';
-
-                // regions가 배열인 경우 (백엔드 API 응답 형식)
-                if (Array.isArray(searchData.regions)) {
-                    for (const regionData of searchData.regions) {
-                        if (regionData.spots && Array.isArray(regionData.spots)) {
-                            const spot = regionData.spots.find(
-                                (s) => s.title === spotTitle || s.title.includes(spotTitle)
-                            );
-                            if (spot) {
-                                foundSpot = spot;
-                                regionName = regionData.name;
-                                break;
-                            }
-                        }
-                    }
-                }
-                // regions가 객체인 경우 (기존 JSON 파일 형식)
-                else if (searchData.regions && typeof searchData.regions === 'object') {
-                    for (const [regionKey, regionData] of Object.entries(searchData.regions)) {
-                        if (regionData.spots) {
-                            const spot = regionData.spots.find(
-                                (s) => s.title === spotTitle || s.title.includes(spotTitle)
-                            );
-                            if (spot) {
-                                foundSpot = spot;
-                                regionName = regionData.name;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (foundSpot) {
-                    // 페이지 데이터 설정
-                    updatePageContent(foundSpot, regionName);
-                    return;
-                }
+            const response = await fetch(`/api/tourist-spots/${spotId}`);
+            if (response.ok) {
+                const spotData = await response.json();
+                // 백엔드 API 응답 형식에 맞게 데이터 변환
+                const spot = {
+                    id: spotData.id,
+                    title: spotData.title,
+                    description: spotData.description || '',
+                    hashtags: spotData.hashtags || [],
+                    img:
+                        spotData.images && spotData.images.length > 0
+                            ? spotData.images[0].imageUrl
+                            : spotData.imageUrl || '',
+                    images: spotData.images || [],
+                    region: spotData.region || { name: '' },
+                };
+                const regionName = spotData.region ? spotData.region.name : '';
+                updatePageContent(spot, regionName);
+            } else {
+                console.error('백엔드 API 호출 실패:', response.status);
+                alert('관광지 정보를 불러올 수 없습니다.');
             }
-        } catch (searchError) {
-            console.warn('백엔드 API 검색 실패, 대체 방법 사용:', searchError);
-        }
-
-        // JSON 데이터 로드 (경로 자동 감지) - 대체 방법
-        try {
-            const dataPath = getDataPath();
-            const response = await fetch(dataPath);
-            const data = await response.json();
-
-            // 해당 관광지 찾기
-            let foundSpot = null;
-            let regionName = '';
-
-            // regions가 배열인 경우
-            if (Array.isArray(data.regions)) {
-                for (const regionData of data.regions) {
-                    if (regionData.spots && Array.isArray(regionData.spots)) {
-                        const spot = regionData.spots.find(
-                            (s) => s.title === spotTitle || s.title.includes(spotTitle)
-                        );
-                        if (spot) {
-                            foundSpot = spot;
-                            regionName = regionData.name;
-                            break;
-                        }
-                    }
-                }
-            }
-            // regions가 객체인 경우
-            else if (data.regions && typeof data.regions === 'object') {
-                for (const [regionKey, regionData] of Object.entries(data.regions)) {
-                    if (regionData.spots) {
-                        const spot = regionData.spots.find(
-                            (s) => s.title === spotTitle || s.title.includes(spotTitle)
-                        );
-                        if (spot) {
-                            foundSpot = spot;
-                            regionName = regionData.name;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!foundSpot) {
-                console.error('해당 관광지를 찾을 수 없습니다:', spotTitle);
-                return;
-            }
-
-            // 페이지 데이터 설정
-            updatePageContent(foundSpot, regionName);
-        } catch (error) {
-            console.error('대체 데이터 로드 중 오류:', error);
+        } catch (apiError) {
+            console.error('백엔드 API 호출 중 오류:', apiError);
+            alert('관광지 정보를 불러오는 중 오류가 발생했습니다.');
         }
     } catch (error) {
         console.error('데이터 로드 중 오류:', error);
-    }
-}
-
-// 현재 경로에 따른 데이터 파일 경로 결정
-// TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-function getDataPath() {
-    const currentPath = window.location.pathname;
-
-    // TODO: 백엔드 연결 시 '/api/tourist-spots'로 통일
-    // 백엔드 API 엔드포인트: GET /api/tourist-spots
-    // 응답 형식: { regions: { area01: { name: "기장군", spots: [...] }, ... } }
-    if (currentPath.includes('/pages/')) {
-        return '../../data/busanTouristSpots.json';
-    } else {
-        return './data/busanTouristSpots.json';
+        alert('관광지 정보를 불러오는 중 오류가 발생했습니다.');
     }
 }
 
@@ -1173,11 +1055,11 @@ document.addEventListener('DOMContentLoaded', function () {
     initReviewSubmission();
 
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
+    // ID만 사용 (title 기반 검색은 사용하지 않음)
     const urlParams = new URLSearchParams(window.location.search);
     const spotId = urlParams.get('id');
-    const spotTitle = urlParams.get('title') || urlParams.get('spot');
 
-    if (spotId || spotTitle) {
+    if (spotId) {
         loadTouristSpotDetail();
     } else {
         // URL 파라미터가 없으면 기본 Swiper만 초기화 (detailPage.html용)
