@@ -9,9 +9,14 @@ import java.util.Map;
 @Mapper
 public interface ReviewMapper {
     List<Map<String, Object>> findReviewsBySpotId(@Param("spotId") Long spotId);
+
     List<ReviewDto> findReviewsByUserId(@Param("userId") Long userId);
+
     ReviewDto findReviewById(@Param("id") Long id);
+
     void insertReview(ReviewDto reviewDto);
+
     void updateReview(ReviewDto reviewDto);
+
     void deleteReview(@Param("id") Long id);
 }
