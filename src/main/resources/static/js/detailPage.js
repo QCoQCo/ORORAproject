@@ -529,7 +529,7 @@ function loadKakaoMapScript() {
 
         // API 키가 없으면 기본값 사용
         if (!apiKey || apiKey === 'null' || apiKey === 'undefined') {
-            apiKey = 'e341ffa6d5b5caaec4e30d88da3b3416';
+            apiKey = '[API_KEY_REMOVED]';
         }
 
         const scriptUrl = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
