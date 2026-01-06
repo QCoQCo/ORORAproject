@@ -13,6 +13,7 @@ CREATE TABLE regions (
     id INT PRIMARY KEY AUTO_INCREMENT,
     area_code INT NOT NULL UNIQUE,
     name VARCHAR(30) NOT NULL,
+    sigungu_code INT UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -78,7 +79,6 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     role_code VARCHAR(50) DEFAULT 'MEMBER' COMMENT '사용자 역할 코드 (USER_ROLE 그룹 참조)',
     status_code VARCHAR(50) DEFAULT 'ACTIVE' COMMENT '사용자 상태 코드 (USER_STATUS 그룹 참조)',
-    profile_image VARCHAR(500),
     phone_number VARCHAR(20),
     address VARCHAR(80),
     birth_date DATE,
@@ -92,6 +92,19 @@ CREATE TABLE users (
     INDEX idx_role_code (role_code),
     INDEX idx_status_code (status_code),
     INDEX idx_gender_code (gender_code)
+);
+
+-- 6-1. 사용자 프로필 이미지 테이블
+CREATE TABLE user_profile_images (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    img_name VARCHAR(255) COMMENT '저장된 파일명',
+    ori_img_name VARCHAR(255) COMMENT '원본 파일명',
+    user_id INT NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    reg_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록 시간',
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 시간',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id)
 );
 
 -- 7. 리뷰 테이블
@@ -190,12 +203,15 @@ DROP TABLE IF EXISTS tourist_spot_images;
 DROP TABLE IF EXISTS hashtags;
 DROP TABLE IF EXISTS tourist_spot_hashtags;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS user_profile_images;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS review_likes;
 DROP TABLE IF EXISTS review_comments;
 DROP TABLE IF EXISTS review_reports;
 DROP TABLE IF EXISTS review_images;
 DROP TABLE IF EXISTS tourist_spot_likes;
+
+ALTER TABLE regions MODIFY COLUMN sigungu_code INT UNIQUE AFTER name;
 
 
 -- -- 7. 축제/이벤트 테이블
