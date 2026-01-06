@@ -23,6 +23,17 @@
         LIMIT   1
     </select>
 
+    <!-- 유저가 좋아요 한 관광지 목록 조회 -->
+    <select id="searchSpotLikeListByUser" resultType="SearchSpotLikeListByUserDto">
+        SELECT  tsl.tourist_spot_id AS spotId
+                , ts.title AS title
+                , ts.description AS description
+                , tsl.created_at AS likedAt
+        FROM	tourist_spot_likes tsl	JOIN	tourist_spots ts    ON  tsl.tourist_spot_id = ts.id
+        WHERE	tsl.user_id = #{userId}
+        ORDER BY tsl.created_at DESC
+    </select>
+
 
 
 
