@@ -1,11 +1,15 @@
 package com.busan.orora.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class PageController {
+
+    @Value("${kakao.map.api-key}")
+    private String kakaoMapApiKey;
 
     // Index page
     @GetMapping({ "/", "/index" })
@@ -105,7 +109,8 @@ public class PageController {
 
     // Detailed pages
     @GetMapping("/pages/detailed/detailed")
-    public String detailed() {
+    public String detailed(Model model) {
+        model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
         return "pages/detailed/detailed";
     }
 

@@ -5,13 +5,14 @@ import com.busan.orora.review.mapper.ReviewMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ReviewService {
     @Autowired
     private ReviewMapper reviewMapper;
 
-    public List<ReviewDto> getReviewsBySpotId(Long spotId) {
+    public List<Map<String, Object>> getReviewsBySpotId(Long spotId) {
         return reviewMapper.findReviewsBySpotId(spotId);
     }
 
