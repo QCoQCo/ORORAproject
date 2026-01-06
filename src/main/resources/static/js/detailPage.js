@@ -648,6 +648,9 @@ async function loadReviews() {
 
         // 리뷰 카운트 업데이트
         updateReviewCount(spotReviews.length);
+
+        // 리뷰 정보 업데이트 (평균 평점 및 총 개수)
+        updateReviewInfo(spotReviews);
     } catch (error) {
         console.error('리뷰 데이터 로드 중 오류:', error);
         showNoReviewsMessage();
@@ -761,6 +764,55 @@ function updateReviewCount(count) {
     const reviewCountElement = document.getElementById('review-count');
     if (reviewCountElement) {
         reviewCountElement.textContent = count;
+    }
+}
+
+// 리뷰 평균 평점 계산
+function calculateAverageRating(reviews) {
+    if (!reviews || reviews.length === 0) {
+        return 0;
+    }
+
+    const totalRating = reviews.reduce((sum, review) => {
+        const rating = review.rating || 0;
+        return sum + rating;
+    }, 0);
+
+    return totalRating / reviews.length;
+}
+
+// 리뷰 정보 업데이트 (평균 평점 및 총 개수)
+function updateReviewInfo(reviews) {
+    const reviewInfo = document.getElementById('review-info');
+    const reviewAverage = document.querySelector('.review-average');
+    const reviewTotalCount = document.getElementById('review-total-count');
+
+    if (!reviewInfo || !reviewAverage || !reviewTotalCount) return;
+
+    const reviewCount = reviews ? reviews.length : 0;
+    const averageRating = calculateAverageRating(reviews);
+
+    // 총 리뷰 개수 업데이트
+    reviewTotalCount.textContent = reviewCount;
+
+    // 평균 평점 업데이트
+    if (reviewCount === 0) {
+        reviewAverage.textContent = '평점 없음';
+    } else {
+        // 평균 평점을 소수점 첫째 자리까지 표시
+        const formattedRating = averageRating.toFixed(1);
+        reviewAverage.textContent = `${formattedRating}점`;
+    }
+}
+
+// 리뷰 정보 클릭 시 리뷰 섹션으로 스크롤
+function initReviewInfoClick() {
+    const reviewInfo = document.getElementById('review-info');
+    if (reviewInfo) {
+        reviewInfo.addEventListener('click', function () {
+            // 리뷰 섹션은 sectionList[3] (인덱스 3)
+            scrollToSection(3);
+        });
     }
 }
 
@@ -919,6 +971,7 @@ function submitReview() {
     const spotReviews = reviews.filter((review) => review.spotTitle === currentSpotTitle);
     displayReviews(spotReviews);
     updateReviewCount(spotReviews.length);
+    updateReviewInfo(spotReviews);
 
     // 폼 초기화
     resetReviewForm();
@@ -1053,6 +1106,9 @@ document.addEventListener('DOMContentLoaded', function () {
     initRatingSystem();
     initCharCount();
     initReviewSubmission();
+
+    // 리뷰 정보 클릭 이벤트 초기화
+    initReviewInfoClick();
 
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
     // ID만 사용 (title 기반 검색은 사용하지 않음)
