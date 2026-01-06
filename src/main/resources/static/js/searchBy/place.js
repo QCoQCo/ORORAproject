@@ -1,13 +1,18 @@
 let listLoader = null;
 let touristData = null;
 
+/*************************
+ * 상태 관리
+ *************************/
+const selectedRegionIds = new Set();
+
 // 현재 페이지 위치에 따른 맵 경로 결정
 function getMapPath() {
     const currentPath = window.location.pathname;
     const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
 
     // 루트 디렉토리인 경우
-    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+    if (currentPath === '/' || currentPath === '/index' || currentDir === '') {
         return './images/map.svg';
     }
 
@@ -26,7 +31,7 @@ function getDataPath() {
     const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
 
     // 루트 디렉토리인 경우
-    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+    if (currentPath === '/' || currentPath === '/index' || currentDir === '') {
         return './data/';
     }
 
@@ -65,419 +70,260 @@ function initControlPanelToggle() {
     }
 }
 
+// 컨트롤 버튼 이벤트 초기화
+function initControlButtons() {
+    // 전체 해제 버튼
+    const clearAllBtn = document.querySelector('.control-button.btn-secondary');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', function () {
+            // 모든 선택 해제
+            selectedRegionIds.clear();
+
+            // 지도에서 선택 표시 제거
+            document.querySelectorAll('.c-click.selected').forEach((region) => {
+                region.classList.remove('selected');
+            });
+
+            // 리스트 초기화
+            const ul = document.getElementById('tourist-spots-list');
+            if (ul) {
+                ul.innerHTML =
+                    '<li style="padding: 20px; text-align: center; color: #999;">지도에서 지역을 클릭하면 관광지가 나옵니다.</li>';
+            }
+
+            // 선택 정보 업데이트
+            updateSelectionInfo();
+        });
+    }
+
+    // 선택된 지역 보기 버튼
+    const viewSelectedBtn = document.querySelector('.control-button.btn-primary');
+    if (viewSelectedBtn) {
+        viewSelectedBtn.addEventListener('click', function () {
+            if (selectedRegionIds.size > 0) {
+                fetchRegionSpots([...selectedRegionIds]);
+            } else {
+                alert('선택된 지역이 없습니다.');
+            }
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // 컨트롤 패널 토글 기능 초기화
     initControlPanelToggle();
 
-    // 관광지 데이터 로드
-    loadTouristData();
+    // 컨트롤 버튼 이벤트 초기화
+    initControlButtons();
 
     // 지도 로드
+    loadMap();
+});
+
+/*************************
+ * 지도 로드
+ *************************/
+function loadMap() {
     const mapContainer = document.getElementById('mapSvg');
     if (!mapContainer) {
         console.error('mapSvg 요소를 찾을 수 없습니다.');
         return;
     }
 
-    // console.log('SVG 로드 시작...');
     const mapPath = getMapPath();
-    fetch(mapPath)
-        .then((response) => {
-            // console.log('SVG 응답 상태:', response.status);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text();
-        })
-        .then((svgText) => {
-            // console.log('SVG 텍스트 로드 성공, 길이:', svgText.length);
+    console.log('지도 경로:', mapPath);
 
+    fetch(mapPath)
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.text();
+        })
+        .then((svg) => {
             const parser = new DOMParser();
-            const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgDoc = parser.parseFromString(svg, 'image/svg+xml');
             const svgElement = svgDoc.documentElement;
 
             // 파서 오류 확인
             const parserError = svgDoc.querySelector('parsererror');
             if (parserError) {
-                console.error('SVG 파싱 오류:', parserError.textContent);
-                return;
+                throw new Error('SVG 파싱 오류');
             }
 
-            mapContainer.innerHTML = svgElement.innerHTML;
-            // console.log('SVG 삽입 완료');
+            // 기존 SVG 내용 제거 후 새 SVG 삽입
+            mapContainer.innerHTML = '';
+            mapContainer.appendChild(svgElement);
 
-            // 클래스 적용 및 디버깅
-            const paths = mapContainer.querySelectorAll('path');
-            // console.log('전체 path 요소 수:', paths.length);
-
-            paths.forEach((path, index) => {
-                const classAttr = path.getAttribute('class');
-                if (classAttr) {
-                    const classes = classAttr.split(' ');
-                    path.classList.add(...classes);
-
-                    // c-click 클래스가 있는 요소 로깅
-                    if (classes.includes('c-click')) {
-                        const regionName = path.getAttribute('sigungu-name');
-                        const regionId = path.getAttribute('id');
-                        // console.log(`클릭 가능한 지역 발견: ${regionName} (${regionId})`);
-                    }
-                }
-            });
-
-            // 이벤트 리스너 등록
-            setTimeout(() => {
-                addMapInteractivity();
-            }, 100); // 약간의 지연을 두어 DOM 업데이트 완료 대기
+            // 지도 로드 후 클릭 이벤트 바인딩
+            bindRegionClick();
         })
-        .catch((error) => {
-            console.error('SVG 로드 오류:', error);
+        .catch((err) => {
+            console.error('지도 로드 오류:', err);
             mapContainer.innerHTML =
-                '<text x="50%" y="50%" text-anchor="middle" fill="red">지도를 로드할 수 없습니다.</text>';
+                '<p style="padding: 20px; text-align: center; color: #999;">지도를 로드할 수 없습니다.</p>';
         });
-});
-
-// 관광지 데이터 로드
-async function loadTouristData() {
-    try {
-        // console.log('관광지 데이터 로드 시작...');
-        // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-        // 백엔드 API 엔드포인트: GET /api/tourist-spots
-        // 응답 형식: { regions: { area01: { name: "기장군", spots: [...] }, ... } }
-        const dataPath = getDataPath();
-        const response = await fetch(`${dataPath}busanTouristSpots.json`);
-        if (!response.ok) {
-            throw new Error('데이터 로드 실패');
-        }
-        touristData = await response.json();
-        // console.log('관광지 데이터 로드 완료:', touristData);
-    } catch (error) {
-        console.error('관광지 데이터 로드 오류:', error);
-    }
 }
 
-// sigungu-code를 사용하여 올바른 데이터 키로 변환하는 함수
-function getRegionKey(regionElement) {
-    const sigunguCode = regionElement.getAttribute('sigungu-code');
-
-    // sigungu-code와 JSON area 키 매핑
-    const codeToAreaMap = {
-        1: 'area06', // 강서구
-        2: 'area02', // 금정구
-        3: 'area01', // 기장군
-        4: 'area09', // 남구
-        5: 'area11', // 동구
-        6: 'area04', // 동래구
-        7: 'area08', // 부산진구
-        8: 'area05', // 북구
-        9: 'area07', // 사상구
-        10: 'area10', // 사하구
-        11: 'area12', // 서구
-        12: 'area15', // 수영구
-        13: 'area14', // 연제구
-        14: 'area16', // 영도구
-        15: 'area13', // 중구
-        16: 'area03', // 해운대구
-    };
-
-    const key = codeToAreaMap[sigunguCode];
-    // console.log(`지역 코드 "${sigunguCode}"를 키 "${key}"로 변환`);
-    return key;
-}
-
-function addMapInteractivity() {
+/*************************
+ * 지도 클릭 이벤트 바인딩
+ *************************/
+function bindRegionClick() {
     const regions = document.querySelectorAll('.c-click');
 
-    if (regions.length === 0) {
-        console.warn(
-            '클릭 가능한 지역이 없습니다. SVG 로드 또는 클래스 설정에 문제가 있을 수 있습니다.'
-        );
+    regions.forEach((region) => {
+        region.addEventListener('click', () => {
+            const regionId = Number(region.getAttribute('sigungu-code'));
+            const regionName = region.getAttribute('sigungu-name');
 
-        // 모든 path 요소 확인
-        const allPaths = document.querySelectorAll('#mapSvg path');
-        //console.log('전체 path 요소:', allPaths.length);
-        allPaths.forEach((path, index) => {
-            const id = path.getAttribute('id');
-            const className = path.getAttribute('class');
-            // console.log(`Path ${index}: id="${id}", class="${className}"`);
+            if (selectedRegionIds.has(regionId)) {
+                // 선택 해제
+                selectedRegionIds.delete(regionId);
+                region.classList.remove('selected');
+            } else {
+                // 선택
+                selectedRegionIds.add(regionId);
+                region.classList.add('selected');
+            }
+
+            console.log('선택된 지역:', [...selectedRegionIds]);
+
+            fetchRegionSpots([...selectedRegionIds]);
+            updateSelectionInfo();
         });
+    });
+}
+
+/*************************
+ * API 호출 (다중 지역)
+ *************************/
+async function fetchRegionSpots(regionIds) {
+    const ul = document.getElementById('tourist-spots-list');
+    if (!ul) {
+        console.error('tourist-spots-list 요소를 찾을 수 없습니다.');
         return;
     }
 
-    let selectedRegions = new Set();
-    const regionNameTag = document.querySelectorAll('#_지명-19 > g > a');
+    ul.innerHTML = '<li style="padding: 20px; text-align: center; color: #999;">로딩 중...</li>';
 
-    regions.forEach((region, index) => {
-        const regionName = region.getAttribute('sigungu-name');
-        const regionCode = region.getAttribute('sigungu-code');
-        const regionId = region.getAttribute('id');
-        // console.log(`지역 ${index + 1}: ${regionName} (${regionId})`);
+    if (regionIds.length === 0) {
+        ul.innerHTML =
+            '<li style="padding: 20px; text-align: center; color: #999;">지도에서 지역을 클릭하면 관광지가 나옵니다.</li>';
+        return;
+    }
 
-        region.addEventListener('click', function (e) {
-            // console.log(regionNameTag[index].getAttribute('href'));
-            // console.log(`클릭 이벤트 발생: ${regionName} (${regionId})`);
+    try {
+        const query = regionIds.join(',');
+        const res = await fetch(`/api/regions/spots?regionIds=${query}`);
+        if (!res.ok) throw new Error('API 요청 실패');
 
-            // 토글 방식
-            if (this.classList.contains('selected')) {
-                // 이미 선택된 지역이면 해제
-                this.classList.remove('selected');
-                regionNameTag.forEach((tag) => {
-                    if (tag.getAttribute('href') === `#${this.getAttribute('id')}`) {
-                        // tag.style.stroke = '';//ok
-                        // tag.style.fill = '#000000';
-                        const g = tag.querySelectorAll('#_지명-19 .cls-25');
+        const spots = await res.json();
+        console.log('API 응답:', spots);
 
-                        g.forEach((tt) => {
-                            tt.style.fill = '#121212';
-                        });
+        await renderSpotList(spots);
+    } catch (e) {
+        console.error('관광지 데이터 로드 오류:', e);
+        ul.innerHTML =
+            '<li style="padding: 20px; text-align: center; color: #999;">관광지 데이터를 불러오지 못했습니다.</li>';
+    }
+}
+
+/*************************
+ * 관광지 리스트 렌더링
+ *************************/
+async function renderSpotList(spots) {
+    const ul = document.getElementById('tourist-spots-list');
+    if (!ul) {
+        console.error('tourist-spots-list 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    ul.innerHTML = '';
+
+    if (!spots || spots.length === 0) {
+        ul.innerHTML =
+            '<li style="padding: 20px; text-align: center; color: #999;">관광지가 없습니다.</li>';
+        return;
+    }
+
+    // ListLoader를 사용하여 렌더링
+    if (typeof ListLoader !== 'undefined') {
+        try {
+            // 데이터 변환
+            const listData = spots.map((spot) => {
+                // hashtags가 문자열인 경우 배열로 변환 (쉼표로 구분)
+                let hashtagsArray = [];
+                if (spot.hashtags) {
+                    if (Array.isArray(spot.hashtags)) {
+                        hashtagsArray = spot.hashtags;
+                    } else if (typeof spot.hashtags === 'string') {
+                        // 쉼표로 구분된 문자열을 배열로 변환
+                        hashtagsArray = spot.hashtags
+                            .split(',')
+                            .map((tag) => '#' + tag.trim())
+                            .filter((tag) => tag.length > 0);
                     }
-                });
-                selectedRegions.delete(regionId);
-                // console.log(`지역 해제: ${regionName}`);
-
-                // 선택 해제 시 선택된 지역이 없으면 기본 메시지 표시
-                if (selectedRegions.size === 0) {
-                    resetListDisplay();
-                } else {
-                    // 다른 선택된 지역들 표시
-                    displaySelectedRegionsTouristSpots();
                 }
 
-                // 선택 해제 이벤트 발생
-                triggerRegionChange('deselected', regionName, regionCode, regionId);
-            } else {
-                // 새로운 지역 선택 (다중 선택 가능)
-                this.classList.add('selected');
-                regionNameTag.forEach((tag) => {
-                    if (tag.getAttribute('href') === `#${this.getAttribute('id')}`) {
-                        // tag.style.stroke = '#f9f9f9';
-                        // tag.style.fill = '#ffffff';
-                        const g = tag.querySelectorAll('#_지명-19 .cls-25');
+                return {
+                    id: spot.id,
+                    title: spot.title || '제목 없음',
+                    description: spot.description || '',
+                    hashtags: hashtagsArray,
+                    img: spot.imageUrl || spot.image_url || '',
+                    link: spot.linkUrl || spot.link_url || '#',
+                    categoryCode: spot.categoryCode || spot.category_code || 'culture',
+                    isActive: spot.isActive !== false,
+                };
+            });
 
-                        g.forEach((tt) => {
-                            tt.style.fill = '#f9f9f9';
-                        });
-                        // g.style.fill='#ffffff'
-                    }
-                });
-                selectedRegions.add(regionId);
-                // console.log(`지역 선택: ${regionName} (코드: ${regionCode})`);
+            // 매번 새로운 ListLoader 인스턴스 생성 (데이터가 변경될 때마다)
+            listLoader = new ListLoader({
+                containerSelector: '#tourist-spots-list',
+                data: listData,
+                fallbackImage: '../../images/logo.png',
+                onItemClick: (itemData, event) => {
+                    // 상세 페이지로 이동
+                    window.location.href = `/pages/detailed/detailed?id=${itemData.id}`;
+                },
+                onLikeClick: (itemData, isLiked) => {
+                    // 좋아요 기능 (필요시 구현)
+                    console.log(`${itemData.title} 좋아요: ${isLiked}`);
+                },
+            });
 
-                // 선택된 모든 지역의 관광지 표시
-                displaySelectedRegionsTouristSpots();
-
-                // 선택 이벤트 발생
-                triggerRegionChange('selected', regionName, regionCode, regionId);
-            }
-        });
-
-        // 마우스 이벤트도 추가하여 작동 확인
-        region.addEventListener('mouseenter', function () {
-            // console.log(`마우스 진입: ${regionName}`);
-        });
-    });
-
-    // console.log('이벤트 리스너 등록 완료');
-
-    // 컨트롤 버튼 이벤트
-    const controlButtons = document.querySelectorAll('.control-button');
-    // console.log('컨트롤 버튼 수:', controlButtons.length);
-
-    controlButtons.forEach((button) => {
-        button.addEventListener('click', function () {
-            const buttonText = this.textContent.trim();
-            // console.log(`컨트롤 버튼 클릭: ${buttonText}`);
-
-            if (buttonText === '전체 해제') {
-                // 모든 선택 해제
-                regions.forEach((region) => region.classList.remove('selected'));
-                const g = document.querySelectorAll('#_지명-19 .cls-25');
-                g.forEach((tt) => {
-                    tt.style.fill = '#121212';
-                });
-                selectedRegions.clear();
-                resetListDisplay();
-                updateSelectionInfo();
-            } else if (buttonText === '선택된 지역 보기') {
-                // 선택된 지역들의 관광지 통합 표시
-                displaySelectedRegionsTouristSpots();
-            }
-        });
-    });
-}
-
-// 특정 지역의 관광지 표시
-async function displayRegionTouristSpots(regionElement, regionName) {
-    if (!touristData || !touristData.regions) {
-        console.error('관광지 데이터가 없습니다.');
-        return;
-    }
-
-    const regionKey = getRegionKey(regionElement);
-
-    if (!regionKey) {
-        // console.log(`${regionName}의 매핑 정보가 없습니다.`);
-        displayNoDataMessage(regionName);
-        return;
-    }
-
-    const regionData = touristData.regions[regionKey];
-
-    if (!regionData || !regionData.spots) {
-        // console.log(`${regionName}의 관광지 데이터가 없습니다.`);
-        displayNoDataMessage(regionName);
-        return;
-    }
-
-    // 리스트 로더 생성 및 렌더링
-    try {
-        listLoader = new ListLoader({
-            containerSelector: '#tourist-spots-list',
-            templateContainerSelector: '#list-template-container',
-            data: regionData.spots,
-            fallbackImage: '../../images/logo.png',
-            onItemClick: (itemData, event) => {
-                // console.log('관광지 클릭:', itemData.title);
-                // 상세 페이지로 이동하는 로직
-            },
-            onLikeClick: (itemData, isLiked) => {
-                // console.log(`${itemData.title} 좋아요: ${isLiked}`);
-                // 좋아요 상태 저장 로직
-            },
-        });
-
-        await listLoader.render();
-        // console.log(`${regionName} 관광지 ${regionData.spots.length}개 표시 완료`);
-    } catch (error) {
-        console.error('리스트 렌더링 오류:', error);
-        displayErrorMessage(regionName);
-    }
-}
-
-// 선택된 모든 지역의 관광지 표시
-async function displaySelectedRegionsTouristSpots() {
-    const selectedRegions = getSelectedRegions();
-
-    if (selectedRegions.length === 0) {
-        resetListDisplay();
-        return;
-    }
-
-    let allSpots = [];
-    let regionNames = [];
-
-    selectedRegions.forEach((region) => {
-        const regionElement = document.getElementById(region.id);
-        const regionKey = getRegionKey(regionElement);
-
-        if (regionKey) {
-            const regionData = touristData.regions[regionKey];
-
-            if (regionData && regionData.spots) {
-                allSpots = allSpots.concat(regionData.spots);
-                regionNames.push(region.name);
-            }
+            // 렌더링 실행
+            await listLoader.render();
+        } catch (err) {
+            console.error('리스트 렌더링 오류:', err);
+            // 폴백: 간단한 리스트로 표시
+            spots.forEach((spot) => {
+                const li = document.createElement('li');
+                li.textContent = spot.title || '제목 없음';
+                ul.appendChild(li);
+            });
         }
-    });
-
-    if (allSpots.length === 0) {
-        displayNoDataMessage(regionNames.join(', '));
-        return;
-    }
-
-    // 리스트 렌더링
-    try {
-        listLoader = new ListLoader({
-            containerSelector: '#tourist-spots-list',
-            templateContainerSelector: '#list-template-container',
-            data: allSpots,
-            fallbackImage: '../../images/logo.png',
-        });
-
-        await listLoader.render();
-        // console.log(`선택된 지역들의 관광지 ${allSpots.length}개 표시 완료`);
-    } catch (error) {
-        console.error('리스트 렌더링 오류:', error);
-    }
-}
-
-// 리스트 헤더 업데이트 함수 제거됨 (지역 이름 표시 기능 제거)
-
-// 기본 상태로 리셋
-function resetListDisplay() {
-    const subtitleElement = document.getElementById('region-subtitle');
-    const listContainer = document.getElementById('tourist-spots-list');
-
-    if (subtitleElement) {
-        subtitleElement.textContent =
-            '지도에서 지역을 클릭하면 해당 지역의 관광지를 확인할 수 있습니다.';
-    }
-
-    if (listContainer) {
-        listContainer.innerHTML = '';
-    }
-}
-
-// 데이터 없음 메시지 표시
-function displayNoDataMessage(regionName) {
-    const listContainer = document.getElementById('tourist-spots-list');
-
-    if (listContainer) {
-        listContainer.innerHTML =
-            '<li style="padding: 20px; text-align: center; color: #666;">관광지 정보가 없습니다.</li>';
-    }
-}
-
-// 오류 메시지 표시
-function displayErrorMessage(regionName) {
-    const listContainer = document.getElementById('tourist-spots-list');
-
-    if (listContainer) {
-        listContainer.innerHTML =
-            '<li style="padding: 20px; text-align: center; color: #e74c3c;">데이터 로드 오류</li>';
-    }
-}
-
-// 개별 지역 선택/해제 이벤트 발생 함수
-function triggerRegionChange(action, regionName, regionCode, regionId) {
-    const event = new CustomEvent('regionChange', {
-        detail: {
-            action: action, // 'selected' 또는 'deselected'
-            regionName: regionName,
-            regionCode: regionCode,
-            regionId: regionId,
-        },
-    });
-    document.dispatchEvent(event);
-}
-
-//선택된 지역 정보 가져오기
-function getSelectedRegions() {
-    const selectedElements = document.querySelectorAll('.c-click.selected');
-    return Array.from(selectedElements).map((item) => ({
-        id: item.getAttribute('id'),
-        name: item.getAttribute('sigungu-name'),
-        code: item.getAttribute('sigungu-code'),
-    }));
-}
-
-//선택된 지역 정보출력
-document.addEventListener('regionChange', (event) => {
-    const { action, regionName, regionCode, regionId } = event.detail;
-    // console.log(`Region ${action}: ${regionName} (코드: ${regionCode}) (ID: ${regionId})`);
-    updateSelectionInfo();
-});
-
-//텍스트 업데이트
-function updateSelectionInfo() {
-    const infoElement = document.getElementById('selection-info');
-    const selectedRegions = getSelectedRegions();
-
-    if (selectedRegions.length === 0) {
-        infoElement.innerHTML = '지역을 클릭하여 선택/해제할 수 있습니다.';
-        infoElement.style.color = '#000';
     } else {
-        const regionNames = selectedRegions.map((region) => region.name).join(', ');
-        infoElement.innerHTML = `선택된 지역 (${selectedRegions.length}개): ${regionNames}`;
+        // ListLoader가 없으면 간단한 리스트로 표시
+        console.warn('ListLoader를 사용할 수 없습니다. 간단한 리스트로 표시합니다.');
+        spots.forEach((spot) => {
+            const li = document.createElement('li');
+            li.textContent = spot.title || '제목 없음';
+            ul.appendChild(li);
+        });
+    }
+}
+
+/*************************
+ * 선택 정보 텍스트
+ *************************/
+function updateSelectionInfo() {
+    const info = document.getElementById('selection-info');
+    if (!info) return;
+
+    if (selectedRegionIds.size === 0) {
+        info.textContent = '지역을 클릭해 선택하세요.';
+    } else {
+        info.textContent = `선택된 지역 수: ${selectedRegionIds.size}`;
     }
 }

@@ -71,8 +71,19 @@ initMobileMenu();
 //     tryInitSearchBox();
 // }
 
+// DOMContentLoaded와 load 이벤트 모두에서 초기화 시도
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initSearchBox, 100);
+    });
+} else {
+    setTimeout(initSearchBox, 100);
+}
+
 // 윈도우 로드 후에도 한 번 더 시도
-window.addEventListener('load', initSearchBox);
+window.addEventListener('load', () => {
+    setTimeout(initSearchBox, 200);
+});
 
 // 검색 기능 초기화 상태 추적
 let searchBoxInitialized = false;
@@ -156,15 +167,23 @@ function initSearchBox() {
 // 검색 실행 함수
 function performSearch() {
     const searchInput = document.querySelector('.search-box input');
+    const searchBox = document.querySelector('.search-box');
+    
+    if (!searchInput || !searchBox) {
+        console.error('검색 입력창 또는 검색 박스를 찾을 수 없습니다.');
+        return;
+    }
+    
     const searchTerm = searchInput.value.trim();
 
     if (searchTerm) {
         console.log('검색어:', searchTerm);
 
-        // window.location.href = `/pages/search-place/place.html?search=${encodeURIComponent(searchTerm)}`;
+        // 통합 검색 페이지로 이동
+        window.location.href = `/pages/search-place/search?q=${encodeURIComponent(searchTerm)}`;
 
         // 검색 박스 닫기
-        document.querySelector('.search-box').classList.remove('active');
+        searchBox.classList.remove('active');
 
         // 입력창 초기화
         searchInput.value = '';
