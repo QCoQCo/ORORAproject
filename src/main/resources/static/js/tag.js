@@ -517,15 +517,15 @@ class TagSearchSystem {
 
     // 상세 페이지로 이동하는 함수
     navigateToDetail(spot) {
-        // 관광지 ID가 있으면 ID를 사용하고, 없으면 제목을 사용
-        // spot.id가 null, undefined, 0이 아닌 경우에만 ID 사용
-        if (spot.id != null && spot.id !== undefined && spot.id !== '') {
-            window.location.href = `/pages/detailed/detailed?id=${spot.id}`;
-        } else if (spot.title) {
-            const encodedTitle = encodeURIComponent(spot.title);
-            window.location.href = `/pages/detailed/detailed?title=${encodedTitle}`;
+        // 관광지 ID만 사용 (title 기반 검색은 사용하지 않음)
+        const spotId = spot.id;
+
+        // ID가 유효한 경우에만 이동
+        if (spotId != null && spotId !== undefined && spotId !== '' && spotId !== 0) {
+            window.location.href = `/pages/detailed/detailed?id=${spotId}`;
         } else {
-            console.error('관광지 정보가 없습니다:', spot);
+            console.error('관광지 ID가 없습니다. spot 객체:', spot);
+            alert('관광지 정보를 불러올 수 없습니다. ID가 필요합니다.');
         }
     }
 
