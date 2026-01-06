@@ -93,9 +93,27 @@
 
 .mypage-container .profile-info .join-date {
     font-size: 0.9rem;
-    margin: 0;
+    margin: 0 0 15px 0;
     opacity: 0.8;
     color: #121212;
+}
+
+.mypage-container .profile-info .edit-profile-btn {
+    padding: 10px 20px;
+    background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.mypage-container .profile-info .edit-profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 /* 마이페이지 콘텐츠 */

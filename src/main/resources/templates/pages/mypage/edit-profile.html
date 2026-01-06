@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/layout}"
+    lang="ko"
+>
+    <head>
+        <title layout:fragment="title">프로필 수정 - arataBUSAN</title>
+        <th:block layout:fragment="css">
+            <link rel="stylesheet" th:href="@{/css/edit-profile.css}" />
+        </th:block>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div class="edit-profile-container">
+                <h2>프로필 수정</h2>
+                <div class="form-container">
+                    <div class="profile-image-section">
+                        <div class="current-profile-image">
+                            <img
+                                th:src="@{/images/defaultProfile.png}"
+                                alt="현재 프로필 이미지"
+                                id="current-profile-image"
+                            />
+                        </div>
+                        <div class="profile-image-upload">
+                            <p>프로필 사진</p>
+                            <label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    id="profileImage"
+                                    style="border: none; padding: 5px 0"
+                                />
+                                <div style="font-size: 12px; color: #666; margin-top: 5px">
+                                    선택사항입니다.
+                                </div>
+                                <div id="profileImagePreview" style="margin-top: 10px; display: none">
+                                    <img
+                                        id="previewImg"
+                                        src=""
+                                        alt="프로필 미리보기"
+                                        style="
+                                            max-width: 150px;
+                                            max-height: 150px;
+                                            border-radius: 50%;
+                                            object-fit: cover;
+                                        "
+                                    />
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <p>이름</p>
+                        <label>
+                            <input
+                                type="text"
+                                placeholder=" 이름을 입력해 주세요."
+                                id="username"
+                            />
+                        </label>
+                    </div>
+
+                    <div class="form-field">
+                        <p>이메일</p>
+                        <label>
+                            <input
+                                type="email"
+                                placeholder=" 예 : orora@orora.com"
+                                id="email"
+                            />
+                        </label>
+                        <div id="emailError" class="error-message" style="display: none">
+                            이메일 형식이 올바르지 않습니다.
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <p>전화번호</p>
+                        <label>
+                            <input
+                                type="tel"
+                                placeholder=" -을 빼고 입력해주세요"
+                                id="phoneNumber"
+                            />
+                        </label>
+                    </div>
+
+                    <div class="form-field">
+                        <p>주소</p>
+                        <label>
+                            <input
+                                type="text"
+                                placeholder=" 주소를 입력해주세요 (선택사항)"
+                                id="address"
+                            />
+                        </label>
+                    </div>
+
+                    <div class="form-field">
+                        <p>생년월일</p>
+                        <label>
+                            <input
+                                type="date"
+                                id="birthDate"
+                            />
+                        </label>
+                    </div>
+
+                    <div class="form-field">
+                        <p>성별</p>
+                        <label>
+                            <select id="genderCode">
+                                <option value="">선택해주세요 (선택사항)</option>
+                                <option value="MALE">남성</option>
+                                <option value="FEMALE">여성</option>
+                                <option value="OTHER">기타</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" id="cancelBtn" class="cancel-btn">
+                            취소
+                        </button>
+                        <button type="button" id="submitBtn" class="submit-btn">
+                            저장
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <th:block layout:fragment="script">
+            <script th:src="@{/js/edit-profile.js}"></script>
+        </th:block>
+    </body>
+</html>

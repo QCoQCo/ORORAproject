@@ -80,7 +80,7 @@ function updateHeader() {
                         <span class="dropdown-arrow">▼</span>
                     </button>
                     <div class="user-dropdown-menu">
-                        <a href="/pages/mypage/mypage.html" class="dropdown-item">
+                        <a href="/pages/mypage/mypage" class="dropdown-item">
                             <span class="dropdown-icon">👤</span>
                             마이페이지
                         </a>
@@ -98,7 +98,7 @@ function updateHeader() {
         } else {
             // 로그인되지 않은 상태: 로그인 버튼 표시
             loginBtn.innerHTML =
-                '<a href="/pages/login/login.html" data-translate="header.login">로그인</a>';
+                '<a href="/pages/login/login" data-translate="header.login">로그인</a>';
         }
     } else {
         console.warn('로그인 버튼을 찾을 수 없습니다:', { loginBtn, btnsContainer });

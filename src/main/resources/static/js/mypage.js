@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 로그인 상태 확인
     if (!isLoggedIn()) {
         alert('로그인이 필요합니다.');
-        window.location.href = '/pages/login/login.html';
+        window.location.href = '/pages/login/login';
         return;
     }
 
@@ -20,24 +20,64 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // 사용자 정보 표시
-function displayUserInfo() {
+async function displayUserInfo() {
     const user = getCurrentUser();
     if (!user) return;
 
-    // 사용자 정보 업데이트
-    document.getElementById('user-name').textContent = user.username;
-    document.getElementById('user-email').textContent = user.email;
+    try {
+        // 최신 사용자 정보를 API에서 가져오기
+        const response = await fetch(`/api/users/${user.id}`);
+        const data = await response.json();
 
-    // 가입일 표시 (join_date가 있는 경우)
-    if (user.join_date) {
-        document.getElementById('join-date').textContent = `가입일: ${user.join_date}`;
-    } else {
-        document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
-    }
+        if (data.success && data.user) {
+            const userInfo = data.user;
 
-    // 프로필 이미지 설정 (있는 경우)
-    if (user.profile_image) {
-        document.getElementById('profile-image').src = user.profile_image;
+            // 사용자 정보 업데이트
+            document.getElementById('user-name').textContent = userInfo.username;
+            document.getElementById('user-email').textContent = userInfo.email;
+
+            // 가입일 표시
+            if (userInfo.join_date) {
+                const joinDate = new Date(userInfo.join_date);
+                document.getElementById('join-date').textContent = `가입일: ${joinDate.toLocaleDateString('ko-KR')}`;
+            } else {
+                document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
+            }
+
+            // 프로필 이미지 설정
+            const profileImageUrl = userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
+            document.getElementById('profile-image').src = profileImageUrl;
+
+            // sessionStorage 업데이트 (최신 정보로)
+            sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+        } else {
+            // API 호출 실패 시 sessionStorage의 정보 사용
+            document.getElementById('user-name').textContent = user.username;
+            document.getElementById('user-email').textContent = user.email;
+
+            if (user.join_date) {
+                document.getElementById('join-date').textContent = `가입일: ${user.join_date}`;
+            } else {
+                document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
+            }
+
+            const profileImageUrl = user.profileImage || user.profile_image || '/images/defaultProfile.png';
+            document.getElementById('profile-image').src = profileImageUrl;
+        }
+    } catch (error) {
+        console.error('사용자 정보 로드 오류:', error);
+        // 에러 발생 시 sessionStorage의 정보 사용
+        document.getElementById('user-name').textContent = user.username;
+        document.getElementById('user-email').textContent = user.email;
+
+        if (user.join_date) {
+            document.getElementById('join-date').textContent = `가입일: ${user.join_date}`;
+        } else {
+            document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
+        }
+
+        const profileImageUrl = user.profileImage || user.profile_image || '/images/defaultProfile.png';
+        document.getElementById('profile-image').src = profileImageUrl;
     }
 }
 
@@ -221,7 +261,7 @@ function createReviewHTML(review) {
                     <span class="stars">${stars}</span>
                     <span>${review.rating}/5</span>
                 </div>
-                <a href="/pages/detailed/detailed.html?title=${
+                <a href="/pages/detailed/detailed?title=${
                     review.tourist_spot_name
                 }" class="tourist-spot">
                     ${review.tourist_spot_name}
@@ -242,7 +282,7 @@ function createCommentHTML(comment) {
             </div>
             <div class="item-content">${comment.content}</div>
             <div class="item-meta">
-                <a href="/pages/detailed/detailed.html?id=${
+                <a href="/pages/detailed/detailed?id=${
                     comment.tourist_spot_id
                 }" class="tourist-spot">
                     ${comment.tourist_spot_name}
@@ -262,7 +302,7 @@ function createLikeHTML(like) {
             </div>
             <div class="item-content">${like.description || '좋아요한 관광지입니다.'}</div>
             <div class="item-meta">
-                <a href="/pages/detailed/detailed.html?id=${
+                <a href="/pages/detailed/detailed?id=${
                     like.tourist_spot_id
                 }" class="tourist-spot">
                     자세히 보기

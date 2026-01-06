@@ -77,19 +77,19 @@ async function initializeAdmin() {
     // 관리자 권한 확인
     if (!isAdmin()) {
         alert('관리자 권한이 필요합니다.');
-        window.location.href = '/index.html';
+        window.location.href = '/';
         return;
     }
 
     await loadTouristSpots();
     await initializeUsers();
     initializeTabs();
-    
+
     // DOM이 완전히 준비된 후 이벤트 리스너 초기화
     setTimeout(() => {
         initializeEventListeners();
     }, 100);
-    
+
     // 헤더는 layout.html에서 Thymeleaf로 이미 포함되므로 별도 로드 불필요
     // 헤더 업데이트만 수행 (페이지 로드 시에만)
     setTimeout(() => {
@@ -105,35 +105,35 @@ async function loadTouristSpots() {
     try {
         const response = await fetch('/api/admin/tourist-spots');
         const data = await response.json();
-        
+
         if (data.success && data.spots) {
             // 백엔드 데이터를 프론트엔드 형식으로 변환
             touristSpots = {};
-            data.spots.forEach(spot => {
+            data.spots.forEach((spot) => {
                 // regionId를 area01 형식으로 변환 (임시로 regionId를 키로 사용)
                 const regionKey = `area${String(spot.regionId).padStart(2, '0')}`;
-                
+
                 if (!touristSpots[regionKey]) {
                     touristSpots[regionKey] = {
                         name: regionNames[regionKey] || `지역 ${spot.regionId}`,
                         code: '',
-                        spots: []
+                        spots: [],
                     };
                 }
-                
-                // 해시태그는 임시로 빈 배열 (나중에 해시태그 API 추가 시 수정)
+
+                // 해시태그는 백엔드에서 전달받은 데이터 사용
                 touristSpots[regionKey].spots.push({
                     id: spot.id,
                     title: spot.title,
                     description: spot.description || '',
-                    hashtags: [], // TODO: 해시태그 API 추가 시 수정
+                    hashtags: spot.hashtags || [], // 백엔드에서 해시태그 배열 전달
                     img: '', // TODO: 이미지 API 추가 시 수정
                     link: spot.linkUrl || '#',
                     categoryCode: spot.categoryCode,
-                    isActive: spot.isActive
+                    isActive: spot.isActive,
                 });
             });
-            
+
             displayTouristSpots();
             updateStatistics();
         } else {
@@ -187,6 +187,12 @@ function initializeTabs() {
             if (targetTab === 'users') {
                 displayUsers();
             }
+
+            // 공통코드 관리 탭을 클릭한 경우 공통코드 목록 표시
+            if (targetTab === 'common-codes') {
+                loadCommonCodeGroups();
+                loadCommonCodes();
+            }
         });
     });
 }
@@ -194,7 +200,7 @@ function initializeTabs() {
 // 이벤트 리스너 초기화
 function initializeEventListeners() {
     // 검색 기능
-    const searchInput = document.getElementById('search-input');
+    const searchInput = document.getElementById('admin-search-input');
     const regionFilter = document.getElementById('region-filter');
 
     if (searchInput) {
@@ -306,14 +312,26 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
     const card = document.createElement('div');
     card.className = 'tourist-spot-card';
 
-    const category = spot.categoryCode ? spot.categoryCode.toLowerCase() : getCategoryFromHashtags(spot.hashtags);
-    const hashtags = spot.hashtags ? spot.hashtags.join(' ') : '';
+    const category = spot.categoryCode
+        ? spot.categoryCode.toLowerCase()
+        : getCategoryFromHashtags(spot.hashtags);
+
+    // 해시태그 배열을 문자열로 변환 (# 접두사 추가)
+    let hashtagsDisplay = '없음';
+    if (spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0) {
+        hashtagsDisplay = spot.hashtags
+            .map((tag) => {
+                // 이미 #이 있으면 그대로, 없으면 추가
+                return tag.startsWith('#') ? tag : '#' + tag;
+            })
+            .join(' ');
+    }
 
     card.innerHTML = `
         <h3>${spot.title}</h3>
         <div class="spot-category">${regionName} (${categoryNames[category] || category})</div>
         <div class="spot-info">
-            해시태그: ${hashtags || '없음'}
+            해시태그: ${hashtagsDisplay}
         </div>
         <div class="spot-description">${spot.description || ''}</div>
         <div class="spot-actions">
@@ -327,7 +345,8 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
 
 // 관광지 필터링
 function filterTouristSpots() {
-    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const searchInput = document.getElementById('admin-search-input');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
     const selectedRegion = document.getElementById('region-filter').value;
 
     const filteredSpots = {};
@@ -361,7 +380,7 @@ function filterTouristSpots() {
 }
 
 // 관광지 추가
-function handleAddTouristSpot(event) {
+async function handleAddTouristSpot(event) {
     event.preventDefault();
 
     const regionKey = document.getElementById('spot-region').value;
@@ -372,85 +391,114 @@ function handleAddTouristSpot(event) {
         .filter((tag) => tag.length > 0)
         .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag));
 
-    const newSpot = {
+    const requestData = {
+        regionKey: regionKey,
         title: document.getElementById('spot-title').value,
         description: document.getElementById('spot-description').value,
         hashtags: hashtags,
-        img: document.getElementById('spot-img').value || '../../images/common.jpg',
-        link: document.getElementById('spot-link').value || '#',
+        linkUrl: document.getElementById('spot-link').value || '#',
+        categoryCode: 'CULTURE', // 기본값, 필요시 수정
     };
 
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: POST /api/admin/tourist-spots
-    // 요청 형식: { regionId, title, description, hashtags, imageUrl, linkUrl }
-    // 응답 형식: { success: true, spot: { id, ... } }
+    try {
+        const response = await fetch('/api/admin/tourist-spots', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
 
-    if (!touristSpots[regionKey]) {
-        touristSpots[regionKey] = {
-            name: regionNames[regionKey] || regionKey,
-            code: '',
-            spots: [],
-        };
+        const data = await response.json();
+
+        if (data.success) {
+            // 폼 초기화
+            event.target.reset();
+
+            // 목록 갱신
+            await loadTouristSpots();
+            updateStatistics();
+
+            showNotification('관광지가 성공적으로 추가되었습니다!', 'success');
+        } else {
+            showNotification(data.message || '관광지 추가에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('관광지 추가 실패:', error);
+        showNotification('관광지 추가 중 오류가 발생했습니다.', 'error');
     }
-
-    if (!touristSpots[regionKey].spots) {
-        touristSpots[regionKey].spots = [];
-    }
-
-    touristSpots[regionKey].spots.push(newSpot);
-
-    // 폼 초기화
-    event.target.reset();
-
-    // 목록 갱신
-    displayTouristSpots();
-    updateStatistics();
-
-    showNotification('관광지가 성공적으로 추가되었습니다!', 'success');
 }
 
 // 수정 모달 열기
 function openEditModal(regionKey, spotId) {
-    // spotId로 관광지 찾기
-    let spot = null;
-    let foundIndex = -1;
-    if (touristSpots[regionKey] && touristSpots[regionKey].spots) {
-        foundIndex = touristSpots[regionKey].spots.findIndex(s => s.id === spotId);
-        if (foundIndex !== -1) {
-            spot = touristSpots[regionKey].spots[foundIndex];
+    // DOM이 완전히 로드될 때까지 기다림
+    const tryOpenModal = () => {
+        const editModal = document.getElementById('edit-modal');
+        if (!editModal) {
+            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
+            setTimeout(tryOpenModal, 100);
+            return;
         }
-    }
-    
-    if (!spot) {
-        showNotification('관광지를 찾을 수 없습니다.', 'error');
-        return;
-    }
-    
-    currentEditRegion = regionKey;
-    currentEditIndex = foundIndex;
 
-    // 폼에 기존 데이터 입력
-    document.getElementById('edit-spot-title').value = spot.title;
-    document.getElementById('edit-spot-region').value = regionKey;
-    document.getElementById('edit-spot-description').value = spot.description;
-    document.getElementById('edit-spot-hashtags').value = spot.hashtags
-        ? spot.hashtags.join(', ')
-        : '';
-    document.getElementById('edit-spot-img').value = spot.img || '';
-    document.getElementById('edit-spot-link').value = spot.link || '';
+        // spotId로 관광지 찾기
+        let spot = null;
+        let foundIndex = -1;
+        if (touristSpots[regionKey] && touristSpots[regionKey].spots) {
+            foundIndex = touristSpots[regionKey].spots.findIndex((s) => s.id === spotId);
+            if (foundIndex !== -1) {
+                spot = touristSpots[regionKey].spots[foundIndex];
+            }
+        }
 
-    // 모달 표시
-    document.getElementById('edit-modal').style.display = 'block';
+        if (!spot) {
+            showNotification('관광지를 찾을 수 없습니다.', 'error');
+            return;
+        }
+
+        currentEditRegion = regionKey;
+        currentEditIndex = foundIndex;
+
+        // 폼에 기존 데이터 입력
+        const titleInput = document.getElementById('edit-spot-title');
+        const regionSelect = document.getElementById('edit-spot-region');
+        const descriptionTextarea = document.getElementById('edit-spot-description');
+        const hashtagsInput = document.getElementById('edit-spot-hashtags');
+        const imgInput = document.getElementById('edit-spot-img');
+        const linkInput = document.getElementById('edit-spot-link');
+
+        if (titleInput) titleInput.value = spot.title;
+        if (regionSelect) regionSelect.value = regionKey;
+        if (descriptionTextarea) descriptionTextarea.value = spot.description || '';
+        if (hashtagsInput) hashtagsInput.value = spot.hashtags ? spot.hashtags.join(', ') : '';
+        if (imgInput) imgInput.value = spot.img || '';
+        if (linkInput) linkInput.value = spot.link || '';
+
+        // 모달 표시
+        editModal.style.display = 'block';
+    };
+
+    tryOpenModal();
 }
 
+// 전역 스코프에 함수 바인딩 (인라인 onclick 핸들러에서 접근 가능하도록)
+window.openEditModal = openEditModal;
+
 // 관광지 수정
-function handleEditTouristSpot(event) {
+async function handleEditTouristSpot(event) {
     event.preventDefault();
 
     if (currentEditRegion === null || currentEditIndex === null) {
         return;
     }
 
+    // spotId 가져오기
+    const spot = touristSpots[currentEditRegion].spots[currentEditIndex];
+    if (!spot || !spot.id) {
+        showNotification('관광지 정보를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    const spotId = spot.id;
     const hashtags = document
         .getElementById('edit-spot-hashtags')
         .value.split(',')
@@ -458,83 +506,78 @@ function handleEditTouristSpot(event) {
         .filter((tag) => tag.length > 0)
         .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag));
 
-    const updatedSpot = {
+    const newRegion = document.getElementById('edit-spot-region').value;
+
+    const requestData = {
+        regionKey: newRegion,
         title: document.getElementById('edit-spot-title').value,
         description: document.getElementById('edit-spot-description').value,
         hashtags: hashtags,
-        img: document.getElementById('edit-spot-img').value || '../../images/common.jpg',
-        link: document.getElementById('edit-spot-link').value || '#',
+        linkUrl: document.getElementById('edit-spot-link').value || '#',
+        categoryCode: spot.categoryCode || 'CULTURE',
     };
 
-    const newRegion = document.getElementById('edit-spot-region').value;
+    try {
+        const response = await fetch(`/api/admin/tourist-spots/${spotId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
 
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: PUT /api/admin/tourist-spots/{spotId}
-    // 요청 형식: { regionId, title, description, hashtags, imageUrl, linkUrl }
-    // 응답 형식: { success: true, spot: { id, ... } }
+        const data = await response.json();
 
-    // 지역이 변경된 경우
-    if (newRegion !== currentEditRegion) {
-        // 기존 지역에서 제거
-        touristSpots[currentEditRegion].spots.splice(currentEditIndex, 1);
+        if (data.success) {
+            // 모달 닫기
+            document.getElementById('edit-modal').style.display = 'none';
 
-        // 새 지역에 추가
-        if (!touristSpots[newRegion]) {
-            touristSpots[newRegion] = {
-                name: regionNames[newRegion] || newRegion,
-                code: '',
-                spots: [],
-            };
+            // 목록 갱신
+            await loadTouristSpots();
+            updateStatistics();
+
+            showNotification('관광지 정보가 성공적으로 수정되었습니다!', 'success');
+
+            // 편집 상태 초기화
+            currentEditRegion = null;
+            currentEditIndex = null;
+        } else {
+            showNotification(data.message || '관광지 수정에 실패했습니다.', 'error');
         }
-        if (!touristSpots[newRegion].spots) {
-            touristSpots[newRegion].spots = [];
-        }
-        touristSpots[newRegion].spots.push(updatedSpot);
-    } else {
-        // 같은 지역 내에서 수정
-        touristSpots[currentEditRegion].spots[currentEditIndex] = updatedSpot;
+    } catch (error) {
+        console.error('관광지 수정 실패:', error);
+        showNotification('관광지 수정 중 오류가 발생했습니다.', 'error');
     }
-
-    // 모달 닫기
-    document.getElementById('edit-modal').style.display = 'none';
-
-    // 목록 갱신
-    displayTouristSpots();
-    updateStatistics();
-
-    showNotification('관광지 정보가 성공적으로 수정되었습니다!', 'success');
-
-    // 편집 상태 초기화
-    currentEditRegion = null;
-    currentEditIndex = null;
 }
 
 // 관광지 삭제
-function deleteTouristSpot(regionKey, spotId) {
+async function deleteTouristSpot(regionKey, spotId) {
     if (confirm('정말로 이 관광지를 삭제하시겠습니까?')) {
-        // TODO: 백엔드 연결 시 API 호출로 변경
-        // 백엔드 API 엔드포인트: DELETE /api/admin/tourist-spots/{spotId}
-        // 응답 형식: { success: true, message: string }
+        try {
+            const response = await fetch(`/api/admin/tourist-spots/${spotId}`, {
+                method: 'DELETE',
+            });
 
-        // spotId로 관광지 찾아서 삭제
-        if (touristSpots[regionKey] && touristSpots[regionKey].spots) {
-            const index = touristSpots[regionKey].spots.findIndex(s => s.id === spotId);
-            if (index !== -1) {
-                touristSpots[regionKey].spots.splice(index, 1);
+            const data = await response.json();
+
+            if (data.success) {
+                // 목록 갱신
+                await loadTouristSpots();
+                updateStatistics();
+
+                showNotification('관광지가 성공적으로 삭제되었습니다!', 'success');
+            } else {
+                showNotification(data.message || '관광지 삭제에 실패했습니다.', 'error');
             }
+        } catch (error) {
+            console.error('관광지 삭제 실패:', error);
+            showNotification('관광지 삭제 중 오류가 발생했습니다.', 'error');
         }
-
-        // 지역에 관광지가 없으면 spots 배열만 비워둠 (지역 정보는 유지)
-        if (touristSpots[regionKey].spots.length === 0) {
-            touristSpots[regionKey].spots = [];
-        }
-
-        displayTouristSpots();
-        updateStatistics();
-
-        showNotification('관광지가 성공적으로 삭제되었습니다!', 'success');
     }
 }
+
+// 전역 스코프에 함수 바인딩
+window.deleteTouristSpot = deleteTouristSpot;
 
 // 통계 업데이트
 function updateStatistics() {
@@ -828,6 +871,11 @@ function exportAllData() {
     URL.revokeObjectURL(url);
 }
 
+// 전역 스코프에 함수 바인딩
+window.exportAllData = exportAllData;
+window.exportTouristSpotsData = exportTouristSpotsData;
+window.exportUsersData = exportUsersData;
+
 // ========== 사용자 관리 기능 ==========
 
 // 사용자 데이터 초기화
@@ -835,10 +883,10 @@ async function initializeUsers() {
     try {
         const response = await fetch('/api/admin/users');
         const data = await response.json();
-        
+
         if (data.success && data.users) {
             // 백엔드 데이터를 프론트엔드 형식으로 변환
-            users = data.users.map(user => ({
+            users = data.users.map((user) => ({
                 id: user.id,
                 userId: user.loginId,
                 username: user.username,
@@ -846,7 +894,7 @@ async function initializeUsers() {
                 role: user.roleCode ? user.roleCode.toLowerCase() : 'member', // ADMIN -> admin
                 status: user.statusCode ? user.statusCode.toLowerCase() : 'active', // ACTIVE -> active
                 joinDate: user.joinDate ? new Date(user.joinDate).toISOString().split('T')[0] : '-',
-                lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString() : '-'
+                lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString() : '-',
             }));
             filteredUsers = [...users];
 
@@ -965,145 +1013,226 @@ function filterUsers() {
 
 // 사용자 추가 모달 열기
 function openAddUserModal() {
-    document.getElementById('add-user-modal').style.display = 'block';
+    const tryOpenModal = () => {
+        const addUserModal = document.getElementById('add-user-modal');
+        if (!addUserModal) {
+            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
+            setTimeout(tryOpenModal, 100);
+            return;
+        }
+        addUserModal.style.display = 'block';
+    };
+    tryOpenModal();
 }
 
+// 전역 스코프에 함수 바인딩
+window.openAddUserModal = openAddUserModal;
+
 // 사용자 추가 처리
-function handleAddUser(event) {
+async function handleAddUser(event) {
     event.preventDefault();
 
-    const newUser = {
-        id: Math.max(...users.map((u) => u.id)) + 1,
+    const requestData = {
+        loginId: document.getElementById('new-username').value, // 임시로 username을 loginId로 사용
         username: document.getElementById('new-username').value,
         email: document.getElementById('new-email').value,
         role: document.getElementById('new-user-role').value,
-        status: 'active',
-        joinDate: new Date().toISOString().split('T')[0],
-        lastLogin: '-',
+        password: document.getElementById('new-password').value,
     };
 
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: POST /api/admin/users
-    // 요청 형식: { username, email, role, password }
-    // 응답 형식: { success: true, user: { id, ... } }
+    try {
+        const response = await fetch('/api/admin/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
 
-    // 중복 확인
-    if (users.some((u) => u.username === newUser.username || u.email === newUser.email)) {
-        showNotification('이미 존재하는 사용자명 또는 이메일입니다.', 'error');
-        return;
+        const data = await response.json();
+
+        if (data.success) {
+            // 폼 초기화 및 모달 닫기
+            event.target.reset();
+            document.getElementById('add-user-modal').style.display = 'none';
+
+            // 목록 갱신
+            await initializeUsers();
+            displayUsers();
+            updateUserStatistics();
+
+            showNotification('새 사용자가 성공적으로 추가되었습니다!', 'success');
+        } else {
+            showNotification(data.message || '사용자 추가에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('사용자 추가 실패:', error);
+        showNotification('사용자 추가 중 오류가 발생했습니다.', 'error');
     }
-
-    users.push(newUser);
-    filteredUsers = [...users];
-
-    // 폼 초기화 및 모달 닫기
-    event.target.reset();
-    document.getElementById('add-user-modal').style.display = 'none';
-
-    displayUsers();
-    updateUserStatistics();
-    showNotification('새 사용자가 성공적으로 추가되었습니다!', 'success');
 }
 
 // 사용자 수정 모달 열기
 function openEditUserModal(userId) {
-    const user = users.find((u) => u.id === userId);
-    if (!user) return;
+    const tryOpenModal = () => {
+        const editUserModal = document.getElementById('edit-user-modal');
+        if (!editUserModal) {
+            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
+            setTimeout(tryOpenModal, 100);
+            return;
+        }
 
-    currentEditUserId = userId;
+        const user = users.find((u) => u.id === userId);
+        if (!user) {
+            console.error('사용자를 찾을 수 없습니다:', userId);
+            return;
+        }
 
-    document.getElementById('edit-username').value = user.username;
-    document.getElementById('edit-email').value = user.email;
-    document.getElementById('edit-user-role').value = user.role;
-    document.getElementById('edit-user-status').value = user.status;
+        currentEditUserId = userId;
 
-    document.getElementById('edit-user-modal').style.display = 'block';
+        const usernameInput = document.getElementById('edit-username');
+        const emailInput = document.getElementById('edit-email');
+        const roleSelect = document.getElementById('edit-user-role');
+        const statusSelect = document.getElementById('edit-user-status');
+
+        if (usernameInput) usernameInput.value = user.username;
+        if (emailInput) emailInput.value = user.email;
+        if (roleSelect) roleSelect.value = user.role;
+        if (statusSelect) statusSelect.value = user.status;
+
+        editUserModal.style.display = 'block';
+    };
+    tryOpenModal();
 }
 
+// 전역 스코프에 함수 바인딩
+window.openEditUserModal = openEditUserModal;
+
 // 사용자 수정 처리
-function handleEditUser(event) {
+async function handleEditUser(event) {
     event.preventDefault();
 
     if (!currentEditUserId) return;
 
-    const userIndex = users.findIndex((u) => u.id === currentEditUserId);
-    if (userIndex === -1) return;
-
-    const updatedUsername = document.getElementById('edit-username').value;
-    const updatedEmail = document.getElementById('edit-email').value;
-
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: PUT /api/admin/users/{userId}
-    // 요청 형식: { username, email, role, status }
-    // 응답 형식: { success: true, user: { id, ... } }
-
-    // 중복 확인 (자신 제외)
-    const duplicateUser = users.find(
-        (u) =>
-            u.id !== currentEditUserId &&
-            (u.username === updatedUsername || u.email === updatedEmail)
-    );
-
-    if (duplicateUser) {
-        showNotification('이미 존재하는 사용자명 또는 이메일입니다.', 'error');
-        return;
-    }
-
-    users[userIndex] = {
-        ...users[userIndex],
-        username: updatedUsername,
-        email: updatedEmail,
+    const requestData = {
+        username: document.getElementById('edit-username').value,
+        email: document.getElementById('edit-email').value,
         role: document.getElementById('edit-user-role').value,
         status: document.getElementById('edit-user-status').value,
     };
 
-    filteredUsers = [...users];
+    try {
+        const response = await fetch(`/api/admin/users/${currentEditUserId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
 
-    // 모달 닫기
-    document.getElementById('edit-user-modal').style.display = 'none';
-    currentEditUserId = null;
+        const data = await response.json();
 
-    displayUsers();
-    updateUserStatistics();
-    showNotification('사용자 정보가 성공적으로 수정되었습니다!', 'success');
+        if (data.success) {
+            // 모달 닫기
+            document.getElementById('edit-user-modal').style.display = 'none';
+            currentEditUserId = null;
+
+            // 목록 갱신
+            await initializeUsers();
+            displayUsers();
+            updateUserStatistics();
+
+            showNotification('사용자 정보가 성공적으로 수정되었습니다!', 'success');
+        } else {
+            showNotification(data.message || '사용자 수정에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('사용자 수정 실패:', error);
+        showNotification('사용자 수정 중 오류가 발생했습니다.', 'error');
+    }
 }
 
 // 사용자 상태 토글
-function toggleUserStatus(userId) {
+async function toggleUserStatus(userId) {
     const user = users.find((u) => u.id === userId);
-    if (!user) return;
-
-    if (user.status === 'active') {
-        user.status = 'inactive';
-    } else if (user.status === 'inactive') {
-        user.status = 'active';
-    } else {
-        user.status = 'active'; // suspended -> active
+    if (!user) {
+        console.error('사용자를 찾을 수 없습니다:', userId);
+        return;
     }
 
-    filteredUsers = [...users];
-    displayUsers();
-    updateUserStatistics();
-    showNotification(`사용자 ${user.username}의 상태가 변경되었습니다.`, 'success');
+    let newStatus = 'active';
+    if (user.status === 'active') {
+        newStatus = 'inactive';
+    } else if (user.status === 'inactive') {
+        newStatus = 'active';
+    } else {
+        newStatus = 'active'; // suspended -> active
+    }
+
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 목록 갱신
+            await initializeUsers();
+            displayUsers();
+            updateUserStatistics();
+
+            showNotification(`사용자 ${user.username}의 상태가 변경되었습니다.`, 'success');
+        } else {
+            showNotification(data.message || '사용자 상태 변경에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('사용자 상태 변경 실패:', error);
+        showNotification('사용자 상태 변경 중 오류가 발생했습니다.', 'error');
+    }
 }
+
+// 전역 스코프에 함수 바인딩
+window.toggleUserStatus = toggleUserStatus;
 
 // 사용자 삭제
-function deleteUser(userId) {
+async function deleteUser(userId) {
     const user = users.find((u) => u.id === userId);
-    if (!user) return;
+    if (!user) {
+        console.error('사용자를 찾을 수 없습니다:', userId);
+        return;
+    }
 
     if (confirm(`정말로 사용자 "${user.username}"을(를) 삭제하시겠습니까?`)) {
-        // TODO: 백엔드 연결 시 API 호출로 변경
-        // 백엔드 API 엔드포인트: DELETE /api/admin/users/{userId}
-        // 응답 형식: { success: true, message: string }
+        try {
+            const response = await fetch(`/api/admin/users/${userId}`, {
+                method: 'DELETE',
+            });
 
-        users = users.filter((u) => u.id !== userId);
-        filteredUsers = [...users];
-        displayUsers();
-        updateUserStatistics();
-        showNotification('사용자가 성공적으로 삭제되었습니다!', 'success');
+            const data = await response.json();
+
+            if (data.success) {
+                // 목록 갱신
+                await initializeUsers();
+                displayUsers();
+                updateUserStatistics();
+
+                showNotification('사용자가 성공적으로 삭제되었습니다!', 'success');
+            } else {
+                showNotification(data.message || '사용자 삭제에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error('사용자 삭제 실패:', error);
+            showNotification('사용자 삭제 중 오류가 발생했습니다.', 'error');
+        }
     }
 }
+
+// 전역 스코프에 함수 바인딩
+window.deleteUser = deleteUser;
 
 // 페이지네이션 업데이트
 function updateUsersPagination() {
@@ -1186,7 +1315,15 @@ document.addEventListener('keydown', function (event) {
 
     // ESC로 모달 닫기
     if (event.key === 'Escape') {
-        const modals = ['edit-modal', 'add-user-modal', 'edit-user-modal'];
+        const modals = [
+            'edit-modal',
+            'add-user-modal',
+            'edit-user-modal',
+            'add-group-modal',
+            'edit-group-modal',
+            'add-code-modal',
+            'edit-code-modal',
+        ];
         modals.forEach((modalId) => {
             const modal = document.getElementById(modalId);
             if (modal && modal.style.display === 'block') {
@@ -1195,4 +1332,495 @@ document.addEventListener('keydown', function (event) {
         });
     }
 });
+
+// ========== 공통코드 관리 기능 ==========
+
+// 전역 변수
+let commonCodeGroups = [];
+let commonCodes = [];
+let currentEditGroupId = null;
+let currentEditCodeId = null;
+
+// 코드 그룹 목록 로드
+async function loadCommonCodeGroups() {
+    try {
+        const response = await fetch('/api/admin/common-code-groups');
+        const data = await response.json();
+
+        if (data.success && data.groups) {
+            commonCodeGroups = data.groups;
+            displayCodeGroups();
+            updateGroupFilter();
+            updateCodeGroupSelect();
+        } else {
+            throw new Error(data.message || '코드 그룹 목록을 불러오는데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 그룹 데이터 로드 실패:', error);
+        showNotification('코드 그룹 목록을 불러오는데 실패했습니다.', 'error');
+        commonCodeGroups = [];
+    }
+}
+
+// 코드 목록 로드
+async function loadCommonCodes(groupCode = null) {
+    try {
+        const url = groupCode
+            ? `/api/admin/common-codes?groupCode=${encodeURIComponent(groupCode)}`
+            : '/api/admin/common-codes';
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.success && data.codes) {
+            commonCodes = data.codes;
+            displayCodes();
+        } else {
+            throw new Error(data.message || '코드 목록을 불러오는데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 데이터 로드 실패:', error);
+        showNotification('코드 목록을 불러오는데 실패했습니다.', 'error');
+        commonCodes = [];
+    }
+}
+
+// 코드 그룹 목록 표시
+function displayCodeGroups() {
+    const grid = document.getElementById('code-groups-grid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+
+    if (commonCodeGroups.length === 0) {
+        grid.innerHTML = '<p>등록된 코드 그룹이 없습니다.</p>';
+        return;
+    }
+
+    commonCodeGroups.forEach((group) => {
+        const card = document.createElement('div');
+        card.className = 'code-group-card';
+        card.innerHTML = `
+            <div class="code-group-header">
+                <h4>${group.groupName}</h4>
+                <span class="code-group-code">${group.groupCode}</span>
+            </div>
+            <div class="code-group-info">
+                <p><strong>영어:</strong> ${group.groupNameEn || '-'}</p>
+                <p><strong>일본어:</strong> ${group.groupNameJp || '-'}</p>
+                <p><strong>설명:</strong> ${group.description || '-'}</p>
+                <p><strong>상태:</strong> ${group.isActive ? '활성' : '비활성'}</p>
+                <p><strong>정렬 순서:</strong> ${group.sortOrder || 0}</p>
+            </div>
+            <div class="code-group-actions">
+                <button class="edit-btn" onclick="openEditGroupModal(${group.id})">수정</button>
+                <button class="delete-btn" onclick="deleteCodeGroup(${group.id})">삭제</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// 코드 목록 표시
+function displayCodes() {
+    const tbody = document.getElementById('codes-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (commonCodes.length === 0) {
+        tbody.innerHTML =
+            '<tr><td colspan="9" style="text-align: center;">등록된 코드가 없습니다.</td></tr>';
+        return;
+    }
+
+    commonCodes.forEach((code) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${code.id}</td>
+            <td>${code.groupCode}</td>
+            <td>${code.code}</td>
+            <td>${code.codeName || '-'}</td>
+            <td>${code.codeNameEn || '-'}</td>
+            <td>${code.codeNameJp || '-'}</td>
+            <td>${code.sortOrder || 0}</td>
+            <td>${code.isActive ? '활성' : '비활성'}</td>
+            <td>
+                <button class="edit-btn" onclick="openEditCodeModal(${code.id})">수정</button>
+                <button class="delete-btn" onclick="deleteCode(${code.id})">삭제</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 그룹 필터 업데이트
+function updateGroupFilter() {
+    const filter = document.getElementById('code-group-filter');
+    if (!filter) return;
+
+    // 기존 옵션 제거 (전체 그룹 제외)
+    while (filter.children.length > 1) {
+        filter.removeChild(filter.lastChild);
+    }
+
+    commonCodeGroups.forEach((group) => {
+        const option = document.createElement('option');
+        option.value = group.groupCode;
+        option.textContent = `${group.groupName} (${group.groupCode})`;
+        filter.appendChild(option);
+    });
+
+    // 필터 변경 이벤트
+    filter.addEventListener('change', (e) => {
+        const selectedGroupCode = e.target.value;
+        loadCommonCodes(selectedGroupCode || null);
+    });
+}
+
+// 코드 그룹 선택 드롭다운 업데이트
+function updateCodeGroupSelect() {
+    const select = document.getElementById('new-code-group-code');
+    if (!select) return;
+
+    // 기존 옵션 제거 (그룹 선택 제외)
+    while (select.children.length > 1) {
+        select.removeChild(select.lastChild);
+    }
+
+    commonCodeGroups.forEach((group) => {
+        const option = document.createElement('option');
+        option.value = group.groupCode;
+        option.textContent = `${group.groupName} (${group.groupCode})`;
+        select.appendChild(option);
+    });
+}
+
+// 코드 그룹 추가 모달 열기
+function openAddGroupModal() {
+    const modal = document.getElementById('add-group-modal');
+    if (!modal) {
+        setTimeout(() => openAddGroupModal(), 100);
+        return;
+    }
+    modal.style.display = 'block';
+    document.getElementById('add-group-form').reset();
+}
+
+// 코드 그룹 수정 모달 열기
+function openEditGroupModal(groupId) {
+    const group = commonCodeGroups.find((g) => g.id === groupId);
+    if (!group) {
+        showNotification('코드 그룹을 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    const modal = document.getElementById('edit-group-modal');
+    if (!modal) {
+        setTimeout(() => openEditGroupModal(groupId), 100);
+        return;
+    }
+
+    currentEditGroupId = groupId;
+    document.getElementById('edit-group-code').value = group.groupCode;
+    document.getElementById('edit-group-name').value = group.groupName || '';
+    document.getElementById('edit-group-name-en').value = group.groupNameEn || '';
+    document.getElementById('edit-group-name-jp').value = group.groupNameJp || '';
+    document.getElementById('edit-group-description').value = group.description || '';
+    document.getElementById('edit-group-sort-order').value = group.sortOrder || 0;
+    document.getElementById('edit-group-active').value = group.isActive ? 'true' : 'false';
+    modal.style.display = 'block';
+}
+
+// 코드 추가 모달 열기
+function openAddCodeModal() {
+    const modal = document.getElementById('add-code-modal');
+    if (!modal) {
+        setTimeout(() => openAddCodeModal(), 100);
+        return;
+    }
+    modal.style.display = 'block';
+    document.getElementById('add-code-form').reset();
+}
+
+// 코드 수정 모달 열기
+function openEditCodeModal(codeId) {
+    const code = commonCodes.find((c) => c.id === codeId);
+    if (!code) {
+        showNotification('코드를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    const modal = document.getElementById('edit-code-modal');
+    if (!modal) {
+        setTimeout(() => openEditCodeModal(codeId), 100);
+        return;
+    }
+
+    currentEditCodeId = codeId;
+    document.getElementById('edit-code-group-code').value = code.groupCode;
+    document.getElementById('edit-code-code').value = code.code;
+    document.getElementById('edit-code-name').value = code.codeName || '';
+    document.getElementById('edit-code-name-en').value = code.codeNameEn || '';
+    document.getElementById('edit-code-name-jp').value = code.codeNameJp || '';
+    document.getElementById('edit-code-description').value = code.description || '';
+    document.getElementById('edit-code-sort-order').value = code.sortOrder || 0;
+    document.getElementById('edit-code-active').value = code.isActive ? 'true' : 'false';
+    modal.style.display = 'block';
+}
+
+// 코드 그룹 추가
+async function handleAddGroup(event) {
+    event.preventDefault();
+    try {
+        const formData = {
+            groupCode: document.getElementById('new-group-code').value,
+            groupName: document.getElementById('new-group-name').value,
+            groupNameEn: document.getElementById('new-group-name-en').value,
+            groupNameJp: document.getElementById('new-group-name-jp').value,
+            description: document.getElementById('new-group-description').value,
+            sortOrder: parseInt(document.getElementById('new-group-sort-order').value) || 0,
+        };
+
+        const response = await fetch('/api/admin/common-code-groups', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드 그룹이 추가되었습니다.', 'success');
+            document.getElementById('add-group-modal').style.display = 'none';
+            await loadCommonCodeGroups();
+        } else {
+            throw new Error(data.message || '코드 그룹 추가에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 그룹 추가 실패:', error);
+        showNotification(error.message || '코드 그룹 추가에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 그룹 수정
+async function handleEditGroup(event) {
+    event.preventDefault();
+    try {
+        const formData = {
+            groupName: document.getElementById('edit-group-name').value,
+            groupNameEn: document.getElementById('edit-group-name-en').value,
+            groupNameJp: document.getElementById('edit-group-name-jp').value,
+            description: document.getElementById('edit-group-description').value,
+            sortOrder: parseInt(document.getElementById('edit-group-sort-order').value) || 0,
+            isActive: document.getElementById('edit-group-active').value === 'true',
+        };
+
+        const response = await fetch(`/api/admin/common-code-groups/${currentEditGroupId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드 그룹이 수정되었습니다.', 'success');
+            document.getElementById('edit-group-modal').style.display = 'none';
+            await loadCommonCodeGroups();
+        } else {
+            throw new Error(data.message || '코드 그룹 수정에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 그룹 수정 실패:', error);
+        showNotification(error.message || '코드 그룹 수정에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 그룹 삭제
+async function deleteCodeGroup(groupId) {
+    if (
+        !confirm('코드 그룹을 삭제하면 해당 그룹의 모든 코드도 삭제됩니다. 정말 삭제하시겠습니까?')
+    ) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/common-code-groups/${groupId}`, {
+            method: 'DELETE',
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드 그룹이 삭제되었습니다.', 'success');
+            await loadCommonCodeGroups();
+            await loadCommonCodes();
+        } else {
+            throw new Error(data.message || '코드 그룹 삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 그룹 삭제 실패:', error);
+        showNotification(error.message || '코드 그룹 삭제에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 추가
+async function handleAddCode(event) {
+    event.preventDefault();
+    try {
+        const formData = {
+            groupCode: document.getElementById('new-code-group-code').value,
+            code: document.getElementById('new-code-code').value,
+            codeName: document.getElementById('new-code-name').value,
+            codeNameEn: document.getElementById('new-code-name-en').value,
+            codeNameJp: document.getElementById('new-code-name-jp').value,
+            description: document.getElementById('new-code-description').value,
+            sortOrder: parseInt(document.getElementById('new-code-sort-order').value) || 0,
+        };
+
+        const response = await fetch('/api/admin/common-codes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드가 추가되었습니다.', 'success');
+            document.getElementById('add-code-modal').style.display = 'none';
+            await loadCommonCodes();
+        } else {
+            throw new Error(data.message || '코드 추가에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 추가 실패:', error);
+        showNotification(error.message || '코드 추가에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 수정
+async function handleEditCode(event) {
+    event.preventDefault();
+    try {
+        const formData = {
+            codeName: document.getElementById('edit-code-name').value,
+            codeNameEn: document.getElementById('edit-code-name-en').value,
+            codeNameJp: document.getElementById('edit-code-name-jp').value,
+            description: document.getElementById('edit-code-description').value,
+            sortOrder: parseInt(document.getElementById('edit-code-sort-order').value) || 0,
+            isActive: document.getElementById('edit-code-active').value === 'true',
+        };
+
+        const response = await fetch(`/api/admin/common-codes/${currentEditCodeId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드가 수정되었습니다.', 'success');
+            document.getElementById('edit-code-modal').style.display = 'none';
+            await loadCommonCodes();
+        } else {
+            throw new Error(data.message || '코드 수정에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 수정 실패:', error);
+        showNotification(error.message || '코드 수정에 실패했습니다.', 'error');
+    }
+}
+
+// 코드 삭제
+async function deleteCode(codeId) {
+    if (!confirm('코드를 삭제하시겠습니까?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/common-codes/${codeId}`, {
+            method: 'DELETE',
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('코드가 삭제되었습니다.', 'success');
+            await loadCommonCodes();
+        } else {
+            throw new Error(data.message || '코드 삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('코드 삭제 실패:', error);
+        showNotification(error.message || '코드 삭제에 실패했습니다.', 'error');
+    }
+}
+
+// 전역 스코프에 함수 바인딩
+window.openAddGroupModal = openAddGroupModal;
+window.openEditGroupModal = openEditGroupModal;
+window.openAddCodeModal = openAddCodeModal;
+window.openEditCodeModal = openEditCodeModal;
+window.deleteCodeGroup = deleteCodeGroup;
+window.deleteCode = deleteCode;
+
+// 모달 닫기 이벤트 리스너
+document.addEventListener('DOMContentLoaded', function () {
+    // 코드 그룹 추가 모달
+    const addGroupModal = document.getElementById('add-group-modal');
+    if (addGroupModal) {
+        const closeBtn = document.getElementById('close-add-group-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                addGroupModal.style.display = 'none';
+            });
+        }
+        const addGroupForm = document.getElementById('add-group-form');
+        if (addGroupForm) {
+            addGroupForm.addEventListener('submit', handleAddGroup);
+        }
+    }
+
+    // 코드 그룹 수정 모달
+    const editGroupModal = document.getElementById('edit-group-modal');
+    if (editGroupModal) {
+        const closeBtn = document.getElementById('close-edit-group-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                editGroupModal.style.display = 'none';
+            });
+        }
+        const editGroupForm = document.getElementById('edit-group-form');
+        if (editGroupForm) {
+            editGroupForm.addEventListener('submit', handleEditGroup);
+        }
+    }
+
+    // 코드 추가 모달
+    const addCodeModal = document.getElementById('add-code-modal');
+    if (addCodeModal) {
+        const closeBtn = document.getElementById('close-add-code-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                addCodeModal.style.display = 'none';
+            });
+        }
+        const addCodeForm = document.getElementById('add-code-form');
+        if (addCodeForm) {
+            addCodeForm.addEventListener('submit', handleAddCode);
+        }
+    }
+
+    // 코드 수정 모달
+    const editCodeModal = document.getElementById('edit-code-modal');
+    if (editCodeModal) {
+        const closeBtn = document.getElementById('close-edit-code-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                editCodeModal.style.display = 'none';
+            });
+        }
+        const editCodeForm = document.getElementById('edit-code-form');
+        if (editCodeForm) {
+            editCodeForm.addEventListener('submit', handleEditCode);
+        }
+    }
+});
+
 //관리자로 로그인 후 관리자 페이지 접근시 헤더에서 로그인 버튼이 표시되는 버그

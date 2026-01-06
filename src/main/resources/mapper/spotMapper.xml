@@ -36,8 +36,24 @@
         WHERE id = #{id}
     </select>
 
-    <insert id="insertSpot" parameterType="com.busan.orora.spot.dto.SpotDto">
+    <insert id="insertSpot" parameterType="com.busan.orora.spot.dto.SpotDto" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tourist_spots (region_id, title, description, link_url, category_code, is_active, view_count)
         VALUES (#{regionId}, #{title}, #{description}, #{linkUrl}, #{categoryCode}, #{isActive}, #{viewCount})
     </insert>
+
+    <update id="updateSpot" parameterType="com.busan.orora.spot.dto.SpotDto">
+        UPDATE tourist_spots
+        SET region_id = #{regionId},
+            title = #{title},
+            description = #{description},
+            link_url = #{linkUrl},
+            category_code = #{categoryCode},
+            is_active = #{isActive}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteSpot" parameterType="Long">
+        DELETE FROM tourist_spots
+        WHERE id = #{id}
+    </delete>
 </mapper>

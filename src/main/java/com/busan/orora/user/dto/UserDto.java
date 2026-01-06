@@ -9,7 +9,6 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     role_code VARCHAR(50) DEFAULT 'MEMBER' COMMENT '사용자 역할 코드 (USER_ROLE 그룹 참조)',
     status_code VARCHAR(50) DEFAULT 'ACTIVE' COMMENT '사용자 상태 코드 (USER_STATUS 그룹 참조)',
-    profile_image VARCHAR(500),
     phone_number VARCHAR(20),
     address VARCHAR(80),
     birth_date DATE,
@@ -24,6 +23,7 @@ CREATE TABLE users (
     INDEX idx_status_code (status_code),
     INDEX idx_gender_code (gender_code)
 );
+주의: 프로필 이미지는 user_profile_images 테이블에 별도로 저장됩니다.
 */
 
 import lombok.Data;
@@ -42,7 +42,7 @@ public class UserDto {
     private String passwordHash;
     private String roleCode;
     private String statusCode;
-    private String profileImage;
+    private String profileImage; // deprecated: user_profile_images 테이블 사용 권장
     private String phoneNumber;
     private String address;
     private LocalDateTime birthDate;

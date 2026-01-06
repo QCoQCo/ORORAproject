@@ -50,14 +50,19 @@ class ListLoader {
 
         // 현재 경로에 따라 상세 페이지 경로 결정
         if (currentPath.includes('/pages/')) {
-            detailPagePath = '../detailed/detailed.html';
+            detailPagePath = '../detailed/detailed';
         } else {
-            detailPagePath = './pages/detailed/detailed.html';
+            detailPagePath = './pages/detailed/detailed';
         }
 
-        // 관광지 제목을 URL 파라미터로 전달
-        const encodedTitle = encodeURIComponent(itemData.title);
-        window.location.href = `${detailPagePath}?title=${encodedTitle}`;
+        // 관광지 ID가 있으면 ID를 사용하고, 없으면 제목을 사용
+        if (itemData.id) {
+            window.location.href = `${detailPagePath}?id=${itemData.id}`;
+        } else {
+            // ID가 없는 경우 제목으로 대체
+            const encodedTitle = encodeURIComponent(itemData.title);
+            window.location.href = `${detailPagePath}?title=${encodedTitle}`;
+        }
     }
 
     // 리스트 아이템 생성

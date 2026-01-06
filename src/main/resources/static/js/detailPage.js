@@ -194,8 +194,40 @@ async function loadTouristSpotDetail() {
     try {
         // URL 파라미터에서 관광지 정보 가져오기
         const urlParams = new URLSearchParams(window.location.search);
+        const spotId = urlParams.get('id');
         const spotTitle = urlParams.get('title') || decodeURIComponent(urlParams.get('spot') || '');
 
+        // ID가 있으면 백엔드 API를 통해 데이터 로드
+        if (spotId) {
+            try {
+                const response = await fetch(`/api/tourist-spots/${spotId}`);
+                if (response.ok) {
+                    const spotData = await response.json();
+                    // 백엔드 API 응답 형식에 맞게 데이터 변환
+                    const spot = {
+                        id: spotData.id,
+                        title: spotData.title,
+                        description: spotData.description || '',
+                        hashtags: spotData.hashtags || [],
+                        img:
+                            spotData.images && spotData.images.length > 0
+                                ? spotData.images[0].imageUrl
+                                : spotData.imageUrl || '',
+                        images: spotData.images || [],
+                        region: spotData.region || { name: '' },
+                    };
+                    const regionName = spotData.region ? spotData.region.name : '';
+                    updatePageContent(spot, regionName);
+                    return;
+                } else {
+                    console.warn('백엔드 API 호출 실패, 대체 방법 사용:', response.status);
+                }
+            } catch (apiError) {
+                console.warn('백엔드 API 호출 중 오류, 대체 방법 사용:', apiError);
+            }
+        }
+
+        // ID가 없거나 API 호출 실패 시 기존 방식 사용 (title 기반)
         if (!spotTitle) {
             console.error('관광지 정보가 없습니다.');
             return;
@@ -250,39 +282,6 @@ function getDataPath() {
     }
 }
 
-// 페이지 콘텐츠 업데이트
-function updatePageContent(spot, regionName) {
-    // 기본 정보 업데이트
-    const spotTitle = document.getElementById('spot-title');
-    const spotLocation = document.getElementById('spot-location');
-    const spotDescription = document.getElementById('spot-description');
-    const detailedDescription = document.getElementById('detailed-description');
-
-    if (spotTitle) spotTitle.textContent = spot.title;
-    if (spotLocation) spotLocation.textContent = `부산 ${regionName}`;
-    if (spotDescription) spotDescription.textContent = spot.description;
-    if (detailedDescription) detailedDescription.textContent = spot.description;
-
-    // 이미지 설정
-    updateImages(spot);
-
-    // 해시태그 설정
-    updateHashtags(spot);
-
-    // 관광지 정보 설정
-    updateSpotInfo(spot, regionName);
-
-    // 카카오 지도 초기화
-    if (typeof kakao !== 'undefined') {
-        initKakaoMap(spot.title);
-    }
-
-    // Swiper 재초기화
-    setTimeout(() => {
-        initSwiper();
-    }, 100);
-}
-
 // 좋아요 별로예요 버튼
 const good = document.querySelector('.good');
 const likeIco = document.querySelector('.likeIco');
@@ -330,14 +329,24 @@ function updateImages(spot) {
 
     if (!mainSlider || !thumbSlider) return;
 
-    // 기본 이미지들 (실제로는 spot.img나 여러 이미지를 사용)
-    const images = [
-        spot.img,
-        getImagePath('spring.jpg'),
-        getImagePath('summer.jpg'),
-        getImagePath('fall.jpg'),
-        getImagePath('winter.jpg'),
-    ];
+    // 이미지 배열 구성
+    let images = [];
+
+    // 백엔드 API에서 받은 images 배열이 있으면 사용
+    if (spot.images && Array.isArray(spot.images) && spot.images.length > 0) {
+        images = spot.images.map((img) => img.imageUrl || img);
+    } else if (spot.img) {
+        // 단일 이미지가 있는 경우
+        images = [spot.img];
+    } else {
+        // 기본 이미지들 (폴백)
+        images = [
+            getImagePath('spring.jpg'),
+            getImagePath('summer.jpg'),
+            getImagePath('fall.jpg'),
+            getImagePath('winter.jpg'),
+        ];
+    }
 
     mainSlider.innerHTML = '';
     thumbSlider.innerHTML = '';
@@ -446,42 +455,160 @@ function getCategoryFromHashtags(hashtags) {
     return '관광지';
 }
 
+// 카카오맵 스크립트 동적 로드 함수
+function loadKakaoMapScript() {
+    return new Promise((resolve, reject) => {
+        // 이미 로드되어 있고 services도 준비되어 있으면 즉시 resolve
+        if (
+            typeof kakao !== 'undefined' &&
+            typeof kakao.maps !== 'undefined' &&
+            typeof kakao.maps.services !== 'undefined' &&
+            typeof kakao.maps.services.Places !== 'undefined'
+        ) {
+            window.kakaoMapLoaded = true;
+            resolve();
+            return;
+        }
+
+        // 스크립트가 이미 추가되어 있는지 확인
+        const existingScript = document.querySelector('script[src*="dapi.kakao.com"]');
+        if (existingScript) {
+            const isLoaded = existingScript.getAttribute('data-loaded') === 'true';
+
+            if (isLoaded) {
+                // 이미 로드되었지만 services가 없으면 load 호출
+                if (
+                    typeof kakao !== 'undefined' &&
+                    typeof kakao.maps !== 'undefined' &&
+                    typeof kakao.maps.load === 'function' &&
+                    typeof kakao.maps.services === 'undefined'
+                ) {
+                    kakao.maps.load(function () {
+                        window.kakaoMapLoaded = true;
+                        resolve();
+                    });
+                } else {
+                    resolve();
+                }
+                return;
+            }
+
+            // 기존 스크립트의 로드 이벤트 대기
+            existingScript.addEventListener('load', function () {
+                existingScript.setAttribute('data-loaded', 'true');
+                // kakao.maps.load() 호출하여 라이브러리 초기화
+                if (
+                    typeof kakao !== 'undefined' &&
+                    typeof kakao.maps !== 'undefined' &&
+                    typeof kakao.maps.load === 'function'
+                ) {
+                    kakao.maps.load(function () {
+                        window.kakaoMapLoaded = true;
+                        resolve();
+                    });
+                } else {
+                    window.kakaoMapLoaded = true;
+                    resolve();
+                }
+            });
+            existingScript.addEventListener('error', function () {
+                console.error('카카오맵 스크립트 로드 실패');
+                reject(new Error('카카오맵 스크립트 로드 실패'));
+            });
+            return;
+        }
+
+        // 스크립트 동적 로드
+        // API 키는 HTML의 data 속성에서 가져오기
+        const wrapper = document.getElementById('Wrapper');
+        let apiKey = null;
+
+        if (wrapper) {
+            apiKey = wrapper.getAttribute('data-kakao-api-key');
+        }
+
+        // API 키가 없으면 기본값 사용
+        if (!apiKey || apiKey === 'null' || apiKey === 'undefined') {
+            apiKey = '[API_KEY_REMOVED]';
+        }
+
+        const scriptUrl = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
+
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = scriptUrl;
+        script.async = false; // 동기 로드로 변경하여 순서 보장
+        // crossOrigin 속성 제거 - 스크립트 태그는 기본적으로 CORS를 처리하므로 설정하면 오히려 문제 발생
+
+        script.onload = function () {
+            script.setAttribute('data-loaded', 'true');
+
+            if (
+                typeof kakao !== 'undefined' &&
+                typeof kakao.maps !== 'undefined' &&
+                typeof kakao.maps.load === 'function'
+            ) {
+                kakao.maps.load(function () {
+                    window.kakaoMapLoaded = true;
+                    resolve();
+                });
+            } else {
+                reject(new Error('kakao.maps.load 함수를 찾을 수 없습니다.'));
+            }
+        };
+
+        script.onerror = function () {
+            reject(new Error('카카오맵 스크립트 로드 실패'));
+        };
+
+        if (document.body) {
+            document.body.appendChild(script);
+        } else {
+            document.head.appendChild(script);
+        }
+    });
+}
+
 // 카카오 지도 초기화
 function initKakaoMap(spotTitle) {
     const mapContainer = document.getElementById('kakao-map');
-    if (!mapContainer || typeof kakao === 'undefined') return;
+    if (!mapContainer) {
+        console.error('카카오맵 컨테이너를 찾을 수 없습니다.');
+        return;
+    }
 
-    const mapOption = {
-        center: new kakao.maps.LatLng(35.1796, 129.0756), // 부산 중심 좌표
-        level: 3,
-    };
+    loadKakaoMapScript()
+        .then(() => {
+            try {
+                const mapOption = {
+                    center: new kakao.maps.LatLng(35.1796, 129.0756),
+                    level: 3,
+                };
 
-    const map = new kakao.maps.Map(mapContainer, mapOption);
+                const map = new kakao.maps.Map(mapContainer, mapOption);
+                const ps = new kakao.maps.services.Places();
 
-    // 장소 검색 객체 생성
-    const ps = new kakao.maps.services.Places();
-
-    // 키워드로 장소를 검색
-    ps.keywordSearch(`부산 ${spotTitle}`, (data, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-            const coords = new kakao.maps.LatLng(data[0].y, data[0].x);
-
-            // 마커 생성
-            const marker = new kakao.maps.Marker({
-                map: map,
-                position: coords,
-            });
-
-            // 인포윈도우 생성
-            const infowindow = new kakao.maps.InfoWindow({
-                content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`,
-            });
-            infowindow.open(map, marker);
-
-            // 지도 중심을 결과값으로 이동
-            map.setCenter(coords);
-        }
-    });
+                ps.keywordSearch(`부산 ${spotTitle}`, (data, status) => {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const coords = new kakao.maps.LatLng(data[0].y, data[0].x);
+                        const marker = new kakao.maps.Marker({
+                            map: map,
+                            position: coords,
+                        });
+                        const infowindow = new kakao.maps.InfoWindow({
+                            content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`,
+                        });
+                        infowindow.open(map, marker);
+                        map.setCenter(coords);
+                    }
+                });
+            } catch (error) {
+                console.error('카카오맵 초기화 중 오류:', error);
+            }
+        })
+        .catch((error) => {
+            console.error('카카오맵 스크립트 로드 실패:', error);
+        });
 }
 
 // 뒤로가기 버튼 기능 개선
@@ -498,9 +625,9 @@ function initBackButton() {
                 // 현재 경로에 따라 메인 페이지 경로 결정
                 const currentPath = window.location.pathname;
                 if (currentPath.includes('/pages/')) {
-                    window.location.href = '../../index.html';
+                    window.location.href = '../../';
                 } else {
-                    window.location.href = './index.html';
+                    window.location.href = './';
                 }
             }
         });
@@ -508,27 +635,40 @@ function initBackButton() {
 }
 
 // 리뷰 관련 변수
+let currentSpotId = null;
 let currentSpotTitle = '';
 let selectedRating = 0;
 let reviews = [];
 
 // 리뷰 데이터 로드
 async function loadReviews() {
+    if (!currentSpotId) {
+        console.warn('관광지 ID가 없어 리뷰를 불러올 수 없습니다.');
+        showNoReviewsMessage();
+        return;
+    }
+
     try {
-        // JSON 파일에서 기본 리뷰 데이터 로드
-        const dataPath = getReviewDataPath();
-        const response = await fetch(dataPath);
+        // 백엔드 API를 통해 리뷰 데이터 로드
+        const response = await fetch(`/api/reviews?touristSpotId=${currentSpotId}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
-        let allReviews = data.userReview || [];
 
-        // 로컬 스토리지에서 사용자가 작성한 리뷰 가져오기
-        const localReviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
+        // API 응답 형식에 따라 리뷰 배열 추출
+        let spotReviews = [];
+        if (data.content && Array.isArray(data.content)) {
+            spotReviews = data.content;
+        } else if (data.reviews && Array.isArray(data.reviews)) {
+            spotReviews = data.reviews;
+        } else if (Array.isArray(data)) {
+            spotReviews = data;
+        }
 
-        // 기본 리뷰와 로컬 리뷰 합치기
-        reviews = [...allReviews, ...localReviews];
-
-        // 현재 관광지의 리뷰만 필터링
-        const spotReviews = reviews.filter((review) => review.spotTitle === currentSpotTitle);
+        reviews = spotReviews;
 
         // 리뷰 표시
         displayReviews(spotReviews);
@@ -537,32 +677,7 @@ async function loadReviews() {
         updateReviewCount(spotReviews.length);
     } catch (error) {
         console.error('리뷰 데이터 로드 중 오류:', error);
-
-        // JSON 파일 로드 실패시 로컬 스토리지의 리뷰만 표시
-        const localReviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
-        reviews = localReviews;
-        const spotReviews = reviews.filter((review) => review.spotTitle === currentSpotTitle);
-
-        if (spotReviews.length > 0) {
-            displayReviews(spotReviews);
-            updateReviewCount(spotReviews.length);
-        } else {
-            showNoReviewsMessage();
-        }
-    }
-}
-
-// 리뷰 데이터 파일 경로 결정
-// TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-function getReviewDataPath() {
-    const currentPath = window.location.pathname;
-    // TODO: 백엔드 연결 시 '/api/reviews'로 통일
-    // 백엔드 API 엔드포인트: GET /api/reviews?spotTitle={title}
-    // 응답 형식: { reviews: [{ id, userId, spotTitle, title, content, rating, createdAt, ... }] }
-    if (currentPath.includes('/pages/')) {
-        return '../../data/userReview.json';
-    } else {
-        return './data/userReview.json';
+        showNoReviewsMessage();
     }
 }
 
@@ -600,31 +715,35 @@ function createReviewElement(review) {
     reviewDiv.className = 'userReview';
     reviewDiv.setAttribute('data-review-id', review.id);
 
-    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+    const stars = '★'.repeat(review.rating || 0) + '☆'.repeat(5 - (review.rating || 0));
 
-    // 로컬 스토리지에서 좋아요 정보 확인
-    const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
-    const isLiked = likedReviews.includes(review.id);
+    // API 응답 형식에 맞게 필드명 처리
+    const userName = review.userName || review.user_name || '익명';
+    const likes = review.likes || review.likeCount || 0;
+    const replies = review.replies || review.comments || review.commentCount || 0;
+    const isLiked = review.isLiked || false;
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
 
     reviewDiv.innerHTML = `
         <div class="userReviewTop">
             <p class="userImage"></p>
             <div class="userInfo">
-                <p class="userId"><strong>${review.userName}</strong></p>
-                <div class="reviewRating">${stars} (${review.rating}/5)</div>
-                <p class="reviewTitle">${review.title}</p>
+                <p class="userId"><strong>${userName}</strong></p>
+                <div class="reviewRating">${stars} (${review.rating || 0}/5)</div>
+                <p class="reviewTitle">${review.title || ''}</p>
             </div>
-            <p class="reviewDate">${formatDate(review.createdAt)}</p>
+            <p class="reviewDate">${formatDate(
+                review.createdAt || review.created_at || new Date().toISOString()
+            )}</p>
         </div>
         <div class="reviewContent">
-            <p>${review.content}</p>
+            <p>${review.content || ''}</p>
         </div>
         <div class="reviewActions">
             <div class="reviewInteractions">
                 <div class="reviewLike">
                     <button class="${likeClass}" onclick="toggleReviewLike(${review.id})"></button>
-                    <p class="reviewLikeCount">${review.likes || 0}</p>
+                    <p class="reviewLikeCount">${likes}</p>
                 </div>
                 <div class="reviewRe">
                     <button onclick="toggleReviewReply(${review.id})">
@@ -632,7 +751,7 @@ function createReviewElement(review) {
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M9.34737 2.46818C4.94215 2.46818 1.36821 6.04213 1.36821 10.4473C1.36821 14.7616 4.19681 18.4265 8.68711 18.4265H8.94846L10.7383 20.9075C10.9438 21.2069 11.2834 21.4018 11.6705 21.4018C12.0576 21.4018 12.3972 21.2069 12.6027 20.9075L14.3926 18.4265H15.3142C19.8045 18.4265 22.6331 14.7616 22.6331 10.4473C22.6331 6.04162 19.0586 2.46818 14.6458 2.46818H9.34737ZM2.76821 10.4473C2.76821 6.81533 5.71535 3.86818 9.34737 3.86818H14.6458C18.2864 3.86818 21.2331 6.81584 21.2331 10.4473C21.2331 14.1703 18.8611 17.0265 15.3142 17.0265H14.0344H13.6762L13.4667 17.317L11.6705 19.8068L9.87431 17.317L9.66477 17.0265H9.30661H8.68711C5.14017 17.0265 2.76821 14.1703 2.76821 10.4473ZM8.00003 11.5C8.55232 11.5 9.00003 11.0523 9.00003 10.5C9.00003 9.94772 8.55232 9.5 8.00003 9.5C7.44775 9.5 7.00003 9.94772 7.00003 10.5C7.00003 11.0523 7.44775 11.5 8.00003 11.5ZM12 11.5C12.5523 11.5 13 11.0523 13 10.5C13 9.94772 12.5523 9.5 12 9.5C11.4477 9.5 11 9.94772 11 10.5C11 11.0523 11.4477 11.5 12 11.5ZM17 10.5C17 11.0523 16.5523 11.5 16 11.5C15.4477 11.5 15 11.0523 15 10.5C15 9.94772 15.4477 9.5 16 9.5C16.5523 9.5 17 9.94772 17 10.5Z" fill="#333333"></path>
                         </svg>
                     </button>
-                    <p class="reviewReCount">${review.replies || 0}</p>
+                    <p class="reviewReCount">${replies}</p>
                 </div>
                 <div class="reportBtn">
                     <button onclick="reportReview(${review.id})">신고</button>
@@ -914,7 +1033,8 @@ function reportReview(reviewId) {
 
 // 페이지 콘텐츠 업데이트 함수 수정 (기존 함수에 currentSpotTitle 설정 추가)
 function updatePageContent(spot, regionName) {
-    // 현재 관광지 제목 설정
+    // 현재 관광지 ID와 제목 설정
+    currentSpotId = spot.id;
     currentSpotTitle = spot.title;
 
     // 기본 정보 업데이트
@@ -937,10 +1057,8 @@ function updatePageContent(spot, regionName) {
     // 관광지 정보 설정
     updateSpotInfo(spot, regionName);
 
-    // 카카오 지도 초기화
-    if (typeof kakao !== 'undefined') {
-        initKakaoMap(spot.title);
-    }
+    // 카카오 지도 초기화 (스크립트 로드 대기 포함)
+    initKakaoMap(spot.title);
 
     // Swiper 재초기화
     setTimeout(() => {
@@ -965,9 +1083,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
     const urlParams = new URLSearchParams(window.location.search);
+    const spotId = urlParams.get('id');
     const spotTitle = urlParams.get('title') || urlParams.get('spot');
 
-    if (spotTitle) {
+    if (spotId || spotTitle) {
         loadTouristSpotDetail();
     } else {
         // URL 파라미터가 없으면 기본 Swiper만 초기화 (detailPage.html용)
