@@ -424,32 +424,32 @@ async function getSampleUserComments(userId) {
     });
 }
 
-async function getSampleUserLikes(userId) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                {
-                    id: 1,
-                    tourist_spot_id: 1,
-                    tourist_spot_name: '해동 용궁사',
-                    description: '바다 위에 세워진 아름다운 사찰',
-                    created_at: '2024-12-15T09:00:00Z',
-                },
-                {
-                    id: 2,
-                    tourist_spot_id: 9,
-                    tourist_spot_name: '해운대 해수욕장',
-                    description: '부산의 대표 해수욕장',
-                    created_at: '2024-12-12T16:00:00Z',
-                },
-                {
-                    id: 3,
-                    tourist_spot_id: 152,
-                    tourist_spot_name: '광안리 해수욕장',
-                    description: '광안대교 야경이 아름다운 해수욕장',
-                    created_at: '2024-12-08T20:00:00Z',
-                },
-            ]);
-        }, 600);
-    });
-}
+// async function getSampleUserLikes(userId) {
+//     return new Promise((resolve) => {
+//         setTimeout(() => {
+//             resolve([
+//                 {
+//                     id: 1,
+//                     tourist_spot_id: 1,
+//                     tourist_spot_name: '해동 용궁사',
+//                     description: '바다 위에 세워진 아름다운 사찰',
+//                     created_at: '2024-12-15T09:00:00Z',
+//                 },
+//                 {
+//                     id: 2,
+//                     tourist_spot_id: 9,
+//                     tourist_spot_name: '해운대 해수욕장',
+//                     description: '부산의 대표 해수욕장',
+//                     created_at: '2024-12-12T16:00:00Z',
+//                 },
+//                 {
+//                     id: 3,
+//                     tourist_spot_id: 152,
+//                     tourist_spot_name: '광안리 해수욕장',
+//                     description: '광안대교 야경이 아름다운 해수욕장',
+//                     created_at: '2024-12-08T20:00:00Z',
+//                 },
+//             ]);
+//         }, 600);
+//     });
+// }

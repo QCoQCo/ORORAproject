@@ -8,6 +8,11 @@ import org.apache.ibatis.annotations.Param;
 public interface SpotLikeMapper {
     SpotLikeDto findLikeByUserAndSpot(@Param("userId") Long userId, @Param("spotId") Long spotId);
     int countLikesBySpotId(@Param("spotId") Long spotId);
-    void insertLike(SpotLikeDto likeDto);
-    void deleteLike(@Param("userId") Long userId, @Param("spotId") Long spotId);
+    
+    // void insertLike(SpotLikeDto likeDto);
+    // void deleteLike(@Param("userId") Long userId, @Param("spotId") Long spotId);
+
+    int addSpotLike(SpotLikeDto likeDto);
+    int deleteSpotLike(SpotLikeDto likeDto);
+    boolean existsSpotLike(@Param("userId") Long userId, @Param("touristSpotId") Long touristSpotId);
 }
