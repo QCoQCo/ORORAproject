@@ -4,8 +4,8 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -117,
-    "scrollLeft": -662,
+    "scrollTop": -509,
+    "scrollLeft": -563,
     "zoomLevel": 0.76,
     "show": 431,
     "database": 4,
@@ -537,7 +537,7 @@
           "y": 50,
           "zIndex": 2,
           "widthName": 122,
-          "widthComment": 60,
+          "widthComment": 422,
           "color": ""
         },
         "meta": {
@@ -582,7 +582,7 @@
           "y": 424,
           "zIndex": 2,
           "widthName": 85,
-          "widthComment": 60,
+          "widthComment": 383,
           "color": ""
         },
         "meta": {
@@ -702,7 +702,7 @@
         "options": 12,
         "ui": {
           "keys": 0,
-          "widthName": 80,
+          "widthName": 75,
           "widthComment": 60,
           "widthDataType": 60,
           "widthDefault": 60
@@ -2944,8 +2944,8 @@
           "columnIds": [
             "oB8KsBLh92jektvt23PCy"
           ],
-          "x": 1469,
-          "y": 322,
+          "x": 1482,
+          "y": 334,
           "direction": 2
         },
         "end": {
@@ -3364,7 +3364,7 @@
           "columnIds": [
             "ccg_group_code"
           ],
-          "x": 287.5,
+          "x": 339,
           "y": 346,
           "direction": 8
         },
@@ -3373,7 +3373,7 @@
           "columnIds": [
             "cc_group_code"
           ],
-          "x": 466,
+          "x": 483,
           "y": 424,
           "direction": 4
         },
@@ -3392,7 +3392,7 @@
           "columnIds": [
             "cc_code"
           ],
-          "x": 290.5,
+          "x": 294.75,
           "y": 768,
           "direction": 8
         },
@@ -3420,7 +3420,7 @@
           "columnIds": [
             "cc_code"
           ],
-          "x": 407.5,
+          "x": 420.25,
           "y": 768,
           "direction": 8
         },
@@ -3448,7 +3448,7 @@
           "columnIds": [
             "cc_code"
           ],
-          "x": 524.5,
+          "x": 545.75,
           "y": 768,
           "direction": 8
         },
@@ -3476,7 +3476,7 @@
           "columnIds": [
             "cc_code"
           ],
-          "x": 700,
+          "x": 734,
           "y": 596,
           "direction": 2
         },
@@ -3504,7 +3504,7 @@
           "columnIds": [
             "cc_code"
           ],
-          "x": 641.5,
+          "x": 671.25,
           "y": 768,
           "direction": 8
         },

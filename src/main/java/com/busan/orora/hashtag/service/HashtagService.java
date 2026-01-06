@@ -2,6 +2,7 @@ package com.busan.orora.hashtag.service;
 
 import com.busan.orora.hashtag.dto.HashtagDto;
 import com.busan.orora.hashtag.mapper.HashtagMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -27,7 +28,9 @@ public class HashtagService {
         return hashtagMapper.findHashtagsBySpotId(spotId);
     }
 
-  
-
+    // 여기서부터 작성
+    public List<HashtagDto> getTouristSpotHashtags() {
+        return hashtagMapper.selectTouristSpotHashtags();
+    }
 
 }
