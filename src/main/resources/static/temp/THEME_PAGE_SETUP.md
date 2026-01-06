@@ -23,7 +23,7 @@ CREATE TABLE regions (
     id INT PRIMARY KEY AUTO_INCREMENT,
     area_code INT NOT NULL UNIQUE,  -- 지역 코드 (26710, 26410 등)
     name VARCHAR(30) NOT NULL,       -- 지역 이름 (기장군, 금정구 등)
-    sigungu_code INT UNIQUE,
+    sigungu_code INT UNIQUE,        -- svg 상의 넘버링 코드
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
