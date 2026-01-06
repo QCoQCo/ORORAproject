@@ -18,4 +18,7 @@ public interface HashtagMapper {
     // 관광지 해시태그
     void insertSpotHashtag(@Param("spotId") Long spotId, @Param("hashtagId") Long hashtagId);
     void deleteSpotHashtags(@Param("spotId") Long spotId);
+
+    // 관광지리스트
+    List<HashtagDto> selectTouristSpotHashtags();
 }
