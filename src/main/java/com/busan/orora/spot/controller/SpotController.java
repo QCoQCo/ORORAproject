@@ -108,5 +108,20 @@ public class SpotController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    /**
+     * 모든 활성화된 관광지를 지역별로 그룹화하여 조회
+     * @return 지역별로 그룹화된 관광지 데이터
+     */
+    @GetMapping("/tourist-spots")
+    public ResponseEntity<Map<String, Object>> getAllSpotsByRegion() {
+        try {
+            Map<String, Object> result = spotService.getAllSpotsGroupedByRegion();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
 
