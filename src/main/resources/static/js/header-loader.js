@@ -52,7 +52,7 @@ function getHeaderPath() {
     const currentDir = window.location.pathname.split('/').slice(0, -1).join('/');
 
     // 루트 디렉토리인 경우
-    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+    if (currentPath === '/' || currentPath === '/index' || currentDir === '') {
         return './components/header.html';
     }
 
@@ -72,7 +72,7 @@ function loadHeaderScript() {
     let scriptPath;
 
     // 루트 디렉토리인 경우
-    if (currentPath === '/' || currentPath === '/index.html' || currentDir === '') {
+    if (currentPath === '/' || currentPath === '/index' || currentDir === '') {
         scriptPath = './js/header.js';
     }
     // pages 디렉토리 내부인 경우

@@ -37,40 +37,63 @@ class TagSearchSystem {
 
     async loadData() {
         try {
-            // TODO: 백엔드 연결 시 수정 필요 - API 엔드포인트로 변경
-            // 예: const response = await fetch('/api/tourist-spots');
-            const response = await fetch('../../data/busanTouristSpots.json');
+            // 백엔드 API 엔드포인트 사용
+            const response = await fetch('/api/tourist-spots');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
 
             this.allSpots = [];
 
+            // API 응답 형식에 맞춰 데이터 처리
             if (data && data.regions) {
-                Object.values(data.regions).forEach((region) => {
-                    if (region && region.spots && Array.isArray(region.spots)) {
-                        region.spots.forEach((spot) => {
+                // regions가 객체인 경우 (기대하는 형식)
+                if (typeof data.regions === 'object' && !Array.isArray(data.regions)) {
+                    Object.values(data.regions).forEach((region) => {
+                        if (region && region.spots && Array.isArray(region.spots)) {
+                            region.spots.forEach((spot) => {
+                                this.allSpots.push({
+                                    ...spot,
+                                    region: region.name,
+                                    regionCode: region.code || region.areaCode,
+                                });
+                            });
+                        }
+                    });
+
+                    // 축제/행사 데이터 처리
+                    if (data.regions.festivals && Array.isArray(data.regions.festivals.events)) {
+                        data.regions.festivals.events.forEach((event) => {
                             this.allSpots.push({
-                                ...spot,
-                                region: region.name,
-                                regionCode: region.code,
+                                ...event,
+                                region: '축제/행사',
+                                regionCode: 'festival',
                             });
                         });
                     }
-                });
-
-                if (data.regions.festivals && Array.isArray(data.regions.festivals.events)) {
-                    data.regions.festivals.events.forEach((event) => {
-                        this.allSpots.push({
-                            ...event,
-                            region: '축제/행사',
-                            regionCode: 'festival',
-                        });
+                } 
+                // regions가 배열인 경우 (대체 형식)
+                else if (Array.isArray(data.regions)) {
+                    data.regions.forEach((region) => {
+                        if (region && region.spots && Array.isArray(region.spots)) {
+                            region.spots.forEach((spot) => {
+                                this.allSpots.push({
+                                    ...spot,
+                                    region: region.name,
+                                    regionCode: region.code || region.areaCode,
+                                });
+                            });
+                        }
                     });
                 }
             } else {
-                console.error('데이터 구조 오류: regions 속성이 없습니다.');
+                console.error('데이터 구조 오류: regions 속성이 없습니다.', data);
             }
         } catch (error) {
             console.error('데이터 로드 실패:', error);
+            // 에러 발생 시 빈 배열로 초기화하여 페이지가 정상적으로 로드되도록 함
+            this.allSpots = [];
         }
     }
 
@@ -409,10 +432,12 @@ class TagSearchSystem {
         // 이미지 설정
         const imgElement = itemFragment.querySelector('.item-photo img');
         if (imgElement) {
-            imgElement.src = spot.img || '';
+            // 백엔드 API 응답 형식에 맞춰 imageUrl 사용
+            imgElement.src = spot.imageUrl || spot.img || '';
             imgElement.alt = spot.title || '';
             imgElement.onerror = () => {
-                imgElement.src = '../../images/common.jpg';
+                // Thymeleaf 정적 리소스 경로 사용
+                imgElement.src = '/images/common.jpg';
                 imgElement.onerror = null;
             };
         }
@@ -490,8 +515,13 @@ class TagSearchSystem {
 
     // 상세 페이지로 이동하는 함수
     navigateToDetail(spot) {
-        const encodedTitle = encodeURIComponent(spot.title);
-        window.location.href = `../detailed/detailed.html?title=${encodedTitle}`;
+        // 관광지 ID가 있으면 ID를 사용하고, 없으면 제목을 사용
+        if (spot.id) {
+            window.location.href = `/pages/detailed/detailed?id=${spot.id}`;
+        } else {
+            const encodedTitle = encodeURIComponent(spot.title);
+            window.location.href = `/pages/detailed/detailed?title=${encodedTitle}`;
+        }
     }
 
     loadMore() {
