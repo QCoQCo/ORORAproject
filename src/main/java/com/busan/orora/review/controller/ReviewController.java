@@ -11,7 +11,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class ReviewController {
-    
+
     @Autowired
     private ReviewService reviewService;
 
@@ -23,16 +23,16 @@ public class ReviewController {
     @ResponseBody
     public Map<String, Object> getReviewsBySpotId(@RequestParam Long touristSpotId) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
             List<Map<String, Object>> reviews = reviewService.getReviewsBySpotId(touristSpotId);
-            
+
             response.put("success", true);
             response.put("content", reviews);
             response.put("totalElements", reviews.size());
             response.put("totalPages", 1);
             response.put("currentPage", 0);
-            
+
             return response;
         } catch (Exception e) {
             response.put("success", false);
