@@ -30,4 +30,4 @@ file:
 
 kakao:
     map:
-        api-key: ${KAKAO_MAP_API_KEY:} # 카카오맵 API 키 (환경변수 또는 기본값)
+        api-key: ${KAKAO_MAP_API_KEY:} # 카카오맵 API 키 (환경변수 필수)

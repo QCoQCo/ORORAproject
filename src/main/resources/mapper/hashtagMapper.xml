@@ -58,7 +58,8 @@
 
     <!-- 여기서부터 작업 -->
     <select id="selectTouristSpotHashtags" resultType="com.busan.orora.hashtag.dto.HashtagDto">
-        SELECT  GROUP_CONCAT(DISTINCT tsi.image_url SEPARATOR ', ') AS imageUrl,
+        SELECT  t.id AS id,
+                GROUP_CONCAT(DISTINCT tsi.image_url SEPARATOR ', ') AS imageUrl,
                 t.title, 
                 t.description, 
                 GROUP_CONCAT(h.name SEPARATOR ', ') AS hashtagList,
@@ -67,7 +68,7 @@
                                 JOIN hashtags h ON tsh.hashtag_id = h.id
                                 JOIN regions r ON t.region_id = r.id
                                 JOIN tourist_spot_images tsi ON t.id = tsi.tourist_spot_id
-        GROUP BY t.id, t.title, r.name
+        GROUP BY t.id, t.title, t.description, r.name
         ORDER BY t.title ASC
     </select>
 </mapper>
