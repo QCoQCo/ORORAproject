@@ -110,4 +110,20 @@
         WHERE id = #{id}
     </delete>
 
+    <!-- 관광지별 평균 평점 조회 -->
+    <select id="getAverageRating" resultType="Double" parameterType="Long">
+        SELECT COALESCE(AVG(rating), 0.0) as averageRating
+        FROM reviews
+        WHERE tourist_spot_id = #{spotId}
+          AND is_approved = TRUE
+    </select>
+
+    <!-- 관광지별 평점 개수 조회 -->
+    <select id="getRatingCount" resultType="Integer" parameterType="Long">
+        SELECT COUNT(*) as ratingCount
+        FROM reviews
+        WHERE tourist_spot_id = #{spotId}
+          AND is_approved = TRUE
+    </select>
+
 </mapper>
