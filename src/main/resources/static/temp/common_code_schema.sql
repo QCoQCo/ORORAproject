@@ -165,8 +165,6 @@ INSERT INTO common_codes (group_code, code, code_name, code_name_en, code_name_j
 --    - tourist_spots.category_code -> common_codes.code (단, group_code = 'SPOT_CATEGORY')
 --    - review_reports.status_code -> common_codes.code (단, group_code = 'REPORT_STATUS')
 -- 
--- 주의: MySQL의 제약으로 인해 복합 외래키를 직접 설정할 수 없으므로,
---      애플리케이션 레벨에서 group_code를 함께 확인해야 합니다.
 -- 
 -- ============================================
 -- 7. 기존 테이블과의 연동을 위한 마이그레이션 가이드
