@@ -37,8 +37,8 @@ class TagSearchSystem {
 
     async loadData() {
         try {
-            // 백엔드 API 엔드포인트 사용
-            const response = await fetch('/api/tourist-spots');
+            // 백엔드 API 엔드포인트 사용 (태그 검색 전용)
+            const response = await fetch('/api/tag-spots');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

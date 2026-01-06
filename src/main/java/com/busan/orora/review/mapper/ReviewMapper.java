@@ -19,4 +19,10 @@ public interface ReviewMapper {
     void updateReview(ReviewDto reviewDto);
 
     void deleteReview(@Param("id") Long id);
+
+    Double getAverageRating(@Param("spotId") Long spotId);
+
+    Integer getRatingCount(@Param("spotId") Long spotId);
+
+    List<Map<String, Object>> getRatingStatsBySpotIds(@Param("spotIds") List<Long> spotIds);
 }

@@ -100,6 +100,16 @@ public class SpotImageService {
     }
 
     /**
+     * 여러 관광지의 대표 이미지를 한번에 조회
+     */
+    public List<SpotImageDto> getRepImagesBySpotIds(List<Long> spotIds) {
+        if (spotIds == null || spotIds.isEmpty()) {
+            return List.of();
+        }
+        return spotImageMapper.findRepImagesBySpotIds(spotIds);
+    }
+
+    /**
      * 특정 이미지를 업데이트합니다.
      * 
      * @param imageId 이미지 ID

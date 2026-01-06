@@ -110,4 +110,34 @@
         WHERE id = #{id}
     </delete>
 
+    <!-- 관광지별 평균 평점 조회 -->
+    <select id="getAverageRating" resultType="Double" parameterType="Long">
+        SELECT COALESCE(AVG(rating), 0.0) as averageRating
+        FROM reviews
+        WHERE tourist_spot_id = #{spotId}
+          AND is_approved = TRUE
+    </select>
+
+    <!-- 관광지별 평점 개수 조회 -->
+    <select id="getRatingCount" resultType="Integer" parameterType="Long">
+        SELECT COUNT(*) as ratingCount
+        FROM reviews
+        WHERE tourist_spot_id = #{spotId}
+          AND is_approved = TRUE
+    </select>
+
+    <!-- 여러 관광지의 평점 통계 배치 조회 -->
+    <select id="getRatingStatsBySpotIds" resultType="java.util.HashMap" parameterType="list">
+        SELECT tourist_spot_id AS touristSpotId,
+               COALESCE(AVG(rating), 0.0) AS ratingAvg,
+               COUNT(*) AS ratingCount
+        FROM reviews
+        WHERE is_approved = TRUE
+          AND tourist_spot_id IN
+        <foreach item="id" collection="spotIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        GROUP BY tourist_spot_id
+    </select>
+
 </mapper>

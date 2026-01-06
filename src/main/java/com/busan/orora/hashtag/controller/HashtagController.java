@@ -27,8 +27,8 @@ public class HashtagController {
         return "pages/search-place/tag";
     }
 
-    // 데이터 전송
-    @GetMapping("/api/tourist-spots")
+    // 데이터 전송 (태그 검색용 별도 엔드포인트)
+    @GetMapping("/api/tag-spots")
     @ResponseBody
     public Map<String, Object> getAllHashtagsApi() {
         List<HashtagDto> hashtagDtos = hashtagService.getAllHashtags();
