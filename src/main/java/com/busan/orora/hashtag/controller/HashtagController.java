@@ -32,29 +32,52 @@ public class HashtagController {
     @ResponseBody
     public Map<String, Object> getAllHashtagsApi() {
         List<HashtagDto> hashtagDtos = hashtagService.getAllHashtags();
+        List<HashtagDto> spotHashtags = hashtagService.getTouristSpotHashtags();
         
-        List<Map<String, Object>> regionsList = new ArrayList<>();
         
-        Map<String, Object> regionMap = new HashMap<>();
-        regionMap.put("name", "전체");
+        Map<String, List<Map<String, Object>>> groupingMap = new HashMap<>();
         
-        List<Map<String, Object>> spotsList = new ArrayList<>();
-        
-        for (HashtagDto dto : hashtagDtos) {
+
+        for (HashtagDto dto : spotHashtags) {
             Map<String, Object> spot = new HashMap<>();
+
+            String hashtagsImages = dto.getImageUrl();
+            if (hashtagsImages != null && !hashtagsImages.isEmpty()) {
+                String[] imgArray = hashtagsImages.split(", ");
+                spot.put("imageUrl", imgArray);
+            } else {
+                spot.put("imageUrl", "/default-image.png");
+            }
+            spot.put("imageUrl", dto.getImageUrl());
+            spot.put("id", dto.getId());
+            spot.put("title", dto.getTitle());      
+            spot.put("description", dto.getDescription()); 
             
-            spot.put("title", dto.getName());      
-            spot.put("hashtags", List.of(dto.getName())); 
-            spot.put("region", "부산");               
-            spot.put("description", "추천 장소입니다."); 
+            if (dto.getHashtagList() != null && !dto.getHashtagList().isEmpty()) {
+                spot.put("hashtags", dto.getHashtagList().split(", "));
+            } else {
+                spot.put("hashtags", new String[]{});
+            }
             
-            spotsList.add(spot);
+            String regionName = (dto.getRegionsName() != null) ? dto.getRegionsName() : "기타";
+
+            if (!groupingMap.containsKey(regionName)) {
+                groupingMap.put(regionName, new ArrayList<>());
+            }
+            groupingMap.get(regionName).add(spot);    
         }
         
-        regionMap.put("spots", spotsList);
-        regionsList.add(regionMap);
-        
+        List<Map<String, Object>> regionsList = new ArrayList<>();
+
+        for (String rName : groupingMap.keySet()) {
+            Map<String, Object> regionData = new HashMap<>();
+            regionData.put("name", rName);
+            regionData.put("spots", groupingMap.get(rName));
+            regionsList.add(regionData);
+        }
+
         Map<String, Object> response = new HashMap<>();
+        response.put("allHashtags", hashtagDtos);
         response.put("regions", regionsList);
         
         return response;
