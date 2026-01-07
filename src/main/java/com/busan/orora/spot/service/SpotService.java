@@ -4,6 +4,7 @@ import com.busan.orora.hashtag.dto.HashtagDto;
 import com.busan.orora.hashtag.service.HashtagService;
 import com.busan.orora.region.dto.RegionDto;
 import com.busan.orora.region.service.RegionService;
+import com.busan.orora.review.dto.RatingStat;
 import com.busan.orora.review.service.ReviewService;
 import com.busan.orora.spot.dto.SpotDto;
 import com.busan.orora.spot.dto.SpotImageDto;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,44 +80,76 @@ public class SpotService {
     public Map<String, Object> getAllSpotsGroupedByRegion() {
         // 1. 모든 활성화된 Spot 조회
         List<SpotDto> spots = spotMapper.findAllSpots();
+        if (spots.isEmpty()) {
+            Map<String, Object> empty = new HashMap<>();
+            empty.put("regions", new HashMap<>());
+            return empty;
+        }
 
-        // 2. 각 Spot에 추가 정보 조회 및 그룹화
-        // 먼저 region별로 그룹화하기 위한 임시 맵 (area_code -> region 정보)
-        Map<Integer, RegionDto> regionMap = new HashMap<>();
+        // spotId, regionId 목록 추출
+        List<Long> spotIds = spots.stream()
+                .map(SpotDto::getId)
+                .toList();
+        Set<Long> regionIds = spots.stream()
+                .map(SpotDto::getRegionId)
+                .collect(Collectors.toSet());
+
+        // 2. 배치 조회: 지역, 해시태그, 이미지, 평점
+        Map<Long, RegionDto> regionsById = regionService.getAllRegions().stream()
+                .filter(r -> regionIds.contains(r.getId()))
+                .collect(Collectors.toMap(RegionDto::getId, r -> r));
+
+        Map<Long, List<String>> hashtagsBySpotId = new HashMap<>();
+        for (HashtagDto dto : hashtagService.getHashtagsBySpotIds(spotIds)) {
+            if (dto.getTouristSpotId() == null)
+                continue;
+            hashtagsBySpotId
+                    .computeIfAbsent(dto.getTouristSpotId(), k -> new ArrayList<>())
+                    .add(dto.getName());
+        }
+
+        Map<Long, String> repImageBySpotId = new HashMap<>();
+        for (SpotImageDto img : spotImageService.getRepImagesBySpotIds(spotIds)) {
+            if (img.getTouristSpotId() == null)
+                continue;
+            // 이미지 URL 정규화 (../../images/ -> /images/)
+            String imageUrl = img.getImageUrl();
+            if (imageUrl != null) {
+                if (imageUrl.startsWith("../../images/")) {
+                    imageUrl = "/images/" + imageUrl.substring("../../images/".length());
+                } else if (imageUrl.startsWith("../images/")) {
+                    imageUrl = "/images/" + imageUrl.substring("../images/".length());
+                } else if (!imageUrl.startsWith("/")) {
+                    imageUrl = "/images/" + imageUrl;
+                }
+            }
+            // 첫 번째 rep 이미지만 사용
+            repImageBySpotId.putIfAbsent(img.getTouristSpotId(), imageUrl);
+        }
+
+        Map<Long, RatingStat> ratingBySpotId = new HashMap<>();
+        for (RatingStat stat : reviewService.getRatingStatsBySpotIds(spotIds)) {
+            if (stat.getTouristSpotId() != null) {
+                ratingBySpotId.put(stat.getTouristSpotId(), stat);
+            }
+        }
+
+        // 3. 지역별 그룹화
         Map<Integer, List<Map<String, Object>>> regionSpotsMap = new HashMap<>();
+        Map<Integer, RegionDto> regionAreaCodeMap = new HashMap<>();
 
         for (SpotDto spot : spots) {
-            // 2-1. Region 정보 조회
-            RegionDto region = regionService.getRegionById(spot.getRegionId());
-            if (region == null) {
-                continue; // 지역 정보가 없으면 건너뛰기
-            }
+            RegionDto region = regionsById.get(spot.getRegionId());
+            if (region == null)
+                continue;
 
-            // region 정보 저장
-            if (!regionMap.containsKey(region.getAreaCode())) {
-                regionMap.put(region.getAreaCode(), region);
-                regionSpotsMap.put(region.getAreaCode(), new ArrayList<>());
-            }
+            regionAreaCodeMap.putIfAbsent(region.getAreaCode(), region);
+            regionSpotsMap.computeIfAbsent(region.getAreaCode(), k -> new ArrayList<>());
 
-            // 2-2. Hashtag 목록 조회
-            List<HashtagDto> hashtagDtos = hashtagService.getHashtagsBySpotId(spot.getId());
-            List<String> hashtags = hashtagDtos.stream()
-                    .map(HashtagDto::getName)
-                    .collect(Collectors.toList());
+            List<String> hashtags = hashtagsBySpotId.getOrDefault(spot.getId(), List.of());
+            String imageUrl = repImageBySpotId.getOrDefault(spot.getId(), null);
+            RatingStat ratingStat = ratingBySpotId.get(spot.getId());
 
-            // 2-3. 대표 이미지 URL 조회
-            List<SpotImageDto> images = spotImageService.getImagesBySpotId(spot.getId());
-            String imageUrl = images.stream()
-                    .filter(img -> "Y".equals(img.getRepImgYn()))
-                    .findFirst()
-                    .map(SpotImageDto::getImageUrl)
-                    .orElse(null);
-
-            // 2-4. 평점 정보 조회
-            Double ratingAvg = reviewService.getAverageRating(spot.getId());
-            Integer ratingCount = reviewService.getRatingCount(spot.getId());
-
-            // 2-5. Spot 데이터 구성
             Map<String, Object> spotData = new HashMap<>();
             spotData.put("id", spot.getId());
             spotData.put("title", spot.getTitle());
@@ -126,21 +160,22 @@ public class SpotService {
             spotData.put("category", spot.getCategoryCode());
             spotData.put("isActive", spot.getIsActive());
             spotData.put("viewCount", spot.getViewCount());
-            spotData.put("ratingAvg", ratingAvg != null ? ratingAvg : 0.0);
-            spotData.put("ratingCount", ratingCount != null ? ratingCount : 0);
+            spotData.put("ratingAvg", ratingStat != null ? ratingStat.getRatingAvg() : 0.0);
+            spotData.put("ratingCount", ratingStat != null ? ratingStat.getRatingCount() : 0);
 
-            // 2-6. Region별로 그룹화
             regionSpotsMap.get(region.getAreaCode()).add(spotData);
         }
 
-        // 3. area_code 순서대로 정렬하여 "area01", "area02" 형식의 키로 변환
+        // 4. area_code 순서대로 정렬하여 "area01", "area02" 키 생성
         Map<String, Object> regionsMap = new LinkedHashMap<>();
-        List<Integer> sortedAreaCodes = new ArrayList<>(regionMap.keySet());
+        List<Integer> sortedAreaCodes = new ArrayList<>(regionSpotsMap.keySet());
         sortedAreaCodes.sort(Integer::compareTo);
 
         int index = 1;
         for (Integer areaCode : sortedAreaCodes) {
-            RegionDto region = regionMap.get(areaCode);
+            RegionDto region = regionAreaCodeMap.get(areaCode);
+            if (region == null)
+                continue;
             String areaKey = "area" + String.format("%02d", index);
 
             Map<String, Object> regionData = new HashMap<>();
@@ -152,10 +187,8 @@ public class SpotService {
             index++;
         }
 
-        // 4. 응답 형식에 맞게 변환
         Map<String, Object> response = new HashMap<>();
         response.put("regions", regionsMap);
-
         return response;
     }
 }

@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpotLikeDto {
-    private Long id;
     private Long userId;
     private Long touristSpotId;
-    private LocalDateTime createdAt;
 }

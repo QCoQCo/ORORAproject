@@ -28,6 +28,13 @@ public class HashtagService {
         return hashtagMapper.findHashtagsBySpotId(spotId);
     }
 
+    public List<HashtagDto> getHashtagsBySpotIds(List<Long> spotIds) {
+        if (spotIds == null || spotIds.isEmpty()) {
+            return List.of();
+        }
+        return hashtagMapper.findHashtagsBySpotIds(spotIds);
+    }
+
     // 여기서부터 작성
     public List<HashtagDto> getTouristSpotHashtags() {
         return hashtagMapper.selectTouristSpotHashtags();
