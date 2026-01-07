@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,9 @@ public class AdminController {
     @Autowired
     private CommonCodeService commonCodeService;
 
+    @Autowired
+    private com.busan.orora.spot.service.SpotRequestService spotRequestService;
+
     // 관광지 목록 조회
     @GetMapping("/tourist-spots")
     @ResponseBody
@@ -48,7 +52,23 @@ public class AdminController {
         Map<String, Object> response = new HashMap<>();
         try {
             List<SpotDto> spots = spotService.getAllSpots();
-            
+
+            // N+1 쿼리 문제 해결: 배치 조회로 모든 해시태그를 한 번에 조회
+            List<Long> spotIds = spots.stream()
+                    .map(SpotDto::getId)
+                    .collect(Collectors.toList());
+
+            // 배치 조회로 모든 해시태그 조회
+            Map<Long, List<String>> hashtagsBySpotId = new HashMap<>();
+            if (!spotIds.isEmpty()) {
+                for (HashtagDto dto : hashtagService.getHashtagsBySpotIds(spotIds)) {
+                    if (dto.getTouristSpotId() != null) {
+                        hashtagsBySpotId.computeIfAbsent(dto.getTouristSpotId(), k -> new ArrayList<>())
+                                .add(dto.getName());
+                    }
+                }
+            }
+
             // 각 관광지의 해시태그를 포함하여 응답 생성
             List<Map<String, Object>> spotsWithHashtags = spots.stream().map(spot -> {
                 Map<String, Object> spotMap = new HashMap<>();
@@ -62,17 +82,14 @@ public class AdminController {
                 spotMap.put("viewCount", spot.getViewCount());
                 spotMap.put("createdAt", spot.getCreatedAt());
                 spotMap.put("updatedAt", spot.getUpdatedAt());
-                
-                // 해시태그 조회
-                List<HashtagDto> hashtags = hashtagService.getHashtagsBySpotId(spot.getId());
-                List<String> hashtagNames = hashtags.stream()
-                    .map(HashtagDto::getName)
-                    .collect(Collectors.toList());
+
+                // 배치 조회한 해시태그 사용
+                List<String> hashtagNames = hashtagsBySpotId.getOrDefault(spot.getId(), new ArrayList<>());
                 spotMap.put("hashtags", hashtagNames);
-                
+
                 return spotMap;
             }).collect(Collectors.toList());
-            
+
             response.put("success", true);
             response.put("spots", spotsWithHashtags);
         } catch (Exception e) {
@@ -358,7 +375,8 @@ public class AdminController {
     @PutMapping("/common-code-groups/{groupId}")
     @ResponseBody
     @Transactional
-    public Map<String, Object> updateCommonCodeGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> request) {
+    public Map<String, Object> updateCommonCodeGroup(@PathVariable Long groupId,
+            @RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
             CommonCodeGroupDto groupDto = commonCodeGroupService.getGroupById(groupId);
@@ -528,6 +546,126 @@ public class AdminController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "코드 삭제에 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // ========== 사진 추가 신청 관리 API ==========
+
+    // 사진 추가 신청 목록 조회
+    @GetMapping("/spot-requests")
+    @ResponseBody
+    public Map<String, Object> getSpotRequests() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<com.busan.orora.spot.dto.SpotRequestDto> requests = spotRequestService.getAllRequests();
+
+            // DTO를 Map으로 변환하여 프론트엔드에 전달
+            List<Map<String, Object>> requestList = requests.stream().map(request -> {
+                Map<String, Object> requestMap = new HashMap<>();
+                requestMap.put("id", request.getId());
+                requestMap.put("userId", request.getUserId());
+                requestMap.put("type", request.getRequestType());
+                requestMap.put("applicantId", request.getApplicantId());
+                requestMap.put("applicantName", request.getApplicantName());
+                requestMap.put("spotId", request.getTouristSpotId());
+                requestMap.put("spotName",
+                        request.getSpotName() != null ? request.getSpotName() : request.getSpotTitle());
+                requestMap.put("imageUrl", request.getImageUrl());
+                requestMap.put("description", request.getDescription());
+                requestMap.put("status", request.getStatus());
+                requestMap.put("rejectReason", request.getRejectReason());
+                requestMap.put("createdAt", request.getCreatedAt());
+                return requestMap;
+            }).collect(Collectors.toList());
+
+            response.put("success", true);
+            response.put("requests", requestList);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "신청 목록을 불러오는데 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 사진 추가 신청 승인
+    @PutMapping("/spot-requests/{requestId}/approve")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> approveSpotRequest(@PathVariable Long requestId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 1. 신청 정보 조회
+            com.busan.orora.spot.dto.SpotRequestDto request = spotRequestService.getRequestById(requestId);
+            if (request == null) {
+                response.put("success", false);
+                response.put("message", "신청을 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 2. 신청 유형에 따라 처리
+            if ("photo".equals(request.getRequestType())) {
+                // 사진 추가 신청: 사진을 관광지에 추가
+                if (request.getTouristSpotId() == null) {
+                    response.put("success", false);
+                    response.put("message", "관광지 ID가 없습니다.");
+                    return response;
+                }
+                // TODO: 사진을 tourist_spot_images 테이블에 추가하는 로직 구현
+                // spotImageService.addSpotImage(request.getTouristSpotId(),
+                // request.getImageUrl(), ...);
+            } else if ("spot".equals(request.getRequestType())) {
+                // 관광지 추가 신청: 새 관광지 생성
+                // TODO: 새 관광지를 tourist_spots 테이블에 추가하는 로직 구현
+                // SpotDto newSpot = new SpotDto();
+                // newSpot.setTitle(request.getSpotTitle());
+                // newSpot.setRegionId(request.getRegionId());
+                // ...
+                // spotService.addSpot(newSpot);
+            }
+
+            // 3. 신청 상태를 'approved'로 변경
+            spotRequestService.updateRequestStatus(requestId, "approved", null);
+
+            response.put("success", true);
+            response.put("message", "신청이 승인되었습니다.");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "승인에 실패했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    // 사진 추가 신청 거부
+    @PutMapping("/spot-requests/{requestId}/reject")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> rejectSpotRequest(@PathVariable Long requestId,
+            @RequestBody Map<String, Object> requestBody) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 1. 신청 정보 조회
+            com.busan.orora.spot.dto.SpotRequestDto request = spotRequestService.getRequestById(requestId);
+            if (request == null) {
+                response.put("success", false);
+                response.put("message", "신청을 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 2. 거부 사유 추출
+            String reason = (String) requestBody.get("reason");
+            if (reason == null || reason.trim().isEmpty()) {
+                reason = "사유 없음";
+            }
+
+            // 3. 신청 상태를 'rejected'로 변경 및 거부 사유 저장
+            spotRequestService.updateRequestStatus(requestId, "rejected", reason);
+
+            response.put("success", true);
+            response.put("message", "신청이 거부되었습니다.");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "거부에 실패했습니다: " + e.getMessage());
         }
         return response;
     }

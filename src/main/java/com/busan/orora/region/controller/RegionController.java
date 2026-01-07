@@ -6,14 +6,10 @@ import com.busan.orora.region.dto.SearchSpotsByRegionDto;
 import com.busan.orora.region.service.RegionService;
 
 
-import org.springframework.ui.Model;
-
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -43,6 +39,12 @@ public class RegionController {
         return ResponseEntity.ok(
             regionService.searchSpotsByRegionIds(regionIds)
         );
+    }
+
+    // 모든 지역 목록 조회
+    @GetMapping
+    public ResponseEntity<List<com.busan.orora.region.dto.RegionDto>> getAllRegions() {
+        return ResponseEntity.ok(regionService.getAllRegions());
     }
     
     
