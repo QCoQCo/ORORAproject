@@ -503,3 +503,223 @@
         padding: 15px;
     }
 }
+
+/* 신청 관리 스타일 */
+.mypage-container .request-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mypage-container .request-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mypage-container .request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.mypage-container .request-type {
+    font-weight: 600;
+    color: #3498db;
+    font-size: 1rem;
+}
+
+.mypage-container .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.mypage-container .status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.mypage-container .status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.mypage-container .status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.mypage-container .request-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mypage-container .request-info p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.mypage-container .request-info strong {
+    color: #333;
+    margin-right: 8px;
+}
+
+.mypage-container .request-description {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.mypage-container .request-description p {
+    color: #666;
+    line-height: 1.6;
+}
+
+.mypage-container .request-actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.mypage-container .cancel-request-btn {
+    padding: 8px 16px;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.mypage-container .cancel-request-btn:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.mypage-container .cancel-request-btn:active {
+    transform: translateY(0);
+}
+
+/* 관광지 추가 신청 폼 스타일 */
+.mypage-container .spot-add-form {
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.mypage-container .form-group {
+    margin-bottom: 25px;
+}
+
+.mypage-container .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.mypage-container .form-group .required {
+    color: #e74c3c;
+    margin-left: 3px;
+}
+
+.mypage-container .form-group input,
+.mypage-container .form-group select,
+.mypage-container .form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s;
+    font-family: inherit;
+}
+
+.mypage-container .form-group input:focus,
+.mypage-container .form-group select:focus,
+.mypage-container .form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.mypage-container .form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.mypage-container .form-hint {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.mypage-container .char-count {
+    display: block;
+    text-align: right;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.mypage-container .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mypage-container .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.mypage-container .submit-btn:active {
+    transform: translateY(0);
+}
+
+.mypage-container .section-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .mypage-container .spot-add-form {
+        padding: 20px;
+    }
+
+    .mypage-container .request-item {
+        padding: 15px;
+    }
+
+    .mypage-container .request-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

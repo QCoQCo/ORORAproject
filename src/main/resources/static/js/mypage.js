@@ -104,6 +104,16 @@ function initTabs() {
             btn.classList.add('active');
             // 해당 탭 패널에 active 클래스 추가
             document.getElementById(`${targetTab}-tab`).classList.add('active');
+
+            // 탭별 데이터 로드
+            const user = getCurrentUser();
+            if (user) {
+                if (targetTab === 'requests') {
+                    loadUserRequests(user.id);
+                } else if (targetTab === 'spot-add') {
+                    initSpotAddForm();
+                }
+            }
         });
     });
 }
@@ -455,4 +465,293 @@ async function getSampleUserLikes(userId) {
             ]);
         }, 600);
     });
+}
+
+// 사용자 신청 목록 로드
+async function loadUserRequests(userId) {
+    const requestsList = document.getElementById('requests-list');
+    const requestsCount = document.getElementById('requests-count');
+
+    // 로딩 상태 표시
+    requestsList.innerHTML =
+        '<div class="loading-state"><div class="loading-spinner"></div><p>신청 목록을 불러오는 중...</p></div>';
+
+    try {
+        const response = await fetch(`/api/admin/spot-requests`);
+        const data = await response.json();
+
+        if (data.success && data.requests) {
+            // 현재 사용자의 신청만 필터링
+            const userRequests = data.requests.filter(
+                (req) => req.userId === userId || req.userId === String(userId)
+            );
+
+            if (userRequests.length === 0) {
+                requestsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>신청 내역이 없습니다</h3>
+                        <p>사진 등록 신청이나 관광지 추가 신청을 해보세요!</p>
+                    </div>
+                `;
+            } else {
+                requestsList.innerHTML = userRequests
+                    .map((request) => createRequestHTML(request))
+                    .join('');
+            }
+
+            requestsCount.textContent = `${userRequests.length}개`;
+        } else {
+            throw new Error(data.message || '신청 목록을 불러올 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('신청 목록 로드 오류:', error);
+        requestsList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">❌</div>
+                <h3>신청 목록을 불러올 수 없습니다</h3>
+                <p>잠시 후 다시 시도해주세요.</p>
+            </div>
+        `;
+    }
+}
+
+// 신청 HTML 생성
+function createRequestHTML(request) {
+    const typeLabel = request.type === 'photo' ? '사진 추가' : '관광지 추가';
+    const statusBadge = getRequestStatusBadge(request.status);
+    const createdAt = formatRequestDate(request.createdAt);
+    const description = request.description || '-';
+    const imagePreview =
+        request.imageUrl && request.type === 'photo'
+            ? `<img src="${request.imageUrl}" alt="신청 사진" style="max-width: 100px; max-height: 100px; margin-top: 10px; border-radius: 4px;" />`
+            : '';
+
+    // 대기중인 신청만 취소 버튼 표시
+    const cancelButton =
+        request.status === 'pending'
+            ? `<button class="cancel-request-btn" onclick="cancelRequest(${request.id})">신청 취소</button>`
+            : '';
+
+    return `
+        <div class="request-item">
+            <div class="request-header">
+                <div class="request-type">${typeLabel}</div>
+                ${statusBadge}
+            </div>
+            <div class="request-content">
+                <div class="request-info">
+                    <p><strong>관광지:</strong> ${request.spotName || '-'}</p>
+                    <p><strong>신청일:</strong> ${createdAt}</p>
+                    ${
+                        request.status === 'rejected' && request.rejectReason
+                            ? `<p><strong>거부 사유:</strong> ${request.rejectReason}</p>`
+                            : ''
+                    }
+                </div>
+                <div class="request-description">
+                    <p><strong>설명:</strong> ${description}</p>
+                    ${imagePreview}
+                </div>
+                ${cancelButton ? `<div class="request-actions">${cancelButton}</div>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// 신청 상태 배지 생성
+function getRequestStatusBadge(status) {
+    const badges = {
+        pending: '<span class="status-badge status-pending">대기중</span>',
+        approved: '<span class="status-badge status-approved">승인됨</span>',
+        rejected: '<span class="status-badge status-rejected">거부됨</span>',
+    };
+    return badges[status] || badges.pending;
+}
+
+// 날짜 포맷팅
+function formatRequestDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
+
+// 신청 취소
+async function cancelRequest(requestId) {
+    const user = getCurrentUser();
+    if (!user) {
+        alert('로그인이 필요합니다.');
+        return;
+    }
+
+    if (!confirm('정말 이 신청을 취소하시겠습니까?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/spot-requests/${requestId}?userId=${user.id}`, {
+            method: 'DELETE',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('신청이 취소되었습니다.');
+            // 신청 목록 다시 로드
+            await loadUserRequests(user.id);
+        } else {
+            alert('신청 취소에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('신청 취소 중 오류가 발생했습니다.');
+    }
+}
+
+// 관광지 추가 신청 폼 초기화
+async function initSpotAddForm() {
+    const form = document.getElementById('spot-add-form');
+    const regionSelect = document.getElementById('spot-region');
+    const descriptionTextarea = document.getElementById('spot-description');
+    const charCount = document.getElementById('spot-description-char-count');
+    const imageInput = document.getElementById('spot-image');
+    const imagePreview = document.getElementById('spot-image-preview');
+    const imagePreviewContainer = document.getElementById('spot-image-preview-container');
+
+    // 이미지 미리보기 기능
+    if (imageInput && imagePreview && imagePreviewContainer) {
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreviewContainer.style.display = 'none';
+                imagePreview.src = '';
+            }
+        });
+    }
+
+    // 지역 목록 로드
+    try {
+        const response = await fetch('/api/regions');
+        if (response.ok) {
+            const regions = await response.json();
+            regionSelect.innerHTML = '<option value="">지역을 선택해주세요</option>';
+            regions.forEach((region) => {
+                const option = document.createElement('option');
+                option.value = region.id;
+                option.textContent = region.name;
+                regionSelect.appendChild(option);
+            });
+        } else {
+            // API가 없을 경우 직접 지역 목록 생성 (임시)
+            const regions = [
+                { id: 1, name: '중구' },
+                { id: 2, name: '서구' },
+                { id: 3, name: '동구' },
+                { id: 4, name: '영도구' },
+                { id: 5, name: '부산진구' },
+                { id: 6, name: '동래구' },
+                { id: 7, name: '남구' },
+                { id: 8, name: '북구' },
+                { id: 9, name: '해운대구' },
+                { id: 10, name: '사하구' },
+                { id: 11, name: '금정구' },
+                { id: 12, name: '강서구' },
+                { id: 13, name: '연제구' },
+                { id: 14, name: '수영구' },
+                { id: 15, name: '사상구' },
+                { id: 16, name: '기장군' },
+            ];
+            regionSelect.innerHTML = '<option value="">지역을 선택해주세요</option>';
+            regions.forEach((region) => {
+                const option = document.createElement('option');
+                option.value = region.id;
+                option.textContent = region.name;
+                regionSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('지역 목록 로드 오류:', error);
+    }
+
+    // 설명 글자 수 카운트
+    if (descriptionTextarea && charCount) {
+        descriptionTextarea.addEventListener('input', function () {
+            const length = this.value.length;
+            charCount.textContent = length;
+        });
+    }
+
+    // 폼 제출 처리
+    if (form) {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const user = getCurrentUser();
+            if (!user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const spotTitle = document.getElementById('spot-title').value;
+            const regionId = document.getElementById('spot-region').value;
+
+            if (!spotTitle || !regionId) {
+                alert('관광지명과 지역은 필수 입력 항목입니다.');
+                return;
+            }
+
+            // FormData 생성 (이미지 파일 포함)
+            const formData = new FormData();
+            formData.append('userId', user.id);
+            formData.append('spotTitle', spotTitle);
+            formData.append('regionId', regionId);
+            formData.append('linkUrl', document.getElementById('spot-link').value);
+            formData.append('hashtags', document.getElementById('spot-hashtags').value);
+            formData.append('description', document.getElementById('spot-description').value);
+
+            // 이미지 파일이 있으면 추가
+            if (imageInput && imageInput.files[0]) {
+                formData.append('image', imageInput.files[0]);
+            }
+
+            try {
+                const response = await fetch('/api/spot-requests/spot', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('관광지 추가 신청이 완료되었습니다. 관리자 검토 후 반영됩니다.');
+                    form.reset();
+                    if (charCount) {
+                        charCount.textContent = '0';
+                    }
+                    if (imagePreviewContainer) {
+                        imagePreviewContainer.style.display = 'none';
+                        imagePreview.src = '';
+                    }
+                } else {
+                    alert('신청에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('신청 중 오류가 발생했습니다.');
+            }
+        });
+    }
 }
