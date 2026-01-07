@@ -119,11 +119,11 @@ document.addEventListener('DOMContentLoaded', initSectionNavigation);
 // window.addEventListener('scroll', updateActiveTab);
 
 // 관광지 하트 눌렀을 때, 빈하트 -> 빨간하트
-if (likeBtn) {
-    like.addEventListener('click', () => {
-        likeBtn.classList.toggle('likeBtnActive');
-    });
-}
+// if (likeBtn) {
+//     like.addEventListener('click', () => {
+//         likeBtn.classList.toggle('likeBtnActive');
+//     });
+// }
 
 // save버튼 눌럿을 때
 const save = document.querySelector('.save');
@@ -195,6 +195,8 @@ async function loadTouristSpotDetail() {
         // URL 파라미터에서 관광지 ID 가져오기 (title 기반 검색은 사용하지 않음)
         const urlParams = new URLSearchParams(window.location.search);
         const spotId = urlParams.get('id');
+        // const userId = 7;
+        console.log('로드할 관광지 ID:', spotId);
 
         // ID가 없으면 에러
         if (!spotId) {
@@ -223,6 +225,17 @@ async function loadTouristSpotDetail() {
                 };
                 const regionName = spotData.region ? spotData.region.name : '';
                 updatePageContent(spot, regionName);
+
+                //  백엔드 API 좋아요 상태 확인
+                
+                const likeResponse = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`);
+                const likeData = await likeResponse.json();
+
+                if (likeData.liked) {
+                    document.querySelector('.likeBtn')
+                        .classList.add('likeBtnActive');
+                }
+
             } else {
                 console.error('백엔드 API 호출 실패:', response.status);
                 alert('관광지 정보를 불러올 수 없습니다.');
@@ -235,7 +248,34 @@ async function loadTouristSpotDetail() {
         console.error('데이터 로드 중 오류:', error);
         alert('관광지 정보를 불러오는 중 오류가 발생했습니다.');
     }
+    
 }
+
+
+likeBtn.addEventListener('click', async () => {
+    const spotId = new URLSearchParams(window.location.search).get('id');
+    const userId = 7; // 나중에 교체
+
+    try {
+        const response = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.likes) {
+            likeBtn.classList.add('likeBtnActive');
+        } else {
+            likeBtn.classList.remove('likeBtnActive');
+        }
+
+    } catch (e) {
+        console.error('좋아요 토글 실패', e);
+    }
+});
+
+
+
 
 // 좋아요 별로예요 버튼
 const good = document.querySelector('.good');
