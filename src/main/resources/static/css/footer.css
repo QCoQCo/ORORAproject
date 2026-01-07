@@ -69,7 +69,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .footer-logo-image {
@@ -85,11 +85,15 @@
     filter: brightness(1.4);
 }
 
-.footer-brand .footer-description {
+.footer-brand .footer-description1,
+.footer-brand .footer-description2 {
     color: rgba(255, 255, 255, 0.8);
     line-height: 1.6;
-    margin-bottom: 20px;
     font-size: 0.95rem;
+}
+
+.footer-brand .footer-description2{
+    margin-bottom: 20px;
 }
 
 .footer-social {
