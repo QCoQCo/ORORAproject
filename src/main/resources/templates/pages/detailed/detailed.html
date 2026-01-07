@@ -42,18 +42,11 @@
                         </div>
                     </div>
                     <div class="right">
-                        <div class="save">
-                            <p class="saveBtn"></p>
-                        </div>
                         <div class="print">
                             <p class="printPho"></p>
                         </div>
-                        <div class="map">
-                            <p class="mapPho"></p>
-                        </div>
                         <div class="share">
                             <p class="sharePho"></p>
-                            <p class="shareCount">0</p>
                         </div>
                     </div>
                 </div>
@@ -63,11 +56,11 @@
                         <li id="photo" class="section">사진보기</li>
                         <li id="detail" class="section">상세정보</li>
                         <li id="location" class="section">위치</li>
-                        <li id="comment" class="section">댓글</li>
+                        <li id="comment" class="section">리뷰</li>
                     </ul>
                 </div>
                 <div class="subPic">
-                    <button class="submitPicture"><span></span>사진등록하기</button>
+                    <button class="submitPicture"><span></span>사진등록신청</button>
                 </div>
 
                 <div class="photo sectionList">
@@ -203,6 +196,43 @@
                 </div>
             </div>
         </div>
+
+        <!-- 사진 등록 신청 모달 -->
+        <div class="modal" id="photo-request-modal">
+            <div class="modal-content">
+                <span class="close" id="close-photo-request-modal">&times;</span>
+                <h2>사진 등록 신청</h2>
+                <form id="photo-request-form">
+                    <input type="hidden" id="photo-request-spot-id" />
+                    <div class="form-group">
+                        <label for="photo-request-spot-name">관광지명</label>
+                        <input type="text" id="photo-request-spot-name" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo-request-image">사진 업로드</label>
+                        <input type="file" id="photo-request-image" accept="image/*" required />
+                        <div class="image-preview-container" id="photo-preview-container" style="display: none;">
+                            <img id="photo-preview" src="" alt="미리보기" style="max-width: 100%; max-height: 300px; margin-top: 10px;" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo-request-description">사진 설명</label>
+                        <textarea 
+                            id="photo-request-description" 
+                            rows="4" 
+                            placeholder="사진에 대한 설명을 입력해주세요. (선택사항)"
+                            maxlength="500"
+                        ></textarea>
+                        <span class="char-count"><span id="photo-description-char-count">0</span>/500</span>
+                    </div>
+
+                    <button type="submit" class="submit-btn">신청 제출</button>
+                </form>
+            </div>
+        </div>
+
         <th:block layout:fragment="script">
             <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
             <script th:src="@{/js/detailPage.js}"></script>
