@@ -39,13 +39,16 @@ async function displayUserInfo() {
             // 가입일 표시
             if (userInfo.join_date) {
                 const joinDate = new Date(userInfo.join_date);
-                document.getElementById('join-date').textContent = `가입일: ${joinDate.toLocaleDateString('ko-KR')}`;
+                document.getElementById(
+                    'join-date'
+                ).textContent = `가입일: ${joinDate.toLocaleDateString('ko-KR')}`;
             } else {
                 document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
             }
 
             // 프로필 이미지 설정
-            const profileImageUrl = userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
+            const profileImageUrl =
+                userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
             document.getElementById('profile-image').src = profileImageUrl;
 
             // sessionStorage 업데이트 (최신 정보로)
@@ -61,7 +64,8 @@ async function displayUserInfo() {
                 document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
             }
 
-            const profileImageUrl = user.profileImage || user.profile_image || '/images/defaultProfile.png';
+            const profileImageUrl =
+                user.profileImage || user.profile_image || '/images/defaultProfile.png';
             document.getElementById('profile-image').src = profileImageUrl;
         }
     } catch (error) {
@@ -76,7 +80,8 @@ async function displayUserInfo() {
             document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
         }
 
-        const profileImageUrl = user.profileImage || user.profile_image || '/images/defaultProfile.png';
+        const profileImageUrl =
+            user.profileImage || user.profile_image || '/images/defaultProfile.png';
         document.getElementById('profile-image').src = profileImageUrl;
     }
 }
@@ -261,8 +266,8 @@ function createReviewHTML(review) {
                     <span class="stars">${stars}</span>
                     <span>${review.rating}/5</span>
                 </div>
-                <a href="/pages/detailed/detailed?title=${
-                    review.tourist_spot_name
+                <a href="/pages/detailed/detailed?id=${
+                    review.tourist_spot_id
                 }" class="tourist-spot">
                     ${review.tourist_spot_name}
                 </a>
@@ -302,9 +307,7 @@ function createLikeHTML(like) {
             </div>
             <div class="item-content">${like.description || '좋아요한 관광지입니다.'}</div>
             <div class="item-meta">
-                <a href="/pages/detailed/detailed?id=${
-                    like.tourist_spot_id
-                }" class="tourist-spot">
+                <a href="/pages/detailed/detailed?id=${like.tourist_spot_id}" class="tourist-spot">
                     자세히 보기
                 </a>
             </div>
