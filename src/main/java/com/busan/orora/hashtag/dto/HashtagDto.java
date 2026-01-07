@@ -21,6 +21,7 @@ public class HashtagDto {
     private String name;
     private LocalDateTime createdAt;
     // 여기서부터 작성
+    private Long touristSpotId; // 배치 조회 시 spot 매핑용
     private String imageUrl;
     private String title;
     private String description;

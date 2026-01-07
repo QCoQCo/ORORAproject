@@ -119,23 +119,11 @@ document.addEventListener('DOMContentLoaded', initSectionNavigation);
 // window.addEventListener('scroll', updateActiveTab);
 
 // 관광지 하트 눌렀을 때, 빈하트 -> 빨간하트
-if (likeBtn) {
-    like.addEventListener('click', () => {
-        likeBtn.classList.toggle('likeBtnActive');
-    });
-}
-
-// save버튼 눌럿을 때
-const save = document.querySelector('.save');
-const saveBtn = document.querySelector('.saveBtn');
-
-save.addEventListener('click', function () {
-    if (!saveBtn.classList.contains('saveBtnActive')) {
-        saveBtn.classList.add('saveBtnActive');
-    } else {
-        saveBtn.classList.remove('saveBtnActive');
-    }
-});
+// if (likeBtn) {
+//     like.addEventListener('click', () => {
+//         likeBtn.classList.toggle('likeBtnActive');
+//     });
+// }
 
 // Swiper 인스턴스를 전역으로 관리
 let swiperInstance = null;
@@ -195,6 +183,8 @@ async function loadTouristSpotDetail() {
         // URL 파라미터에서 관광지 ID 가져오기 (title 기반 검색은 사용하지 않음)
         const urlParams = new URLSearchParams(window.location.search);
         const spotId = urlParams.get('id');
+        // const userId = 7;
+        console.log('로드할 관광지 ID:', spotId);
 
         // ID가 없으면 에러
         if (!spotId) {
@@ -223,6 +213,17 @@ async function loadTouristSpotDetail() {
                 };
                 const regionName = spotData.region ? spotData.region.name : '';
                 updatePageContent(spot, regionName);
+
+                //  백엔드 API 좋아요 상태 확인
+                
+                const likeResponse = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`);
+                const likeData = await likeResponse.json();
+
+                if (likeData.liked) {
+                    document.querySelector('.likeBtn')
+                        .classList.add('likeBtnActive');
+                }
+
             } else {
                 console.error('백엔드 API 호출 실패:', response.status);
                 alert('관광지 정보를 불러올 수 없습니다.');
@@ -235,7 +236,34 @@ async function loadTouristSpotDetail() {
         console.error('데이터 로드 중 오류:', error);
         alert('관광지 정보를 불러오는 중 오류가 발생했습니다.');
     }
+    
 }
+
+
+likeBtn.addEventListener('click', async () => {
+    const spotId = new URLSearchParams(window.location.search).get('id');
+    const userId = 7; // 나중에 교체
+
+    try {
+        const response = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.likes) {
+            likeBtn.classList.add('likeBtnActive');
+        } else {
+            likeBtn.classList.remove('likeBtnActive');
+        }
+
+    } catch (e) {
+        console.error('좋아요 토글 실패', e);
+    }
+});
+
+
+
 
 // 좋아요 별로예요 버튼
 const good = document.querySelector('.good');
@@ -648,6 +676,9 @@ async function loadReviews() {
 
         // 리뷰 카운트 업데이트
         updateReviewCount(spotReviews.length);
+
+        // 리뷰 정보 업데이트 (평균 평점 및 총 개수)
+        updateReviewInfo(spotReviews);
     } catch (error) {
         console.error('리뷰 데이터 로드 중 오류:', error);
         showNoReviewsMessage();
@@ -761,6 +792,55 @@ function updateReviewCount(count) {
     const reviewCountElement = document.getElementById('review-count');
     if (reviewCountElement) {
         reviewCountElement.textContent = count;
+    }
+}
+
+// 리뷰 평균 평점 계산
+function calculateAverageRating(reviews) {
+    if (!reviews || reviews.length === 0) {
+        return 0;
+    }
+
+    const totalRating = reviews.reduce((sum, review) => {
+        const rating = review.rating || 0;
+        return sum + rating;
+    }, 0);
+
+    return totalRating / reviews.length;
+}
+
+// 리뷰 정보 업데이트 (평균 평점 및 총 개수)
+function updateReviewInfo(reviews) {
+    const reviewInfo = document.getElementById('review-info');
+    const reviewAverage = document.querySelector('.review-average');
+    const reviewTotalCount = document.getElementById('review-total-count');
+
+    if (!reviewInfo || !reviewAverage || !reviewTotalCount) return;
+
+    const reviewCount = reviews ? reviews.length : 0;
+    const averageRating = calculateAverageRating(reviews);
+
+    // 총 리뷰 개수 업데이트
+    reviewTotalCount.textContent = reviewCount;
+
+    // 평균 평점 업데이트
+    if (reviewCount === 0) {
+        reviewAverage.textContent = '평점 없음';
+    } else {
+        // 평균 평점을 소수점 첫째 자리까지 표시
+        const formattedRating = averageRating.toFixed(1);
+        reviewAverage.textContent = `${formattedRating}점`;
+    }
+}
+
+// 리뷰 정보 클릭 시 리뷰 섹션으로 스크롤
+function initReviewInfoClick() {
+    const reviewInfo = document.getElementById('review-info');
+    if (reviewInfo) {
+        reviewInfo.addEventListener('click', function () {
+            // 리뷰 섹션은 sectionList[3] (인덱스 3)
+            scrollToSection(3);
+        });
     }
 }
 
@@ -919,6 +999,7 @@ function submitReview() {
     const spotReviews = reviews.filter((review) => review.spotTitle === currentSpotTitle);
     displayReviews(spotReviews);
     updateReviewCount(spotReviews.length);
+    updateReviewInfo(spotReviews);
 
     // 폼 초기화
     resetReviewForm();
@@ -1044,6 +1125,187 @@ function updatePageContent(spot, regionName) {
     }, 200);
 }
 
+// 사진 등록 신청 모달 관련 함수들
+function initPhotoRequestModal() {
+    const submitPictureBtn = document.querySelector('.submitPicture');
+    const modal = document.getElementById('photo-request-modal');
+    const closeBtn = document.getElementById('close-photo-request-modal');
+    const form = document.getElementById('photo-request-form');
+    const imageInput = document.getElementById('photo-request-image');
+    const previewContainer = document.getElementById('photo-preview-container');
+    const preview = document.getElementById('photo-preview');
+    const descriptionTextarea = document.getElementById('photo-request-description');
+    const charCount = document.getElementById('photo-description-char-count');
+
+    // 모달 열기
+    if (submitPictureBtn) {
+        submitPictureBtn.addEventListener('click', function () {
+            if (modal) {
+                // 현재 관광지 정보를 모달에 설정
+                const spotIdInput = document.getElementById('photo-request-spot-id');
+                const spotNameInput = document.getElementById('photo-request-spot-name');
+
+                if (spotIdInput) {
+                    spotIdInput.value = currentSpotId || '';
+                }
+                if (spotNameInput && currentSpotTitle) {
+                    spotNameInput.value = currentSpotTitle;
+                }
+
+                modal.style.display = 'block';
+            }
+        });
+    }
+
+    // 모달 닫기
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            if (modal) {
+                modal.style.display = 'none';
+                // 폼 초기화
+                if (form) {
+                    form.reset();
+                }
+                if (previewContainer) {
+                    previewContainer.style.display = 'none';
+                }
+                if (preview) {
+                    preview.src = '';
+                }
+                if (charCount) {
+                    charCount.textContent = '0';
+                }
+            }
+        });
+    }
+
+    // 모달 외부 클릭 시 닫기
+    if (modal) {
+        window.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                // 폼 초기화
+                if (form) {
+                    form.reset();
+                }
+                if (previewContainer) {
+                    previewContainer.style.display = 'none';
+                }
+                if (preview) {
+                    preview.src = '';
+                }
+                if (charCount) {
+                    charCount.textContent = '0';
+                }
+            }
+        });
+    }
+
+    // 이미지 미리보기
+    if (imageInput) {
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                    if (previewContainer) {
+                        previewContainer.style.display = 'block';
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                if (previewContainer) {
+                    previewContainer.style.display = 'none';
+                }
+                if (preview) {
+                    preview.src = '';
+                }
+            }
+        });
+    }
+
+    // 설명 글자 수 카운트
+    if (descriptionTextarea && charCount) {
+        descriptionTextarea.addEventListener('input', function () {
+            const length = this.value.length;
+            charCount.textContent = length;
+        });
+    }
+
+    // 폼 제출
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const spotId = document.getElementById('photo-request-spot-id').value;
+            const spotName = document.getElementById('photo-request-spot-name').value;
+            const imageFile = document.getElementById('photo-request-image').files[0];
+            const description = document.getElementById('photo-request-description').value;
+
+            if (!imageFile) {
+                alert('사진을 선택해주세요.');
+                return;
+            }
+
+            // 현재 로그인한 사용자 정보 가져오기
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            if (!loggedInUser) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            let userId;
+            try {
+                const user = JSON.parse(loggedInUser);
+                userId = user.id;
+            } catch (error) {
+                console.error('사용자 정보 파싱 오류:', error);
+                alert('사용자 정보를 가져올 수 없습니다.');
+                return;
+            }
+
+            // FormData 생성
+            const formData = new FormData();
+            formData.append('spotId', spotId);
+            formData.append('userId', userId);
+            formData.append('image', imageFile);
+            formData.append('description', description);
+
+            // 백엔드 API 호출
+            fetch('/api/spot-requests/photo', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        alert('사진 등록 신청이 완료되었습니다. 관리자 검토 후 반영됩니다.');
+                        modal.style.display = 'none';
+                        form.reset();
+                        if (previewContainer) {
+                            previewContainer.style.display = 'none';
+                        }
+                        if (preview) {
+                            preview.src = '';
+                        }
+                        if (charCount) {
+                            charCount.textContent = '0';
+                        }
+                    } else {
+                        alert('신청에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('신청 중 오류가 발생했습니다.');
+                });
+        });
+    }
+}
+
 // DOM 로드 완료 후 초기화
 document.addEventListener('DOMContentLoaded', function () {
     // 뒤로가기 버튼 초기화
@@ -1053,6 +1315,12 @@ document.addEventListener('DOMContentLoaded', function () {
     initRatingSystem();
     initCharCount();
     initReviewSubmission();
+
+    // 리뷰 정보 클릭 이벤트 초기화
+    initReviewInfoClick();
+
+    // 사진 등록 신청 모달 초기화
+    initPhotoRequestModal();
 
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
     // ID만 사용 (title 기반 검색은 사용하지 않음)

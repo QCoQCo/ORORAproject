@@ -37,8 +37,14 @@
         <!-- 불필요한 JDBC 세부 로그 OFF -->
         <Logger name="jdbc.audit" level="OFF" additivity="false"/>
         <Logger name="jdbc.resultset" level="OFF" additivity="false"/>
-        <Logger name="jdbc.connection" level="OFF" additivity="false"/>
+        <!-- 연결 문제 디버깅을 위해 연결 로그는 WARN 레벨로 유지 -->
+        <Logger name="jdbc.connection" level="WARN" additivity="false"/>
         <Logger name="jdbc.sqlonly" level="OFF" additivity="false"/>
+        
+        <!-- HikariCP 연결 풀 로그 -->
+        <Logger name="com.zaxxer.hikari" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
 
         <!-- 애플리케이션 로그 -->
         <Logger name="com.macademy.shop" level="INFO" additivity="false">

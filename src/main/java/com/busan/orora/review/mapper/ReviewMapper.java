@@ -23,4 +23,6 @@ public interface ReviewMapper {
     Double getAverageRating(@Param("spotId") Long spotId);
 
     Integer getRatingCount(@Param("spotId") Long spotId);
+
+    List<Map<String, Object>> getRatingStatsBySpotIds(@Param("spotIds") List<Long> spotIds);
 }

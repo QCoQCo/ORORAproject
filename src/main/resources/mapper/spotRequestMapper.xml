@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.spot.mapper.SpotRequestMapper">
+    <resultMap id="SpotRequestResultMap" type="com.busan.orora.spot.dto.SpotRequestDto">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="touristSpotId" column="tourist_spot_id" />
+        <result property="requestType" column="request_type" />
+        <result property="imageUrl" column="image_url" />
+        <result property="imgName" column="img_name" />
+        <result property="oriImgName" column="ori_img_name" />
+        <result property="spotTitle" column="spot_title" />
+        <result property="regionId" column="region_id" />
+        <result property="linkUrl" column="link_url" />
+        <result property="hashtags" column="hashtags" />
+        <result property="description" column="description" />
+        <result property="status" column="status" />
+        <result property="rejectReason" column="reject_reason" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <!-- 조인된 데이터 -->
+        <result property="applicantName" column="applicant_name" />
+        <result property="applicantId" column="applicant_id" />
+        <result property="spotName" column="spot_name" />
+        <result property="regionName" column="region_name" />
+    </resultMap>
+
+    <!-- 신청 목록 조회 (관리자용 - 조인된 데이터 포함) -->
+    <select id="findAllRequests" resultMap="SpotRequestResultMap">
+        SELECT 
+            sr.id,
+            sr.user_id,
+            sr.tourist_spot_id,
+            sr.request_type,
+            sr.image_url,
+            sr.img_name,
+            sr.ori_img_name,
+            sr.spot_title,
+            sr.region_id,
+            sr.link_url,
+            sr.hashtags,
+            sr.description,
+            sr.status,
+            sr.reject_reason,
+            sr.created_at,
+            sr.updated_at,
+            u.username AS applicant_name,
+            u.login_id AS applicant_id,
+            ts.title AS spot_name,
+            r.name AS region_name
+        FROM spot_requests sr
+        LEFT JOIN users u ON sr.user_id = u.id
+        LEFT JOIN tourist_spots ts ON sr.tourist_spot_id = ts.id
+        LEFT JOIN regions r ON sr.region_id = r.id
+        ORDER BY sr.created_at DESC
+    </select>
+
+    <!-- 신청 ID로 조회 -->
+    <select id="findRequestById" resultMap="SpotRequestResultMap" parameterType="Long">
+        SELECT 
+            sr.id,
+            sr.user_id,
+            sr.tourist_spot_id,
+            sr.request_type,
+            sr.image_url,
+            sr.img_name,
+            sr.ori_img_name,
+            sr.spot_title,
+            sr.region_id,
+            sr.link_url,
+            sr.hashtags,
+            sr.description,
+            sr.status,
+            sr.reject_reason,
+            sr.created_at,
+            sr.updated_at,
+            u.username AS applicant_name,
+            u.login_id AS applicant_id,
+            ts.title AS spot_name,
+            r.name AS region_name
+        FROM spot_requests sr
+        LEFT JOIN users u ON sr.user_id = u.id
+        LEFT JOIN tourist_spots ts ON sr.tourist_spot_id = ts.id
+        LEFT JOIN regions r ON sr.region_id = r.id
+        WHERE sr.id = #{id}
+    </select>
+
+    <!-- 사용자별 신청 목록 조회 -->
+    <select id="findRequestsByUserId" resultMap="SpotRequestResultMap" parameterType="Long">
+        SELECT 
+            sr.id,
+            sr.user_id,
+            sr.tourist_spot_id,
+            sr.request_type,
+            sr.image_url,
+            sr.img_name,
+            sr.ori_img_name,
+            sr.spot_title,
+            sr.region_id,
+            sr.link_url,
+            sr.hashtags,
+            sr.description,
+            sr.status,
+            sr.reject_reason,
+            sr.created_at,
+            sr.updated_at,
+            u.username AS applicant_name,
+            u.login_id AS applicant_id,
+            ts.title AS spot_name,
+            r.name AS region_name
+        FROM spot_requests sr
+        LEFT JOIN users u ON sr.user_id = u.id
+        LEFT JOIN tourist_spots ts ON sr.tourist_spot_id = ts.id
+        LEFT JOIN regions r ON sr.region_id = r.id
+        WHERE sr.user_id = #{userId}
+        ORDER BY sr.created_at DESC
+    </select>
+
+    <!-- 상태별 신청 목록 조회 -->
+    <select id="findRequestsByStatus" resultMap="SpotRequestResultMap" parameterType="String">
+        SELECT 
+            sr.id,
+            sr.user_id,
+            sr.tourist_spot_id,
+            sr.request_type,
+            sr.image_url,
+            sr.img_name,
+            sr.ori_img_name,
+            sr.spot_title,
+            sr.region_id,
+            sr.link_url,
+            sr.hashtags,
+            sr.description,
+            sr.status,
+            sr.reject_reason,
+            sr.created_at,
+            sr.updated_at,
+            u.username AS applicant_name,
+            u.login_id AS applicant_id,
+            ts.title AS spot_name,
+            r.name AS region_name
+        FROM spot_requests sr
+        LEFT JOIN users u ON sr.user_id = u.id
+        LEFT JOIN tourist_spots ts ON sr.tourist_spot_id = ts.id
+        LEFT JOIN regions r ON sr.region_id = r.id
+        WHERE sr.status = #{status}
+        ORDER BY sr.created_at DESC
+    </select>
+
+    <!-- 신청 유형별 조회 -->
+    <select id="findRequestsByType" resultMap="SpotRequestResultMap" parameterType="String">
+        SELECT 
+            sr.id,
+            sr.user_id,
+            sr.tourist_spot_id,
+            sr.request_type,
+            sr.image_url,
+            sr.img_name,
+            sr.ori_img_name,
+            sr.spot_title,
+            sr.region_id,
+            sr.link_url,
+            sr.hashtags,
+            sr.description,
+            sr.status,
+            sr.reject_reason,
+            sr.created_at,
+            sr.updated_at,
+            u.username AS applicant_name,
+            u.login_id AS applicant_id,
+            ts.title AS spot_name,
+            r.name AS region_name
+        FROM spot_requests sr
+        LEFT JOIN users u ON sr.user_id = u.id
+        LEFT JOIN tourist_spots ts ON sr.tourist_spot_id = ts.id
+        LEFT JOIN regions r ON sr.region_id = r.id
+        WHERE sr.request_type = #{requestType}
+        ORDER BY sr.created_at DESC
+    </select>
+
+    <!-- 신청 추가 -->
+    <insert id="insertRequest" parameterType="com.busan.orora.spot.dto.SpotRequestDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO spot_requests (
+            user_id, 
+            tourist_spot_id, 
+            request_type,
+            image_url,
+            img_name,
+            ori_img_name,
+            spot_title,
+            region_id,
+            link_url,
+            hashtags,
+            description,
+            status
+        )
+        VALUES (
+            #{userId},
+            #{touristSpotId},
+            #{requestType},
+            #{imageUrl},
+            #{imgName},
+            #{oriImgName},
+            #{spotTitle},
+            #{regionId},
+            #{linkUrl},
+            #{hashtags},
+            #{description},
+            #{status}
+        )
+    </insert>
+
+    <!-- 신청 상태 업데이트 -->
+    <update id="updateRequestStatus">
+        UPDATE spot_requests
+        SET status = #{status},
+            reject_reason = #{rejectReason},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 신청 삭제 -->
+    <delete id="deleteRequest" parameterType="Long">
+        DELETE FROM spot_requests
+        WHERE id = #{id}
+    </delete>
+</mapper>
