@@ -224,7 +224,6 @@ async function loadUserLikes(userId) {
                 </div>
             `;
         } else {
-            // likesList.innerHTML = likes.map(createLikeHTML).join('');
             likesList.innerHTML = likes.map((like) => createLikeHTML(like)).join('');
         }
 
