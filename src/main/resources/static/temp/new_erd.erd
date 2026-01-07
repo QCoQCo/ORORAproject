@@ -44,7 +44,8 @@
       "Xbgy2E8cTplG44kY-9PNn",
       "TstSpImgsTbl2025",
       "RvwImgsTbl2025",
-      "RvwRptsTbl2025"
+      "RvwRptsTbl2025",
+      "SpotReqsTbl2025"
     ],
     "relationshipIds": [
       "i4FySu7aFAYUPuJtTitKR",
@@ -66,8 +67,10 @@
       "RelCCUsrRole2025",
       "RelCCUsrStatus2025",
       "RelCCUsrGender2025",
-      "RelCCTspotsCat2025",
-      "RelCCRptsStatus2025"
+      "RelCCRptsStatus2025",
+      "SpotReqsUsrRel2025",
+      "SpotReqsTstSpRel2025",
+      "SpotReqsRegionRel2025"
     ],
     "indexIds": [],
     "memoIds": []
@@ -497,6 +500,59 @@
           "zIndex": 2,
           "widthName": 79,
           "widthComment": 60,
+          "color": ""
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsTbl2025": {
+        "id": "SpotReqsTbl2025",
+        "name": "spot_requests",
+        "comment": "관광지 & 사진 추가 신청 테이블",
+        "columnIds": [
+          "SpotReqsId2025",
+          "SpotReqsUsrId2025",
+          "SpotReqsTstSpId2025",
+          "SpotReqsReqType2025",
+          "SpotReqsImgUrl2025",
+          "SpotReqsImgName2025",
+          "SpotReqsOriImgName2025",
+          "SpotReqsSpotTitle2025",
+          "SpotReqsRegionId2025",
+          "SpotReqsLinkUrl2025",
+          "SpotReqsHashtags2025",
+          "SpotReqsDesc2025",
+          "SpotReqsStatus2025",
+          "SpotReqsRejRsn2025",
+          "SpotReqsCrtAt2025",
+          "SpotReqsUpdAt2025"
+        ],
+        "seqColumnIds": [
+          "SpotReqsId2025",
+          "SpotReqsUsrId2025",
+          "SpotReqsTstSpId2025",
+          "SpotReqsReqType2025",
+          "SpotReqsImgUrl2025",
+          "SpotReqsImgName2025",
+          "SpotReqsOriImgName2025",
+          "SpotReqsSpotTitle2025",
+          "SpotReqsRegionId2025",
+          "SpotReqsLinkUrl2025",
+          "SpotReqsHashtags2025",
+          "SpotReqsDesc2025",
+          "SpotReqsStatus2025",
+          "SpotReqsRejRsn2025",
+          "SpotReqsCrtAt2025",
+          "SpotReqsUpdAt2025"
+        ],
+        "ui": {
+          "x": 300,
+          "y": 1521,
+          "zIndex": 2,
+          "widthName": 100,
+          "widthComment": 200,
           "color": ""
         },
         "meta": {
@@ -2392,6 +2448,326 @@
           "createAt": 1767018316001
         }
       },
+      "SpotReqsId2025": {
+        "id": "SpotReqsId2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "id",
+        "comment": "",
+        "dataType": "INT",
+        "default": "",
+        "options": 11,
+        "ui": {
+          "keys": 1,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsUsrId2025": {
+        "id": "SpotReqsUsrId2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "user_id",
+        "comment": "신청자 ID",
+        "dataType": "INT",
+        "default": "ON DELETE CASCADE",
+        "options": 8,
+        "ui": {
+          "keys": 2,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 116
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsTstSpId2025": {
+        "id": "SpotReqsTstSpId2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "tourist_spot_id",
+        "comment": "관광지 ID (사진 추가 신청의 경우 필수)",
+        "dataType": "INT",
+        "default": "ON DELETE SET NULL",
+        "options": 8,
+        "ui": {
+          "keys": 2,
+          "widthName": 79,
+          "widthComment": 200,
+          "widthDataType": 60,
+          "widthDefault": 116
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsReqType2025": {
+        "id": "SpotReqsReqType2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "request_type",
+        "comment": "신청 유형: photo(사진 추가), spot(관광지 추가)",
+        "dataType": "VARCHAR(20)",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 200,
+          "widthDataType": 75,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsImgUrl2025": {
+        "id": "SpotReqsImgUrl2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "image_url",
+        "comment": "신청한 사진 URL",
+        "dataType": "VARCHAR(500)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 81,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsImgName2025": {
+        "id": "SpotReqsImgName2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "img_name",
+        "comment": "저장된 파일명",
+        "dataType": "VARCHAR(255)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 81,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsOriImgName2025": {
+        "id": "SpotReqsOriImgName2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "ori_img_name",
+        "comment": "원본 파일명",
+        "dataType": "VARCHAR(255)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 76,
+          "widthComment": 60,
+          "widthDataType": 81,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsDesc2025": {
+        "id": "SpotReqsDesc2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "description",
+        "comment": "신청 설명",
+        "dataType": "TEXT",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 61,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsStatus2025": {
+        "id": "SpotReqsStatus2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "status",
+        "comment": "신청 상태: pending(대기중), approved(승인됨), rejected(거부됨)",
+        "dataType": "VARCHAR(50)",
+        "default": "pending",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 200,
+          "widthDataType": 75,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsRejRsn2025": {
+        "id": "SpotReqsRejRsn2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "reject_reason",
+        "comment": "거부 사유",
+        "dataType": "TEXT",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsCrtAt2025": {
+        "id": "SpotReqsCrtAt2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "created_at",
+        "comment": "",
+        "dataType": "TIMESTAMP",
+        "default": "CURRENT_TIMESTAMP",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 65,
+          "widthDefault": 122
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsUpdAt2025": {
+        "id": "SpotReqsUpdAt2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "updated_at",
+        "comment": "",
+        "dataType": "TIMESTAMP",
+        "default": "CURRENT_TIMESTAMP",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 62,
+          "widthComment": 60,
+          "widthDataType": 65,
+          "widthDefault": 122
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsSpotTitle2025": {
+        "id": "SpotReqsSpotTitle2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "spot_title",
+        "comment": "관광지명 (관광지 추가 신청의 경우 필수)",
+        "dataType": "VARCHAR(80)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 200,
+          "widthDataType": 75,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsRegionId2025": {
+        "id": "SpotReqsRegionId2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "region_id",
+        "comment": "지역 ID (관광지 추가 신청의 경우 필수)",
+        "dataType": "INT",
+        "default": "ON DELETE SET NULL",
+        "options": 8,
+        "ui": {
+          "keys": 2,
+          "widthName": 60,
+          "widthComment": 200,
+          "widthDataType": 60,
+          "widthDefault": 116
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsLinkUrl2025": {
+        "id": "SpotReqsLinkUrl2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "link_url",
+        "comment": "링크 URL (관광지 추가 신청의 경우)",
+        "dataType": "VARCHAR(500)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 200,
+          "widthDataType": 81,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsHashtags2025": {
+        "id": "SpotReqsHashtags2025",
+        "tableId": "SpotReqsTbl2025",
+        "name": "hashtags",
+        "comment": "해시태그 (쉼표로 구분, 관광지 추가 신청의 경우)",
+        "dataType": "TEXT",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 200,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
       "ccg_id": {
         "id": "ccg_id",
         "tableId": "CommonCodeGroups2025",
@@ -3520,6 +3896,90 @@
         "meta": {
           "updateAt": 1767074460541,
           "createAt": 1767074460541
+        }
+      },
+      "SpotReqsUsrRel2025": {
+        "id": "SpotReqsUsrRel2025",
+        "identification": false,
+        "relationshipType": 4,
+        "startRelationshipType": 2,
+        "start": {
+          "tableId": "knwr2P1d0dp8rSZ_XCnTe",
+          "columnIds": [
+            "WiTWYpjwbgvTqFekcExWq"
+          ],
+          "x": -11,
+          "y": 1036,
+          "direction": 2
+        },
+        "end": {
+          "tableId": "SpotReqsTbl2025",
+          "columnIds": [
+            "SpotReqsUsrId2025"
+          ],
+          "x": 300,
+          "y": 1633,
+          "direction": 1
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsTstSpRel2025": {
+        "id": "SpotReqsTstSpRel2025",
+        "identification": false,
+        "relationshipType": 4,
+        "startRelationshipType": 2,
+        "start": {
+          "tableId": "dRKU_DzdlhJNayK4xtdLl",
+          "columnIds": [
+            "ZmabEPw9obD0MfIcu7ZQV"
+          ],
+          "x": 1267,
+          "y": 584,
+          "direction": 2
+        },
+        "end": {
+          "tableId": "SpotReqsTbl2025",
+          "columnIds": [
+            "SpotReqsTstSpId2025"
+          ],
+          "x": 600,
+          "y": 1633,
+          "direction": 1
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
+        }
+      },
+      "SpotReqsRegionRel2025": {
+        "id": "SpotReqsRegionRel2025",
+        "identification": false,
+        "relationshipType": 4,
+        "startRelationshipType": 2,
+        "start": {
+          "tableId": "La_byz7frvIy7FTCW9CRL",
+          "columnIds": [
+            "oB8KsBLh92jektvt23PCy"
+          ],
+          "x": 1025,
+          "y": 234,
+          "direction": 2
+        },
+        "end": {
+          "tableId": "SpotReqsTbl2025",
+          "columnIds": [
+            "SpotReqsRegionId2025"
+          ],
+          "x": 450,
+          "y": 1633,
+          "direction": 1
+        },
+        "meta": {
+          "updateAt": 1767018316001,
+          "createAt": 1767018316001
         }
       }
     },
