@@ -12,6 +12,7 @@
     <typeAliases>
         <typeAlias type="com.busan.orora.user.dto.UserDto" alias="UserDto" />
         <typeAlias type="com.busan.orora.spot.dto.SpotDto" alias="SpotDto" />
+        <typeAlias type="com.busan.orora.spot.dto.SpotRequestDto" alias="SpotRequestDto" />
         <typeAlias type="com.busan.orora.region.dto.RegionDto" alias="RegionDto" />
         <typeAlias type="com.busan.orora.hashtag.dto.HashtagDto" alias="HashtagDto" />
     </typeAliases>

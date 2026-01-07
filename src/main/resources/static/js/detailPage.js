@@ -1210,49 +1210,58 @@ function initPhotoRequestModal() {
                 return;
             }
 
+            // 현재 로그인한 사용자 정보 가져오기
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            if (!loggedInUser) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            let userId;
+            try {
+                const user = JSON.parse(loggedInUser);
+                userId = user.id;
+            } catch (error) {
+                console.error('사용자 정보 파싱 오류:', error);
+                alert('사용자 정보를 가져올 수 없습니다.');
+                return;
+            }
+
             // FormData 생성
             const formData = new FormData();
             formData.append('spotId', spotId);
-            formData.append('spotName', spotName);
+            formData.append('userId', userId);
             formData.append('image', imageFile);
             formData.append('description', description);
 
-            // TODO: 백엔드 API 연결
-            // fetch('/api/spot-requests/photo', {
-            //     method: 'POST',
-            //     body: formData
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     if (data.success) {
-            //         alert('사진 등록 신청이 완료되었습니다.');
-            //         modal.style.display = 'none';
-            //         form.reset();
-            //         previewContainer.style.display = 'none';
-            //         preview.src = '';
-            //         charCount.textContent = '0';
-            //     } else {
-            //         alert('신청에 실패했습니다: ' + data.message);
-            //     }
-            // })
-            // .catch(error => {
-            //     console.error('Error:', error);
-            //     alert('신청 중 오류가 발생했습니다.');
-            // });
-
-            // 임시로 성공 메시지 표시
-            alert('사진 등록 신청이 완료되었습니다. 관리자 검토 후 반영됩니다.');
-            modal.style.display = 'none';
-            form.reset();
-            if (previewContainer) {
-                previewContainer.style.display = 'none';
-            }
-            if (preview) {
-                preview.src = '';
-            }
-            if (charCount) {
-                charCount.textContent = '0';
-            }
+            // 백엔드 API 호출
+            fetch('/api/spot-requests/photo', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        alert('사진 등록 신청이 완료되었습니다. 관리자 검토 후 반영됩니다.');
+                        modal.style.display = 'none';
+                        form.reset();
+                        if (previewContainer) {
+                            previewContainer.style.display = 'none';
+                        }
+                        if (preview) {
+                            preview.src = '';
+                        }
+                        if (charCount) {
+                            charCount.textContent = '0';
+                        }
+                    } else {
+                        alert('신청에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('신청 중 오류가 발생했습니다.');
+                });
         });
     }
 }

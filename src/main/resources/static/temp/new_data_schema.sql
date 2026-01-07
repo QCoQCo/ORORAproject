@@ -196,6 +196,41 @@ CREATE TABLE review_reports (
     UNIQUE KEY unique_user_review_report (user_id, review_id)
 );
 
+-- 13. 관광지 & 사진 추가 신청 테이블
+CREATE TABLE spot_requests (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL COMMENT '신청자 ID',
+    tourist_spot_id INT COMMENT '관광지 ID (사진 추가 신청의 경우 필수, 관광지 추가 신청의 경우 NULL)',
+    request_type VARCHAR(20) NOT NULL COMMENT '신청 유형: photo(사진 추가), spot(관광지 추가)',
+    
+    -- 사진 관련 필드 (사진 추가 신청 시 사용)
+    image_url VARCHAR(500) COMMENT '신청한 사진 URL (사진 추가 신청의 경우 필수)',
+    img_name VARCHAR(255) COMMENT '저장된 파일명',
+    ori_img_name VARCHAR(255) COMMENT '원본 파일명',
+    
+    -- 관광지 추가 신청 관련 필드 (관광지 추가 신청 시 사용)
+    spot_title VARCHAR(80) COMMENT '관광지명 (관광지 추가 신청의 경우 필수)',
+    region_id INT COMMENT '지역 ID (관광지 추가 신청의 경우 필수)',
+    link_url VARCHAR(500) COMMENT '링크 URL (관광지 추가 신청의 경우)',
+    hashtags TEXT COMMENT '해시태그 (쉼표로 구분, 관광지 추가 신청의 경우)',
+    
+    -- 공통 필드
+    description TEXT COMMENT '신청 설명',
+    status VARCHAR(50) DEFAULT 'pending' COMMENT '신청 상태: pending(대기중), approved(승인됨), rejected(거부됨)',
+    reject_reason TEXT COMMENT '거부 사유 (거부된 경우)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (tourist_spot_id) REFERENCES tourist_spots(id) ON DELETE SET NULL,
+    FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE SET NULL,
+    INDEX idx_user_id (user_id),
+    INDEX idx_tourist_spot_id (tourist_spot_id),
+    INDEX idx_region_id (region_id),
+    INDEX idx_request_type (request_type),
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at)
+);
+
 -- 만들었던 테이블 지우는 명령어
 DROP TABLE IF EXISTS regions;
 DROP TABLE IF EXISTS tourist_spots;
@@ -210,6 +245,7 @@ DROP TABLE IF EXISTS review_comments;
 DROP TABLE IF EXISTS review_reports;
 DROP TABLE IF EXISTS review_images;
 DROP TABLE IF EXISTS tourist_spot_likes;
+DROP TABLE IF EXISTS spot_requests;
 
 ALTER TABLE regions MODIFY COLUMN sigungu_code INT UNIQUE AFTER name;
 
@@ -240,3 +276,4 @@ ALTER TABLE regions MODIFY COLUMN sigungu_code INT UNIQUE AFTER name;
 -- - GENDER: 성별 (MALE, FEMALE, OTHER)
 -- - SPOT_CATEGORY: 관광지 카테고리 (BEACH, MOUNTAIN, CULTURE, FOOD, SHOPPING, CAFE)
 -- - REPORT_STATUS: 신고 상태 (PENDING, REVIEWED, RESOLVED, DISMISSED)
+-- - REQUEST_STATUS: 신청 상태 (PENDING, APPROVED, REJECTED) - spot_requests 테이블에서 사용

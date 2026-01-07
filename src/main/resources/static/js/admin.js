@@ -12,6 +12,12 @@ let currentPage = 1;
 let usersPerPage = 10;
 let filteredUsers = [];
 
+// 사진 추가 신청 관리 관련 전역 변수
+let spotRequests = [];
+let filteredSpotRequests = [];
+let currentRequestPage = 1;
+let requestsPerPage = 10;
+
 // 지역 한글 매핑
 const regionNames = {
     area01: '기장군',
@@ -193,6 +199,11 @@ function initializeTabs() {
                 loadCommonCodeGroups();
                 loadCommonCodes();
             }
+
+            // 사진 추가 신청 관리 탭을 클릭한 경우 신청 목록 표시
+            if (targetTab === 'spot-requests') {
+                loadSpotRequests();
+            }
         });
     });
 }
@@ -240,6 +251,9 @@ function initializeEventListeners() {
 
     // 사용자 관리 이벤트 리스너
     initializeUserEventListeners();
+
+    // 사진 추가 신청 관리 이벤트 리스너
+    initializeSpotRequestEventListeners();
 }
 
 // 사용자 관리 이벤트 리스너 초기화
@@ -1822,5 +1836,272 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
+
+// ========== 사진 추가 신청 관리 기능 ==========
+
+// 사진 추가 신청 관리 이벤트 리스너 초기화
+function initializeSpotRequestEventListeners() {
+    // 검색 및 필터
+    const requestSearchInput = document.getElementById('request-search-input');
+    const requestTypeFilter = document.getElementById('request-type-filter');
+    const requestStatusFilter = document.getElementById('request-status-filter');
+
+    if (requestSearchInput) {
+        requestSearchInput.addEventListener('input', filterSpotRequests);
+    }
+    if (requestTypeFilter) {
+        requestTypeFilter.addEventListener('change', filterSpotRequests);
+    }
+    if (requestStatusFilter) {
+        requestStatusFilter.addEventListener('change', filterSpotRequests);
+    }
+}
+
+// 사진 추가 신청 목록 로드
+async function loadSpotRequests() {
+    try {
+        const response = await fetch('/api/admin/spot-requests');
+        const data = await response.json();
+
+        if (data.success && data.requests) {
+            spotRequests = data.requests;
+            filteredSpotRequests = [...spotRequests];
+            currentRequestPage = 1;
+            displaySpotRequests();
+        } else {
+            throw new Error(data.message || '신청 목록을 불러오는데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('사진 추가 신청 목록 로드 실패:', error);
+        showNotification('신청 목록을 불러오는데 실패했습니다.', 'error');
+        spotRequests = [];
+        filteredSpotRequests = [];
+        displaySpotRequests();
+    }
+}
+
+// 사진 추가 신청 목록 표시
+function displaySpotRequests() {
+    const tbody = document.getElementById('requests-table-body');
+    if (!tbody) return;
+
+    // 페이지네이션 계산
+    const startIndex = (currentRequestPage - 1) * requestsPerPage;
+    const endIndex = startIndex + requestsPerPage;
+    const paginatedRequests = filteredSpotRequests.slice(startIndex, endIndex);
+
+    if (paginatedRequests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">신청 내역이 없습니다.</td></tr>';
+        updateRequestPagination();
+        return;
+    }
+
+    tbody.innerHTML = paginatedRequests.map((request) => {
+        const statusBadge = getStatusBadge(request.status);
+        const typeLabel = request.type === 'photo' ? '사진 추가' : '관광지 추가';
+        const createdAt = formatDate(request.createdAt);
+        const description = request.description || '-';
+        const imagePreview = request.imageUrl 
+            ? `<img src="${request.imageUrl}" alt="신청 사진" style="max-width: 100px; max-height: 100px; cursor: pointer; border-radius: 4px; border: 1px solid #ddd;" onclick="openImageModal('${request.imageUrl}')">`
+            : '-';
+
+        return `
+            <tr>
+                <td>${request.id}</td>
+                <td>${typeLabel}</td>
+                <td>${request.applicantName || request.applicantId || '-'}</td>
+                <td>${request.spotName || '-'}</td>
+                <td>
+                    <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${description}">
+                        ${description}
+                    </div>
+                    ${request.imageUrl ? `<div style="margin-top: 5px;">${imagePreview}</div>` : ''}
+                </td>
+                <td>${createdAt}</td>
+                <td>${statusBadge}</td>
+                <td>
+                    ${request.status === 'pending' ? `
+                        <button class="approve-btn" onclick="approveSpotRequest(${request.id})" style="margin-right: 5px;">승인</button>
+                        <button class="reject-btn" onclick="rejectSpotRequest(${request.id})">거부</button>
+                    ` : `
+                        <span style="color: #999;">처리 완료</span>
+                    `}
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    updateRequestPagination();
+}
+
+// 상태 배지 생성
+function getStatusBadge(status) {
+    const badges = {
+        pending: '<span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">대기중</span>',
+        approved: '<span style="background: #28a745; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">승인됨</span>',
+        rejected: '<span style="background: #dc3545; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">거부됨</span>'
+    };
+    return badges[status] || badges.pending;
+}
+
+// 날짜 포맷팅
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// 사진 추가 신청 필터링
+function filterSpotRequests() {
+    const searchInput = document.getElementById('request-search-input');
+    const typeFilter = document.getElementById('request-type-filter');
+    const statusFilter = document.getElementById('request-status-filter');
+
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const type = typeFilter ? typeFilter.value : '';
+    const status = statusFilter ? statusFilter.value : '';
+
+    filteredSpotRequests = spotRequests.filter((request) => {
+        const matchesSearch = !searchTerm || 
+            (request.applicantName && request.applicantName.toLowerCase().includes(searchTerm)) ||
+            (request.applicantId && request.applicantId.toLowerCase().includes(searchTerm)) ||
+            (request.spotName && request.spotName.toLowerCase().includes(searchTerm)) ||
+            (request.description && request.description.toLowerCase().includes(searchTerm));
+        
+        const matchesType = !type || request.type === type;
+        const matchesStatus = !status || request.status === status;
+
+        return matchesSearch && matchesType && matchesStatus;
+    });
+
+    currentRequestPage = 1;
+    displaySpotRequests();
+}
+
+// 페이지네이션 업데이트
+function updateRequestPagination() {
+    const pagination = document.getElementById('requests-pagination');
+    if (!pagination) return;
+
+    const totalPages = Math.ceil(filteredSpotRequests.length / requestsPerPage);
+
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+
+    let paginationHTML = '<div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;">';
+    
+    // 이전 페이지 버튼
+    paginationHTML += `<button onclick="changeRequestPage(${currentRequestPage - 1})" ${currentRequestPage === 1 ? 'disabled' : ''} style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;">이전</button>`;
+    
+    // 페이지 번호
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentRequestPage - 2 && i <= currentRequestPage + 2)) {
+            paginationHTML += `<button onclick="changeRequestPage(${i})" ${i === currentRequestPage ? 'style="padding: 8px 16px; border: 1px solid #3498db; background: #3498db; color: #fff; cursor: pointer; border-radius: 4px;"' : 'style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;"'}>${i}</button>`;
+        } else if (i === currentRequestPage - 3 || i === currentRequestPage + 3) {
+            paginationHTML += '<span>...</span>';
+        }
+    }
+    
+    // 다음 페이지 버튼
+    paginationHTML += `<button onclick="changeRequestPage(${currentRequestPage + 1})" ${currentRequestPage === totalPages ? 'disabled' : ''} style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;">다음</button>`;
+    
+    paginationHTML += '</div>';
+    pagination.innerHTML = paginationHTML;
+}
+
+// 페이지 변경
+function changeRequestPage(page) {
+    const totalPages = Math.ceil(filteredSpotRequests.length / requestsPerPage);
+    if (page < 1 || page > totalPages) return;
+    currentRequestPage = page;
+    displaySpotRequests();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 사진 추가 신청 승인
+async function approveSpotRequest(requestId) {
+    if (!confirm('이 신청을 승인하시겠습니까?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/spot-requests/${requestId}/approve`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('신청이 승인되었습니다.', 'success');
+            await loadSpotRequests();
+        } else {
+            throw new Error(data.message || '승인에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('승인 실패:', error);
+        showNotification('승인에 실패했습니다: ' + error.message, 'error');
+    }
+}
+
+// 사진 추가 신청 거부
+async function rejectSpotRequest(requestId) {
+    const reason = prompt('거부 사유를 입력해주세요:');
+    if (reason === null) {
+        return; // 사용자가 취소한 경우
+    }
+
+    try {
+        const response = await fetch(`/api/admin/spot-requests/${requestId}/reject`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                reason: reason || '사유 없음'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('신청이 거부되었습니다.', 'success');
+            await loadSpotRequests();
+        } else {
+            throw new Error(data.message || '거부에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('거부 실패:', error);
+        showNotification('거부에 실패했습니다: ' + error.message, 'error');
+    }
+}
+
+// 이미지 모달 열기
+function openImageModal(imageUrl) {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center;';
+    modal.innerHTML = `
+        <div style="position: relative; max-width: 90%; max-height: 90%;">
+            <span onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: -40px; right: 0; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
+            <img src="${imageUrl}" style="max-width: 100%; max-height: 90vh; border-radius: 8px;">
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
 
 //관리자로 로그인 후 관리자 페이지 접근시 헤더에서 로그인 버튼이 표시되는 버그
