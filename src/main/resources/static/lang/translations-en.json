@@ -119,7 +119,8 @@
     "transport.kakao_taxi": "KakaoTaxi",
     "transport.kakao_taxi_desc": "Easy taxi call service",
 
-    "footer.description": "Discover New Busan<br>Find Busan's hidden charms together",
+    "footer.description1": "Discover New Busan",
+    "footer.description2": "Find Busan's hidden charms together",
     "footer.quick_links": "Quick Links",
     "footer.about_busan": "About Busan",
     "footer.region_tourist": "Tourist Attractions by Region",

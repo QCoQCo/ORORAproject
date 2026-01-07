@@ -222,8 +222,13 @@ async function loadUserLikes(userId) {
         '<div class="loading-state"><div class="loading-spinner"></div><p>좋아요한 관광지를 불러오는 중...</p></div>';
 
     try {
-        // 실제 API 호출 대신 샘플 데이터 사용
-        const likes = await getSampleUserLikes(userId);
+        // 실제 API 호출 
+        const response = await fetch(`/api/users/${userId}/liked-spots`);
+        const data = await response.json();
+
+        if (!data.success) throw new Error();
+
+        const likes = data.likes;
 
         if (likes.length === 0) {
             likesList.innerHTML = `
@@ -312,12 +317,12 @@ function createLikeHTML(like) {
     return `
         <div class="like-item">
             <div class="item-header">
-                <h3 class="item-title">${like.tourist_spot_name}</h3>
-                <span class="item-date">${formatDate(like.created_at)}</span>
+                <h3 class="item-title">${like.title}</h3>
+                <span class="item-date">${formatDate(like.likedAt)}</span>
             </div>
             <div class="item-content">${like.description || '좋아요한 관광지입니다.'}</div>
             <div class="item-meta">
-                <a href="/pages/detailed/detailed?id=${like.tourist_spot_id}" class="tourist-spot">
+                <a href="/pages/detailed/detailed?id=${like.spotId}" class="tourist-spot">
                     자세히 보기
                 </a>
             </div>
@@ -437,35 +442,35 @@ async function getSampleUserComments(userId) {
     });
 }
 
-async function getSampleUserLikes(userId) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                {
-                    id: 1,
-                    tourist_spot_id: 1,
-                    tourist_spot_name: '해동 용궁사',
-                    description: '바다 위에 세워진 아름다운 사찰',
-                    created_at: '2024-12-15T09:00:00Z',
-                },
-                {
-                    id: 2,
-                    tourist_spot_id: 9,
-                    tourist_spot_name: '해운대 해수욕장',
-                    description: '부산의 대표 해수욕장',
-                    created_at: '2024-12-12T16:00:00Z',
-                },
-                {
-                    id: 3,
-                    tourist_spot_id: 152,
-                    tourist_spot_name: '광안리 해수욕장',
-                    description: '광안대교 야경이 아름다운 해수욕장',
-                    created_at: '2024-12-08T20:00:00Z',
-                },
-            ]);
-        }, 600);
-    });
-}
+// async function getSampleUserLikes(userId) {
+//     return new Promise((resolve) => {
+//         setTimeout(() => {
+//             resolve([
+//                 {
+//                     id: 1,
+//                     tourist_spot_id: 1,
+//                     tourist_spot_name: '해동 용궁사',
+//                     description: '바다 위에 세워진 아름다운 사찰',
+//                     created_at: '2024-12-15T09:00:00Z',
+//                 },
+//                 {
+//                     id: 2,
+//                     tourist_spot_id: 9,
+//                     tourist_spot_name: '해운대 해수욕장',
+//                     description: '부산의 대표 해수욕장',
+//                     created_at: '2024-12-12T16:00:00Z',
+//                 },
+//                 {
+//                     id: 3,
+//                     tourist_spot_id: 152,
+//                     tourist_spot_name: '광안리 해수욕장',
+//                     description: '광안대교 야경이 아름다운 해수욕장',
+//                     created_at: '2024-12-08T20:00:00Z',
+//                 },
+//             ]);
+//         }, 600);
+//     });
+// }
 
 // 사용자 신청 목록 로드
 async function loadUserRequests(userId) {
