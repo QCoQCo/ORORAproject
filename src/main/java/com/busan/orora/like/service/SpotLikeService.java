@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SpotLikeService {
@@ -23,7 +24,6 @@ public class SpotLikeService {
         return spotLikeMapper.countLikesBySpotId(spotId);
     }
 
-
     public int addSpotLike(SpotLikeDto likeDto) {
         return spotLikeMapper.addSpotLike(likeDto);
     };
@@ -33,8 +33,23 @@ public class SpotLikeService {
     };
 
     public boolean existsSpotLike(Long userId, Long touristSpotId) {
-        return spotLikeMapper.existsSpotLike(userId, touristSpotId);
-    };
+        return spotLikeMapper.existsSpotLike(userId, touristSpotId) > 0;
+    }
+
+    @Transactional
+    public boolean toggleSpotLike(Long userId, Long touristSpotId) {
+
+        SpotLikeDto dto = new SpotLikeDto(userId, touristSpotId);
+
+        if (existsSpotLike(userId, touristSpotId)) {
+            deleteSpotLike(dto);
+            return false; // 좋아요 취소
+        } else {
+            addSpotLike(dto);
+            return true; // 좋아요 추가
+        }
+    }
+
 
     public List<SearchSpotLikeListByUserDto> searchSpotLikeListByUser(Long userId) {
         return spotLikeMapper.searchSpotLikeListByUser(userId);
