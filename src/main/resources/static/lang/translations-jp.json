@@ -119,7 +119,8 @@
     "transport.kakao_taxi": "カカオタクシー",
     "transport.kakao_taxi_desc": "簡単なタクシー呼び出しサービス",
 
-    "footer.description": "新しい釜山を発見する<br>釜山の隠れた魅力を一緒に探してみてください",
+    "footer.description1": "新しい釜山を発見する",
+    "footer.description2": "釜山の隠れた魅力を一緒に探してみてください",
     "footer.quick_links": "クイックリンク",
     "footer.about_busan": "釜山紹介",
     "footer.region_tourist": "地域別観光地",

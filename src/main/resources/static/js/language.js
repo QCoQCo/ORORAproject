@@ -428,7 +428,8 @@ class LanguageManager {
             'orora.cho_yujung_work4': '빠진부분찾기',
 
             // Footer
-            'footer.description': '새로운 부산을 발견하다<br />부산의 숨겨진 매력을 함께 찾아보세요',
+            'footer.description1': '새로운 부산을 발견하다',
+            'footer.description2': '부산의 숨겨진 매력을 함께 찾아보세요',
             'footer.quick_links': '빠른 링크',
             'footer.about_busan': '부산 소개',
             'footer.region_tourist': '지역별 관광지',

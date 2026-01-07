@@ -1,9 +1,15 @@
 package com.busan.orora.like.service;
 
+import com.busan.orora.like.dto.SearchSpotLikeListByUserDto;
 import com.busan.orora.like.dto.SpotLikeDto;
 import com.busan.orora.like.mapper.SpotLikeMapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SpotLikeService {
@@ -17,4 +23,35 @@ public class SpotLikeService {
     public int getLikeCount(Long spotId) {
         return spotLikeMapper.countLikesBySpotId(spotId);
     }
+
+    public int addSpotLike(SpotLikeDto likeDto) {
+        return spotLikeMapper.addSpotLike(likeDto);
+    };
+
+    public int deleteSpotLike(SpotLikeDto likeDto) {
+        return spotLikeMapper.deleteSpotLike(likeDto);
+    };
+
+    public boolean existsSpotLike(Long userId, Long touristSpotId) {
+        return spotLikeMapper.existsSpotLike(userId, touristSpotId) > 0;
+    }
+
+    @Transactional
+    public boolean toggleSpotLike(Long userId, Long touristSpotId) {
+
+        SpotLikeDto dto = new SpotLikeDto(userId, touristSpotId);
+
+        if (existsSpotLike(userId, touristSpotId)) {
+            deleteSpotLike(dto);
+            return false; // 좋아요 취소
+        } else {
+            addSpotLike(dto);
+            return true; // 좋아요 추가
+        }
+    }
+
+
+    public List<SearchSpotLikeListByUserDto> searchSpotLikeListByUser(Long userId) {
+        return spotLikeMapper.searchSpotLikeListByUser(userId);
+    };
 }
