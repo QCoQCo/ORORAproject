@@ -1,6 +1,10 @@
 package com.busan.orora.like.mapper;
 
+import com.busan.orora.like.dto.SearchSpotLikeListByUserDto;
 import com.busan.orora.like.dto.SpotLikeDto;
+
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,5 +18,7 @@ public interface SpotLikeMapper {
 
     int addSpotLike(SpotLikeDto likeDto);
     int deleteSpotLike(SpotLikeDto likeDto);
-    boolean existsSpotLike(@Param("userId") Long userId, @Param("touristSpotId") Long touristSpotId);
+    int existsSpotLike(@Param("userId") Long userId, @Param("touristSpotId") Long touristSpotId);
+    List<SearchSpotLikeListByUserDto> searchSpotLikeListByUser(@Param("userId") Long userId);
+
 }

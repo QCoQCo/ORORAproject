@@ -10,9 +10,16 @@ spring:
 
     datasource:
         driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-        url: jdbc:log4jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+        url: jdbc:log4jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true&useSSL=false
         username: ${DB_USERNAME}
         password: ${DB_PASSWORD}
+        hikari:
+            connection-timeout: 30000
+            maximum-pool-size: 10
+            minimum-idle: 5
+            idle-timeout: 600000
+            max-lifetime: 1800000
+            connection-test-query: SELECT 1
 
     servlet:
         multipart:
