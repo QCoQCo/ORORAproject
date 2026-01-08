@@ -203,14 +203,6 @@ class TagSearchSystem {
             `;
             selectedTagsContainer.appendChild(tagElement);
         });
-
-        // 개별 태그 제거 이벤트
-        selectedTagsContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-tag-btn')) {
-                const tag = e.target.dataset.tag;
-                this.toggleTag(tag);
-            }
-        });
     }
 
     updateTagStyles() {
@@ -608,6 +600,21 @@ class TagSearchSystem {
         clearTagsBtn.addEventListener('click', () => {
             this.clearAllTags();
         });
+
+        // 선택된 태그 제거 버튼 이벤트 위임 (한 번만 등록)
+        const selectedTagsContainer = document.getElementById('selected-tags');
+        if (selectedTagsContainer) {
+            selectedTagsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-tag-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const tag = e.target.dataset.tag;
+                    if (tag) {
+                        this.toggleTag(tag);
+                    }
+                }
+            });
+        }
 
         // 더보기 버튼
         const loadMoreBtn = document.getElementById('load-more-btn');

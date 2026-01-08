@@ -1470,6 +1470,18 @@ h6 {
     font-size: 1rem;
 }
 
+.form-group label .required {
+    color: #e74c3c;
+    margin-left: 3px;
+}
+
+.form-group .form-hint {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {
