@@ -272,6 +272,66 @@ public class SpotController {
     }
 
     /**
+     * 관광지 정보 수정요청 API
+     * @param spotId 관광지 ID
+     * @param userId 신청자 ID
+     * @param content 수정 요청 내용
+     * @param image 참고 이미지 파일 (선택사항)
+     * @return 신청 결과
+     */
+    @PostMapping("/spot-requests/edit")
+    public ResponseEntity<Map<String, Object>> submitSpotEditRequest(
+            @RequestParam("spotId") Long spotId,
+            @RequestParam("userId") Long userId,
+            @RequestParam("content") String content,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // 1. 필수 필드 검증
+            if (content == null || content.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "수정 요청 내용을 입력해주세요.");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 2. 이미지 파일 처리 (선택사항)
+            String imageUrl = null;
+            String imgName = null;
+            String oriImgName = null;
+            
+            if (image != null && !image.isEmpty()) {
+                oriImgName = image.getOriginalFilename();
+                imgName = fileService.uploadFile(spotImgLocation, oriImgName, image.getBytes());
+                imageUrl = "/images/upload/spots/" + imgName;
+            }
+
+            // 3. 신청 정보 생성
+            SpotRequestDto requestDto = new SpotRequestDto();
+            requestDto.setUserId(userId);
+            requestDto.setTouristSpotId(spotId);
+            requestDto.setRequestType("edit");
+            requestDto.setDescription(content);
+            requestDto.setImageUrl(imageUrl);
+            requestDto.setImgName(imgName);
+            requestDto.setOriImgName(oriImgName);
+            requestDto.setStatus("pending");
+
+            // 4. DB에 저장
+            spotRequestService.addRequest(requestDto);
+
+            response.put("success", true);
+            response.put("message", "관광지 정보 수정요청이 완료되었습니다. 관리자 검토 후 반영됩니다.");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "신청 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
      * 신청 취소 API (사용자용)
      * @param requestId 신청 ID
      * @param userId 사용자 ID (본인 확인용)

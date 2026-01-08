@@ -1898,7 +1898,12 @@ function displaySpotRequests() {
 
     tbody.innerHTML = paginatedRequests.map((request) => {
         const statusBadge = getStatusBadge(request.status);
-        const typeLabel = request.type === 'photo' ? '사진 추가' : '관광지 추가';
+        let typeLabel = '관광지 추가';
+        if (request.type === 'photo') {
+            typeLabel = '사진 추가';
+        } else if (request.type === 'edit') {
+            typeLabel = '정보 수정';
+        }
         const createdAt = formatDate(request.createdAt);
         const description = request.description || '-';
         const imagePreview = request.imageUrl 

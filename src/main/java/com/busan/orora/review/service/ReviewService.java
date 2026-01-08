@@ -28,6 +28,7 @@ public class ReviewService {
 
     /**
      * 관광지별 평균 평점 조회
+     * 
      * @param spotId 관광지 ID
      * @return 평균 평점 (리뷰가 없으면 0.0)
      */
@@ -37,6 +38,7 @@ public class ReviewService {
 
     /**
      * 관광지별 평점 개수 조회
+     * 
      * @param spotId 관광지 ID
      * @return 평점 개수
      */
@@ -60,5 +62,21 @@ public class ReviewService {
             stats.add(new RatingStat(id, avg, cnt));
         }
         return stats;
+    }
+
+    /**
+     * 리뷰 작성
+     * 
+     * @param reviewDto 리뷰 정보
+     * @return 생성된 리뷰 정보
+     */
+    public ReviewDto createReview(ReviewDto reviewDto) {
+        // 기본값 설정
+        if (reviewDto.getIsApproved() == null) {
+            reviewDto.setIsApproved(true);
+        }
+
+        reviewMapper.insertReview(reviewDto);
+        return reviewMapper.findReviewById(reviewDto.getId());
     }
 }
