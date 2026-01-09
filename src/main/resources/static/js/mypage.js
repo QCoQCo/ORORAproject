@@ -148,8 +148,15 @@ async function loadUserReviews(userId) {
         '<div class="loading-state"><div class="loading-spinner"></div><p>리뷰를 불러오는 중...</p></div>';
 
     try {
-        // 실제 API 호출 대신 샘플 데이터 사용
-        const reviews = await getSampleUserReviews(userId);
+        // 실제 API 호출
+        const response = await fetch(`/api/users/${userId}/reviews`);
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || '리뷰를 불러오는데 실패했습니다.');
+        }
+
+        const reviews = data.reviews || [];
 
         if (reviews.length === 0) {
             reviewsList.innerHTML = `
@@ -160,11 +167,27 @@ async function loadUserReviews(userId) {
                 </div>
             `;
         } else {
-            reviewsList.innerHTML = reviews.map((review) => createReviewHTML(review)).join('');
+            // API 응답 데이터를 프론트엔드 형식으로 변환
+            const formattedReviews = reviews.map((review) => ({
+                id: review.id,
+                title: review.title,
+                content: review.content,
+                rating: review.rating,
+                tourist_spot_id: review.touristSpotId || review.tourist_spot_id,
+                tourist_spot_name:
+                    review.touristSpotName || review.tourist_spot_name || '알 수 없는 관광지',
+                created_at: review.createdAt || review.created_at,
+                images: [], // 리뷰 이미지는 별도 API로 조회 필요
+            }));
+
+            reviewsList.innerHTML = formattedReviews
+                .map((review) => createReviewHTML(review))
+                .join('');
         }
 
         reviewsCount.textContent = `${reviews.length}개`;
     } catch (error) {
+        console.error('리뷰 로드 오류:', error);
         reviewsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -222,7 +245,7 @@ async function loadUserLikes(userId) {
         '<div class="loading-state"><div class="loading-spinner"></div><p>좋아요한 관광지를 불러오는 중...</p></div>';
 
     try {
-        // 실제 API 호출 
+        // 실제 API 호출
         const response = await fetch(`/api/users/${userId}/liked-spots`);
         const data = await response.json();
 
@@ -527,10 +550,58 @@ function createRequestHTML(request) {
     const statusBadge = getRequestStatusBadge(request.status);
     const createdAt = formatRequestDate(request.createdAt);
     const description = request.description || '-';
-    const imagePreview =
-        request.imageUrl && request.type === 'photo'
-            ? `<img src="${request.imageUrl}" alt="신청 사진" style="max-width: 100px; max-height: 100px; margin-top: 10px; border-radius: 4px;" />`
-            : '';
+    
+    // 이미지 미리보기 생성 (모든 신청 유형에서 이미지가 있으면 표시)
+    let imagePreview = '';
+    if (request.imageUrl) {
+        // 쉼표로 구분된 여러 이미지 URL 처리
+        const imageUrls = request.imageUrl.split(',').filter((url) => url.trim());
+        
+        if (imageUrls.length > 0) {
+            const firstImageUrl = imageUrls[0];
+            const imageCount = imageUrls.length;
+            
+            // 여러 이미지가 있으면 개수 배지 표시
+            const countBadge =
+                imageCount > 1
+                    ? `<span style="position: absolute; top: 5px; right: 5px; background: #007bff; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;">${imageCount}</span>`
+                    : '';
+            
+            // 여러 이미지가 있으면 모두 표시, 하나면 단일 이미지만 표시
+            if (imageCount > 1) {
+                const imagesHtml = imageUrls
+                    .map(
+                        (url, index) => `
+                    <div style="position: relative; display: inline-block; margin: 5px;">
+                        <img src="${url.trim()}" alt="신청 이미지 ${index + 1}" 
+                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid ${index === 0 ? '#28a745' : '#ddd'};" 
+                             onclick="openImageModal('${url.trim()}')" />
+                        ${index === 0 ? '<span style="position: absolute; top: 2px; left: 2px; background: #28a745; color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.65rem;">대표</span>' : ''}
+                    </div>
+                `
+                    )
+                    .join('');
+                
+                imagePreview = `
+                    <div style="margin-top: 10px;">
+                        <p style="margin-bottom: 5px; font-size: 0.85rem; color: #666;"><strong>신청 이미지 (${imageCount}개):</strong></p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                            ${imagesHtml}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 단일 이미지
+                imagePreview = `
+                    <div style="margin-top: 10px; position: relative; display: inline-block;">
+                        <img src="${firstImageUrl.trim()}" alt="신청 이미지" 
+                             style="max-width: 150px; max-height: 150px; border-radius: 4px; cursor: pointer; border: 2px solid #ddd;" 
+                             onclick="openImageModal('${firstImageUrl.trim()}')" />
+                    </div>
+                `;
+            }
+        }
+    }
 
     // 대기중인 신청만 취소 버튼 표시
     const cancelButton =
@@ -619,32 +690,274 @@ async function cancelRequest(requestId) {
     }
 }
 
+// 카카오맵 API 스크립트 로드 상태
+let kakaoMapLoaded = false;
+let kakaoMapLoading = false;
+let selectedFiles = [];
+let spotAddFormInitialized = false;
+
+// 카카오맵 API 키 가져오기
+function getKakaoMapApiKey() {
+    const wrapper = document.querySelector('[layout\\:fragment="content"]') || document.querySelector('[data-kakao-api-key]');
+    if (wrapper) {
+        return wrapper.dataset.kakaoApiKey;
+    }
+    return null;
+}
+
+// 카카오맵 스크립트 로드
+function loadKakaoMapScript() {
+    return new Promise((resolve, reject) => {
+        if (kakaoMapLoaded && window.kakao && window.kakao.maps) {
+            resolve();
+            return;
+        }
+
+        if (kakaoMapLoading) {
+            const checkInterval = setInterval(() => {
+                if (kakaoMapLoaded && window.kakao && window.kakao.maps) {
+                    clearInterval(checkInterval);
+                    resolve();
+                }
+            }, 100);
+            return;
+        }
+
+        const apiKey = getKakaoMapApiKey();
+        if (!apiKey) {
+            console.warn('카카오맵 API 키를 찾을 수 없습니다.');
+            reject(new Error('카카오맵 API 키를 찾을 수 없습니다.'));
+            return;
+        }
+
+        kakaoMapLoading = true;
+
+        const script = document.createElement('script');
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
+        script.onload = () => {
+            window.kakao.maps.load(() => {
+                kakaoMapLoaded = true;
+                kakaoMapLoading = false;
+                resolve();
+            });
+        };
+        script.onerror = () => {
+            kakaoMapLoading = false;
+            reject(new Error('카카오맵 스크립트 로드 실패'));
+        };
+        document.head.appendChild(script);
+    });
+}
+
+// 위치 검색
+async function searchSpotLocation() {
+    const searchInput = document.getElementById('spot-location-search');
+    const resultsContainer = document.getElementById('spot-location-results');
+    
+    if (!searchInput || !resultsContainer) return;
+    
+    const query = searchInput.value.trim();
+    if (!query) {
+        alert('검색어를 입력해주세요.');
+        return;
+    }
+
+    try {
+        await loadKakaoMapScript();
+        
+        const places = new kakao.maps.services.Places();
+        places.keywordSearch(query, (data, status) => {
+            if (status === kakao.maps.services.Status.OK) {
+                displayLocationResults(data);
+            } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+                // 키워드 검색 결과 없으면 주소 검색 시도
+                const geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch(query, (addressData, addressStatus) => {
+                    if (addressStatus === kakao.maps.services.Status.OK) {
+                        const formattedResults = addressData.map(item => ({
+                            place_name: item.address_name,
+                            address_name: item.address_name,
+                            road_address_name: item.road_address?.address_name || '',
+                            y: item.y,
+                            x: item.x
+                        }));
+                        displayLocationResults(formattedResults);
+                    } else {
+                        resultsContainer.innerHTML = '<div class="location-no-results">검색 결과가 없습니다.</div>';
+                        resultsContainer.style.display = 'block';
+                    }
+                });
+            } else {
+                resultsContainer.innerHTML = '<div class="location-no-results">검색 중 오류가 발생했습니다.</div>';
+                resultsContainer.style.display = 'block';
+            }
+        });
+    } catch (error) {
+        console.error('위치 검색 오류:', error);
+        alert('위치 검색 중 오류가 발생했습니다.');
+    }
+}
+
+// 검색 결과 표시
+function displayLocationResults(results) {
+    const resultsContainer = document.getElementById('spot-location-results');
+    if (!resultsContainer) return;
+
+    if (!results || results.length === 0) {
+        resultsContainer.innerHTML = '<div class="location-no-results">검색 결과가 없습니다.</div>';
+        resultsContainer.style.display = 'block';
+        return;
+    }
+
+    resultsContainer.innerHTML = results.map((place, index) => `
+        <div class="location-result-item" data-index="${index}" 
+             data-lat="${place.y}" data-lng="${place.x}" 
+             data-name="${place.place_name}" 
+             data-address="${place.road_address_name || place.address_name}">
+            <div class="place-name">${place.place_name}</div>
+            <div class="place-address">${place.road_address_name || place.address_name}</div>
+        </div>
+    `).join('');
+
+    // 결과 클릭 이벤트 추가
+    resultsContainer.querySelectorAll('.location-result-item').forEach(item => {
+        item.addEventListener('click', () => {
+            selectLocation(
+                parseFloat(item.dataset.lat),
+                parseFloat(item.dataset.lng),
+                item.dataset.name,
+                item.dataset.address
+            );
+        });
+    });
+
+    resultsContainer.style.display = 'block';
+}
+
+// 위치 선택
+function selectLocation(lat, lng, name, address) {
+    document.getElementById('spot-latitude').value = lat;
+    document.getElementById('spot-longitude').value = lng;
+    document.getElementById('spot-address').value = address;
+
+    const selectedInfo = document.getElementById('spot-location-selected');
+    const selectedText = document.getElementById('spot-location-selected-text');
+    const resultsContainer = document.getElementById('spot-location-results');
+
+    if (selectedText) {
+        selectedText.textContent = `${name} (${address})`;
+    }
+    if (selectedInfo) {
+        selectedInfo.style.display = 'flex';
+    }
+    if (resultsContainer) {
+        resultsContainer.style.display = 'none';
+    }
+}
+
+// 위치 선택 취소
+function clearLocationSelection() {
+    document.getElementById('spot-latitude').value = '';
+    document.getElementById('spot-longitude').value = '';
+    document.getElementById('spot-address').value = '';
+
+    const selectedInfo = document.getElementById('spot-location-selected');
+    const selectedText = document.getElementById('spot-location-selected-text');
+
+    if (selectedText) {
+        selectedText.textContent = '';
+    }
+    if (selectedInfo) {
+        selectedInfo.style.display = 'none';
+    }
+}
+
+// 이미지 미리보기 업데이트
+function updateImagePreview() {
+    const previewContainer = document.getElementById('spot-selected-files-preview');
+    if (!previewContainer) return;
+
+    if (selectedFiles.length === 0) {
+        previewContainer.innerHTML = '';
+        return;
+    }
+
+    previewContainer.innerHTML = selectedFiles.map((file, index) => `
+        <div class="selected-file-item" data-index="${index}">
+            <img src="${URL.createObjectURL(file)}" alt="${file.name}">
+            <button type="button" class="remove-file" data-index="${index}">&times;</button>
+        </div>
+    `).join('');
+
+    // 삭제 버튼 이벤트 추가
+    previewContainer.querySelectorAll('.remove-file').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const index = parseInt(e.target.dataset.index);
+            selectedFiles.splice(index, 1);
+            updateImagePreview();
+        });
+    });
+}
+
 // 관광지 추가 신청 폼 초기화
 async function initSpotAddForm() {
+    // 이미 초기화된 경우 중복 실행 방지
+    if (spotAddFormInitialized) {
+        return;
+    }
+    
     const form = document.getElementById('spot-add-form');
     const regionSelect = document.getElementById('spot-region');
     const descriptionTextarea = document.getElementById('spot-description');
     const charCount = document.getElementById('spot-description-char-count');
-    const imageInput = document.getElementById('spot-image');
-    const imagePreview = document.getElementById('spot-image-preview');
-    const imagePreviewContainer = document.getElementById('spot-image-preview-container');
+    const imageInput = document.getElementById('spot-images');
+    const searchBtn = document.getElementById('spot-location-search-btn');
+    const clearBtn = document.getElementById('spot-location-clear');
+    const searchInput = document.getElementById('spot-location-search');
 
-    // 이미지 미리보기 기능
-    if (imageInput && imagePreview && imagePreviewContainer) {
+    // 이미지 선택 이벤트
+    if (imageInput) {
         imageInput.addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    imagePreview.src = e.target.result;
-                    imagePreviewContainer.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                imagePreviewContainer.style.display = 'none';
-                imagePreview.src = '';
+            const files = Array.from(e.target.files);
+            
+            // 최대 10장 제한
+            if (selectedFiles.length + files.length > 10) {
+                alert('이미지는 최대 10장까지 추가할 수 있습니다.');
+                return;
+            }
+
+            // 파일 추가
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    selectedFiles.push(file);
+                }
+            });
+
+            updateImagePreview();
+            
+            // input 초기화 (같은 파일 다시 선택 가능하도록)
+            imageInput.value = '';
+        });
+    }
+
+    // 위치 검색 버튼 이벤트
+    if (searchBtn) {
+        searchBtn.addEventListener('click', searchSpotLocation);
+    }
+
+    // 위치 검색 Enter 키 이벤트
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchSpotLocation();
             }
         });
+    }
+
+    // 위치 선택 취소 버튼 이벤트
+    if (clearBtn) {
+        clearBtn.addEventListener('click', clearLocationSelection);
     }
 
     // 지역 목록 로드
@@ -726,11 +1039,20 @@ async function initSpotAddForm() {
             formData.append('linkUrl', document.getElementById('spot-link').value);
             formData.append('hashtags', document.getElementById('spot-hashtags').value);
             formData.append('description', document.getElementById('spot-description').value);
+            
+            // 위치 정보 추가
+            const latitude = document.getElementById('spot-latitude').value;
+            const longitude = document.getElementById('spot-longitude').value;
+            const address = document.getElementById('spot-address').value;
+            
+            if (latitude) formData.append('latitude', latitude);
+            if (longitude) formData.append('longitude', longitude);
+            if (address) formData.append('address', address);
 
-            // 이미지 파일이 있으면 추가
-            if (imageInput && imageInput.files[0]) {
-                formData.append('image', imageInput.files[0]);
-            }
+            // 이미지 파일들 추가
+            selectedFiles.forEach((file, index) => {
+                formData.append('images', file);
+            });
 
             try {
                 const response = await fetch('/api/spot-requests/spot', {
@@ -746,10 +1068,11 @@ async function initSpotAddForm() {
                     if (charCount) {
                         charCount.textContent = '0';
                     }
-                    if (imagePreviewContainer) {
-                        imagePreviewContainer.style.display = 'none';
-                        imagePreview.src = '';
-                    }
+                    // 이미지 미리보기 초기화
+                    selectedFiles = [];
+                    updateImagePreview();
+                    // 위치 선택 초기화
+                    clearLocationSelection();
                 } else {
                     alert('신청에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
                 }
@@ -759,4 +1082,7 @@ async function initSpotAddForm() {
             }
         });
     }
+    
+    // 초기화 완료 플래그 설정
+    spotAddFormInitialized = true;
 }

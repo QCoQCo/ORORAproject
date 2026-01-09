@@ -34,8 +34,6 @@ public class RegionController {
     public ResponseEntity<List<SearchSpotsByRegionDto>> getSpotsByRegions(
             @RequestParam("regionIds") List<Integer> regionIds
     ) {
-        System.out.println("받은 regionIds = " + regionIds);
-
         return ResponseEntity.ok(
             regionService.searchSpotsByRegionIds(regionIds)
         );

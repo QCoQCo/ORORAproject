@@ -155,7 +155,6 @@ public class UserController {
         } catch (Exception e) {
             response.put("available", false);
             response.put("message", "아이디 확인 중 오류가 발생했습니다: " + e.getMessage());
-            System.out.println(e.getMessage());
         }
 
         return response;

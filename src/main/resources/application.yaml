@@ -13,6 +13,9 @@ spring:
         url: jdbc:log4jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true&useSSL=false
         username: ${DB_USERNAME}
         password: ${DB_PASSWORD}
+        # url: jdbc:log4jdbc:mysql://localhost:3306/arata_busan?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true&useSSL=false
+        # username: root
+        # password: 1111
         hikari:
             connection-timeout: 30000
             maximum-pool-size: 10
@@ -34,6 +37,7 @@ file:
     upload:
         spotImgLocation: upload/spots # 관광지 이미지 저장 경로
         profileImgLocation: upload/profiles # 사용자 프로필 이미지 저장 경로
+        reviewImgLocation: upload/reviews # 리뷰 이미지 저장 경로
 
 kakao:
     map:

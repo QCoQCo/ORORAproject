@@ -26,6 +26,9 @@ CREATE TABLE tourist_spots (
     description TEXT,
     link_url VARCHAR(500),
     category_code VARCHAR(50) DEFAULT 'CULTURE' COMMENT '관광지 카테고리 코드 (SPOT_CATEGORY 그룹 참조)',
+    latitude DECIMAL(10, 8) COMMENT '위도 (카카오맵 위치 정보)',
+    longitude DECIMAL(11, 8) COMMENT '경도 (카카오맵 위치 정보)',
+    address VARCHAR(80) COMMENT '주소',
     is_active BOOLEAN DEFAULT TRUE,
     view_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -33,7 +36,8 @@ CREATE TABLE tourist_spots (
     FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE,
     INDEX idx_region_id (region_id),
     INDEX idx_category_code (category_code),
-    INDEX idx_is_active (is_active)
+    INDEX idx_is_active (is_active),
+    INDEX idx_latitude_longitude (latitude, longitude)
 );
 -- 주의: rating_avg와 rating_count는 리뷰 테이블에서 계산하여 표시합니다.
 
@@ -231,6 +235,23 @@ CREATE TABLE spot_requests (
     INDEX idx_created_at (created_at)
 );
 
+-- 14. 리뷰 댓글 신고 테이블
+CREATE TABLE comment_reports (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    comment_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    status_code VARCHAR(50) DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (comment_id) REFERENCES review_comments(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_comment_report (user_id, comment_id),
+    INDEX idx_comment_id (comment_id),ㅗ
+    INDEX idx_user_id (user_id),
+    INDEX idx_status_code (status_code)
+);
+
 -- 만들었던 테이블 지우는 명령어
 DROP TABLE IF EXISTS regions;
 DROP TABLE IF EXISTS tourist_spots;
@@ -248,6 +269,20 @@ DROP TABLE IF EXISTS tourist_spot_likes;
 DROP TABLE IF EXISTS spot_requests;
 
 ALTER TABLE regions MODIFY COLUMN sigungu_code INT UNIQUE AFTER name;
+
+-- 기존 테이블에 위도/경도 필드 추가 (이미 테이블이 존재하는 경우)
+ALTER TABLE tourist_spots 
+ADD COLUMN latitude DECIMAL(10, 8) COMMENT '위도 (카카오맵 위치 정보)' AFTER category_code,
+ADD COLUMN longitude DECIMAL(11, 8) COMMENT '경도 (카카오맵 위치 정보)' AFTER latitude;
+
+ALTER TABLE tourist_spots MODIFY COLUMN latitude DECIMAL(10, 8) COMMENT '위도 (카카오맵 위치 정보)' AFTER category_code;
+ALTER TABLE tourist_spots MODIFY COLUMN longitude DECIMAL(11, 8) COMMENT '경도 (카카오맵 위치 정보)' AFTER latitude;
+ALTER TABLE tourist_spots MODIFY COLUMN address VARCHAR(80) COMMENT '주소' AFTER longitude;
+
+DESCRIBE tourist_spots;
+
+-- 위도/경도 인덱스 추가
+ALTER TABLE tourist_spots ADD INDEX idx_latitude_longitude (latitude, longitude);
 
 
 -- -- 7. 축제/이벤트 테이블

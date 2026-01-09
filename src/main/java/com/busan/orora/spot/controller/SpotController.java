@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,8 @@ public class SpotController {
             response.put("description", spot.getDescription());
             response.put("linkUrl", spot.getLinkUrl());
             response.put("categoryCode", spot.getCategoryCode());
+            response.put("latitude", spot.getLatitude());
+            response.put("longitude", spot.getLongitude());
             response.put("isActive", spot.getIsActive());
             response.put("viewCount", spot.getViewCount());
             response.put("createdAt", spot.getCreatedAt());
@@ -215,7 +218,8 @@ public class SpotController {
             @RequestParam(value = "linkUrl", required = false) String linkUrl,
             @RequestParam(value = "hashtags", required = false) String hashtags,
             @RequestParam(value = "description", required = false) String description,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -233,15 +237,37 @@ public class SpotController {
             }
 
             // 2. 이미지 파일 처리 (선택사항)
-            String imageUrl = null;
-            String imgName = null;
-            String oriImgName = null;
+            // 여러 이미지를 모두 저장하고 URL을 쉼표로 구분하여 저장
+            List<String> imageUrls = new ArrayList<>();
+            List<String> imgNames = new ArrayList<>();
+            List<String> oriImgNames = new ArrayList<>();
             
+            // 단일 이미지 처리
             if (image != null && !image.isEmpty()) {
-                oriImgName = image.getOriginalFilename();
-                imgName = fileService.uploadFile(spotImgLocation, oriImgName, image.getBytes());
-                imageUrl = "/images/upload/spots/" + imgName;
+                String oriName = image.getOriginalFilename();
+                String savedName = fileService.uploadFile(spotImgLocation, oriName, image.getBytes());
+                imageUrls.add("/images/upload/spots/" + savedName);
+                imgNames.add(savedName);
+                oriImgNames.add(oriName);
             }
+            
+            // 다중 이미지 처리
+            if (images != null && !images.isEmpty()) {
+                for (MultipartFile img : images) {
+                    if (img != null && !img.isEmpty()) {
+                        String oriName = img.getOriginalFilename();
+                        String savedName = fileService.uploadFile(spotImgLocation, oriName, img.getBytes());
+                        imageUrls.add("/images/upload/spots/" + savedName);
+                        imgNames.add(savedName);
+                        oriImgNames.add(oriName);
+                    }
+                }
+            }
+            
+            // URL들을 쉼표로 구분하여 저장
+            String imageUrl = imageUrls.isEmpty() ? null : String.join(",", imageUrls);
+            String imgName = imgNames.isEmpty() ? null : String.join(",", imgNames);
+            String oriImgName = oriImgNames.isEmpty() ? null : String.join(",", oriImgNames);
 
             // 3. 신청 정보 생성
             SpotRequestDto requestDto = new SpotRequestDto();

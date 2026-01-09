@@ -163,6 +163,33 @@ public class SpotImageService {
     }
 
     /**
+     * 특정 이미지를 삭제합니다. (관리자용 alias)
+     */
+    public void deleteImage(Long imageId) throws Exception {
+        deleteSpotImage(imageId);
+    }
+
+    /**
+     * 대표 이미지를 설정합니다.
+     * 
+     * @param imageId 대표 이미지로 설정할 이미지 ID
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void setRepresentativeImage(Long imageId) {
+        // 1. 해당 이미지의 관광지 ID 조회
+        SpotImageDto image = spotImageMapper.findImageById(imageId);
+        if (image == null) {
+            throw new RuntimeException("이미지를 찾을 수 없습니다.");
+        }
+
+        // 2. 해당 관광지의 모든 이미지 대표 여부를 N으로 변경
+        spotImageMapper.resetRepImages(image.getTouristSpotId());
+
+        // 3. 해당 이미지를 대표 이미지로 설정
+        spotImageMapper.setRepImage(imageId);
+    }
+
+    /**
      * 관광지의 모든 이미지를 삭제합니다.
      * 
      * @param spotId 관광지 ID
@@ -183,5 +210,30 @@ public class SpotImageService {
 
         // 데이터베이스에서 삭제
         spotImageMapper.deleteImagesBySpotId(spotId);
+    }
+
+    /**
+     * URL로 관광지 이미지를 추가합니다. (사진 추가 신청 승인 시 사용)
+     * 
+     * @param spotId 관광지 ID
+     * @param imageUrl 이미지 URL
+     * @param isRepresentative 대표 이미지 여부
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void addImageByUrl(Long spotId, String imageUrl, boolean isRepresentative) {
+        SpotImageDto spotImageDto = new SpotImageDto();
+        spotImageDto.setTouristSpotId(spotId);
+        spotImageDto.setImageUrl(imageUrl);
+        spotImageDto.setRepImgYn(isRepresentative ? "Y" : "N");
+        
+        // URL에서 파일명 추출 (마지막 / 이후 부분)
+        String imgName = imageUrl;
+        if (imageUrl != null && imageUrl.contains("/")) {
+            imgName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        }
+        spotImageDto.setImgName(imgName);
+        spotImageDto.setOriImgName(imgName);
+        
+        spotImageMapper.insertImage(spotImageDto);
     }
 }
