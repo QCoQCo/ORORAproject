@@ -32,16 +32,16 @@ public class SpotLikeService {
         return spotLikeMapper.deleteSpotLike(likeDto);
     };
 
-    public boolean existsSpotLike(Long userId, Long touristSpotId) {
-        return spotLikeMapper.existsSpotLike(userId, touristSpotId) > 0;
+    public boolean existsSpotLike(Long userId, Long spotId) {
+        return spotLikeMapper.existsSpotLike(userId, spotId) > 0;
     }
 
     @Transactional
-    public boolean toggleSpotLike(Long userId, Long touristSpotId) {
+    public boolean toggleSpotLike(Long userId, Long spotId) {
 
-        SpotLikeDto dto = new SpotLikeDto(userId, touristSpotId);
+        SpotLikeDto dto = new SpotLikeDto(userId, spotId);
 
-        if (existsSpotLike(userId, touristSpotId)) {
+        if (existsSpotLike(userId, spotId)) {
             deleteSpotLike(dto);
             return false; // 좋아요 취소
         } else {
@@ -50,8 +50,12 @@ public class SpotLikeService {
         }
     }
 
-
     public List<SearchSpotLikeListByUserDto> searchSpotLikeListByUser(Long userId) {
         return spotLikeMapper.searchSpotLikeListByUser(userId);
+    };
+
+    public int countSpotLikesBySpotId(Long spotId) {
+        Integer count = spotLikeMapper.countSpotLikesBySpotId(spotId);
+        return count != null ? count : 0;
     };
 }
