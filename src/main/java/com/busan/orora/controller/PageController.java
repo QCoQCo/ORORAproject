@@ -116,13 +116,15 @@ public class PageController {
 
     // MyPage
     @GetMapping("/pages/mypage/mypage")
-    public String mypage() {
+    public String mypage(Model model) {
+        model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
         return "pages/mypage/mypage";
     }
 
     // Admin page
     @GetMapping("/pages/admin/management")
-    public String adminManagement() {
+    public String adminManagement(Model model) {
+        model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
         return "pages/admin/admin";
     }
 }

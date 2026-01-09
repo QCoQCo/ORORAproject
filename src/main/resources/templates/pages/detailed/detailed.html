@@ -123,6 +123,17 @@
                     </div>
                 </div>
 
+                <!-- 비슷한 관광지 추천 섹션 -->
+                <div class="similar-spots-section" id="similar-spots-section" style="display: none;">
+                    <div class="similar-spots-header">
+                        <h3>🎯 비슷한 관광지 추천</h3>
+                        <p class="similar-spots-desc">이 관광지와 비슷한 태그를 가진 관광지들이에요!</p>
+                    </div>
+                    <div class="similar-spots-container" id="similar-spots-container">
+                        <!-- 비슷한 관광지 카드들이 동적으로 추가됩니다 -->
+                    </div>
+                </div>
+
                 <div class="comment sectionList">
                     <div class="commentTitle">
                         <h3>리뷰</h3>
@@ -156,12 +167,23 @@
                             name="review-content"
                             maxlength="1000"
                         ></textarea>
+                        <!-- 이미지 미리보기 영역 -->
+                        <div id="review-images-preview" class="review-images-preview" style="display: none;">
+                            <div class="review-images-header">
+                                <span class="review-images-count">사진 <span id="review-images-count">0</span>장</span>
+                                <button type="button" class="remove-all-images" id="remove-all-images">전체 삭제</button>
+                            </div>
+                            <div id="review-images-container" class="review-images-container">
+                                <!-- 이미지 미리보기들이 동적으로 추가됩니다 -->
+                            </div>
+                        </div>
+                        <input type="file" id="review-image-input" accept="image/*" multiple style="display: none;" />
                         <div class="reviewFormBottom">
                             <div class="reviewFormInfo">
                                 <span class="char-count"><span id="char-count">0</span>/1000</span>
                             </div>
                             <div class="commentPicture">
-                                <button class="pho"><span></span>사진</button>
+                                <button type="button" class="pho" id="review-photo-btn"><span></span>사진</button>
                                 <button class="sub" id="submit-review" disabled>리뷰 등록</button>
                             </div>
                         </div>
@@ -170,18 +192,22 @@
 
                 <div class="userPhotoCo">
                     <div class="up">
-                        <h3>사진 후기</h3>
-                        <p>전체보기</p>
-                    </div>
-                    <div class="userPhoto">
-                        <p>유저사진</p>
+                        <h3>포토 리뷰</h3>
+                        <p id="view-all-photos" class="view-toggle">전체보기</p>
                     </div>
                     <div class="usercheck">
-                        <button>사진 후기만</button>
                         <ul>
-                            <li><button>최신순</button></li>
-                            <li><button>추천순</button></li>
+                            <li><button class="sort-btn active" data-sort="latest">최신순</button></li>
+                            <li><button class="sort-btn" data-sort="popular">추천순</button></li>
                         </ul>
+                    </div>
+                    <!-- 포토리뷰 리스트 형태 (기본) -->
+                    <div id="photo-reviews-list" class="photo-reviews-list">
+                        <!-- 포토리뷰들이 동적으로 추가됩니다 -->
+                    </div>
+                    <!-- 포토리뷰 그리드 형태 (전체보기 클릭 시) -->
+                    <div id="photo-reviews-grid" class="photo-reviews-grid" style="display: none;">
+                        <!-- 포토리뷰들이 동적으로 추가됩니다 -->
                     </div>
                 </div>
 
@@ -267,6 +293,68 @@
                     </div>
 
                     <button type="submit" class="submit-btn">수정요청 제출</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 포토리뷰 상세 모달 -->
+        <div class="modal" id="photo-review-modal">
+            <div class="modal-content photo-review-modal-content">
+                <span class="close" id="close-photo-review-modal">&times;</span>
+                <div id="photo-review-modal-content">
+                    <!-- 포토리뷰 상세 내용이 동적으로 추가됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 신고 모달 -->
+        <div class="modal" id="report-modal">
+            <div class="modal-content report-modal-content">
+                <span class="close" id="close-report-modal">&times;</span>
+                <h2 id="report-modal-title">신고하기</h2>
+                <form id="report-form">
+                    <input type="hidden" id="report-target-id" />
+                    <input type="hidden" id="report-target-type" />
+                    <div class="form-group">
+                        <label>신고 사유 <span class="required">*</span></label>
+                        <div class="report-reason-options">
+                            <label class="report-reason-option">
+                                <input type="radio" name="report-reason" value="spam" required />
+                                <span>스팸</span>
+                            </label>
+                            <label class="report-reason-option">
+                                <input type="radio" name="report-reason" value="abuse" required />
+                                <span>욕설/비방</span>
+                            </label>
+                            <label class="report-reason-option">
+                                <input type="radio" name="report-reason" value="inappropriate" required />
+                                <span>부적절한 내용</span>
+                            </label>
+                            <label class="report-reason-option">
+                                <input type="radio" name="report-reason" value="other" required />
+                                <span>기타</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="report-other-reason-group" style="display: none;">
+                        <label for="report-other-reason">상세 사유 <span class="required">*</span></label>
+                        <textarea 
+                            id="report-other-reason" 
+                            rows="4" 
+                            placeholder="신고 사유를 자세히 입력해주세요."
+                            maxlength="500"
+                        ></textarea>
+                        <span class="char-count"><span id="report-reason-char-count">0</span>/500</span>
+                    </div>
+                    <div class="form-group">
+                        <p class="report-notice">
+                            ⚠️ 허위 신고는 제재를 받을 수 있습니다. 신중하게 신고해주세요.
+                        </p>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" id="cancel-report-btn">취소</button>
+                        <button type="submit" class="submit-btn">신고하기</button>
+                    </div>
                 </form>
             </div>
         </div>

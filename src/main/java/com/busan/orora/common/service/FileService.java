@@ -13,6 +13,22 @@ import java.util.UUID;
 public class FileService {
 
     /**
+     * 상대 경로를 절대 경로로 변환합니다.
+     * 프로젝트 루트 기준으로 절대 경로를 생성합니다.
+     */
+    private String getAbsolutePath(String path) {
+        // 이미 절대 경로인 경우 그대로 반환
+        File file = new File(path);
+        if (file.isAbsolute()) {
+            return path;
+        }
+        // 상대 경로인 경우 프로젝트 루트 기준으로 절대 경로 생성
+        String projectRoot = System.getProperty("user.dir");
+        File absolutePath = new File(projectRoot, path);
+        return absolutePath.getAbsolutePath();
+    }
+
+    /**
      * 파일을 업로드하고 UUID 기반의 고유한 파일명을 반환합니다.
      * 
      * @param uploadPath 업로드할 디렉토리 경로
@@ -22,8 +38,11 @@ public class FileService {
      * @throws IOException 파일 저장 중 오류 발생 시
      */
     public String uploadFile(String uploadPath, String originalFileName, byte[] fileData) throws IOException {
+        // 상대 경로를 절대 경로로 변환
+        String absoluteUploadPath = getAbsolutePath(uploadPath);
+        
         // 1. 업로드 디렉토리 생성 (없으면)
-        File uploadDir = new File(uploadPath);
+        File uploadDir = new File(absoluteUploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
@@ -37,7 +56,7 @@ public class FileService {
         String savedFileName = uuid.toString() + extension;
 
         // 3. 전체 경로 생성
-        String fileUploadFullUrl = uploadPath + File.separator + savedFileName;
+        String fileUploadFullUrl = absoluteUploadPath + File.separator + savedFileName;
         File uploadFile = new File(fileUploadFullUrl);
 
         // 4. 파일 쓰기
@@ -51,11 +70,13 @@ public class FileService {
     /**
      * 파일을 삭제합니다.
      * 
-     * @param filePath 삭제할 파일의 전체 경로
+     * @param filePath 삭제할 파일의 전체 경로 (절대 경로 또는 상대 경로)
      * @throws Exception 파일 삭제 중 오류 발생 시
      */
     public void deleteFile(String filePath) throws Exception {
-        File file = new File(filePath);
+        // 상대 경로를 절대 경로로 변환
+        String absoluteFilePath = getAbsolutePath(filePath);
+        File file = new File(absoluteFilePath);
         if (file.exists()) {
             file.delete();
         }
@@ -64,11 +85,13 @@ public class FileService {
     /**
      * 파일이 존재하는지 확인합니다.
      * 
-     * @param filePath 확인할 파일의 전체 경로
+     * @param filePath 확인할 파일의 전체 경로 (절대 경로 또는 상대 경로)
      * @return 파일 존재 여부
      */
     public boolean fileExists(String filePath) {
-        File file = new File(filePath);
+        // 상대 경로를 절대 경로로 변환
+        String absoluteFilePath = getAbsolutePath(filePath);
+        File file = new File(absoluteFilePath);
         return file.exists();
     }
 }

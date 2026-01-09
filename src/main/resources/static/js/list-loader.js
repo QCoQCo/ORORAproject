@@ -5,7 +5,7 @@ class ListLoader {
         // templateContainerSelector는 더 이상 사용되지 않음 (Thymeleaf fragment로 제공)
         this.dataUrl = options.dataUrl || null;
         this.data = options.data || null;
-        this.fallbackImage = options.fallbackImage || 'logo.png';
+        this.fallbackImage = options.fallbackImage || '/images/logo.png';
         this.onItemClick = options.onItemClick || null;
         this.onLikeClick = options.onLikeClick || null;
     }
@@ -77,12 +77,21 @@ class ListLoader {
 
         // 이미지 설정
         const imgElement = itemFragment.querySelector('.item-photo img');
-        imgElement.src = itemData.img || '';
-        imgElement.alt = itemData.title || '';
-        imgElement.onerror = () => {
-            imgElement.src = this.fallbackImage;
-            imgElement.onerror = null;
-        };
+        if (imgElement) {
+            // 이미지 URL이 없거나 빈 문자열인 경우 기본 이미지 사용
+            const imageUrl = itemData.img || itemData.imageUrl || '';
+            if (imageUrl && imageUrl.trim() !== '') {
+                imgElement.src = imageUrl;
+            } else {
+                // 이미지가 없으면 즉시 기본 이미지 설정
+                imgElement.src = this.fallbackImage;
+            }
+            imgElement.alt = itemData.title || '';
+            imgElement.onerror = () => {
+                imgElement.src = this.fallbackImage;
+                imgElement.onerror = null;
+            };
+        }
 
         // 텍스트 데이터 설정
         const titleElement = itemFragment.querySelector('.item-title');

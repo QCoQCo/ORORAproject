@@ -51,4 +51,25 @@
         DELETE FROM tourist_spot_images
         WHERE tourist_spot_id = #{spotId}
     </delete>
+
+    <!-- ID로 이미지 조회 -->
+    <select id="findImageById" resultMap="SpotImageResultMap" parameterType="Long">
+        SELECT id, img_name, ori_img_name, tourist_spot_id, image_url, rep_img_yn, reg_time, update_time
+        FROM tourist_spot_images
+        WHERE id = #{id}
+    </select>
+
+    <!-- 관광지의 모든 이미지 대표 여부 초기화 -->
+    <update id="resetRepImages" parameterType="Long">
+        UPDATE tourist_spot_images
+        SET rep_img_yn = 'N'
+        WHERE tourist_spot_id = #{spotId}
+    </update>
+
+    <!-- 대표 이미지 설정 -->
+    <update id="setRepImage" parameterType="Long">
+        UPDATE tourist_spot_images
+        SET rep_img_yn = 'Y'
+        WHERE id = #{id}
+    </update>
 </mapper>

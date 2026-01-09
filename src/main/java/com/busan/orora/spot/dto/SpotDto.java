@@ -34,6 +34,9 @@ public class SpotDto {
     private String description;
     private String linkUrl;
     private String categoryCode;
+    private Double latitude;
+    private Double longitude;
+    private String address;
     private Boolean isActive;
     private Integer viewCount;
     private LocalDateTime createdAt;

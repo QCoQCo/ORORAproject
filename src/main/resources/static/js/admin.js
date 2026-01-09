@@ -4,6 +4,7 @@
 let touristSpots = {};
 let currentEditIndex = null;
 let currentEditRegion = null;
+let isAddMode = false; // 추가 모드 여부 (true: 추가, false: 수정)
 
 // 사용자 관리 관련 전역 변수
 let users = [];
@@ -17,6 +18,12 @@ let spotRequests = [];
 let filteredSpotRequests = [];
 let currentRequestPage = 1;
 let requestsPerPage = 10;
+
+// 유저 신고 관리 관련 전역 변수
+let userReports = [];
+let filteredUserReports = [];
+let currentReportPage = 1;
+let reportsPerPage = 10;
 
 // 지역 한글 매핑
 const regionNames = {
@@ -64,14 +71,53 @@ const hashtagToCategory = {
     쇼핑몰: 'shopping',
 };
 
-// 카테고리 한글 매핑
+// 카테고리 한글 매핑 (대문자 코드 기준)
 const categoryNames = {
+    BEACH: '해변',
+    MOUNTAIN: '산/공원',
+    CULTURE: '문화',
+    FOOD: '전통시장',
+    SHOPPING: '쇼핑',
+    CAFE: '카페',
+    FAMILY: '가족',
+    COUPLE: '연인',
+    SOLO: '혼자',
+    FRIEND: '친구',
+    ETC: '기타',
+    // 소문자 호환성 유지
     beach: '해변',
     mountain: '산/공원',
     culture: '문화',
     food: '전통시장',
     shopping: '쇼핑',
 };
+
+// 다양한 형태로 전달되는 해시태그 데이터를 문자열 배열로 정규화
+function normalizeHashtags(rawHashtags) {
+    if (!rawHashtags) return [];
+
+    if (Array.isArray(rawHashtags)) {
+        return rawHashtags
+            .map((tag) => {
+                if (typeof tag === 'string') return tag.trim();
+                if (tag && typeof tag === 'object') {
+                    // HashtagDto 혹은 유사 객체에 대응
+                    return (tag.name || tag.label || '').trim();
+                }
+                return '';
+            })
+            .filter((tag) => tag.length > 0);
+    }
+
+    if (typeof rawHashtags === 'string') {
+        return rawHashtags
+            .split(/[,#]/)
+            .map((tag) => tag.trim())
+            .filter((tag) => tag.length > 0);
+    }
+
+    return [];
+}
 
 // DOM 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function () {
@@ -127,16 +173,22 @@ async function loadTouristSpots() {
                     };
                 }
 
+                // 해시태그 정규화
+                const normalizedHashtags = normalizeHashtags(spot.hashtags);
+
                 // 해시태그는 백엔드에서 전달받은 데이터 사용
                 touristSpots[regionKey].spots.push({
                     id: spot.id,
                     title: spot.title,
                     description: spot.description || '',
-                    hashtags: spot.hashtags || [], // 백엔드에서 해시태그 배열 전달
+                    hashtags: normalizedHashtags, // 다양한 형태 정규화
                     img: '', // TODO: 이미지 API 추가 시 수정
                     link: spot.linkUrl || '#',
                     categoryCode: spot.categoryCode,
                     isActive: spot.isActive,
+                    latitude: spot.latitude,
+                    longitude: spot.longitude,
+                    address: spot.address,
                 });
             });
 
@@ -204,6 +256,11 @@ function initializeTabs() {
             if (targetTab === 'spot-requests') {
                 loadSpotRequests();
             }
+
+            // 유저 신고 관리 탭을 클릭한 경우 신고 목록 표시
+            if (targetTab === 'user-reports') {
+                loadUserReports();
+            }
         });
     });
 }
@@ -221,13 +278,7 @@ function initializeEventListeners() {
         regionFilter.addEventListener('change', filterTouristSpots);
     }
 
-    // 관광지 추가 폼
-    const addForm = document.getElementById('add-tourist-spot-form');
-    if (addForm) {
-        addForm.addEventListener('submit', handleAddTouristSpot);
-    }
-
-    // 수정 폼
+    // 수정/추가 폼
     const editForm = document.getElementById('edit-tourist-spot-form');
     if (editForm) {
         editForm.addEventListener('submit', handleEditTouristSpot);
@@ -254,6 +305,45 @@ function initializeEventListeners() {
 
     // 사진 추가 신청 관리 이벤트 리스너
     initializeSpotRequestEventListeners();
+
+    // 유저 신고 관리 이벤트 리스너
+    initializeUserReportEventListeners();
+
+    // 이미지 파일 선택 미리보기
+    const newImagesInput = document.getElementById('edit-spot-new-images');
+    if (newImagesInput) {
+        newImagesInput.addEventListener('change', handleImagePreview);
+    }
+}
+
+// 이미지 선택 미리보기 처리
+function handleImagePreview(event) {
+    const files = event.target.files;
+    const previewContainer = document.getElementById('selected-files-preview');
+    if (!previewContainer) return;
+
+    previewContainer.innerHTML = '';
+
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!file.type.startsWith('image/')) continue;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            previewItem.innerHTML = `
+                <img src="${e.target.result}" alt="미리보기" />
+                <span class="file-name" title="${file.name}">${file.name.substring(0, 15)}${
+                file.name.length > 15 ? '...' : ''
+            }</span>
+            `;
+            previewContainer.appendChild(previewItem);
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
 // 사용자 관리 이벤트 리스너 초기화
@@ -267,25 +357,13 @@ function initializeUserEventListeners() {
     if (userRoleFilter) userRoleFilter.addEventListener('change', filterUsers);
     if (userStatusFilter) userStatusFilter.addEventListener('change', filterUsers);
 
-    // 사용자 추가 폼
-    const addUserForm = document.getElementById('add-user-form');
-    if (addUserForm) addUserForm.addEventListener('submit', handleAddUser);
-
     // 사용자 수정 폼
     const editUserForm = document.getElementById('edit-user-form');
     if (editUserForm) editUserForm.addEventListener('submit', handleEditUser);
 
     // 사용자 모달 닫기
-    const closeAddUserModal = document.getElementById('close-add-user-modal');
     const closeEditUserModal = document.getElementById('close-edit-user-modal');
-    const addUserModal = document.getElementById('add-user-modal');
     const editUserModal = document.getElementById('edit-user-modal');
-
-    if (closeAddUserModal) {
-        closeAddUserModal.addEventListener('click', () => {
-            addUserModal.style.display = 'none';
-        });
-    }
 
     if (closeEditUserModal) {
         closeEditUserModal.addEventListener('click', () => {
@@ -294,9 +372,6 @@ function initializeUserEventListeners() {
     }
 
     window.addEventListener('click', (event) => {
-        if (event.target === addUserModal) {
-            addUserModal.style.display = 'none';
-        }
         if (event.target === editUserModal) {
             editUserModal.style.display = 'none';
         }
@@ -325,19 +400,27 @@ function displayTouristSpots(filteredSpots = null) {
 function createTouristSpotCard(spot, regionKey, spotId, regionName) {
     const card = document.createElement('div');
     card.className = 'tourist-spot-card';
+    card.style.cursor = 'pointer'; // 클릭 가능한 커서 표시
 
-    const category = spot.categoryCode
-        ? spot.categoryCode.toLowerCase()
-        : getCategoryFromHashtags(spot.hashtags);
+    // 카테고리 결정: categoryCode 우선, 없으면 해시태그로 추정
+    const normalizedHashtags = normalizeHashtags(spot.hashtags);
+    let category = 'CULTURE'; // 기본값
+    if (spot.categoryCode) {
+        category = spot.categoryCode.toUpperCase();
+    } else {
+        const estimatedCategory = getCategoryFromHashtags(normalizedHashtags);
+        category = estimatedCategory.toUpperCase();
+    }
 
     // 해시태그 배열을 문자열로 변환 (# 접두사 추가)
     let hashtagsDisplay = '없음';
-    if (spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0) {
-        hashtagsDisplay = spot.hashtags
+    if (normalizedHashtags.length > 0) {
+        hashtagsDisplay = normalizedHashtags
             .map((tag) => {
-                // 이미 #이 있으면 그대로, 없으면 추가
-                return tag.startsWith('#') ? tag : '#' + tag;
+                const tagStr = String(tag).trim();
+                return tagStr.startsWith('#') ? tagStr : '#' + tagStr;
             })
+            .filter((tag) => tag.length > 0)
             .join(' ');
     }
 
@@ -349,10 +432,20 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
         </div>
         <div class="spot-description">${spot.description || ''}</div>
         <div class="spot-actions">
-            <button class="edit-btn" onclick="openEditModal('${regionKey}', ${spotId})">수정</button>
-            <button class="delete-btn" onclick="deleteTouristSpot('${regionKey}', ${spotId})">삭제</button>
+            <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('${regionKey}', ${spotId})">수정</button>
+            <button class="delete-btn" onclick="event.stopPropagation(); deleteTouristSpot('${regionKey}', ${spotId})">삭제</button>
         </div>
     `;
+
+    // 카드 클릭 시 상세 페이지로 이동
+    card.addEventListener('click', (e) => {
+        // 수정/삭제 버튼 클릭 시에는 이동하지 않음
+        if (e.target.closest('.spot-actions')) {
+            return;
+        }
+        // 상세 페이지로 이동
+        window.location.href = `/pages/detailed/detailed?id=${spotId}`;
+    });
 
     return card;
 }
@@ -393,55 +486,68 @@ function filterTouristSpots() {
     displayTouristSpots(filteredSpots);
 }
 
-// 관광지 추가
-async function handleAddTouristSpot(event) {
-    event.preventDefault();
+// 추가 모달 열기 (수정 모달 재활용)
+function openAddSpotModal() {
+    const tryOpenModal = () => {
+        const editModal = document.getElementById('edit-modal');
+        if (!editModal) {
+            setTimeout(tryOpenModal, 100);
+            return;
+        }
 
-    const regionKey = document.getElementById('spot-region').value;
-    const hashtags = document
-        .getElementById('spot-hashtags')
-        .value.split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0)
-        .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag));
+        // 추가 모드로 설정
+        isAddMode = true;
+        currentEditRegion = null;
+        currentEditIndex = null;
 
-    const requestData = {
-        regionKey: regionKey,
-        title: document.getElementById('spot-title').value,
-        description: document.getElementById('spot-description').value,
-        hashtags: hashtags,
-        linkUrl: document.getElementById('spot-link').value || '#',
-        categoryCode: 'CULTURE', // 기본값, 필요시 수정
+        // 모달 제목과 버튼 텍스트 변경
+        const modalTitle = document.getElementById('edit-modal-title');
+        const submitBtn = document.getElementById('edit-modal-submit-btn');
+        if (modalTitle) modalTitle.textContent = '새 관광지 추가';
+        if (submitBtn) submitBtn.textContent = '관광지 추가';
+
+        // 폼 초기화
+        const titleInput = document.getElementById('edit-spot-title');
+        const regionSelect = document.getElementById('edit-spot-region');
+        const categorySelect = document.getElementById('edit-spot-category');
+        const descriptionTextarea = document.getElementById('edit-spot-description');
+        const hashtagsInput = document.getElementById('edit-spot-hashtags');
+        const linkInput = document.getElementById('edit-spot-link');
+
+        if (titleInput) titleInput.value = '';
+        if (regionSelect) regionSelect.value = 'area01';
+        if (categorySelect) categorySelect.value = 'CULTURE';
+        if (descriptionTextarea) descriptionTextarea.value = '';
+        if (hashtagsInput) hashtagsInput.value = '';
+        if (linkInput) linkInput.value = '#';
+
+        // 이미지 섹션 초기화 (추가 모드에서는 기존 이미지 없음)
+        const imageList = document.getElementById('edit-spot-images');
+        if (imageList)
+            imageList.innerHTML =
+                '<p class="no-images">새 관광지입니다. 추가 후 이미지를 등록할 수 있습니다.</p>';
+
+        // 새 이미지 미리보기 초기화
+        const selectedFilesPreview = document.getElementById('selected-files-preview');
+        if (selectedFilesPreview) selectedFilesPreview.innerHTML = '';
+        const newImagesInput = document.getElementById('edit-spot-new-images');
+        if (newImagesInput) newImagesInput.value = '';
+
+        // 위치 정보 초기화
+        clearLocationSelection();
+
+        // 위치 검색 초기화
+        initLocationSearch();
+
+        // 모달 표시
+        editModal.style.display = 'block';
     };
 
-    try {
-        const response = await fetch('/api/admin/tourist-spots', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestData),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            // 폼 초기화
-            event.target.reset();
-
-            // 목록 갱신
-            await loadTouristSpots();
-            updateStatistics();
-
-            showNotification('관광지가 성공적으로 추가되었습니다!', 'success');
-        } else {
-            showNotification(data.message || '관광지 추가에 실패했습니다.', 'error');
-        }
-    } catch (error) {
-        console.error('관광지 추가 실패:', error);
-        showNotification('관광지 추가 중 오류가 발생했습니다.', 'error');
-    }
+    tryOpenModal();
 }
+
+// 전역 스코프에 함수 바인딩
+window.openAddSpotModal = openAddSpotModal;
 
 // 수정 모달 열기
 function openEditModal(regionKey, spotId) {
@@ -469,23 +575,61 @@ function openEditModal(regionKey, spotId) {
             return;
         }
 
+        // 수정 모드로 설정
+        isAddMode = false;
         currentEditRegion = regionKey;
         currentEditIndex = foundIndex;
+
+        // 모달 제목과 버튼 텍스트 변경
+        const modalTitle = document.getElementById('edit-modal-title');
+        const submitBtn = document.getElementById('edit-modal-submit-btn');
+        if (modalTitle) modalTitle.textContent = '관광지 정보 수정';
+        if (submitBtn) submitBtn.textContent = '수정 완료';
 
         // 폼에 기존 데이터 입력
         const titleInput = document.getElementById('edit-spot-title');
         const regionSelect = document.getElementById('edit-spot-region');
+        const categorySelect = document.getElementById('edit-spot-category');
         const descriptionTextarea = document.getElementById('edit-spot-description');
         const hashtagsInput = document.getElementById('edit-spot-hashtags');
         const imgInput = document.getElementById('edit-spot-img');
         const linkInput = document.getElementById('edit-spot-link');
 
-        if (titleInput) titleInput.value = spot.title;
+        if (titleInput) titleInput.value = spot.title || '';
         if (regionSelect) regionSelect.value = regionKey;
+        if (categorySelect) {
+            // categoryCode가 있으면 사용, 없으면 기본값 'CULTURE'
+            const categoryCode = spot.categoryCode || 'CULTURE';
+            categorySelect.value = categoryCode.toUpperCase();
+        }
         if (descriptionTextarea) descriptionTextarea.value = spot.description || '';
-        if (hashtagsInput) hashtagsInput.value = spot.hashtags ? spot.hashtags.join(', ') : '';
-        if (imgInput) imgInput.value = spot.img || '';
-        if (linkInput) linkInput.value = spot.link || '';
+        // 해시태그 처리: 배열이면 join, 문자열이면 그대로, 없으면 빈 문자열
+        if (hashtagsInput) {
+            const normalized = normalizeHashtags(spot.hashtags);
+            hashtagsInput.value = normalized
+                .map((tag) => {
+                    const tagStr = String(tag || '').trim();
+                    return tagStr.startsWith('#') ? tagStr.substring(1) : tagStr;
+                })
+                .filter((tag) => tag.length > 0)
+                .join(', ');
+        }
+        if (linkInput) linkInput.value = spot.link || spot.linkUrl || '#';
+
+        // 새 이미지 미리보기 초기화
+        const selectedFilesPreview = document.getElementById('selected-files-preview');
+        if (selectedFilesPreview) selectedFilesPreview.innerHTML = '';
+        const newImagesInput = document.getElementById('edit-spot-new-images');
+        if (newImagesInput) newImagesInput.value = '';
+
+        // 위치 검색 초기화 (먼저 초기화)
+        initLocationSearch();
+
+        // 위치 정보 로드 (초기화 후 로드)
+        loadLocationData(spot);
+
+        // 이미지 로드
+        loadSpotImages(spotId);
 
         // 모달 표시
         editModal.style.display = 'block';
@@ -497,22 +641,150 @@ function openEditModal(regionKey, spotId) {
 // 전역 스코프에 함수 바인딩 (인라인 onclick 핸들러에서 접근 가능하도록)
 window.openEditModal = openEditModal;
 
-// 관광지 수정
+// ========== 이미지 관리 함수들 ==========
+
+// 관광지 이미지 로드
+async function loadSpotImages(spotId) {
+    const imageList = document.getElementById('edit-spot-images');
+    if (!imageList) return;
+
+    imageList.innerHTML = '<p class="loading">이미지 로딩 중...</p>';
+
+    try {
+        const response = await fetch(`/api/admin/tourist-spots/${spotId}/images`);
+        const data = await response.json();
+
+        if (data.success && data.images) {
+            if (data.images.length === 0) {
+                imageList.innerHTML = '<p class="no-images">등록된 이미지가 없습니다.</p>';
+                return;
+            }
+
+            imageList.innerHTML = data.images
+                .map(
+                    (image) => `
+                <div class="image-item ${image.repImgYn === 'Y' ? 'is-rep' : ''}" data-image-id="${
+                        image.id
+                    }">
+                    ${image.repImgYn === 'Y' ? '<span class="rep-badge">대표</span>' : ''}
+                    <img src="${image.imageUrl}" alt="${
+                        image.oriImgName || '이미지'
+                    }" onerror="this.src='/images/no-image.png'" />
+                    <div class="image-actions">
+                        <button type="button" class="set-rep-btn ${
+                            image.repImgYn === 'Y' ? 'active' : ''
+                        }" 
+                            onclick="setSpotRepImage(${image.id})" 
+                            ${image.repImgYn === 'Y' ? 'disabled' : ''}>
+                            ${image.repImgYn === 'Y' ? '✓ 대표' : '대표 설정'}
+                        </button>
+                        <button type="button" class="delete-img-btn" onclick="deleteSpotImage(${
+                            image.id
+                        })">삭제</button>
+                    </div>
+                </div>
+            `
+                )
+                .join('');
+        } else {
+            imageList.innerHTML = '<p class="no-images">이미지를 불러오는데 실패했습니다.</p>';
+        }
+    } catch (error) {
+        console.error('이미지 로드 실패:', error);
+        imageList.innerHTML = '<p class="no-images">이미지를 불러오는데 실패했습니다.</p>';
+    }
+}
+
+// 관광지 이미지 삭제
+async function deleteSpotImage(imageId) {
+    if (!confirm('이 이미지를 삭제하시겠습니까?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/tourist-spots/images/${imageId}`, {
+            method: 'DELETE',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('이미지가 삭제되었습니다.', 'success');
+            // 현재 편집 중인 관광지의 이미지 목록 새로고침
+            const spot = touristSpots[currentEditRegion]?.spots[currentEditIndex];
+            if (spot) {
+                loadSpotImages(spot.id);
+            }
+        } else {
+            showNotification(data.message || '이미지 삭제에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('이미지 삭제 실패:', error);
+        showNotification('이미지 삭제 중 오류가 발생했습니다.', 'error');
+    }
+}
+
+// 대표 이미지 설정
+async function setSpotRepImage(imageId) {
+    try {
+        const response = await fetch(`/api/admin/tourist-spots/images/${imageId}/set-rep`, {
+            method: 'PUT',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('대표 이미지가 설정되었습니다.', 'success');
+            // 현재 편집 중인 관광지의 이미지 목록 새로고침
+            const spot = touristSpots[currentEditRegion]?.spots[currentEditIndex];
+            if (spot) {
+                loadSpotImages(spot.id);
+            }
+        } else {
+            showNotification(data.message || '대표 이미지 설정에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('대표 이미지 설정 실패:', error);
+        showNotification('대표 이미지 설정 중 오류가 발생했습니다.', 'error');
+    }
+}
+
+// 새 이미지 업로드
+async function uploadNewSpotImages(spotId, files) {
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i]);
+    }
+
+    try {
+        const response = await fetch(`/api/admin/tourist-spots/${spotId}/images`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('이미지가 추가되었습니다.', 'success');
+        } else {
+            showNotification(data.message || '이미지 추가에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('이미지 업로드 실패:', error);
+        showNotification('이미지 업로드 중 오류가 발생했습니다.', 'error');
+    }
+}
+
+// 전역 스코프에 이미지 함수 바인딩
+window.deleteSpotImage = deleteSpotImage;
+window.setSpotRepImage = setSpotRepImage;
+
+// 관광지 수정/추가 처리
 async function handleEditTouristSpot(event) {
     event.preventDefault();
 
-    if (currentEditRegion === null || currentEditIndex === null) {
-        return;
-    }
-
-    // spotId 가져오기
-    const spot = touristSpots[currentEditRegion].spots[currentEditIndex];
-    if (!spot || !spot.id) {
-        showNotification('관광지 정보를 찾을 수 없습니다.', 'error');
-        return;
-    }
-
-    const spotId = spot.id;
     const hashtags = document
         .getElementById('edit-spot-hashtags')
         .value.split(',')
@@ -520,29 +792,89 @@ async function handleEditTouristSpot(event) {
         .filter((tag) => tag.length > 0)
         .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag));
 
-    const newRegion = document.getElementById('edit-spot-region').value;
+    const regionKey = document.getElementById('edit-spot-region').value;
+    const categoryCode = document.getElementById('edit-spot-category').value;
+
+    // 위도/경도 정보 가져오기
+    const latitudeInput = document.getElementById('edit-spot-latitude');
+    const longitudeInput = document.getElementById('edit-spot-longitude');
+    const addressInput = document.getElementById('edit-spot-address');
+
+    const latitude = latitudeInput?.value ? parseFloat(latitudeInput.value) : null;
+    const longitude = longitudeInput?.value ? parseFloat(longitudeInput.value) : null;
+    const address = addressInput?.value || null;
 
     const requestData = {
-        regionKey: newRegion,
+        regionKey: regionKey,
         title: document.getElementById('edit-spot-title').value,
         description: document.getElementById('edit-spot-description').value,
         hashtags: hashtags,
         linkUrl: document.getElementById('edit-spot-link').value || '#',
-        categoryCode: spot.categoryCode || 'CULTURE',
+        categoryCode: categoryCode || 'CULTURE',
+        latitude: latitude,
+        longitude: longitude,
+        address: address,
     };
 
     try {
-        const response = await fetch(`/api/admin/tourist-spots/${spotId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestData),
-        });
+        let response;
+        let successMessage;
+
+        if (isAddMode) {
+            // 추가 모드
+            response = await fetch('/api/admin/tourist-spots', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+            });
+            successMessage = '관광지가 성공적으로 추가되었습니다!';
+        } else {
+            // 수정 모드
+            if (currentEditRegion === null || currentEditIndex === null) {
+                showNotification('관광지 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+
+            const spot = touristSpots[currentEditRegion].spots[currentEditIndex];
+            if (!spot || !spot.id) {
+                showNotification('관광지 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+
+            response = await fetch(`/api/admin/tourist-spots/${spot.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+            });
+            successMessage = '관광지 정보가 성공적으로 수정되었습니다!';
+        }
 
         const data = await response.json();
 
         if (data.success) {
+            // 수정 모드에서만 새 이미지 업로드 (추가 모드는 관광지 생성 후 별도로 이미지 추가)
+            if (!isAddMode) {
+                const newImagesInput = document.getElementById('edit-spot-new-images');
+                const spot = touristSpots[currentEditRegion].spots[currentEditIndex];
+                if (newImagesInput && newImagesInput.files.length > 0 && spot) {
+                    await uploadNewSpotImages(spot.id, newImagesInput.files);
+                }
+            }
+
+            // 관광지 추가 신청 승인 처리 (신청을 통한 추가인 경우)
+            if (isAddMode && currentSpotRequestId) {
+                try {
+                    await approveSpotRequest(currentSpotRequestId);
+                } catch (error) {
+                    console.error('신청 승인 처리 실패:', error);
+                }
+                currentSpotRequestId = null;
+            }
+
             // 모달 닫기
             document.getElementById('edit-modal').style.display = 'none';
 
@@ -550,13 +882,18 @@ async function handleEditTouristSpot(event) {
             await loadTouristSpots();
             updateStatistics();
 
-            showNotification('관광지 정보가 성공적으로 수정되었습니다!', 'success');
+            showNotification(successMessage, 'success');
 
-            // 편집 상태 초기화
+            // 상태 초기화
+            isAddMode = false;
             currentEditRegion = null;
             currentEditIndex = null;
         } else {
-            showNotification(data.message || '관광지 수정에 실패했습니다.', 'error');
+            showNotification(
+                data.message ||
+                    (isAddMode ? '관광지 추가에 실패했습니다.' : '관광지 수정에 실패했습니다.'),
+                'error'
+            );
         }
     } catch (error) {
         console.error('관광지 수정 실패:', error);
@@ -1025,66 +1362,6 @@ function filterUsers() {
     displayUsers();
 }
 
-// 사용자 추가 모달 열기
-function openAddUserModal() {
-    const tryOpenModal = () => {
-        const addUserModal = document.getElementById('add-user-modal');
-        if (!addUserModal) {
-            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
-            setTimeout(tryOpenModal, 100);
-            return;
-        }
-        addUserModal.style.display = 'block';
-    };
-    tryOpenModal();
-}
-
-// 전역 스코프에 함수 바인딩
-window.openAddUserModal = openAddUserModal;
-
-// 사용자 추가 처리
-async function handleAddUser(event) {
-    event.preventDefault();
-
-    const requestData = {
-        loginId: document.getElementById('new-username').value, // 임시로 username을 loginId로 사용
-        username: document.getElementById('new-username').value,
-        email: document.getElementById('new-email').value,
-        role: document.getElementById('new-user-role').value,
-        password: document.getElementById('new-password').value,
-    };
-
-    try {
-        const response = await fetch('/api/admin/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestData),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            // 폼 초기화 및 모달 닫기
-            event.target.reset();
-            document.getElementById('add-user-modal').style.display = 'none';
-
-            // 목록 갱신
-            await initializeUsers();
-            displayUsers();
-            updateUserStatistics();
-
-            showNotification('새 사용자가 성공적으로 추가되었습니다!', 'success');
-        } else {
-            showNotification(data.message || '사용자 추가에 실패했습니다.', 'error');
-        }
-    } catch (error) {
-        console.error('사용자 추가 실패:', error);
-        showNotification('사용자 추가 중 오류가 발생했습니다.', 'error');
-    }
-}
-
 // 사용자 수정 모달 열기
 function openEditUserModal(userId) {
     const tryOpenModal = () => {
@@ -1331,7 +1608,6 @@ document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         const modals = [
             'edit-modal',
-            'add-user-modal',
             'edit-user-modal',
             'add-group-modal',
             'edit-group-modal',
@@ -1835,6 +2111,12 @@ document.addEventListener('DOMContentLoaded', function () {
             editCodeForm.addEventListener('submit', handleEditCode);
         }
     }
+
+    // 처벌 모달 이벤트 초기화
+    initPenaltyModalEvents();
+
+    // 사진 추가 신청 상세 모달 이벤트 초기화
+    initPhotoRequestDetailModalEvents();
 });
 
 // ========== 사진 추가 신청 관리 기능 ==========
@@ -1891,26 +2173,66 @@ function displaySpotRequests() {
     const paginatedRequests = filteredSpotRequests.slice(startIndex, endIndex);
 
     if (paginatedRequests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">신청 내역이 없습니다.</td></tr>';
+        tbody.innerHTML =
+            '<tr><td colspan="8" style="text-align: center; padding: 40px;">신청 내역이 없습니다.</td></tr>';
         updateRequestPagination();
         return;
     }
 
-    tbody.innerHTML = paginatedRequests.map((request) => {
-        const statusBadge = getStatusBadge(request.status);
-        let typeLabel = '관광지 추가';
-        if (request.type === 'photo') {
-            typeLabel = '사진 추가';
-        } else if (request.type === 'edit') {
-            typeLabel = '정보 수정';
-        }
-        const createdAt = formatDate(request.createdAt);
-        const description = request.description || '-';
-        const imagePreview = request.imageUrl 
-            ? `<img src="${request.imageUrl}" alt="신청 사진" style="max-width: 100px; max-height: 100px; cursor: pointer; border-radius: 4px; border: 1px solid #ddd;" onclick="openImageModal('${request.imageUrl}')">`
-            : '-';
+    tbody.innerHTML = paginatedRequests
+        .map((request) => {
+            const statusBadge = getStatusBadge(request.status);
+            let typeLabel = '관광지 추가';
+            if (request.type === 'photo') {
+                typeLabel = '사진 추가';
+            } else if (request.type === 'edit') {
+                typeLabel = '정보 수정';
+            }
+            const createdAt = formatDate(request.createdAt);
+            const description = request.description || '-';
 
-        return `
+            // 여러 이미지가 쉼표로 구분되어 있을 수 있음 - 첫 번째 이미지만 미리보기로 표시
+            let imagePreview = '-';
+            if (request.imageUrl) {
+                const firstImageUrl = request.imageUrl.split(',')[0].trim();
+                const imageCount = request.imageUrl.split(',').filter((url) => url.trim()).length;
+                const countBadge =
+                    imageCount > 1
+                        ? `<span style="position: absolute; top: 2px; right: 2px; background: #007bff; color: white; padding: 1px 5px; border-radius: 10px; font-size: 0.7rem;">${imageCount}</span>`
+                        : '';
+                imagePreview = `<div style="position: relative; display: inline-block;"><img src="${firstImageUrl}" alt="신청 사진" style="max-width: 100px; max-height: 100px; cursor: pointer; border-radius: 4px; border: 1px solid #ddd;" onclick="openImageModal('${firstImageUrl}')">${countBadge}</div>`;
+            }
+
+            // 신청 유형에 따른 버튼 생성
+            let actionButtons = '';
+            if (request.status === 'pending') {
+                if (request.type === 'photo') {
+                    // 사진 추가 신청: 상세 모달로 열기
+                    actionButtons = `
+                        <button class="approve-btn" onclick="openPhotoRequestDetailModal(${request.id})" style="margin-right: 5px;">승인</button>
+                        <button class="reject-btn" onclick="rejectSpotRequest(${request.id})">거부</button>
+                    `;
+                } else if (request.type === 'spot') {
+                    // 관광지 추가 신청: 관광지 추가 모달로 열기 (정보 미리 채움)
+                    actionButtons = `
+                        <button class="approve-btn" onclick="openSpotRequestApprovalModal(${request.id})" style="margin-right: 5px;">승인</button>
+                        <button class="reject-btn" onclick="rejectSpotRequest(${request.id})">거부</button>
+                    `;
+                } else {
+                    // 기타 (정보 수정 등)
+                    actionButtons = `
+                        <button class="approve-btn" onclick="approveSpotRequest(${request.id})" style="margin-right: 5px;">승인</button>
+                        <button class="reject-btn" onclick="rejectSpotRequest(${request.id})">거부</button>
+                    `;
+                }
+            } else {
+                // 처리 완료된 경우 삭제 버튼만 표시
+                actionButtons = `
+                    <button class="delete-btn" onclick="deleteSpotRequest(${request.id})">삭제</button>
+                `;
+            }
+
+            return `
             <tr>
                 <td>${request.id}</td>
                 <td>${typeLabel}</td>
@@ -1924,17 +2246,11 @@ function displaySpotRequests() {
                 </td>
                 <td>${createdAt}</td>
                 <td>${statusBadge}</td>
-                <td>
-                    ${request.status === 'pending' ? `
-                        <button class="approve-btn" onclick="approveSpotRequest(${request.id})" style="margin-right: 5px;">승인</button>
-                        <button class="reject-btn" onclick="rejectSpotRequest(${request.id})">거부</button>
-                    ` : `
-                        <span style="color: #999;">처리 완료</span>
-                    `}
-                </td>
+                <td>${actionButtons}</td>
             </tr>
         `;
-    }).join('');
+        })
+        .join('');
 
     updateRequestPagination();
 }
@@ -1942,9 +2258,12 @@ function displaySpotRequests() {
 // 상태 배지 생성
 function getStatusBadge(status) {
     const badges = {
-        pending: '<span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">대기중</span>',
-        approved: '<span style="background: #28a745; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">승인됨</span>',
-        rejected: '<span style="background: #dc3545; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">거부됨</span>'
+        pending:
+            '<span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">대기중</span>',
+        approved:
+            '<span style="background: #28a745; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">승인됨</span>',
+        rejected:
+            '<span style="background: #dc3545; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">거부됨</span>',
     };
     return badges[status] || badges.pending;
 }
@@ -1958,7 +2277,7 @@ function formatDate(dateString) {
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 }
 
@@ -1973,12 +2292,13 @@ function filterSpotRequests() {
     const status = statusFilter ? statusFilter.value : '';
 
     filteredSpotRequests = spotRequests.filter((request) => {
-        const matchesSearch = !searchTerm || 
+        const matchesSearch =
+            !searchTerm ||
             (request.applicantName && request.applicantName.toLowerCase().includes(searchTerm)) ||
             (request.applicantId && request.applicantId.toLowerCase().includes(searchTerm)) ||
             (request.spotName && request.spotName.toLowerCase().includes(searchTerm)) ||
             (request.description && request.description.toLowerCase().includes(searchTerm));
-        
+
         const matchesType = !type || request.type === type;
         const matchesStatus = !status || request.status === status;
 
@@ -2001,23 +2321,36 @@ function updateRequestPagination() {
         return;
     }
 
-    let paginationHTML = '<div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;">';
-    
+    let paginationHTML =
+        '<div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;">';
+
     // 이전 페이지 버튼
-    paginationHTML += `<button onclick="changeRequestPage(${currentRequestPage - 1})" ${currentRequestPage === 1 ? 'disabled' : ''} style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;">이전</button>`;
-    
+    paginationHTML += `<button onclick="changeRequestPage(${currentRequestPage - 1})" ${
+        currentRequestPage === 1 ? 'disabled' : ''
+    } style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;">이전</button>`;
+
     // 페이지 번호
     for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= currentRequestPage - 2 && i <= currentRequestPage + 2)) {
-            paginationHTML += `<button onclick="changeRequestPage(${i})" ${i === currentRequestPage ? 'style="padding: 8px 16px; border: 1px solid #3498db; background: #3498db; color: #fff; cursor: pointer; border-radius: 4px;"' : 'style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;"'}>${i}</button>`;
+        if (
+            i === 1 ||
+            i === totalPages ||
+            (i >= currentRequestPage - 2 && i <= currentRequestPage + 2)
+        ) {
+            paginationHTML += `<button onclick="changeRequestPage(${i})" ${
+                i === currentRequestPage
+                    ? 'style="padding: 8px 16px; border: 1px solid #3498db; background: #3498db; color: #fff; cursor: pointer; border-radius: 4px;"'
+                    : 'style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;"'
+            }>${i}</button>`;
         } else if (i === currentRequestPage - 3 || i === currentRequestPage + 3) {
             paginationHTML += '<span>...</span>';
         }
     }
-    
+
     // 다음 페이지 버튼
-    paginationHTML += `<button onclick="changeRequestPage(${currentRequestPage + 1})" ${currentRequestPage === totalPages ? 'disabled' : ''} style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;">다음</button>`;
-    
+    paginationHTML += `<button onclick="changeRequestPage(${currentRequestPage + 1})" ${
+        currentRequestPage === totalPages ? 'disabled' : ''
+    } style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;">다음</button>`;
+
     paginationHTML += '</div>';
     pagination.innerHTML = paginationHTML;
 }
@@ -2041,8 +2374,8 @@ async function approveSpotRequest(requestId) {
         const response = await fetch(`/api/admin/spot-requests/${requestId}/approve`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+            },
         });
 
         const data = await response.json();
@@ -2070,11 +2403,11 @@ async function rejectSpotRequest(requestId) {
         const response = await fetch(`/api/admin/spot-requests/${requestId}/reject`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                reason: reason || '사유 없음'
-            })
+                reason: reason || '사유 없음',
+            }),
         });
 
         const data = await response.json();
@@ -2094,7 +2427,8 @@ async function rejectSpotRequest(requestId) {
 // 이미지 모달 열기
 function openImageModal(imageUrl) {
     const modal = document.createElement('div');
-    modal.style.cssText = 'position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center;';
+    modal.style.cssText =
+        'position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center;';
     modal.innerHTML = `
         <div style="position: relative; max-width: 90%; max-height: 90%;">
             <span onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: -40px; right: 0; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
@@ -2109,4 +2443,1131 @@ function openImageModal(imageUrl) {
     });
 }
 
-//관리자로 로그인 후 관리자 페이지 접근시 헤더에서 로그인 버튼이 표시되는 버그
+// ========== 사진 추가 신청 상세 모달 기능 ==========
+
+// 사진 추가 신청 상세 모달 열기
+function openPhotoRequestDetailModal(requestId) {
+    const request = spotRequests.find((r) => r.id === requestId);
+    if (!request) {
+        showNotification('신청 정보를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    const modal = document.getElementById('photo-request-detail-modal');
+    if (!modal) return;
+
+    // 신청 ID 저장
+    document.getElementById('photo-request-detail-id').value = requestId;
+
+    // 관광지 정보 표시
+    document.getElementById('photo-request-spot-name').textContent = request.spotName || '-';
+    document.getElementById('photo-request-applicant').textContent =
+        request.applicantName || request.applicantId || '-';
+    document.getElementById('photo-request-date').textContent = formatDate(request.createdAt);
+    document.getElementById('photo-request-description').textContent =
+        request.description || '설명 없음';
+
+    // 사진 표시
+    const imageElement = document.getElementById('photo-request-detail-image');
+    if (request.imageUrl) {
+        imageElement.src = request.imageUrl;
+        imageElement.style.display = 'block';
+    } else {
+        imageElement.src = '/images/logo.png';
+        imageElement.style.display = 'block';
+    }
+
+    modal.style.display = 'block';
+}
+
+// 사진 추가 신청 상세 모달 닫기
+function closePhotoRequestDetailModal() {
+    const modal = document.getElementById('photo-request-detail-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// 사진 추가 신청 상세 모달에서 승인
+async function approvePhotoRequestFromModal() {
+    const requestId = document.getElementById('photo-request-detail-id').value;
+    if (!requestId) return;
+
+    await approveSpotRequest(parseInt(requestId));
+    closePhotoRequestDetailModal();
+}
+
+// 사진 추가 신청 상세 모달에서 거부
+async function rejectPhotoRequestFromModal() {
+    const requestId = document.getElementById('photo-request-detail-id').value;
+    if (!requestId) return;
+
+    await rejectSpotRequest(parseInt(requestId));
+    closePhotoRequestDetailModal();
+}
+
+// 사진 추가 신청 상세 모달 이벤트 초기화
+function initPhotoRequestDetailModalEvents() {
+    const modal = document.getElementById('photo-request-detail-modal');
+    const closeBtn = document.getElementById('close-photo-request-detail-modal');
+    const approveBtn = document.getElementById('approve-photo-request-btn');
+    const rejectBtn = document.getElementById('reject-photo-request-btn');
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closePhotoRequestDetailModal);
+    }
+
+    if (approveBtn) {
+        approveBtn.addEventListener('click', approvePhotoRequestFromModal);
+    }
+
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', rejectPhotoRequestFromModal);
+    }
+
+    // 모달 외부 클릭 시 닫기
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closePhotoRequestDetailModal();
+            }
+        });
+    }
+}
+
+// ========== 관광지 추가 신청 승인 모달 기능 ==========
+
+// 현재 처리 중인 관광지 신청 ID
+let currentSpotRequestId = null;
+
+// 관광지 추가 신청 승인 모달 열기 (기존 수정 모달 재활용)
+function openSpotRequestApprovalModal(requestId) {
+    const request = spotRequests.find((r) => r.id === requestId);
+    if (!request) {
+        showNotification('신청 정보를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    // 현재 처리 중인 신청 ID 저장
+    currentSpotRequestId = requestId;
+
+    const tryOpenModal = () => {
+        const editModal = document.getElementById('edit-modal');
+        if (!editModal) {
+            setTimeout(tryOpenModal, 100);
+            return;
+        }
+
+        // 추가 모드로 설정
+        isAddMode = true;
+        currentEditRegion = null;
+        currentEditIndex = null;
+
+        // 모달 제목과 버튼 텍스트 변경
+        const modalTitle = document.getElementById('edit-modal-title');
+        const submitBtn = document.getElementById('edit-modal-submit-btn');
+        if (modalTitle) modalTitle.textContent = '📋 관광지 추가 신청 승인';
+        if (submitBtn) submitBtn.textContent = '승인 및 관광지 추가';
+
+        // 신청 정보로 폼 채우기
+        const titleInput = document.getElementById('edit-spot-title');
+        const regionSelect = document.getElementById('edit-spot-region');
+        const categorySelect = document.getElementById('edit-spot-category');
+        const descriptionTextarea = document.getElementById('edit-spot-description');
+        const hashtagsInput = document.getElementById('edit-spot-hashtags');
+        const linkInput = document.getElementById('edit-spot-link');
+
+        if (titleInput) titleInput.value = request.spotName || '';
+        if (descriptionTextarea) descriptionTextarea.value = request.description || '';
+        if (linkInput) linkInput.value = request.linkUrl || '#';
+        if (hashtagsInput) hashtagsInput.value = request.hashtags || '';
+
+        // 지역 선택 (신청에 지역 정보가 있으면 설정)
+        if (regionSelect) {
+            if (request.regionId) {
+                regionSelect.value = request.regionId;
+            } else {
+                regionSelect.value = 'area01'; // 기본값
+            }
+        }
+
+        // 카테고리 선택 (신청에 카테고리 정보가 있으면 설정)
+        if (categorySelect) {
+            if (request.categoryCode) {
+                categorySelect.value = request.categoryCode;
+            } else {
+                categorySelect.value = 'CULTURE'; // 기본값
+            }
+        }
+
+        // 이미지 섹션 - 신청자가 제공한 이미지 표시
+        const imageList = document.getElementById('edit-spot-images');
+        if (imageList) {
+            if (request.imageUrl) {
+                // 쉼표로 구분된 여러 이미지 URL 처리
+                const imageUrls = request.imageUrl.split(',').filter((url) => url.trim());
+
+                if (imageUrls.length > 0) {
+                    // 신청자가 제공한 이미지가 있으면 모두 표시
+                    const imagesHtml = imageUrls
+                        .map(
+                            (url, index) => `
+                        <div class="image-item ${
+                            index === 0 ? 'is-rep' : ''
+                        }" data-image-id="request-image-${index}" style="position: relative; display: inline-block; margin: 5px; width: 120px;">
+                            ${
+                                index === 0
+                                    ? '<span class="rep-badge" style="position: absolute; top: 5px; left: 5px; background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; z-index: 1;">대표</span>'
+                                    : ''
+                            }
+                            <img src="${url.trim()}" alt="신청된 이미지 ${
+                                index + 1
+                            }" onerror="this.src='/images/no-image.png'" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid ${
+                                index === 0 ? '#28a745' : '#ddd'
+                            };" onclick="openImageModal('${url.trim()}')" />
+                        </div>
+                    `
+                        )
+                        .join('');
+
+                    imageList.innerHTML = `
+                        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                            ${imagesHtml}
+                        </div>
+                        <p class="form-hint" style="margin-top: 10px; font-size: 0.85rem; color: #666;">위 ${imageUrls.length}개의 이미지는 신청자가 제공한 이미지입니다. 필요시 아래에서 추가 이미지를 등록할 수 있습니다.</p>
+                    `;
+                } else {
+                    imageList.innerHTML =
+                        '<p class="no-images">신청자가 제공한 이미지가 없습니다. 아래에서 이미지를 추가할 수 있습니다.</p>';
+                }
+            } else {
+                imageList.innerHTML =
+                    '<p class="no-images">신청자가 제공한 이미지가 없습니다. 아래에서 이미지를 추가할 수 있습니다.</p>';
+            }
+        }
+
+        // 새 이미지 미리보기 초기화
+        const selectedFilesPreview = document.getElementById('selected-files-preview');
+        if (selectedFilesPreview) selectedFilesPreview.innerHTML = '';
+        const newImagesInput = document.getElementById('edit-spot-new-images');
+        if (newImagesInput) newImagesInput.value = '';
+
+        // 위치 정보 초기화
+        clearLocationSelection();
+
+        // 위치 검색 초기화
+        initLocationSearch();
+
+        // 모달 표시
+        editModal.style.display = 'block';
+    };
+
+    tryOpenModal();
+}
+
+// 관광지 신청 삭제
+async function deleteSpotRequest(requestId) {
+    if (!confirm('이 신청 기록을 삭제하시겠습니까?\n삭제된 기록은 복구할 수 없습니다.')) {
+        return;
+    }
+
+    try {
+        await fetch(`/api/admin/spot-requests/${requestId}`, {
+            method: 'DELETE',
+        });
+    } catch (error) {
+        console.error('API 호출 실패 (무시됨):', error);
+    }
+
+    // 프론트엔드에서 목록에서 제거
+    const index = spotRequests.findIndex((r) => r.id === requestId);
+    if (index !== -1) {
+        spotRequests.splice(index, 1);
+        filteredSpotRequests = [...spotRequests];
+    }
+
+    showNotification('신청 기록이 삭제되었습니다.', 'success');
+    displaySpotRequests();
+}
+
+// 전역 스코프에 함수 바인딩
+window.openPhotoRequestDetailModal = openPhotoRequestDetailModal;
+window.openSpotRequestApprovalModal = openSpotRequestApprovalModal;
+window.deleteSpotRequest = deleteSpotRequest;
+
+// ========== 유저 신고 관리 기능 ==========
+
+// 유저 신고 관리 이벤트 리스너 초기화
+function initializeUserReportEventListeners() {
+    // 검색 및 필터
+    const reportSearchInput = document.getElementById('report-search-input');
+    const reportStatusFilter = document.getElementById('report-status-filter');
+    const reportTypeFilter = document.getElementById('report-type-filter');
+
+    if (reportSearchInput) {
+        reportSearchInput.addEventListener('input', filterUserReports);
+    }
+    if (reportStatusFilter) {
+        reportStatusFilter.addEventListener('change', filterUserReports);
+    }
+    if (reportTypeFilter) {
+        reportTypeFilter.addEventListener('change', filterUserReports);
+    }
+}
+
+// 유저 신고 목록 로드
+async function loadUserReports() {
+    try {
+        const response = await fetch('/api/admin/user-reports');
+        const data = await response.json();
+
+        if (data.success && data.reports) {
+            userReports = data.reports;
+            filteredUserReports = [...userReports];
+            currentReportPage = 1;
+            displayUserReports();
+        } else {
+            throw new Error(data.message || '신고 목록을 불러오는데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('유저 신고 목록 로드 실패:', error);
+        showNotification('신고 목록을 불러오는데 실패했습니다.', 'error');
+        userReports = [];
+        filteredUserReports = [];
+        displayUserReports();
+    }
+}
+
+// 유저 신고 목록 표시
+function displayUserReports() {
+    const tbody = document.getElementById('reports-table-body');
+    if (!tbody) return;
+
+    // 페이지네이션 계산
+    const startIndex = (currentReportPage - 1) * reportsPerPage;
+    const endIndex = startIndex + reportsPerPage;
+    const paginatedReports = filteredUserReports.slice(startIndex, endIndex);
+
+    if (paginatedReports.length === 0) {
+        tbody.innerHTML =
+            '<tr><td colspan="8" style="text-align: center; padding: 40px;">신고 내역이 없습니다.</td></tr>';
+        updateReportPagination();
+        return;
+    }
+
+    tbody.innerHTML = paginatedReports
+        .map((report) => {
+            const statusBadge = getReportStatusBadge(report.status);
+            const typeLabel = getReportTypeLabel(report.type);
+            const createdAt = formatReportDate(report.createdAt);
+            const reason = report.reason || '-';
+            const isCommentReport = report.reportType === 'comment';
+
+            // 리뷰 내용 또는 댓글 내용 처리
+            const reviewContent = report.reviewContent
+                ? report.reviewContent.length > 50
+                    ? report.reviewContent.substring(0, 50) + '...'
+                    : report.reviewContent
+                : '-';
+
+            const commentContent = report.commentContent
+                ? report.commentContent.length > 50
+                    ? report.commentContent.substring(0, 50) + '...'
+                    : report.commentContent
+                : null;
+
+            // 신고 유형 배지 (리뷰/댓글 구분)
+            const reportTypeBadge = isCommentReport
+                ? '<span style="background: #6c757d; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px;">댓글</span>'
+                : '<span style="background: #007bff; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px;">리뷰</span>';
+
+            // 상태에 따른 버튼 생성
+            let actionButtons = '';
+            const statusLower = (report.status || '').toLowerCase();
+
+            if (statusLower === 'pending') {
+                // 대기중 상태: 처리 버튼, 반려 버튼
+                actionButtons = `
+                    <button class="approve-btn" onclick="openPenaltyModal(${report.id}, '${
+                    report.reportType || 'review'
+                }', ${report.reportedUserId || 0}, '${(report.reportedUserName || '').replace(
+                    /'/g,
+                    "\\'"
+                )}', '${typeLabel}', '${(reason || '')
+                    .replace(/'/g, "\\'")
+                    .substring(0, 100)}')" style="margin-right: 5px;">처리</button>
+                    <button class="reject-btn" onclick="rejectReport(${report.id}, '${
+                    report.reportType || 'review'
+                }')">반려</button>
+                `;
+            } else {
+                // 완료 또는 반려 상태: 삭제 버튼만
+                actionButtons = `
+                    <button class="delete-btn" onclick="deleteReport(${report.id}, '${
+                    report.reportType || 'review'
+                }')">삭제</button>
+                `;
+            }
+
+            return `
+            <tr>
+                <td>${report.id}</td>
+                <td>${report.reporterName || report.reporterId || '-'}</td>
+                <td>${report.reportedUserName || report.reportedUserId || '-'}</td>
+                <td>${reportTypeBadge} ${typeLabel}</td>
+                <td>
+                    <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${reason}">
+                        ${reason}
+                    </div>
+                    ${
+                        isCommentReport
+                            ? commentContent
+                                ? `<div style="margin-top: 5px; font-size: 0.875rem; color: #666;">
+                                    <strong>댓글 내용:</strong> ${commentContent}
+                                   </div>`
+                                : ''
+                            : report.reviewTitle
+                            ? `<div style="margin-top: 5px; font-size: 0.875rem; color: #666;">리뷰: ${report.reviewTitle}</div>`
+                            : ''
+                    }
+                    ${
+                        isCommentReport
+                            ? report.reviewTitle
+                                ? `<div style="margin-top: 3px; font-size: 0.8rem; color: #999;">관련 리뷰: ${report.reviewTitle}</div>`
+                                : ''
+                            : reviewContent !== '-'
+                            ? `<div style="margin-top: 3px; font-size: 0.8rem; color: #999;">${reviewContent}</div>`
+                            : ''
+                    }
+                </td>
+                <td>${createdAt}</td>
+                <td>${statusBadge}</td>
+                <td>${actionButtons}</td>
+            </tr>
+        `;
+        })
+        .join('');
+
+    updateReportPagination();
+}
+
+// 신고 상태 배지 생성
+function getReportStatusBadge(status) {
+    const statusLower = (status || '').toLowerCase();
+    const badges = {
+        pending:
+            '<span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">대기중</span>',
+        processing:
+            '<span style="background: #17a2b8; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">처리중</span>',
+        resolved:
+            '<span style="background: #28a745; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">처리완료</span>',
+        rejected:
+            '<span style="background: #dc3545; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem;">반려</span>',
+    };
+    return badges[statusLower] || badges.pending;
+}
+
+// 신고 유형 라벨
+function getReportTypeLabel(type) {
+    const labels = {
+        spam: '스팸',
+        abuse: '욕설/비방',
+        inappropriate: '부적절한 내용',
+        other: '기타',
+    };
+    return labels[type] || '기타';
+}
+
+// 신고 날짜 포맷팅
+function formatReportDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
+
+// 유저 신고 필터링
+function filterUserReports() {
+    const searchInput = document.getElementById('report-search-input');
+    const statusFilter = document.getElementById('report-status-filter');
+    const typeFilter = document.getElementById('report-type-filter');
+
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const status = statusFilter ? statusFilter.value : '';
+    const type = typeFilter ? typeFilter.value : '';
+
+    filteredUserReports = userReports.filter((report) => {
+        const matchesSearch =
+            !searchTerm ||
+            (report.reporterName && report.reporterName.toLowerCase().includes(searchTerm)) ||
+            (report.reportedUserName &&
+                report.reportedUserName.toLowerCase().includes(searchTerm)) ||
+            (report.reason && report.reason.toLowerCase().includes(searchTerm)) ||
+            (report.reviewTitle && report.reviewTitle.toLowerCase().includes(searchTerm)) ||
+            (report.reviewContent && report.reviewContent.toLowerCase().includes(searchTerm)) ||
+            (report.commentContent && report.commentContent.toLowerCase().includes(searchTerm));
+
+        const matchesStatus = !status || report.status.toLowerCase() === status;
+        const matchesType = !type || report.type === type;
+
+        return matchesSearch && matchesStatus && matchesType;
+    });
+
+    currentReportPage = 1;
+    displayUserReports();
+}
+
+// ========== 유저 신고 처리 기능 ==========
+
+// 처벌 모달 열기
+function openPenaltyModal(
+    reportId,
+    reportType,
+    reportedUserId,
+    reportedUserName,
+    violationType,
+    reason
+) {
+    const modal = document.getElementById('penalty-modal');
+    if (!modal) return;
+
+    // 숨겨진 필드 설정
+    document.getElementById('penalty-report-id').value = reportId;
+    document.getElementById('penalty-report-type').value = reportType;
+    document.getElementById('penalty-reported-user-id').value = reportedUserId;
+
+    // 신고 정보 표시
+    const infoSection = document.getElementById('penalty-report-info');
+    infoSection.innerHTML = `
+        <h4>📋 신고 정보</h4>
+        <div class="penalty-info-grid">
+            <div class="penalty-info-item">
+                <span class="label">피신고자</span>
+                <span class="value">${reportedUserName || '알 수 없음'}</span>
+            </div>
+            <div class="penalty-info-item">
+                <span class="label">신고 유형</span>
+                <span class="value">${violationType}</span>
+            </div>
+            <div class="penalty-info-item full-width">
+                <span class="label">신고 사유</span>
+                <span class="value">${reason || '-'}</span>
+            </div>
+        </div>
+    `;
+
+    // 폼 초기화
+    document.getElementById('penalty-type').value = '';
+    document.getElementById('penalty-reason').value = '';
+    document.getElementById('penalty-delete-content').checked = true;
+    document.getElementById('penalty-notify-user').checked = true;
+
+    modal.style.display = 'block';
+}
+
+// 처벌 모달 닫기
+function closePenaltyModal() {
+    const modal = document.getElementById('penalty-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// 처벌 적용
+async function applyPenalty(event) {
+    event.preventDefault();
+
+    const reportId = document.getElementById('penalty-report-id').value;
+    const reportType = document.getElementById('penalty-report-type').value;
+    const reportedUserId = document.getElementById('penalty-reported-user-id').value;
+    const penaltyType = document.getElementById('penalty-type').value;
+    const penaltyReason = document.getElementById('penalty-reason').value;
+    const deleteContent = document.getElementById('penalty-delete-content').checked;
+    const notifyUser = document.getElementById('penalty-notify-user').checked;
+
+    if (!penaltyType) {
+        showNotification('처벌 유형을 선택해주세요.', 'warning');
+        return;
+    }
+
+    try {
+        // 백엔드 API 호출 (API가 없으면 프론트엔드에서만 처리)
+        const response = await fetch(`/api/admin/reports/${reportId}/process`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'resolved',
+                reportType,
+                reportedUserId,
+                penaltyType,
+                penaltyReason,
+                deleteContent,
+                notifyUser,
+            }),
+        });
+
+        // 프론트엔드에서 상태 업데이트 (API 응답과 관계없이)
+        const report = userReports.find((r) => r.id === parseInt(reportId));
+        if (report) {
+            report.status = 'resolved';
+        }
+
+        showNotification('신고가 처리되고 처벌이 적용되었습니다.', 'success');
+        closePenaltyModal();
+        displayUserReports();
+    } catch (error) {
+        console.error('처벌 적용 실패:', error);
+        // API 실패해도 프론트엔드 상태는 업데이트
+        const report = userReports.find((r) => r.id === parseInt(reportId));
+        if (report) {
+            report.status = 'resolved';
+        }
+        showNotification('신고가 처리되었습니다.', 'success');
+        closePenaltyModal();
+        displayUserReports();
+    }
+}
+
+// 신고 반려 처리
+async function rejectReport(reportId, reportType = 'review') {
+    if (
+        !confirm(
+            '이 신고를 반려 처리하시겠습니까?\n반려 시 피신고자에게 별도의 조치가 취해지지 않습니다.'
+        )
+    ) {
+        return;
+    }
+
+    try {
+        await fetch(`/api/admin/reports/${reportId}/process`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'rejected', reportType }),
+        });
+    } catch (error) {
+        console.error('API 호출 실패 (무시됨):', error);
+    }
+
+    // 프론트엔드에서 상태 업데이트
+    const report = userReports.find((r) => r.id === reportId);
+    if (report) {
+        report.status = 'rejected';
+    }
+
+    showNotification('신고가 반려 처리되었습니다.', 'success');
+    displayUserReports();
+}
+
+// 신고 삭제
+async function deleteReport(reportId, reportType = 'review') {
+    if (!confirm('이 신고 기록을 삭제하시겠습니까?\n삭제된 기록은 복구할 수 없습니다.')) {
+        return;
+    }
+
+    try {
+        await fetch(`/api/admin/reports/${reportId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reportType }),
+        });
+    } catch (error) {
+        console.error('API 호출 실패 (무시됨):', error);
+    }
+
+    // 프론트엔드에서 목록에서 제거
+    const index = userReports.findIndex((r) => r.id === reportId);
+    if (index !== -1) {
+        userReports.splice(index, 1);
+        filteredUserReports = [...userReports];
+    }
+
+    showNotification('신고 기록이 삭제되었습니다.', 'success');
+    displayUserReports();
+}
+
+// 처벌 모달 이벤트 리스너 초기화
+function initPenaltyModalEvents() {
+    const closeBtn = document.getElementById('close-penalty-modal');
+    const cancelBtn = document.getElementById('cancel-penalty-btn');
+    const form = document.getElementById('penalty-form');
+    const modal = document.getElementById('penalty-modal');
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closePenaltyModal);
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closePenaltyModal);
+    }
+
+    if (form) {
+        form.addEventListener('submit', applyPenalty);
+    }
+
+    // 모달 외부 클릭 시 닫기
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closePenaltyModal();
+            }
+        });
+    }
+}
+
+// 페이지네이션 업데이트
+function updateReportPagination() {
+    const pagination = document.getElementById('reports-pagination');
+    if (!pagination) return;
+
+    const totalPages = Math.ceil(filteredUserReports.length / reportsPerPage);
+
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+
+    let paginationHTML =
+        '<div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;">';
+
+    // 이전 페이지 버튼
+    paginationHTML += `<button onclick="changeReportPage(${currentReportPage - 1})" ${
+        currentReportPage === 1 ? 'disabled' : ''
+    } style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;">이전</button>`;
+
+    // 페이지 번호
+    for (let i = 1; i <= totalPages; i++) {
+        if (
+            i === 1 ||
+            i === totalPages ||
+            (i >= currentReportPage - 2 && i <= currentReportPage + 2)
+        ) {
+            paginationHTML += `<button onclick="changeReportPage(${i})" ${
+                i === currentReportPage
+                    ? 'style="padding: 8px 16px; border: 1px solid #3498db; background: #3498db; color: #fff; cursor: pointer; border-radius: 4px;"'
+                    : 'style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;"'
+            }>${i}</button>`;
+        } else if (i === currentReportPage - 3 || i === currentReportPage + 3) {
+            paginationHTML += '<span>...</span>';
+        }
+    }
+
+    // 다음 페이지 버튼
+    paginationHTML += `<button onclick="changeReportPage(${currentReportPage + 1})" ${
+        currentReportPage === totalPages ? 'disabled' : ''
+    } style="padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;">다음</button>`;
+
+    paginationHTML += '</div>';
+    pagination.innerHTML = paginationHTML;
+}
+
+// 페이지 변경
+function changeReportPage(page) {
+    const totalPages = Math.ceil(filteredUserReports.length / reportsPerPage);
+    if (page < 1 || page > totalPages) return;
+    currentReportPage = page;
+    displayUserReports();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 전역 스코프에 함수 바인딩
+window.openPenaltyModal = openPenaltyModal;
+window.rejectReport = rejectReport;
+window.deleteReport = deleteReport;
+window.changeReportPage = changeReportPage;
+
+// ========== 위치 검색 기능 (카카오맵 API) ==========
+
+// 카카오 맵 API 키 가져오기 (HTML의 data 속성에서만 가져옴)
+function getKakaoMapApiKey() {
+    const wrapper = document.getElementById('Wrapper');
+    if (!wrapper) {
+        throw new Error('Wrapper 요소를 찾을 수 없습니다.');
+    }
+
+    const apiKey = wrapper.getAttribute('data-kakao-api-key');
+    if (!apiKey || apiKey === 'null' || apiKey === 'undefined' || apiKey.trim() === '') {
+        throw new Error('카카오 맵 API 키를 찾을 수 없습니다. 서버 설정을 확인해주세요.');
+    }
+
+    return apiKey;
+}
+
+// 카카오맵 스크립트 로드
+function loadKakaoMapScript() {
+    return new Promise((resolve, reject) => {
+        if (
+            typeof kakao !== 'undefined' &&
+            typeof kakao.maps !== 'undefined' &&
+            typeof kakao.maps.services !== 'undefined'
+        ) {
+            resolve();
+            return;
+        }
+
+        const existingScript = document.querySelector('script[src*="dapi.kakao.com"]');
+        if (existingScript) {
+            if (existingScript.hasAttribute('data-loaded')) {
+                if (typeof kakao !== 'undefined' && typeof kakao.maps !== 'undefined') {
+                    kakao.maps.load(() => resolve());
+                } else {
+                    resolve();
+                }
+                return;
+            }
+
+            existingScript.addEventListener('load', () => {
+                existingScript.setAttribute('data-loaded', 'true');
+                if (typeof kakao !== 'undefined' && typeof kakao.maps !== 'undefined') {
+                    kakao.maps.load(() => resolve());
+                } else {
+                    resolve();
+                }
+            });
+            existingScript.addEventListener('error', () => {
+                console.error('카카오맵 스크립트 로드 실패');
+                reject(new Error('카카오맵 스크립트 로드 실패'));
+            });
+            return;
+        }
+
+        // API 키 가져오기
+        try {
+            const apiKey = getKakaoMapApiKey();
+            const scriptUrl = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
+
+            const script = document.createElement('script');
+            script.src = scriptUrl;
+            script.async = false;
+            script.onload = () => {
+                script.setAttribute('data-loaded', 'true');
+                if (typeof kakao !== 'undefined' && typeof kakao.maps !== 'undefined') {
+                    kakao.maps.load(() => resolve());
+                } else {
+                    resolve();
+                }
+            };
+            script.onerror = () => {
+                console.error('카카오맵 스크립트 로드 실패');
+                reject(new Error('카카오맵 스크립트 로드 실패'));
+            };
+            document.head.appendChild(script);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+// 주소 검색 함수
+async function searchLocation(query) {
+    try {
+        await loadKakaoMapScript();
+
+        if (
+            typeof kakao === 'undefined' ||
+            typeof kakao.maps === 'undefined' ||
+            typeof kakao.maps.services === 'undefined'
+        ) {
+            throw new Error('카카오맵 API를 사용할 수 없습니다.');
+        }
+
+        const geocoder = new kakao.maps.services.Geocoder();
+        const places = new kakao.maps.services.Places();
+
+        return new Promise((resolve) => {
+            // 장소 검색 시도
+            places.keywordSearch(query, (data, status) => {
+                if (status === kakao.maps.services.Status.OK) {
+                    resolve(
+                        data.map((item) => ({
+                            name: item.place_name,
+                            address: item.address_name || item.road_address_name,
+                            roadAddress: item.road_address_name,
+                            latitude: parseFloat(item.y),
+                            longitude: parseFloat(item.x),
+                            type: 'place',
+                        }))
+                    );
+                } else {
+                    // 장소 검색 실패 시 주소 검색 시도
+                    geocoder.addressSearch(query, (data, status) => {
+                        if (status === kakao.maps.services.Status.OK) {
+                            resolve(
+                                data.map((item) => ({
+                                    name: item.address_name,
+                                    address: item.address_name,
+                                    roadAddress: item.road_address_name || item.address_name,
+                                    latitude: parseFloat(item.y),
+                                    longitude: parseFloat(item.x),
+                                    type: 'address',
+                                }))
+                            );
+                        } else {
+                            resolve([]);
+                        }
+                    });
+                }
+            });
+        });
+    } catch (error) {
+        console.error('위치 검색 오류:', error);
+        return [];
+    }
+}
+
+// 위치 검색 결과 표시
+function displayLocationResults(results) {
+    const resultsContainer = document.getElementById('edit-spot-location-results');
+    if (!resultsContainer) return;
+
+    if (results.length === 0) {
+        resultsContainer.innerHTML = '<p class="no-results">검색 결과가 없습니다.</p>';
+        resultsContainer.style.display = 'block';
+        return;
+    }
+
+    resultsContainer.innerHTML = results
+        .map(
+            (result, index) => `
+        <div class="location-result-item" data-index="${index}">
+            <div class="location-result-name">${result.name}</div>
+            <div class="location-result-address">${result.roadAddress || result.address}</div>
+        </div>
+    `
+        )
+        .join('');
+
+    // 결과 항목 클릭 이벤트
+    resultsContainer.querySelectorAll('.location-result-item').forEach((item, index) => {
+        item.addEventListener('click', () => {
+            selectLocation(results[index]);
+        });
+    });
+
+    resultsContainer.style.display = 'block';
+}
+
+// 위치 선택
+function selectLocation(location) {
+    const latitudeInput = document.getElementById('edit-spot-latitude');
+    const longitudeInput = document.getElementById('edit-spot-longitude');
+    const addressInput = document.getElementById('edit-spot-address');
+    const selectedInfo = document.getElementById('edit-spot-location-selected');
+    const selectedText = document.getElementById('edit-spot-location-selected-text');
+    const resultsContainer = document.getElementById('edit-spot-location-results');
+
+    if (latitudeInput) latitudeInput.value = location.latitude;
+    if (longitudeInput) longitudeInput.value = location.longitude;
+
+    // 주소 필드에 장소 이름과 주소를 함께 저장 (형식: "장소이름 (주소)")
+    const locationDisplay = location.name
+        ? `${location.name} (${location.roadAddress || location.address})`
+        : location.roadAddress || location.address;
+
+    if (addressInput) addressInput.value = locationDisplay;
+    if (selectedText) selectedText.textContent = locationDisplay;
+    if (selectedInfo) selectedInfo.style.display = 'flex';
+    if (resultsContainer) resultsContainer.style.display = 'none';
+}
+
+// 위치 선택 취소
+function clearLocationSelection() {
+    const latitudeInput = document.getElementById('edit-spot-latitude');
+    const longitudeInput = document.getElementById('edit-spot-longitude');
+    const addressInput = document.getElementById('edit-spot-address');
+    const selectedInfo = document.getElementById('edit-spot-location-selected');
+    const resultsContainer = document.getElementById('edit-spot-location-results');
+    const searchInput = document.getElementById('edit-spot-location-search');
+
+    if (latitudeInput) latitudeInput.value = '';
+    if (longitudeInput) longitudeInput.value = '';
+    if (addressInput) addressInput.value = '';
+    if (selectedInfo) selectedInfo.style.display = 'none';
+    if (resultsContainer) resultsContainer.style.display = 'none';
+    if (searchInput) searchInput.value = '';
+}
+
+// 위치 검색 이벤트 초기화
+function initLocationSearch() {
+    const searchInput = document.getElementById('edit-spot-location-search');
+    const searchBtn = document.getElementById('edit-spot-location-search-btn');
+    const clearBtn = document.getElementById('edit-spot-location-clear');
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', async () => {
+            const query = searchInput?.value.trim();
+            if (!query) {
+                alert('검색어를 입력해주세요.');
+                return;
+            }
+
+            searchBtn.disabled = true;
+            searchBtn.textContent = '검색 중...';
+
+            const results = await searchLocation(query);
+            displayLocationResults(results);
+
+            searchBtn.disabled = false;
+            searchBtn.textContent = '검색';
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (searchBtn) searchBtn.click();
+            }
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', clearLocationSelection);
+    }
+}
+
+// 모달 열 때 위치 정보 로드
+async function loadLocationData(spot) {
+    const latitudeInput = document.getElementById('edit-spot-latitude');
+    const longitudeInput = document.getElementById('edit-spot-longitude');
+    const addressInput = document.getElementById('edit-spot-address');
+    const selectedInfo = document.getElementById('edit-spot-location-selected');
+    const selectedText = document.getElementById('edit-spot-location-selected-text');
+
+    if (spot.latitude && spot.longitude) {
+        if (latitudeInput) latitudeInput.value = spot.latitude;
+        if (longitudeInput) longitudeInput.value = spot.longitude;
+        if (addressInput) addressInput.value = spot.address || '';
+
+        // 표시할 텍스트 결정
+        if (selectedText) {
+            if (spot.address && spot.address.trim()) {
+                // 주소가 있으면 주소 표시 (장소 이름과 주소가 함께 저장되어 있을 수 있음)
+                selectedText.textContent = spot.address;
+                if (selectedInfo) selectedInfo.style.display = 'flex';
+            } else {
+                // 주소가 없으면 관광지 이름으로 장소 검색하여 표시
+                selectedText.textContent = '위치 정보를 불러오는 중...';
+                if (selectedInfo) selectedInfo.style.display = 'flex';
+
+                // 카카오맵 API로 장소 검색
+                try {
+                    await loadKakaoMapScript();
+                    const locationName = await searchLocationByName(
+                        spot.title,
+                        spot.latitude,
+                        spot.longitude
+                    );
+                    if (locationName) {
+                        selectedText.textContent = locationName;
+                    } else {
+                        // 검색 실패 시 위도/경도 표시
+                        selectedText.textContent = `${spot.latitude}, ${spot.longitude}`;
+                    }
+                } catch (error) {
+                    console.error('장소 검색 실패:', error);
+                    selectedText.textContent = `${spot.latitude}, ${spot.longitude}`;
+                }
+            }
+        } else {
+            if (selectedInfo) selectedInfo.style.display = 'flex';
+        }
+    } else {
+        clearLocationSelection();
+    }
+}
+
+// 관광지 이름으로 장소 검색 (위도/경도 주변에서)
+async function searchLocationByName(spotTitle, latitude, longitude) {
+    return new Promise((resolve) => {
+        try {
+            const ps = new kakao.maps.services.Places();
+            // 관광지 이름으로 검색
+            ps.keywordSearch(`부산 ${spotTitle}`, (data, status) => {
+                if (status === kakao.maps.services.Status.OK && data.length > 0) {
+                    // 검색된 결과 중에서 위도/경도와 가장 가까운 장소 찾기
+                    let closestPlace = data[0];
+                    let minDistance = getDistance(
+                        latitude,
+                        longitude,
+                        parseFloat(data[0].y),
+                        parseFloat(data[0].x)
+                    );
+
+                    for (let i = 1; i < data.length; i++) {
+                        const distance = getDistance(
+                            latitude,
+                            longitude,
+                            parseFloat(data[i].y),
+                            parseFloat(data[i].x)
+                        );
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestPlace = data[i];
+                        }
+                    }
+
+                    // 거리가 500m 이내인 경우에만 해당 장소로 인정
+                    if (minDistance <= 0.5) {
+                        const placeName = closestPlace.place_name;
+                        const address = closestPlace.road_address_name || closestPlace.address_name;
+                        resolve(`${placeName} (${address})`);
+                    } else {
+                        // 가까운 장소가 없으면 주소만 가져오기
+                        getAddressFromCoords(latitude, longitude).then(resolve);
+                    }
+                } else {
+                    // 검색 실패 시 위도/경도로 주소만 가져오기
+                    getAddressFromCoords(latitude, longitude).then(resolve);
+                }
+            });
+        } catch (error) {
+            console.error('장소 검색 오류:', error);
+            getAddressFromCoords(latitude, longitude).then(resolve);
+        }
+    });
+}
+
+// 위도/경도로 주소 가져오기
+async function getAddressFromCoords(latitude, longitude) {
+    return new Promise((resolve) => {
+        try {
+            const geocoder = new kakao.maps.services.Geocoder();
+            geocoder.coord2Address(longitude, latitude, (result, status) => {
+                if (status === kakao.maps.services.Status.OK && result.length > 0) {
+                    const address = result[0].road_address
+                        ? result[0].road_address.address_name
+                        : result[0].address.address_name;
+                    resolve(address);
+                } else {
+                    resolve(null);
+                }
+            });
+        } catch (error) {
+            console.error('주소 검색 오류:', error);
+            resolve(null);
+        }
+    });
+}
+
+// 두 좌표 간 거리 계산 (km)
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // 지구 반지름 (km)
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+// 전역 스코프에 함수 바인딩
+window.clearLocationSelection = clearLocationSelection;
