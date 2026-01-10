@@ -55,6 +55,9 @@ a {
     /* position: relative; */
     width: 100%;
     padding: 0 0 70px;
+    margin-top: -70px;
+    top: 0;
+    z-index: 10;
 }
 
 .ktTabWrap .tabContainer {
@@ -63,6 +66,7 @@ a {
 
 .ktTabWrap .tabUl {
     /* width: 100%; */
+    margin-top: 0;
     height: 65px;
     display: flex;
     text-align: center;
