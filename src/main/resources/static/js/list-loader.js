@@ -74,6 +74,9 @@ class ListLoader {
         }
         const itemFragment = document.importNode(template.content, true);
 
+        // 카테고리 비활성화 상태 확인
+        const isCategoryInactive = itemData.categoryActive === false;
+
         // 이미지 설정
         const imgElement = itemFragment.querySelector('.item-photo img');
         if (imgElement) {
@@ -113,6 +116,11 @@ class ListLoader {
             linkElement.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (!e.target.closest('.likeBtn')) {
+                    // 카테고리가 비활성화된 경우 클릭 차단
+                    if (isCategoryInactive) {
+                        this.showInactiveNotification();
+                        return;
+                    }
                     this.navigateToDetail(itemData);
                 }
             });
@@ -124,6 +132,12 @@ class ListLoader {
             likeBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // 비활성화된 카테고리의 관광지는 좋아요도 차단
+                if (isCategoryInactive) {
+                    this.showInactiveNotification();
+                    return;
+                }
                 
                 const itemEl = likeBtn.closest('.item');
                 const spotId = itemEl.dataset.spotId;
@@ -150,9 +164,44 @@ class ListLoader {
         const itemElement = itemFragment.querySelector('.item');
         if (itemElement) {
             itemElement.dataset.spotId = itemData.id;
-            itemElement.style.cursor = 'pointer'; // 커서 모양 변경
+            
+            // 카테고리 비활성화된 경우 시각적 스타일 적용
+            if (isCategoryInactive) {
+                itemElement.classList.add('inactive-category');
+                itemElement.style.opacity = '0.6';
+                itemElement.style.cursor = 'not-allowed';
+                itemElement.style.position = 'relative';
+                
+                // 비활성화 배지 추가
+                const inactiveBadge = document.createElement('div');
+                inactiveBadge.className = 'inactive-badge';
+                inactiveBadge.innerHTML = `
+                    <span style="
+                        position: absolute;
+                        top: 10px;
+                        left: 10px;
+                        background: rgba(220, 53, 69, 0.9);
+                        color: white;
+                        padding: 4px 10px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        font-weight: bold;
+                        z-index: 10;
+                        pointer-events: none;
+                    ">비활성화</span>
+                `;
+                itemElement.insertBefore(inactiveBadge, itemElement.firstChild);
+            } else {
+                itemElement.style.cursor = 'pointer'; // 커서 모양 변경
+            }
+            
             itemElement.addEventListener('click', (e) => {
                 if (!e.target.closest('.likeBtn')) {
+                    // 카테고리가 비활성화된 경우 클릭 차단
+                    if (isCategoryInactive) {
+                        this.showInactiveNotification();
+                        return;
+                    }
                     if (this.onItemClick) {
                         this.onItemClick(itemData, e);
                     } else {
@@ -163,6 +212,49 @@ class ListLoader {
         }
 
         return itemFragment;
+    }
+
+    // 비활성화 알림 표시
+    showInactiveNotification() {
+        // 이미 알림이 있으면 제거
+        const existingNotification = document.querySelector('.inactive-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = 'inactive-notification';
+        notification.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.85);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 12px;
+                z-index: 10000;
+                text-align: center;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                animation: fadeIn 0.3s ease;
+            ">
+                <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold;">접근 불가</p>
+                <p style="margin: 0; font-size: 14px; color: #ccc;">비활성화된 카테고리의 관광지입니다.</p>
+            </div>
+            <style>
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                }
+            </style>
+        `;
+        document.body.appendChild(notification);
+
+        // 2초 후 자동 제거
+        setTimeout(() => {
+            notification.remove();
+        }, 2000);
     }
 
     // 리스트 렌더링

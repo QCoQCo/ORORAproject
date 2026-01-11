@@ -73,7 +73,7 @@ function initControlPanelToggle() {
 // 컨트롤 버튼 이벤트 초기화
 function initControlButtons() {
     // 전체 해제 버튼
-    const clearAllBtn = document.querySelector('.control-button.btn-secondary');
+    const clearAllBtn = document.querySelector('.control-button-compact.btn-secondary-compact');
     if (clearAllBtn) {
         clearAllBtn.addEventListener('click', function () {
             // 모든 선택 해제
@@ -97,7 +97,7 @@ function initControlButtons() {
     }
 
     // 선택된 지역 보기 버튼
-    const viewSelectedBtn = document.querySelector('.control-button.btn-primary');
+    const viewSelectedBtn = document.querySelector('.control-button-compact.btn-primary-compact');
     if (viewSelectedBtn) {
         viewSelectedBtn.addEventListener('click', function () {
             if (selectedRegionIds.size > 0) {
@@ -109,12 +109,27 @@ function initControlButtons() {
     }
 }
 
+// 리스트 섹션 토글 기능 초기화
+function initListToggle() {
+    const listToggleBtn = document.getElementById('listToggleBtn');
+    const listSection = document.querySelector('.list-section-sticky');
+
+    if (listToggleBtn && listSection) {
+        listToggleBtn.addEventListener('click', function () {
+            listSection.classList.toggle('hidden');
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // 컨트롤 패널 토글 기능 초기화
     initControlPanelToggle();
 
     // 컨트롤 버튼 이벤트 초기화
     initControlButtons();
+
+    // 리스트 토글 기능 초기화
+    initListToggle();
 
     // 지도 로드
     loadMap();
@@ -274,6 +289,7 @@ async function renderSpotList(spots) {
                     link: spot.linkUrl || spot.link_url || '#',
                     categoryCode: spot.categoryCode || spot.category_code || 'culture',
                     isActive: spot.isActive !== false,
+                    categoryActive: spot.categoryActive !== false,
                 };
             });
 

@@ -33,6 +33,7 @@
         SELECT  ts.id
                 , ts.title
                 , ts.description
+                , ts.category_code AS categoryCode
                 , MAX(CASE WHEN tsi.rep_img_yn = 'Y' THEN tsi.image_url END) AS imageUrl
                 , GROUP_CONCAT(DISTINCT h.name ORDER BY h.name SEPARATOR ', ') AS hashtags
         FROM    tourist_spots ts    JOIN    regions r                   ON ts.region_id = r.id 
@@ -43,7 +44,8 @@
         AND     ts.is_active = TRUE
         GROUP BY ts.id,
                  ts.title,
-                 ts.description
+                 ts.description,
+                 ts.category_code
     </select>
     
     <!-- 2. 지역 선택하기(지도에서 지역 중복 선택) -->
@@ -52,6 +54,7 @@
         SELECT  ts.id
                 , ts.title
                 , ts.description
+                , ts.category_code AS categoryCode
                 , MAX(CASE WHEN tsi.rep_img_yn = 'Y' THEN tsi.image_url END) AS imageUrl
                 , GROUP_CONCAT(DISTINCT h.name ORDER BY h.name SEPARATOR ', ') AS hashtags
         FROM    tourist_spots ts    JOIN    regions r                   ON ts.region_id = r.id 
@@ -70,6 +73,7 @@
         GROUP BY ts.id
                  , ts.title
                  , ts.description
+                 , ts.category_code
 
     </select>   
 

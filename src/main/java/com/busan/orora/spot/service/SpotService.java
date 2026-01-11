@@ -1,5 +1,7 @@
 package com.busan.orora.spot.service;
 
+import com.busan.orora.commoncode.dto.CommonCodeDto;
+import com.busan.orora.commoncode.service.CommonCodeService;
 import com.busan.orora.hashtag.dto.HashtagDto;
 import com.busan.orora.hashtag.service.HashtagService;
 import com.busan.orora.region.dto.RegionDto;
@@ -36,6 +38,9 @@ public class SpotService {
 
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private CommonCodeService commonCodeService;
 
     public List<SpotDto> getAllSpots() {
         return spotMapper.findAllSpots();
@@ -155,7 +160,14 @@ public class SpotService {
             }
         }
 
-        // 3. 지역별 그룹화
+        // 3. 카테고리 활성 상태 캐시 (SPOT_CATEGORY 코드 그룹에서)
+        Map<String, Boolean> categoryActiveMap = new HashMap<>();
+        List<CommonCodeDto> categoryCodes = commonCodeService.getCodesByGroupCode("SPOT_CATEGORY");
+        for (CommonCodeDto code : categoryCodes) {
+            categoryActiveMap.put(code.getCode(), code.getIsActive() != null && code.getIsActive());
+        }
+
+        // 4. 지역별 그룹화
         Map<Integer, List<Map<String, Object>>> regionSpotsMap = new HashMap<>();
         Map<Integer, RegionDto> regionAreaCodeMap = new HashMap<>();
 
@@ -170,6 +182,10 @@ public class SpotService {
             List<String> hashtags = hashtagsBySpotId.getOrDefault(spot.getId(), List.of());
             String imageUrl = repImageBySpotId.getOrDefault(spot.getId(), null);
             RatingStat ratingStat = ratingBySpotId.get(spot.getId());
+            
+            // 카테고리 활성 상태 확인
+            String categoryCode = spot.getCategoryCode();
+            boolean categoryActive = categoryCode == null || categoryActiveMap.getOrDefault(categoryCode, true);
 
             Map<String, Object> spotData = new HashMap<>();
             spotData.put("id", spot.getId());
@@ -179,7 +195,9 @@ public class SpotService {
             spotData.put("imageUrl", imageUrl);
             spotData.put("linkUrl", spot.getLinkUrl());
             spotData.put("category", spot.getCategoryCode());
+            spotData.put("categoryCode", spot.getCategoryCode());
             spotData.put("isActive", spot.getIsActive());
+            spotData.put("categoryActive", categoryActive);
             spotData.put("viewCount", spot.getViewCount());
             spotData.put("ratingAvg", ratingStat != null ? ratingStat.getRatingAvg() : 0.0);
             spotData.put("ratingCount", ratingStat != null ? ratingStat.getRatingCount() : 0);

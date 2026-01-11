@@ -133,6 +133,8 @@ async function initializeAdmin() {
         return;
     }
 
+    // 공통코드를 먼저 로드해야 카테고리 활성 상태를 확인할 수 있음
+    await loadCommonCodes();
     await loadTouristSpots();
     await initializeUsers();
     initializeTabs();
@@ -397,11 +399,22 @@ function displayTouristSpots(filteredSpots = null) {
 }
 
 // 관광지 카드 생성
+// 카테고리 활성 상태 확인
+function isCategoryActive(categoryCode) {
+    if (!categoryCode || !commonCodes || commonCodes.length === 0) {
+        return true; // 기본적으로 활성으로 간주
+    }
+    
+    const category = commonCodes.find(
+        (code) => code.groupCode === 'SPOT_CATEGORY' && code.code === categoryCode.toUpperCase()
+    );
+    
+    return category ? (category.isActive !== false) : true;
+}
+
 function createTouristSpotCard(spot, regionKey, spotId, regionName) {
     const card = document.createElement('div');
-    card.className = 'tourist-spot-card';
-    card.style.cursor = 'pointer'; // 클릭 가능한 커서 표시
-
+    
     // 카테고리 결정: categoryCode 우선, 없으면 해시태그로 추정
     const normalizedHashtags = normalizeHashtags(spot.hashtags);
     let category = 'CULTURE'; // 기본값
@@ -410,6 +423,19 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
     } else {
         const estimatedCategory = getCategoryFromHashtags(normalizedHashtags);
         category = estimatedCategory.toUpperCase();
+    }
+
+    // 카테고리 활성 상태 확인
+    const isActive = isCategoryActive(category);
+    
+    if (!isActive) {
+        // 비활성화된 카테고리인 경우 비활성화 스타일 적용
+        card.className = 'tourist-spot-card inactive-category';
+        card.style.opacity = '0.7';
+        card.style.cursor = 'pointer'; // ADMIN이므로 클릭 가능
+    } else {
+        card.className = 'tourist-spot-card';
+        card.style.cursor = 'pointer';
     }
 
     // 해시태그 배열을 문자열로 변환 (# 접두사 추가)
@@ -424,8 +450,10 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
             .join(' ');
     }
 
+    const inactiveBadge = !isActive ? '<span class="inactive-badge">비활성화된 카테고리</span>' : '';
+
     card.innerHTML = `
-        <h3>${spot.title}</h3>
+        <h3>${spot.title} ${inactiveBadge}</h3>
         <div class="spot-category">${regionName} (${categoryNames[category] || category})</div>
         <div class="spot-info">
             해시태그: ${hashtagsDisplay}
@@ -437,13 +465,13 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
         </div>
     `;
 
-    // 카드 클릭 시 상세 페이지로 이동
+    // 카드 클릭 시 상세 페이지로 이동 (관리자는 비활성화된 카테고리도 접근 가능)
     card.addEventListener('click', (e) => {
         // 수정/삭제 버튼 클릭 시에는 이동하지 않음
         if (e.target.closest('.spot-actions')) {
             return;
         }
-        // 상세 페이지로 이동
+        // ADMIN이므로 비활성화된 카테고리도 상세 페이지로 이동 가능
         window.location.href = `/pages/detailed/detailed?id=${spotId}`;
     });
 
@@ -943,10 +971,19 @@ function updateStatistics() {
             totalSpots += count;
             regionCounts[regionKey] = count;
 
-            // 카테고리별 통계
+            // 카테고리별 통계 (활성화된 카테고리만)
             region.spots.forEach((spot) => {
-                const category = getCategoryFromHashtags(spot.hashtags);
-                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+                const normalizedHashtags = normalizeHashtags(spot.hashtags);
+                let category = 'CULTURE';
+                if (spot.categoryCode) {
+                    category = spot.categoryCode.toUpperCase();
+                } else {
+                    const estimatedCategory = getCategoryFromHashtags(normalizedHashtags);
+                    category = estimatedCategory.toUpperCase();
+                }
+                if (isCategoryActive(category)) {
+                    categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+                }
             });
         }
     });
@@ -1067,30 +1104,44 @@ function updateCategoryChart(categoryCounts) {
 
     chartContainer.innerHTML = '';
 
-    Object.keys(categoryNames).forEach((category) => {
-        const count = categoryCounts[category] || 0;
+    // 카테고리별 색상 적용
+    const colors = {
+        BEACH: 'linear-gradient(135deg, rgb(52, 152, 219), rgb(41, 128, 185))',
+        MOUNTAIN: 'linear-gradient(135deg, rgb(39, 174, 96), rgb(46, 204, 113))',
+        CULTURE: 'linear-gradient(135deg, rgb(155, 89, 182), rgb(142, 68, 173))',
+        FOOD: 'linear-gradient(135deg, rgb(243, 156, 18), rgb(230, 126, 34))',
+        SHOPPING: 'linear-gradient(135deg, rgb(231, 76, 60), rgb(192, 57, 43))',
+        CAFE: 'linear-gradient(135deg, rgb(241, 196, 15), rgb(243, 156, 18))',
+        FAMILY: 'linear-gradient(135deg, rgb(46, 204, 113), rgb(39, 174, 96))',
+        COUPLE: 'linear-gradient(135deg, rgb(236, 112, 99), rgb(231, 76, 60))',
+        SOLO: 'linear-gradient(135deg, rgb(52, 73, 94), rgb(44, 62, 80))',
+        FRIEND: 'linear-gradient(135deg, rgb(155, 89, 182), rgb(142, 68, 173))',
+        ETC: 'linear-gradient(135deg, rgb(149, 165, 166), rgb(127, 140, 141))',
+        // 소문자 호환성
+        beach: 'linear-gradient(135deg, rgb(52, 152, 219), rgb(41, 128, 185))',
+        mountain: 'linear-gradient(135deg, rgb(39, 174, 96), rgb(46, 204, 113))',
+        culture: 'linear-gradient(135deg, rgb(155, 89, 182), rgb(142, 68, 173))',
+        food: 'linear-gradient(135deg, rgb(243, 156, 18), rgb(230, 126, 34))',
+        shopping: 'linear-gradient(135deg, rgb(231, 76, 60), rgb(192, 57, 43))',
+    };
 
-        const chartBar = document.createElement('div');
-        chartBar.className = 'chart-bar';
-        chartBar.innerHTML = `
-            <div class="category-name">${categoryNames[category]}</div>
-            <div class="category-count">${count}</div>
-        `;
+    // count가 0보다 큰 카테고리만 표시
+    Object.keys(categoryCounts).forEach((category) => {
+        const count = categoryCounts[category];
+        if (count > 0 && categoryNames[category]) {
+            const chartBar = document.createElement('div');
+            chartBar.className = 'chart-bar';
+            chartBar.innerHTML = `
+                <div class="category-name">${categoryNames[category]}</div>
+                <div class="category-count">${count}</div>
+            `;
 
-        // 카테고리별 색상 적용
-        const colors = {
-            beach: 'linear-gradient(135deg, #3498db, #2980b9)',
-            mountain: 'linear-gradient(135deg, #27ae60, #2ecc71)',
-            culture: 'linear-gradient(135deg, #9b59b6, #8e44ad)',
-            food: 'linear-gradient(135deg, #f39c12, #e67e22)',
-            shopping: 'linear-gradient(135deg, #e74c3c, #c0392b)',
-        };
+            if (colors[category]) {
+                chartBar.style.background = colors[category];
+            }
 
-        if (colors[category]) {
-            chartBar.style.background = colors[category];
+            chartContainer.appendChild(chartBar);
         }
-
-        chartContainer.appendChild(chartBar);
     });
 }
 
@@ -1689,6 +1740,7 @@ function displayCodeGroups() {
     commonCodeGroups.forEach((group) => {
         const card = document.createElement('div');
         card.className = 'code-group-card';
+        // 코드 그룹은 비활성화/삭제 불가능
         card.innerHTML = `
             <div class="code-group-header">
                 <h4>${group.groupName}</h4>
@@ -1703,7 +1755,6 @@ function displayCodeGroups() {
             </div>
             <div class="code-group-actions">
                 <button class="edit-btn" onclick="openEditGroupModal(${group.id})">수정</button>
-                <button class="delete-btn" onclick="deleteCodeGroup(${group.id})">삭제</button>
             </div>
         `;
         grid.appendChild(card);
@@ -1723,8 +1774,31 @@ function displayCodes() {
         return;
     }
 
+    // 비활성화 불가능한 그룹 코드 목록
+    const nonDeactivatableGroups = ['USER_STATUS', 'GENDER', 'REPORT_STATUS'];
+
     commonCodes.forEach((code) => {
         const row = document.createElement('tr');
+        const canDeactivate = !nonDeactivatableGroups.includes(code.groupCode);
+        const isAdminRole = code.groupCode === 'USER_ROLE' && code.code === 'ADMIN';
+        
+        // 비활성화 버튼 (삭제 버튼 대신)
+        let actionButtons = '';
+        if (canDeactivate && !isAdminRole) {
+            // 비활성화 가능한 경우: 수정 + 비활성화 버튼
+            actionButtons = `
+                <button class="edit-btn" onclick="openEditCodeModal(${code.id})">수정</button>
+                <button class="toggle-btn" onclick="toggleCodeActive(${code.id}, ${code.isActive})">
+                    ${code.isActive ? '비활성화' : '활성화'}
+                </button>
+            `;
+        } else {
+            // 비활성화 불가능한 경우: 수정 버튼만
+            actionButtons = `
+                <button class="edit-btn" onclick="openEditCodeModal(${code.id})">수정</button>
+            `;
+        }
+
         row.innerHTML = `
             <td>${code.id}</td>
             <td>${code.groupCode}</td>
@@ -1735,8 +1809,7 @@ function displayCodes() {
             <td>${code.sortOrder || 0}</td>
             <td>${code.isActive ? '활성' : '비활성'}</td>
             <td>
-                <button class="edit-btn" onclick="openEditCodeModal(${code.id})">수정</button>
-                <button class="delete-btn" onclick="deleteCode(${code.id})">삭제</button>
+                ${actionButtons}
             </td>
         `;
         tbody.appendChild(row);
@@ -1817,7 +1890,10 @@ function openEditGroupModal(groupId) {
     document.getElementById('edit-group-name-jp').value = group.groupNameJp || '';
     document.getElementById('edit-group-description').value = group.description || '';
     document.getElementById('edit-group-sort-order').value = group.sortOrder || 0;
-    document.getElementById('edit-group-active').value = group.isActive ? 'true' : 'false';
+    // 코드 그룹은 비활성화할 수 없으므로 항상 활성으로 설정하고 비활성화
+    const activeSelect = document.getElementById('edit-group-active');
+    activeSelect.value = 'true';
+    activeSelect.disabled = true;
     modal.style.display = 'block';
 }
 
@@ -1846,6 +1922,11 @@ function openEditCodeModal(codeId) {
         return;
     }
 
+    // 비활성화 불가능한 그룹 코드 목록
+    const nonDeactivatableGroups = ['USER_STATUS', 'GENDER', 'REPORT_STATUS'];
+    const canDeactivate = !nonDeactivatableGroups.includes(code.groupCode);
+    const isAdminRole = code.groupCode === 'USER_ROLE' && code.code === 'ADMIN';
+
     currentEditCodeId = codeId;
     document.getElementById('edit-code-group-code').value = code.groupCode;
     document.getElementById('edit-code-code').value = code.code;
@@ -1854,7 +1935,16 @@ function openEditCodeModal(codeId) {
     document.getElementById('edit-code-name-jp').value = code.codeNameJp || '';
     document.getElementById('edit-code-description').value = code.description || '';
     document.getElementById('edit-code-sort-order').value = code.sortOrder || 0;
-    document.getElementById('edit-code-active').value = code.isActive ? 'true' : 'false';
+    
+    // 비활성화 불가능한 코드는 활성화 필드를 비활성화
+    const activeSelect = document.getElementById('edit-code-active');
+    activeSelect.value = code.isActive ? 'true' : 'false';
+    if (!canDeactivate || isAdminRole) {
+        activeSelect.disabled = true;
+    } else {
+        activeSelect.disabled = false;
+    }
+    
     modal.style.display = 'block';
 }
 
@@ -1895,13 +1985,20 @@ async function handleAddGroup(event) {
 async function handleEditGroup(event) {
     event.preventDefault();
     try {
+        const group = commonCodeGroups.find((g) => g.id === currentEditGroupId);
+        if (!group) {
+            showNotification('코드 그룹을 찾을 수 없습니다.', 'error');
+            return;
+        }
+
         const formData = {
             groupName: document.getElementById('edit-group-name').value,
             groupNameEn: document.getElementById('edit-group-name-en').value,
             groupNameJp: document.getElementById('edit-group-name-jp').value,
             description: document.getElementById('edit-group-description').value,
             sortOrder: parseInt(document.getElementById('edit-group-sort-order').value) || 0,
-            isActive: document.getElementById('edit-group-active').value === 'true',
+            // 코드 그룹은 비활성화할 수 없으므로 항상 활성 상태 유지
+            isActive: true,
         };
 
         const response = await fetch(`/api/admin/common-code-groups/${currentEditGroupId}`, {
@@ -1924,31 +2021,9 @@ async function handleEditGroup(event) {
     }
 }
 
-// 코드 그룹 삭제
+// 코드 그룹 삭제 (비활성화됨 - 코드 그룹은 삭제할 수 없음)
 async function deleteCodeGroup(groupId) {
-    if (
-        !confirm('코드 그룹을 삭제하면 해당 그룹의 모든 코드도 삭제됩니다. 정말 삭제하시겠습니까?')
-    ) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/admin/common-code-groups/${groupId}`, {
-            method: 'DELETE',
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            showNotification('코드 그룹이 삭제되었습니다.', 'success');
-            await loadCommonCodeGroups();
-            await loadCommonCodes();
-        } else {
-            throw new Error(data.message || '코드 그룹 삭제에 실패했습니다.');
-        }
-    } catch (error) {
-        console.error('코드 그룹 삭제 실패:', error);
-        showNotification(error.message || '코드 그룹 삭제에 실패했습니다.', 'error');
-    }
+    showNotification('코드 그룹은 삭제할 수 없습니다.', 'error');
 }
 
 // 코드 추가
@@ -2018,27 +2093,70 @@ async function handleEditCode(event) {
     }
 }
 
-// 코드 삭제
-async function deleteCode(codeId) {
-    if (!confirm('코드를 삭제하시겠습니까?')) {
+// 코드 비활성화/활성화 토글
+async function toggleCodeActive(codeId, currentActive) {
+    const code = commonCodes.find((c) => c.id === codeId);
+    if (!code) {
+        showNotification('코드를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    // 비활성화 불가능한 그룹 체크
+    const nonDeactivatableGroups = ['USER_STATUS', 'GENDER', 'REPORT_STATUS'];
+    if (nonDeactivatableGroups.includes(code.groupCode)) {
+        showNotification('이 코드는 비활성화할 수 없습니다.', 'error');
+        return;
+    }
+
+    // ADMIN 역할 비활성화 불가
+    if (code.groupCode === 'USER_ROLE' && code.code === 'ADMIN') {
+        showNotification('ADMIN 역할은 비활성화할 수 없습니다.', 'error');
+        return;
+    }
+
+    const newActive = !currentActive;
+    const action = newActive ? '활성화' : '비활성화';
+    
+    if (!confirm(`코드를 ${action}하시겠습니까?`)) {
         return;
     }
 
     try {
         const response = await fetch(`/api/admin/common-codes/${codeId}`, {
-            method: 'DELETE',
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                codeName: code.codeName,
+                codeNameEn: code.codeNameEn,
+                codeNameJp: code.codeNameJp,
+                description: code.description,
+                sortOrder: code.sortOrder,
+                isActive: newActive,
+            }),
         });
 
         const data = await response.json();
         if (data.success) {
-            showNotification('코드가 삭제되었습니다.', 'success');
+            showNotification(`코드가 ${action}되었습니다.`, 'success');
             await loadCommonCodes();
+            
+            // 사용자 역할이 비활성화된 경우 사용자 목록 갱신
+            if (code.groupCode === 'USER_ROLE') {
+                await initializeUsers();
+                displayUsers();
+            }
+            
+            // 관광지 카테고리가 비활성화된 경우 관광지 목록 갱신
+            if (code.groupCode === 'SPOT_CATEGORY') {
+                await loadTouristSpots();
+                updateStatistics();
+            }
         } else {
-            throw new Error(data.message || '코드 삭제에 실패했습니다.');
+            throw new Error(data.message || `코드 ${action}에 실패했습니다.`);
         }
     } catch (error) {
-        console.error('코드 삭제 실패:', error);
-        showNotification(error.message || '코드 삭제에 실패했습니다.', 'error');
+        console.error(`코드 ${action} 실패:`, error);
+        showNotification(error.message || `코드 ${action}에 실패했습니다.`, 'error');
     }
 }
 
@@ -2048,7 +2166,7 @@ window.openEditGroupModal = openEditGroupModal;
 window.openAddCodeModal = openAddCodeModal;
 window.openEditCodeModal = openEditCodeModal;
 window.deleteCodeGroup = deleteCodeGroup;
-window.deleteCode = deleteCode;
+window.toggleCodeActive = toggleCodeActive;
 
 // 모달 닫기 이벤트 리스너
 document.addEventListener('DOMContentLoaded', function () {
