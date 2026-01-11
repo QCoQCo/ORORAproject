@@ -70,19 +70,22 @@ public class SpotController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
 
-            // 2. 이미지 목록 조회
+            // 2. 조회수 증가
+            spotService.incrementViewCount(id);
+            
+            // 3. 이미지 목록 조회
             List<SpotImageDto> images = spotImageService.getImagesBySpotId(id);
             
-            // 3. 해시태그 목록 조회
+            // 4. 해시태그 목록 조회
             List<HashtagDto> hashtags = hashtagService.getHashtagsBySpotId(id);
             
-            // 4. 지역 정보 조회
+            // 5. 지역 정보 조회
             RegionDto region = null;
             if (spot.getRegionId() != null) {
                 region = regionService.getRegionById(spot.getRegionId());
             }
 
-            // 5. 응답 데이터 구성
+            // 6. 응답 데이터 구성 (증가된 조회수 반영)
             Map<String, Object> response = new HashMap<>();
             response.put("id", spot.getId());
             response.put("title", spot.getTitle());
@@ -92,7 +95,7 @@ public class SpotController {
             response.put("latitude", spot.getLatitude());
             response.put("longitude", spot.getLongitude());
             response.put("isActive", spot.getIsActive());
-            response.put("viewCount", spot.getViewCount());
+            response.put("viewCount", (spot.getViewCount() != null ? spot.getViewCount() : 0) + 1);
             response.put("createdAt", spot.getCreatedAt());
             response.put("updatedAt", spot.getUpdatedAt());
 

@@ -73,6 +73,27 @@ public class SpotService {
     }
 
     /**
+     * 조회수 증가
+     * 
+     * @param id 관광지 ID
+     */
+    @Transactional
+    public void incrementViewCount(Long id) {
+        spotMapper.incrementViewCount(id);
+    }
+
+    /**
+     * 조회수 조회
+     * 
+     * @param id 관광지 ID
+     * @return 조회수
+     */
+    public Integer getViewCount(Long id) {
+        Integer count = spotMapper.getViewCount(id);
+        return count != null ? count : 0;
+    }
+
+    /**
      * 모든 활성화된 관광지를 지역별로 그룹화하여 반환
      * 
      * @return 지역별로 그룹화된 관광지 데이터
