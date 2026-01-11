@@ -6,17 +6,17 @@
         <ol class="breadcrumb-nav">
             <li class="breadcrumb-item">
                 <a th:href="@{/}" class="breadcrumb-link breadcrumb-home">
-                    <img th:src="@{/images/icon_home2.png}" alt="홈페이지 바로가기">
+                    <img th:src="@{/images/icon_home2.png}" alt="홈페이지 바로가기" data-translate-alt="about.breadcrumb.home_alt">
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a th:href="@{/pages/about-busan/busan}" class="breadcrumb-section">about BUSAN</a>
+                <a th:href="@{/pages/about-busan/busan}" class="breadcrumb-section" data-translate="about.title">about BUSAN</a>
             </li>
             <li class="breadcrumb-item">
-                <a th:href="@{/pages/about-busan/busan}" class="breadcrumb-link" th:text="${breadcrumbMenuTitle ?: '부산의 오늘'}">부산의 오늘</a>
+                <a th:href="@{/pages/about-busan/busan}" class="breadcrumb-link" th:attr="data-translate=${breadcrumbMenuTitleKey ?: 'about.breadcrumb.busan_today'}" th:text="${breadcrumbMenuTitle ?: '부산의 오늘'}">부산의 오늘</a>
             </li>
             <li class="breadcrumb-item">
-                <span class="breadcrumb-current" id="current-page" th:text="${breadcrumbCurrentPage ?: '현재 페이지'}">현재 페이지</span>
+                <span class="breadcrumb-current" id="current-page" th:attr="data-translate=${breadcrumbCurrentPageKey ?: 'about.breadcrumb.what_is_busan'}" th:text="${breadcrumbCurrentPage ?: '부산은?'}">부산은?</span>
             </li>
         </ol>
     </nav>

@@ -183,6 +183,7 @@ async function loadTouristSpotDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const spotId = urlParams.get('id');
         const userId = getCurrentUser()?.id;
+        const userRole = getCurrentUser()?.roleCode || null;
         console.log('로드할 관광지 ID:', spotId);
 
         // ID가 없으면 에러
@@ -192,9 +193,20 @@ async function loadTouristSpotDetail() {
             return;
         }
 
-        // 백엔드 API를 통해 데이터 로드
+        // 백엔드 API를 통해 데이터 로드 (ADMIN인 경우 userRole 전송)
         try {
-            const response = await fetch(`/api/tourist-spots/${spotId}`);
+            let apiUrl = `/api/tourist-spots/${spotId}`;
+            if (userRole) {
+                apiUrl += `?userRole=${userRole}`;
+            }
+            const response = await fetch(apiUrl);
+            if (response.status === 403) {
+                // 비활성화된 카테고리인 경우
+                const errorData = await response.json();
+                alert(errorData.error || '비활성화된 카테고리의 관광지는 접근할 수 없습니다.');
+                window.location.href = '/';
+                return;
+            }
             if (response.ok) {
                 const spotData = await response.json();
                 // 백엔드 API 응답 형식에 맞게 데이터 변환
@@ -213,9 +225,15 @@ async function loadTouristSpotDetail() {
                     longitude: spotData.longitude || null,
                     address: spotData.address || null,
                     viewCount: spotData.viewCount || 0,
+                    categoryActive: spotData.categoryActive,
                 };
                 const regionName = spotData.region ? spotData.region.name : '';
                 updatePageContent(spot, regionName);
+
+                // 비활성화된 카테고리인 경우 경고 배너 표시 (ADMIN만 볼 수 있음)
+                if (spotData.categoryActive === false) {
+                    showInactiveCategoryBanner();
+                }
 
                 const likeBtn = document.querySelector('.likeBtn');
                 const likeCount = document.querySelector('.likeCount');
@@ -2427,6 +2445,84 @@ window.editComment = editComment;
 window.cancelEditComment = cancelEditComment;
 window.saveComment = saveComment;
 window.deleteComment = deleteComment;
+
+// 비활성화된 카테고리 경고 배너 표시 (ADMIN 전용)
+function showInactiveCategoryBanner() {
+    // 이미 배너가 있으면 제거
+    const existingBanner = document.getElementById('inactive-category-banner');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+
+    // 경고 배너 생성
+    const banner = document.createElement('div');
+    banner.id = 'inactive-category-banner';
+    banner.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            animation: slideDown 0.3s ease;
+        ">
+            <div style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                max-width: 1200px;
+                margin: 0 auto;
+            ">
+                <span style="font-size: 24px;">⚠️</span>
+                <div style="text-align: left;">
+                    <strong style="font-size: 16px;">비활성화된 카테고리</strong>
+                    <p style="margin: 4px 0 0 0; font-size: 14px; opacity: 0.9;">
+                        이 관광지는 현재 비활성화된 카테고리에 속해 있어 일반 사용자에게 표시되지 않습니다. (관리자만 접근 가능)
+                    </p>
+                </div>
+                <button onclick="document.getElementById('inactive-category-banner').remove()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    margin-left: 20px;
+                    transition: background 0.2s ease;
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    닫기
+                </button>
+            </div>
+        </div>
+        <style>
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-100%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    `;
+
+    document.body.insertBefore(banner, document.body.firstChild);
+
+    // 페이지 상단에 여백 추가 (배너 높이만큼)
+    const wrapper = document.getElementById('Wrapper');
+    if (wrapper) {
+        wrapper.style.marginTop = '80px';
+    }
+}
 
 // 페이지 콘텐츠 업데이트 함수 수정 (기존 함수에 currentSpotTitle 설정 추가)
 function updatePageContent(spot, regionName) {
