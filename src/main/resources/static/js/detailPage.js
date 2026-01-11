@@ -210,6 +210,9 @@ async function loadTouristSpotDetail() {
                             : spotData.imageUrl || '',
                     images: spotData.images || [],
                     region: spotData.region || { name: '' },
+                    latitude: spotData.latitude || null,
+                    longitude: spotData.longitude || null,
+                    address: spotData.address || null,
                 };
                 const regionName = spotData.region ? spotData.region.name : '';
                 updatePageContent(spot, regionName);
@@ -282,14 +285,161 @@ btns.forEach((el) => {
         if (!el.classList.contains('active')) {
             btns.forEach((e) => e.classList.remove('active'));
             el.classList.add('active');
+
+            // 좋아요 버튼 클릭 시 비슷한 관광지 표시
+            if (el.classList.contains('good')) {
+                showSimilarSpots();
+            } else {
+                // 별로예요 버튼 클릭 시 비슷한 관광지 섹션 숨기기
+                hideSimilarSpots();
+            }
         } else {
             btns.forEach((e) => e.classList.remove('active'));
             el.classList.remove('active');
+            // 버튼 비활성화 시 비슷한 관광지 섹션 숨기기
+            hideSimilarSpots();
         }
         // if(btns.forEach(e=>e.classList.contains('active')))
         // el.classList.toggle('active');
     });
 });
+
+// ========== 비슷한 관광지 추천 기능 ==========
+
+// 비슷한 관광지 섹션 표시
+async function showSimilarSpots() {
+    const section = document.getElementById('similar-spots-section');
+    const container = document.getElementById('similar-spots-container');
+
+    if (!section || !container) return;
+
+    // 섹션 표시 및 로딩 상태
+    section.style.display = 'block';
+    container.innerHTML = `
+        <div class="similar-spots-loading">
+            <div class="spinner"></div>
+            <p>비슷한 관광지를 찾고 있어요...</p>
+        </div>
+    `;
+
+    try {
+        // 모든 관광지 데이터 가져오기
+        const response = await fetch('/api/tag-spots');
+        if (!response.ok) throw new Error('데이터를 불러올 수 없습니다.');
+
+        const data = await response.json();
+        const allSpots = extractAllSpots(data);
+
+        // 비슷한 관광지 필터링
+        const similarSpots = findSimilarSpots(allSpots, currentSpotId, currentSpotHashtags);
+
+        // 결과 표시
+        displaySimilarSpots(container, similarSpots);
+    } catch (error) {
+        console.error('비슷한 관광지 로드 실패:', error);
+        container.innerHTML = `
+            <div class="no-similar-spots">
+                <p>😢 비슷한 관광지를 불러오는 중 오류가 발생했습니다.</p>
+            </div>
+        `;
+    }
+}
+
+// 비슷한 관광지 섹션 숨기기
+function hideSimilarSpots() {
+    const section = document.getElementById('similar-spots-section');
+    if (section) {
+        section.style.display = 'none';
+    }
+}
+
+// 모든 관광지 추출 (지역별로 그룹화된 데이터에서)
+function extractAllSpots(data) {
+    const spots = [];
+
+    if (data.regions && Array.isArray(data.regions)) {
+        data.regions.forEach((region) => {
+            if (region.spots && Array.isArray(region.spots)) {
+                region.spots.forEach((spot) => {
+                    spots.push({
+                        ...spot,
+                        regionName: region.name,
+                    });
+                });
+            }
+        });
+    }
+
+    return spots;
+}
+
+// 비슷한 관광지 찾기 (공통 태그 기반)
+function findSimilarSpots(allSpots, currentId, currentHashtags) {
+    if (!currentHashtags || currentHashtags.length === 0) {
+        return [];
+    }
+
+    const currentTagSet = new Set(currentHashtags.map((tag) => tag.toLowerCase()));
+
+    const scoredSpots = allSpots
+        .filter((spot) => spot.id !== currentId) // 현재 관광지 제외
+        .map((spot) => {
+            const spotTags = Array.isArray(spot.hashtags) ? spot.hashtags : [];
+            const matchedTags = spotTags.filter((tag) => currentTagSet.has(tag.toLowerCase()));
+
+            return {
+                ...spot,
+                matchedTags,
+                matchScore: matchedTags.length,
+            };
+        })
+        .filter((spot) => spot.matchScore > 0) // 공통 태그가 있는 것만
+        .sort((a, b) => b.matchScore - a.matchScore) // 공통 태그 많은 순
+        .slice(0, 8); // 최대 8개
+
+    return scoredSpots;
+}
+
+// 비슷한 관광지 표시
+function displaySimilarSpots(container, spots) {
+    if (spots.length === 0) {
+        container.innerHTML = `
+            <div class="no-similar-spots">
+                <p>😅 비슷한 태그를 가진 관광지가 없습니다.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = spots
+        .map((spot) => {
+            const imageUrl = spot.imageUrl || '/images/logo.png';
+            const tags = Array.isArray(spot.hashtags) ? spot.hashtags : [];
+            const matchedTagSet = new Set(spot.matchedTags.map((t) => t.toLowerCase()));
+
+            const tagsHtml = tags
+                .slice(0, 4)
+                .map((tag) => {
+                    const isMatched = matchedTagSet.has(tag.toLowerCase());
+                    return `<span class="spot-tag ${isMatched ? 'matched' : ''}">#${tag}</span>`;
+                })
+                .join('');
+
+            return `
+            <a href="/pages/detailed/detailed?id=${spot.id}" class="similar-spot-card">
+                <img src="${imageUrl}" alt="${spot.title}" class="spot-image" 
+                     onerror="this.src='/images/logo.png'">
+                <div class="spot-info">
+                    <h4 class="spot-title">${spot.title}</h4>
+                    <div class="spot-tags">
+                        ${tagsHtml}
+                    </div>
+                </div>
+            </a>
+        `;
+        })
+        .join('');
+}
 
 // function likeDislike(el,btn){
 //     btn.addEventListener('click',()=>{
@@ -565,7 +715,7 @@ function loadScript(scriptUrl, resolve, reject) {
 // 중복 함수 제거됨 - 532번째 줄의 loadKakaoMapScript() 함수 사용
 
 // 카카오 지도 초기화
-function initKakaoMap(spotTitle) {
+function initKakaoMap(spotTitle, latitude, longitude) {
     const mapContainer = document.getElementById('kakao-map');
     if (!mapContainer) {
         console.error('카카오맵 컨테이너를 찾을 수 없습니다.');
@@ -575,28 +725,47 @@ function initKakaoMap(spotTitle) {
     loadKakaoMapScript()
         .then(() => {
             try {
+                // 위도/경도가 있으면 사용, 없으면 부산 중심 좌표 사용
+                const defaultLat = 35.1796;
+                const defaultLng = 129.0756;
+
                 const mapOption = {
-                    center: new kakao.maps.LatLng(35.1796, 129.0756),
+                    center: new kakao.maps.LatLng(latitude || defaultLat, longitude || defaultLng),
                     level: 3,
                 };
 
                 const map = new kakao.maps.Map(mapContainer, mapOption);
-                const ps = new kakao.maps.services.Places();
 
-                ps.keywordSearch(`부산 ${spotTitle}`, (data, status) => {
-                    if (status === kakao.maps.services.Status.OK) {
-                        const coords = new kakao.maps.LatLng(data[0].y, data[0].x);
-                        const marker = new kakao.maps.Marker({
-                            map: map,
-                            position: coords,
-                        });
-                        const infowindow = new kakao.maps.InfoWindow({
-                            content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`,
-                        });
-                        infowindow.open(map, marker);
-                        map.setCenter(coords);
-                    }
-                });
+                // 위도/경도가 있으면 직접 마커 표시
+                if (latitude && longitude) {
+                    const coords = new kakao.maps.LatLng(latitude, longitude);
+                    const marker = new kakao.maps.Marker({
+                        map: map,
+                        position: coords,
+                    });
+                    const infowindow = new kakao.maps.InfoWindow({
+                        content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`,
+                    });
+                    infowindow.open(map, marker);
+                    map.setCenter(coords);
+                } else {
+                    // 위도/경도가 없으면 키워드 검색
+                    const ps = new kakao.maps.services.Places();
+                    ps.keywordSearch(`부산 ${spotTitle}`, (data, status) => {
+                        if (status === kakao.maps.services.Status.OK) {
+                            const coords = new kakao.maps.LatLng(data[0].y, data[0].x);
+                            const marker = new kakao.maps.Marker({
+                                map: map,
+                                position: coords,
+                            });
+                            const infowindow = new kakao.maps.InfoWindow({
+                                content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`,
+                            });
+                            infowindow.open(map, marker);
+                            map.setCenter(coords);
+                        }
+                    });
+                }
             } catch (error) {
                 console.error('카카오맵 초기화 중 오류:', error);
             }
@@ -632,8 +801,10 @@ function initBackButton() {
 // 리뷰 관련 변수
 let currentSpotId = null;
 let currentSpotTitle = '';
+let currentSpotHashtags = [];
 let selectedRating = 0;
 let reviews = [];
+let reviewImages = []; // 리뷰에 첨부할 이미지 파일들
 
 // 리뷰 데이터 로드
 async function loadReviews() {
@@ -673,6 +844,9 @@ async function loadReviews() {
 
         // 리뷰 정보 업데이트 (평균 평점 및 총 개수)
         updateReviewInfo(spotReviews);
+
+        // 포토리뷰 업데이트
+        updatePhotoReviews(spotReviews);
     } catch (error) {
         console.error('리뷰 데이터 로드 중 오류:', error);
         showNoReviewsMessage();
@@ -686,7 +860,13 @@ function displayReviews(spotReviews) {
 
     if (!reviewsContainer) return;
 
-    if (spotReviews.length === 0) {
+    // 이미지가 있는 리뷰(포토리뷰)는 제외하고 필터링
+    const textOnlyReviews = spotReviews.filter((review) => {
+        const hasImages = review.images && Array.isArray(review.images) && review.images.length > 0;
+        return !hasImages;
+    });
+
+    if (textOnlyReviews.length === 0) {
         showNoReviewsMessage();
         return;
     }
@@ -697,11 +877,11 @@ function displayReviews(spotReviews) {
     }
 
     // 리뷰를 최신순으로 정렬
-    spotReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    textOnlyReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     reviewsContainer.innerHTML = '';
 
-    spotReviews.forEach((review) => {
+    textOnlyReviews.forEach((review) => {
         const reviewElement = createReviewElement(review);
         reviewsContainer.appendChild(reviewElement);
     });
@@ -710,7 +890,26 @@ function displayReviews(spotReviews) {
 // 리뷰 요소 생성
 function createReviewElement(review) {
     const reviewDiv = document.createElement('div');
-    reviewDiv.className = 'userReview';
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    let currentUserId = null;
+
+    if (loggedInUser) {
+        try {
+            const user = JSON.parse(loggedInUser);
+            currentUserId = user.id;
+        } catch (error) {
+            console.error('사용자 정보 파싱 오류:', error);
+        }
+    }
+
+    // 리뷰 작성자 ID 가져오기
+    const reviewUserId = review.userId || review.user_id;
+    const isMyReview = currentUserId && reviewUserId && currentUserId == reviewUserId;
+
+    // 본인 리뷰인 경우 클래스 추가
+    reviewDiv.className = isMyReview ? 'userReview my-review' : 'userReview';
     reviewDiv.setAttribute('data-review-id', review.id);
 
     const stars = '★'.repeat(review.rating || 0) + '☆'.repeat(5 - (review.rating || 0));
@@ -722,11 +921,20 @@ function createReviewElement(review) {
     const isLiked = review.isLiked || false;
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
 
+    // 본인 리뷰인 경우 신고 버튼 숨김
+    const reportButtonHTML = isMyReview
+        ? ''
+        : `<div class="reportBtn">
+            <button onclick="reportReview(${review.id})">신고</button>
+        </div>`;
+
     reviewDiv.innerHTML = `
         <div class="userReviewTop">
             <p class="userImage"></p>
             <div class="userInfo">
-                <p class="userId"><strong>${userName}</strong></p>
+                <p class="userId"><strong>${userName}</strong>${
+        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
+    }</p>
                 <div class="reviewRating">${stars} (${review.rating || 0}/5)</div>
                 <p class="reviewTitle">${review.title || ''}</p>
             </div>
@@ -751,9 +959,7 @@ function createReviewElement(review) {
                     </button>
                     <p class="reviewReCount">${replies}</p>
                 </div>
-                <div class="reportBtn">
-                    <button onclick="reportReview(${review.id})">신고</button>
-                </div>
+                ${reportButtonHTML}
             </div>
         </div>
     `;
@@ -859,6 +1065,9 @@ function initRatingSystem() {
                 ];
                 ratingText.textContent = ratingTexts[selectedRating];
             }
+
+            // 별점 선택 시 제출 버튼 활성화 상태 확인
+            validateReviewForm();
         });
 
         star.addEventListener('mouseover', function () {
@@ -868,9 +1077,12 @@ function initRatingSystem() {
     });
 
     // 마우스가 별점 영역을 벗어났을 때
-    document.querySelector('.stars').addEventListener('mouseleave', function () {
-        updateStarDisplay(selectedRating);
-    });
+    const starsContainer = document.querySelector('.stars');
+    if (starsContainer) {
+        starsContainer.addEventListener('mouseleave', function () {
+            updateStarDisplay(selectedRating);
+        });
+    }
 }
 
 // 별점 표시 업데이트
@@ -905,11 +1117,31 @@ function initCharCount() {
     }
 }
 
+// 리뷰 폼 유효성 검사 함수 (전역으로 사용 가능하도록)
+function validateReviewForm() {
+    const submitBtn = document.getElementById('submit-review');
+    const titleInput = document.getElementById('review-title');
+    const contentInput = document.getElementById('review-content');
+
+    if (!submitBtn) return;
+
+    const title = titleInput?.value.trim();
+    const content = contentInput?.value.trim();
+
+    if (title && content && selectedRating > 0) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
+    }
+}
+
 // 리뷰 작성 기능
 function initReviewSubmission() {
     const submitBtn = document.getElementById('submit-review');
     const titleInput = document.getElementById('review-title');
     const contentInput = document.getElementById('review-content');
+    const photoBtn = document.getElementById('review-photo-btn');
+    const imageInput = document.getElementById('review-image-input');
 
     if (submitBtn) {
         submitBtn.addEventListener('click', function () {
@@ -917,34 +1149,158 @@ function initReviewSubmission() {
         });
     }
 
-    // 입력 검증
-    function validateInputs() {
-        const title = titleInput?.value.trim();
-        const content = contentInput?.value.trim();
+    // 사진 버튼 클릭 이벤트
+    if (photoBtn && imageInput) {
+        photoBtn.addEventListener('click', function () {
+            imageInput.click();
+        });
+    }
 
-        if (submitBtn) {
-            if (title && content && selectedRating > 0) {
-                submitBtn.disabled = false;
-            } else {
-                submitBtn.disabled = true;
-            }
-        }
+    // 이미지 선택 이벤트
+    if (imageInput) {
+        imageInput.addEventListener('change', function (e) {
+            handleImageSelection(e.target.files);
+        });
+    }
+
+    // 전체 삭제 버튼
+    const removeAllBtn = document.getElementById('remove-all-images');
+    if (removeAllBtn) {
+        removeAllBtn.addEventListener('click', function () {
+            removeAllImages();
+        });
     }
 
     // 입력 필드 이벤트 리스너
     if (titleInput) {
-        titleInput.addEventListener('input', validateInputs);
+        titleInput.addEventListener('input', validateReviewForm);
     }
     if (contentInput) {
-        contentInput.addEventListener('input', validateInputs);
+        contentInput.addEventListener('input', validateReviewForm);
     }
 
     // 초기 상태 설정
-    validateInputs();
+    validateReviewForm();
+}
+
+// 이미지 선택 처리
+function handleImageSelection(files) {
+    if (!files || files.length === 0) return;
+
+    // 최대 10개까지 제한
+    const maxImages = 10;
+    const remainingSlots = maxImages - reviewImages.length;
+
+    if (remainingSlots <= 0) {
+        alert(`최대 ${maxImages}개의 이미지만 업로드할 수 있습니다.`);
+        return;
+    }
+
+    const filesToAdd = Array.from(files).slice(0, remainingSlots);
+
+    filesToAdd.forEach((file) => {
+        // 파일 타입 검증
+        if (!file.type.startsWith('image/')) {
+            alert(`${file.name}은(는) 이미지 파일이 아닙니다.`);
+            return;
+        }
+
+        // 파일 크기 검증 (최대 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            alert(`${file.name}의 크기가 너무 큽니다. (최대 10MB)`);
+            return;
+        }
+
+        // 이미지 미리보기 생성
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imageData = {
+                file: file,
+                preview: e.target.result,
+                id: Date.now() + Math.random(), // 고유 ID 생성
+            };
+            reviewImages.push(imageData);
+            updateImagePreview();
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // 파일 입력 초기화 (같은 파일을 다시 선택할 수 있도록)
+    const imageInput = document.getElementById('review-image-input');
+    if (imageInput) {
+        imageInput.value = '';
+    }
+}
+
+// 이미지 미리보기 업데이트
+function updateImagePreview() {
+    const previewContainer = document.getElementById('review-images-preview');
+    const imagesContainer = document.getElementById('review-images-container');
+    const imagesCount = document.getElementById('review-images-count');
+
+    if (!previewContainer || !imagesContainer) return;
+
+    if (reviewImages.length === 0) {
+        previewContainer.style.display = 'none';
+        return;
+    }
+
+    previewContainer.style.display = 'block';
+    if (imagesCount) {
+        imagesCount.textContent = reviewImages.length;
+    }
+
+    imagesContainer.innerHTML = '';
+
+    reviewImages.forEach((imageData, index) => {
+        const imageItem = document.createElement('div');
+        imageItem.className = 'review-image-item';
+        imageItem.setAttribute('data-image-id', imageData.id);
+
+        imageItem.innerHTML = `
+            <div class="review-image-wrapper">
+                <img src="${imageData.preview}" alt="리뷰 이미지 ${index + 1}" />
+                <button type="button" class="remove-image-btn" data-image-id="${imageData.id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        // 삭제 버튼 이벤트
+        const removeBtn = imageItem.querySelector('.remove-image-btn');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                removeImage(imageData.id);
+            });
+        }
+
+        imagesContainer.appendChild(imageItem);
+    });
+}
+
+// 이미지 삭제
+function removeImage(imageId) {
+    reviewImages = reviewImages.filter((img) => img.id !== imageId);
+    updateImagePreview();
+}
+
+// 모든 이미지 삭제
+function removeAllImages() {
+    if (reviewImages.length === 0) return;
+
+    if (confirm('모든 이미지를 삭제하시겠습니까?')) {
+        reviewImages = [];
+        updateImagePreview();
+    }
 }
 
 // 리뷰 제출
-function submitReview() {
+async function submitReview() {
     const titleInput = document.getElementById('review-title');
     const contentInput = document.getElementById('review-content');
 
@@ -956,49 +1312,103 @@ function submitReview() {
         return;
     }
 
-    if (!currentSpotTitle) {
+    if (!currentSpotId) {
         alert('관광지 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
         return;
     }
 
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: POST /api/reviews
-    // 요청 형식: { spotTitle, title, content, rating, userId }
-    // 응답 형식: { success: true, review: { id, ... } }
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+        alert('로그인이 필요합니다. 로그인 후 리뷰를 작성해주세요.');
+        return;
+    }
 
-    // 새로운 리뷰 객체 생성
-    const newReview = {
-        id: Date.now(), // 간단한 ID 생성
-        userId: Math.floor(Math.random() * 1000) + 100, // 임시 사용자 ID
-        userName: '익명의 여행자', // 실제로는 로그인 사용자 정보 사용
-        spotTitle: currentSpotTitle,
-        title: title,
-        content: content,
-        rating: selectedRating,
-        createdAt: new Date().toISOString().split('T')[0],
-        updatedAt: new Date().toISOString().split('T')[0],
-        likes: 0,
-        replies: 0,
-    };
+    let userId;
+    try {
+        const user = JSON.parse(loggedInUser);
+        userId = user.id;
+        if (!userId) {
+            throw new Error('사용자 ID를 찾을 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('사용자 정보 파싱 오류:', error);
+        alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
 
-    // 로컬 스토리지에서 기존 리뷰 가져오기
-    const localReviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
-    localReviews.push(newReview);
-    localStorage.setItem('userReviews', JSON.stringify(localReviews));
+    // 제출 버튼 비활성화 (중복 제출 방지)
+    const submitBtn = document.getElementById('submit-review');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '등록 중...';
+    }
 
-    // 리뷰 목록에 추가
-    reviews.push(newReview);
+    try {
+        // FormData 생성 (이미지가 있는 경우)
+        let requestBody;
+        let headers = {};
 
-    // 화면 업데이트
-    const spotReviews = reviews.filter((review) => review.spotTitle === currentSpotTitle);
-    displayReviews(spotReviews);
-    updateReviewCount(spotReviews.length);
-    updateReviewInfo(spotReviews);
+        if (reviewImages.length > 0) {
+            // 이미지가 있는 경우 FormData 사용
+            const formData = new FormData();
+            formData.append('touristSpotId', currentSpotId);
+            formData.append('title', title);
+            formData.append('content', content);
+            formData.append('rating', selectedRating);
+            formData.append('userId', userId);
 
-    // 폼 초기화
-    resetReviewForm();
+            // 이미지 파일 추가
+            reviewImages.forEach((imageData, index) => {
+                formData.append('images', imageData.file);
+            });
 
-    alert('리뷰가 성공적으로 등록되었습니다!');
+            requestBody = formData;
+            // FormData 사용 시 Content-Type 헤더를 설정하지 않음 (브라우저가 자동으로 설정)
+        } else {
+            // 이미지가 없는 경우 JSON 사용
+            headers['Content-Type'] = 'application/json';
+            requestBody = JSON.stringify({
+                touristSpotId: currentSpotId,
+                title: title,
+                content: content,
+                rating: selectedRating,
+                userId: userId,
+            });
+        }
+
+        // 백엔드 API 호출
+        const response = await fetch('/api/reviews', {
+            method: 'POST',
+            headers: headers,
+            body: requestBody,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('리뷰가 성공적으로 등록되었습니다!');
+
+            // 폼 초기화
+            resetReviewForm();
+
+            // 리뷰 목록 새로고침
+            await loadReviews();
+
+            // 포토리뷰도 업데이트됨 (loadReviews 내부에서 updatePhotoReviews 호출)
+        } else {
+            alert('리뷰 등록에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('리뷰 제출 중 오류:', error);
+        alert('리뷰 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+        // 제출 버튼 다시 활성화
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '리뷰 등록';
+        }
+    }
 }
 
 // 리뷰 폼 초기화
@@ -1007,14 +1417,20 @@ function resetReviewForm() {
     const contentInput = document.getElementById('review-content');
     const charCount = document.getElementById('char-count');
     const ratingText = document.querySelector('.rating-text');
+    const imageInput = document.getElementById('review-image-input');
 
     if (titleInput) titleInput.value = '';
     if (contentInput) contentInput.value = '';
+    if (imageInput) imageInput.value = ''; // 파일 입력도 초기화
     if (charCount) charCount.textContent = '0';
     if (ratingText) ratingText.textContent = '별점을 선택해주세요';
 
     selectedRating = 0;
     updateStarDisplay(0);
+
+    // 이미지 초기화
+    reviewImages = [];
+    updateImagePreview();
 
     // 제출 버튼 비활성화
     const submitBtn = document.getElementById('submit-review');
@@ -1069,21 +1485,903 @@ function toggleReviewLike(reviewId) {
 
 // 리뷰 신고
 function reportReview(reviewId) {
-    if (confirm('이 리뷰를 신고하시겠습니까?')) {
-        // TODO: 백엔드 연결 시 API 호출로 변경
-        // 백엔드 API 엔드포인트: POST /api/reviews/{reviewId}/report
-        // 요청 형식: { userId, reason: string }
-        // 응답 형식: { success: true, message: string }
+    openReportModal(reviewId, 'review');
+}
 
-        alert('신고가 접수되었습니다. 검토 후 조치하겠습니다.');
+// 댓글 목록 토글 (펼치기/접기)
+async function toggleReviewReply(reviewId) {
+    console.log('toggleReviewReply called with reviewId:', reviewId);
+
+    // 모든 가능한 댓글 컨테이너 찾기
+    let commentsContainer = document.getElementById(`photo-review-comments-${reviewId}`);
+
+    if (!commentsContainer) {
+        commentsContainer = document.getElementById(`review-comments-${reviewId}`);
+    }
+
+    if (!commentsContainer) {
+        // 일반 리뷰 요소에서 찾기
+        const reviewElement = document.querySelector(`.userReview[data-review-id="${reviewId}"]`);
+        if (reviewElement) {
+            commentsContainer = reviewElement.querySelector('.review-comments-container');
+        }
+    }
+
+    // 현재 상태 확인 (getComputedStyle 사용)
+    let isExpanded = false;
+    if (commentsContainer) {
+        const computedStyle = window.getComputedStyle(commentsContainer);
+        const inlineDisplay = commentsContainer.style.display;
+        // 인라인 스타일이 있으면 우선, 없으면 computed style 사용
+        if (inlineDisplay) {
+            isExpanded = inlineDisplay !== 'none';
+        } else {
+            isExpanded = computedStyle.display !== 'none';
+        }
+    }
+
+    console.log('commentsContainer:', commentsContainer, 'isExpanded:', isExpanded);
+
+    if (isExpanded) {
+        // 접기
+        if (commentsContainer) {
+            commentsContainer.style.display = 'none';
+        }
+    } else {
+        // 펼치기
+        if (!commentsContainer) {
+            // 댓글 컨테이너 생성
+            commentsContainer = document.createElement('div');
+            commentsContainer.className = 'review-comments-container';
+
+            // 포토리뷰 모달인지 확인
+            const modalContent = document.getElementById('photo-review-modal-content');
+            const modal = document.getElementById('photo-review-modal');
+            const isModalOpen =
+                modal && modal.style.display !== 'none' && modal.style.display !== '';
+
+            if (isModalOpen && modalContent) {
+                // 포토리뷰 모달 내부
+                commentsContainer.id = `photo-review-comments-${reviewId}`;
+                // 모달 컨텐츠에 추가
+                const reviewActions = modalContent.querySelector('.reviewActions');
+                if (reviewActions) {
+                    // reviewActions 다음에 추가
+                    if (reviewActions.nextSibling) {
+                        modalContent.insertBefore(commentsContainer, reviewActions.nextSibling);
+                    } else {
+                        modalContent.appendChild(commentsContainer);
+                    }
+                } else {
+                    modalContent.appendChild(commentsContainer);
+                }
+            } else {
+                // 일반 리뷰
+                const reviewElement = document.querySelector(
+                    `.userReview[data-review-id="${reviewId}"]`
+                );
+                if (reviewElement) {
+                    commentsContainer.id = `review-comments-${reviewId}`;
+                    reviewElement.appendChild(commentsContainer);
+                } else {
+                    console.error('리뷰 요소를 찾을 수 없습니다:', reviewId);
+                    return;
+                }
+            }
+        }
+
+        // 댓글 목록 로드
+        try {
+            await loadReviewComments(reviewId, commentsContainer);
+            commentsContainer.style.display = 'block';
+            console.log('댓글창이 열렸습니다:', reviewId);
+        } catch (error) {
+            console.error('댓글 로드 실패:', error);
+        }
     }
 }
 
+// 댓글 목록 로드
+async function loadReviewComments(reviewId, container) {
+    container.innerHTML = '<div class="comments-loading">댓글을 불러오는 중...</div>';
+
+    try {
+        const response = await fetch(`/api/reviews/${reviewId}/comments`);
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || '댓글을 불러오는데 실패했습니다.');
+        }
+
+        const comments = data.comments || [];
+
+        if (comments.length === 0) {
+            container.innerHTML = `
+                <div class="comments-empty">
+                    <p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</p>
+                </div>
+                ${createCommentFormHTML(reviewId)}
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="comments-list">
+                    ${comments.map((comment) => createCommentHTML(comment)).join('')}
+                </div>
+                ${createCommentFormHTML(reviewId)}
+            `;
+        }
+
+        // 댓글 작성 폼 이벤트 리스너 추가
+        initCommentForm(reviewId);
+
+        // 댓글 수정 폼 이벤트 리스너 추가
+        initCommentEditForms();
+    } catch (error) {
+        console.error('댓글 로드 오류:', error);
+        container.innerHTML = `
+            <div class="comments-error">
+                <p>댓글을 불러올 수 없습니다. 잠시 후 다시 시도해주세요.</p>
+            </div>
+            ${createCommentFormHTML(reviewId)}
+        `;
+        initCommentForm(reviewId);
+    }
+}
+
+// 댓글 HTML 생성
+function createCommentHTML(comment) {
+    const userName = comment.userName || comment.userLoginId || '익명';
+    const createdAt = formatDate(
+        comment.createdAt || comment.created_at || new Date().toISOString()
+    );
+    const userProfileImage = comment.userProfileImage || '/images/defaultProfile.png';
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    let currentUserId = null;
+
+    if (loggedInUser) {
+        try {
+            const user = JSON.parse(loggedInUser);
+            currentUserId = user.id;
+        } catch (error) {
+            console.error('사용자 정보 파싱 오류:', error);
+        }
+    }
+
+    const commentUserId = comment.userId || comment.user_id;
+    const isMyComment = currentUserId && commentUserId && currentUserId == commentUserId;
+
+    // 본인 댓글인 경우 신고 버튼 숨김, 삭제/수정 버튼 표시
+    const actionButtonsHTML = isMyComment
+        ? `<div class="comment-actions">
+            <button class="edit-comment-btn" onclick="editComment(${comment.id}, '${(
+              comment.content || ''
+          ).replace(/'/g, "\\'")}')">수정</button>
+            <button class="delete-comment-btn" onclick="deleteComment(${comment.id})">삭제</button>
+        </div>`
+        : `<div class="comment-report-btn">
+            <button onclick="reportComment(${comment.id})">신고</button>
+        </div>`;
+
+    return `
+        <div class="comment-item ${isMyComment ? 'my-comment' : ''}" data-comment-id="${
+        comment.id
+    }">
+            <div class="comment-header">
+                <img src="${userProfileImage}" alt="${userName}" class="comment-user-image" />
+                <div class="comment-user-info">
+                    <p class="comment-user-name">
+                        <strong>${userName}</strong>
+                        ${isMyComment ? ' <span class="my-comment-badge">내 댓글</span>' : ''}
+                    </p>
+                    <p class="comment-date">${createdAt}</p>
+                </div>
+                ${actionButtonsHTML}
+            </div>
+            <div class="comment-content" id="comment-content-${comment.id}">
+                <p>${comment.content || ''}</p>
+            </div>
+            <!-- 댓글 수정 폼 (숨김) -->
+            <div class="comment-edit-form" id="comment-edit-form-${
+                comment.id
+            }" style="display: none;">
+                <textarea class="comment-edit-input" id="comment-edit-input-${
+                    comment.id
+                }" maxlength="500">${comment.content || ''}</textarea>
+                <div class="comment-edit-actions">
+                    <span class="comment-edit-char-count"><span id="comment-edit-char-count-${
+                        comment.id
+                    }">${(comment.content || '').length}</span>/500</span>
+                    <div>
+                        <button class="comment-cancel-btn" onclick="cancelEditComment(${
+                            comment.id
+                        })">취소</button>
+                        <button class="comment-save-btn" onclick="saveComment(${
+                            comment.id
+                        })">저장</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 댓글 작성 폼 HTML 생성
+function createCommentFormHTML(reviewId) {
+    return `
+        <div class="comment-form-container">
+            <div class="comment-form">
+                <textarea 
+                    id="comment-input-${reviewId}" 
+                    class="comment-input" 
+                    placeholder="댓글을 입력해주세요... (최대 500자)"
+                    maxlength="500"
+                    rows="3"
+                ></textarea>
+                <div class="comment-form-actions">
+                    <span class="comment-char-count"><span id="comment-char-count-${reviewId}">0</span>/500</span>
+                    <button class="comment-submit-btn" onclick="submitComment(${reviewId})">댓글 작성</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 댓글 작성 폼 초기화
+function initCommentForm(reviewId) {
+    const textarea = document.getElementById(`comment-input-${reviewId}`);
+    const charCount = document.getElementById(`comment-char-count-${reviewId}`);
+
+    if (textarea && charCount) {
+        textarea.addEventListener('input', function () {
+            const currentLength = this.value.length;
+            charCount.textContent = currentLength;
+
+            // 글자수가 450자를 넘으면 경고색으로 변경
+            if (currentLength > 450) {
+                charCount.style.color = '#ef4444';
+            } else {
+                charCount.style.color = 'var(--neutral-500)';
+            }
+        });
+    }
+}
+
+// 댓글 수정 폼 초기화
+function initCommentEditForms() {
+    const editInputs = document.querySelectorAll('.comment-edit-input');
+    editInputs.forEach((input) => {
+        const commentId = input.id.replace('comment-edit-input-', '');
+        const charCount = document.getElementById(`comment-edit-char-count-${commentId}`);
+
+        if (charCount) {
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            const newInput = input.cloneNode(true);
+            input.parentNode.replaceChild(newInput, input);
+
+            // 새 이벤트 리스너 추가
+            newInput.addEventListener('input', function () {
+                const length = this.value.length;
+                charCount.textContent = length;
+                if (length > 450) {
+                    charCount.style.color = '#ef4444';
+                } else {
+                    charCount.style.color = 'var(--neutral-500)';
+                }
+            });
+        }
+    });
+}
+
+// 댓글 작성
+async function submitComment(reviewId) {
+    const textarea = document.getElementById(`comment-input-${reviewId}`);
+    if (!textarea) {
+        console.error('댓글 입력 필드를 찾을 수 없습니다:', `comment-input-${reviewId}`);
+        return;
+    }
+
+    const content = textarea.value ? textarea.value.trim() : '';
+
+    if (!content) {
+        alert('댓글 내용을 입력해주세요.');
+        return;
+    }
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+        alert('로그인이 필요합니다. 로그인 후 댓글을 작성해주세요.');
+        return;
+    }
+
+    let userId;
+    try {
+        const user = JSON.parse(loggedInUser);
+        userId = user.id;
+        if (!userId) {
+            throw new Error('사용자 ID를 찾을 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('사용자 정보 파싱 오류:', error);
+        alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+
+    // 제출 버튼 비활성화
+    const submitBtn = document.querySelector(`[onclick="submitComment(${reviewId})"]`);
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '작성 중...';
+    }
+
+    try {
+        const response = await fetch(`/api/reviews/${reviewId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: userId,
+                content: content,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 댓글 목록 새로고침 - 포토리뷰 모달과 일반 리뷰 모두 처리
+            let commentsContainer = document.getElementById(`photo-review-comments-${reviewId}`);
+
+            if (!commentsContainer) {
+                // 일반 리뷰의 경우
+                const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
+                if (reviewElement) {
+                    commentsContainer =
+                        reviewElement.querySelector('.review-comments-container') ||
+                        document.getElementById(`review-comments-${reviewId}`);
+                }
+            }
+
+            // 댓글창이 열려있는지 확인
+            const wasOpen =
+                commentsContainer &&
+                commentsContainer.style.display !== 'none' &&
+                window.getComputedStyle(commentsContainer).display !== 'none';
+
+            // 리뷰 목록 새로고침 (댓글 수 업데이트) - 이전에 댓글창이 열려있었다면 다시 열기
+            await loadReviews();
+
+            // 댓글창이 열려있었으면 다시 열기
+            if (wasOpen) {
+                // 댓글 컨테이너 다시 찾기 (loadReviews 후 DOM이 재생성되었을 수 있음)
+                commentsContainer = document.getElementById(`photo-review-comments-${reviewId}`);
+                if (!commentsContainer) {
+                    const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
+                    if (reviewElement) {
+                        commentsContainer =
+                            reviewElement.querySelector('.review-comments-container') ||
+                            document.getElementById(`review-comments-${reviewId}`);
+                    }
+                }
+
+                if (commentsContainer) {
+                    // 댓글 목록 다시 로드
+                    await loadReviewComments(reviewId, commentsContainer);
+                    // 댓글창이 열려있도록 유지
+                    commentsContainer.style.display = 'block';
+
+                    // 폼 초기화 (댓글 목록 로드 후)
+                    const newTextarea = document.getElementById(`comment-input-${reviewId}`);
+                    const charCount = document.getElementById(`comment-char-count-${reviewId}`);
+                    if (newTextarea) {
+                        newTextarea.value = '';
+                    }
+                    if (charCount) {
+                        charCount.textContent = '0';
+                        charCount.style.color = 'var(--neutral-500)';
+                    }
+                }
+            } else if (commentsContainer) {
+                // 댓글창이 닫혀있었어도 댓글 목록은 업데이트 (다음에 열 때 최신 댓글 표시)
+                await loadReviewComments(reviewId, commentsContainer);
+            }
+        } else {
+            alert('댓글 작성에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('댓글 작성 오류:', error);
+        alert('댓글 작성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+        // 제출 버튼 다시 활성화
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '댓글 작성';
+        }
+    }
+}
+
+// 댓글 신고
+function reportComment(commentId) {
+    openReportModal(commentId, 'comment');
+}
+
+// 댓글 수정 모드로 전환
+function editComment(commentId, currentContent) {
+    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (!commentItem) return;
+
+    const contentDiv = document.getElementById(`comment-content-${commentId}`);
+    const editForm = document.getElementById(`comment-edit-form-${commentId}`);
+    const editInput = document.getElementById(`comment-edit-input-${commentId}`);
+    const charCount = document.getElementById(`comment-edit-char-count-${commentId}`);
+
+    if (contentDiv && editForm && editInput) {
+        // 수정 모드로 전환
+        contentDiv.style.display = 'none';
+        editForm.style.display = 'block';
+        editInput.focus();
+        editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+
+        // 글자 수 카운트 이벤트
+        editInput.addEventListener('input', function () {
+            const length = this.value.length;
+            if (charCount) {
+                charCount.textContent = length;
+                if (length > 450) {
+                    charCount.style.color = '#ef4444';
+                } else {
+                    charCount.style.color = 'var(--neutral-500)';
+                }
+            }
+        });
+    }
+}
+
+// 댓글 수정 취소
+function cancelEditComment(commentId) {
+    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (!commentItem) return;
+
+    const contentDiv = document.getElementById(`comment-content-${commentId}`);
+    const editForm = document.getElementById(`comment-edit-form-${commentId}`);
+    const editInput = document.getElementById(`comment-edit-input-${commentId}`);
+
+    if (contentDiv && editForm && editInput) {
+        // 원래 내용으로 복원
+        const originalContent = contentDiv.querySelector('p').textContent;
+        editInput.value = originalContent;
+
+        // 표시 모드로 전환
+        contentDiv.style.display = 'block';
+        editForm.style.display = 'none';
+    }
+}
+
+// 댓글 수정 저장
+async function saveComment(commentId) {
+    const editInput = document.getElementById(`comment-edit-input-${commentId}`);
+    if (!editInput) return;
+
+    const newContent = editInput.value.trim();
+    if (!newContent) {
+        alert('댓글 내용을 입력해주세요.');
+        return;
+    }
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+        alert('로그인이 필요합니다.');
+        return;
+    }
+
+    let userId;
+    try {
+        const user = JSON.parse(loggedInUser);
+        userId = user.id;
+        if (!userId) {
+            throw new Error('사용자 ID를 찾을 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('사용자 정보 파싱 오류:', error);
+        alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+
+    // 저장 버튼 비활성화
+    const saveBtn = document.querySelector(`[onclick="saveComment(${commentId})"]`);
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '저장 중...';
+    }
+
+    try {
+        const response = await fetch(`/api/comments/${commentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: userId,
+                content: newContent,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 댓글 내용 업데이트
+            const contentDiv = document.getElementById(`comment-content-${commentId}`);
+            const editForm = document.getElementById(`comment-edit-form-${commentId}`);
+            const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+
+            if (contentDiv) {
+                contentDiv.querySelector('p').textContent = newContent;
+                contentDiv.style.display = 'block';
+            }
+            if (editForm) {
+                editForm.style.display = 'none';
+            }
+
+            // 댓글 목록 새로고침 (포토리뷰 모달과 일반 리뷰 모두 처리)
+            if (commentItem) {
+                const reviewElement = commentItem.closest('[data-review-id]');
+                const reviewId = reviewElement
+                    ? reviewElement.getAttribute('data-review-id')
+                    : null;
+
+                if (reviewId) {
+                    let commentsContainer = document.getElementById(
+                        `photo-review-comments-${reviewId}`
+                    );
+                    if (!commentsContainer) {
+                        commentsContainer = document.getElementById(`review-comments-${reviewId}`);
+                    }
+                    if (!commentsContainer && reviewElement) {
+                        commentsContainer = reviewElement.querySelector(
+                            '.review-comments-container'
+                        );
+                    }
+
+                    if (commentsContainer) {
+                        await loadReviewComments(reviewId, commentsContainer);
+                        commentsContainer.style.display = 'block';
+                    }
+                }
+            }
+        } else {
+            alert('댓글 수정에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('댓글 수정 오류:', error);
+        alert('댓글 수정 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+        // 저장 버튼 다시 활성화
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '저장';
+        }
+    }
+}
+
+// 댓글 삭제
+async function deleteComment(commentId) {
+    if (!confirm('댓글을 삭제하시겠습니까?')) {
+        return;
+    }
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+        alert('로그인이 필요합니다.');
+        return;
+    }
+
+    let userId;
+    try {
+        const user = JSON.parse(loggedInUser);
+        userId = user.id;
+        if (!userId) {
+            throw new Error('사용자 ID를 찾을 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('사용자 정보 파싱 오류:', error);
+        alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: userId,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 댓글 요소 제거
+            const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+            if (commentItem) {
+                // 리뷰 ID 찾기
+                const reviewElement = commentItem.closest('[data-review-id]');
+                const reviewId = reviewElement
+                    ? reviewElement.getAttribute('data-review-id')
+                    : null;
+
+                commentItem.remove();
+
+                // 댓글 목록 다시 로드
+                if (reviewId) {
+                    const commentsContainer = document.querySelector(
+                        `#review-comments-${reviewId}, #photo-review-comments-${reviewId}`
+                    );
+                    if (commentsContainer) {
+                        await loadReviewComments(reviewId, commentsContainer);
+                    }
+                }
+
+                // 리뷰 목록 새로고침 (댓글 수 업데이트)
+                await loadReviews();
+            }
+        } else {
+            alert('댓글 삭제에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('댓글 삭제 오류:', error);
+        alert('댓글 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    }
+}
+
+// 신고 모달 열기
+function openReportModal(targetId, targetType) {
+    // 현재 로그인한 사용자 정보 확인
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+        alert('로그인이 필요합니다. 로그인 후 신고해주세요.');
+        return;
+    }
+
+    const modal = document.getElementById('report-modal');
+    const targetIdInput = document.getElementById('report-target-id');
+    const targetTypeInput = document.getElementById('report-target-type');
+    const modalTitle = document.getElementById('report-modal-title');
+    const form = document.getElementById('report-form');
+    const otherReasonGroup = document.getElementById('report-other-reason-group');
+    const otherReasonTextarea = document.getElementById('report-other-reason');
+
+    // 타겟 정보 설정
+    targetIdInput.value = targetId;
+    targetTypeInput.value = targetType;
+    modalTitle.textContent = targetType === 'review' ? '리뷰 신고하기' : '댓글 신고하기';
+
+    // 폼 초기화
+    form.reset();
+    otherReasonGroup.style.display = 'none';
+    otherReasonTextarea.required = false;
+    document.getElementById('report-reason-char-count').textContent = '0';
+
+    // 모달 표시
+    modal.style.display = 'block';
+
+    // 배경 스크롤 방지
+    document.body.style.overflow = 'hidden';
+
+    // 라디오 버튼 변경 이벤트
+    const reasonRadios = document.querySelectorAll('input[name="report-reason"]');
+    reasonRadios.forEach((radio) => {
+        radio.addEventListener('change', function () {
+            if (this.value === 'other') {
+                otherReasonGroup.style.display = 'block';
+                otherReasonTextarea.required = true;
+            } else {
+                otherReasonGroup.style.display = 'none';
+                otherReasonTextarea.required = false;
+                otherReasonTextarea.value = '';
+                document.getElementById('report-reason-char-count').textContent = '0';
+            }
+        });
+    });
+
+    // 글자 수 카운트
+    otherReasonTextarea.addEventListener('input', function () {
+        const currentLength = this.value.length;
+        document.getElementById('report-reason-char-count').textContent = currentLength;
+
+        if (currentLength > 450) {
+            document.getElementById('report-reason-char-count').style.color = '#ef4444';
+        } else {
+            document.getElementById('report-reason-char-count').style.color = 'var(--neutral-500)';
+        }
+    });
+}
+
+// 신고 모달 닫기
+// 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+function restoreBodyScroll() {
+    const photoModal = document.getElementById('photo-review-modal');
+    const reportModal = document.getElementById('report-modal');
+    const photoRequestModal = document.getElementById('photo-request-modal');
+    const spotEditModal = document.getElementById('spot-edit-request-modal');
+
+    const isPhotoModalOpen =
+        photoModal && photoModal.style.display !== 'none' && photoModal.style.display !== '';
+    const isReportModalOpen =
+        reportModal && reportModal.style.display !== 'none' && reportModal.style.display !== '';
+    const isPhotoRequestModalOpen =
+        photoRequestModal &&
+        photoRequestModal.style.display !== 'none' &&
+        photoRequestModal.style.display !== '';
+    const isSpotEditModalOpen =
+        spotEditModal &&
+        spotEditModal.style.display !== 'none' &&
+        spotEditModal.style.display !== '';
+
+    // 모든 모달이 닫혀있을 때만 스크롤 복원
+    if (
+        !isPhotoModalOpen &&
+        !isReportModalOpen &&
+        !isPhotoRequestModalOpen &&
+        !isSpotEditModalOpen
+    ) {
+        document.body.style.overflow = '';
+    }
+}
+
+function closeReportModal() {
+    const modal = document.getElementById('report-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        // 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+        restoreBodyScroll();
+    }
+}
+
+// 신고 제출
+async function submitReport(event) {
+    event.preventDefault();
+
+    const targetId = document.getElementById('report-target-id').value;
+    const targetType = document.getElementById('report-target-type').value;
+    const selectedReason = document.querySelector('input[name="report-reason"]:checked');
+    const otherReason = document.getElementById('report-other-reason').value.trim();
+
+    if (!selectedReason) {
+        alert('신고 사유를 선택해주세요.');
+        return;
+    }
+
+    let reason = '';
+    const reasonMap = {
+        spam: '스팸',
+        abuse: '욕설/비방',
+        inappropriate: '부적절한 내용',
+        other: '기타',
+    };
+
+    if (selectedReason.value === 'other') {
+        if (!otherReason) {
+            alert('상세 사유를 입력해주세요.');
+            return;
+        }
+        reason = `기타: ${otherReason}`;
+    } else {
+        reason = reasonMap[selectedReason.value];
+    }
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    let userId;
+    try {
+        const user = JSON.parse(loggedInUser);
+        userId = user.id;
+        if (!userId) {
+            throw new Error('사용자 ID를 찾을 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('사용자 정보 파싱 오류:', error);
+        alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+
+    // 제출 버튼 비활성화
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '신고 중...';
+    }
+
+    try {
+        const endpoint =
+            targetType === 'review'
+                ? `/api/reviews/${targetId}/report`
+                : `/api/comments/${targetId}/report`;
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: userId,
+                reason: reason,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('신고가 접수되었습니다. 검토 후 조치하겠습니다.');
+            closeReportModal();
+        } else {
+            alert('신고 처리에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('신고 처리 오류:', error);
+        alert('신고 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+        // 제출 버튼 다시 활성화
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '신고하기';
+        }
+    }
+}
+
+// 신고 모달 이벤트 리스너 초기화
+function initReportModal() {
+    const modal = document.getElementById('report-modal');
+    const closeBtn = document.getElementById('close-report-modal');
+    const cancelBtn = document.getElementById('cancel-report-btn');
+    const form = document.getElementById('report-form');
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeReportModal);
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeReportModal);
+    }
+
+    if (form) {
+        form.addEventListener('submit', submitReport);
+    }
+
+    // 모달 외부 클릭 시 닫기
+    if (modal) {
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeReportModal();
+            }
+        });
+    }
+}
+
+// 전역 스코프에 함수 바인딩
+window.toggleReviewReply = toggleReviewReply;
+window.submitComment = submitComment;
+window.reportComment = reportComment;
+window.editComment = editComment;
+window.cancelEditComment = cancelEditComment;
+window.saveComment = saveComment;
+window.deleteComment = deleteComment;
+window.editComment = editComment;
+window.cancelEditComment = cancelEditComment;
+window.saveComment = saveComment;
+window.deleteComment = deleteComment;
+
 // 페이지 콘텐츠 업데이트 함수 수정 (기존 함수에 currentSpotTitle 설정 추가)
 function updatePageContent(spot, regionName) {
-    // 현재 관광지 ID와 제목 설정
+    // 현재 관광지 ID와 제목, 해시태그 설정
     currentSpotId = spot.id;
     currentSpotTitle = spot.title;
+    currentSpotHashtags = spot.hashtags || [];
 
     // 기본 정보 업데이트
     const spotTitle = document.getElementById('spot-title');
@@ -1106,7 +2404,7 @@ function updatePageContent(spot, regionName) {
     updateSpotInfo(spot, regionName);
 
     // 카카오 지도 초기화 (스크립트 로드 대기 포함)
-    initKakaoMap(spot.title);
+    initKakaoMap(spot.title, spot.latitude, spot.longitude);
 
     // Swiper 재초기화
     setTimeout(() => {
@@ -1117,6 +2415,11 @@ function updatePageContent(spot, regionName) {
     setTimeout(() => {
         loadReviews();
     }, 200);
+
+    // 포토리뷰 로드
+    setTimeout(() => {
+        loadPhotoReviews();
+    }, 300);
 }
 
 // 사진 등록 신청 모달 관련 함수들
@@ -1147,6 +2450,8 @@ function initPhotoRequestModal() {
                 }
 
                 modal.style.display = 'block';
+                // 배경 스크롤 방지
+                document.body.style.overflow = 'hidden';
             }
         });
     }
@@ -1156,6 +2461,8 @@ function initPhotoRequestModal() {
         closeBtn.addEventListener('click', function () {
             if (modal) {
                 modal.style.display = 'none';
+                // 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+                restoreBodyScroll();
                 // 폼 초기화
                 if (form) {
                     form.reset();
@@ -1178,6 +2485,8 @@ function initPhotoRequestModal() {
         window.addEventListener('click', function (event) {
             if (event.target === modal) {
                 modal.style.display = 'none';
+                // 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+                restoreBodyScroll();
                 // 폼 초기화
                 if (form) {
                     form.reset();
@@ -1278,6 +2587,8 @@ function initPhotoRequestModal() {
                     if (data.success) {
                         alert('사진 등록 신청이 완료되었습니다. 관리자 검토 후 반영됩니다.');
                         modal.style.display = 'none';
+                        // 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+                        restoreBodyScroll();
                         form.reset();
                         if (previewContainer) {
                             previewContainer.style.display = 'none';
@@ -1300,6 +2611,575 @@ function initPhotoRequestModal() {
     }
 }
 
+// 관광지 정보 수정요청 모달 관련 함수들
+function initSpotEditRequestModal() {
+    const detailPictureBtn = document.querySelector('.detailPicture');
+    const modal = document.getElementById('spot-edit-request-modal');
+    const closeBtn = document.getElementById('close-spot-edit-request-modal');
+    const form = document.getElementById('spot-edit-request-form');
+    const imageInput = document.getElementById('spot-edit-request-image');
+    const previewContainer = document.getElementById('spot-edit-preview-container');
+    const preview = document.getElementById('spot-edit-preview');
+    const contentTextarea = document.getElementById('spot-edit-request-content');
+    const charCount = document.getElementById('spot-edit-content-char-count');
+
+    // 모달 열기
+    if (detailPictureBtn) {
+        detailPictureBtn.addEventListener('click', function () {
+            if (modal) {
+                // 현재 관광지 정보를 모달에 설정
+                const spotIdInput = document.getElementById('spot-edit-request-spot-id');
+                const spotNameInput = document.getElementById('spot-edit-request-spot-name');
+
+                if (spotIdInput && currentSpotId) {
+                    spotIdInput.value = currentSpotId;
+                }
+                if (spotNameInput && currentSpotTitle) {
+                    spotNameInput.value = currentSpotTitle;
+                }
+
+                modal.style.display = 'block';
+                // 배경 스크롤 방지
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    }
+
+    // 모달 닫기
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            if (modal) {
+                modal.style.display = 'none';
+                // 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+                restoreBodyScroll();
+            }
+        });
+    }
+
+    // 모달 외부 클릭 시 닫기
+    if (modal) {
+        window.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                // 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+                restoreBodyScroll();
+            }
+        });
+    }
+
+    // 이미지 미리보기
+    if (imageInput && preview && previewContainer) {
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none';
+                preview.src = '';
+            }
+        });
+    }
+
+    // 글자 수 카운트
+    if (contentTextarea && charCount) {
+        contentTextarea.addEventListener('input', function () {
+            const length = this.value.length;
+            charCount.textContent = length;
+        });
+    }
+
+    // 폼 제출
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const spotId = document.getElementById('spot-edit-request-spot-id').value;
+            const content = document.getElementById('spot-edit-request-content').value;
+            const imageFile = imageInput ? imageInput.files[0] : null;
+
+            if (!content || content.trim() === '') {
+                alert('수정 요청 내용을 입력해주세요.');
+                return;
+            }
+
+            // 현재 로그인한 사용자 정보 가져오기
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            if (!loggedInUser) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            let userId;
+            try {
+                const user = JSON.parse(loggedInUser);
+                userId = user.id;
+            } catch (error) {
+                console.error('사용자 정보 파싱 오류:', error);
+                alert('사용자 정보를 가져올 수 없습니다.');
+                return;
+            }
+
+            // FormData 생성
+            const formData = new FormData();
+            formData.append('spotId', spotId);
+            formData.append('userId', userId);
+            formData.append('content', content);
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            // 백엔드 API 호출
+            // TODO: 백엔드 API 엔드포인트 구현 필요
+            fetch('/api/spot-requests/edit', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        alert('관광지 정보 수정요청이 완료되었습니다. 관리자 검토 후 반영됩니다.');
+                        modal.style.display = 'none';
+                        // 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+                        restoreBodyScroll();
+                        form.reset();
+                        if (previewContainer) {
+                            previewContainer.style.display = 'none';
+                        }
+                        if (preview) {
+                            preview.src = '';
+                        }
+                        if (charCount) {
+                            charCount.textContent = '0';
+                        }
+                    } else {
+                        alert('신청에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('신청 중 오류가 발생했습니다.');
+                });
+        });
+    }
+}
+
+// ========== 포토리뷰 관련 기능 ==========
+
+// 포토리뷰 데이터
+let photoReviews = [];
+let isGridView = false;
+let currentSort = 'latest';
+
+// 포토리뷰 업데이트 (리뷰 데이터에서)
+function updatePhotoReviews(spotReviews) {
+    // 이미지가 있는 리뷰만 필터링
+    photoReviews = spotReviews.filter((review) => {
+        return review.images && Array.isArray(review.images) && review.images.length > 0;
+    });
+
+    // 포토리뷰 표시
+    displayPhotoReviews();
+}
+
+// 포토리뷰 로드 (별도 API 호출)
+async function loadPhotoReviews() {
+    if (!currentSpotId) {
+        console.warn('관광지 ID가 없어 포토리뷰를 불러올 수 없습니다.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/reviews?touristSpotId=${currentSpotId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        let spotReviews = [];
+
+        if (data.content && Array.isArray(data.content)) {
+            spotReviews = data.content;
+        } else if (data.reviews && Array.isArray(data.reviews)) {
+            spotReviews = data.reviews;
+        } else if (Array.isArray(data)) {
+            spotReviews = data;
+        }
+
+        // 포토리뷰 업데이트
+        updatePhotoReviews(spotReviews);
+    } catch (error) {
+        console.error('포토리뷰 데이터 로드 중 오류:', error);
+    }
+}
+
+// 포토리뷰 표시
+function displayPhotoReviews() {
+    const listContainer = document.getElementById('photo-reviews-list');
+    const gridContainer = document.getElementById('photo-reviews-grid');
+
+    if (!listContainer || !gridContainer) return;
+
+    if (photoReviews.length === 0) {
+        listContainer.innerHTML =
+            '<div class="no-photo-reviews"><p>아직 포토리뷰가 없습니다.</p></div>';
+        gridContainer.innerHTML =
+            '<div class="no-photo-reviews"><p>아직 포토리뷰가 없습니다.</p></div>';
+        return;
+    }
+
+    // 정렬
+    const sortedReviews = sortPhotoReviews([...photoReviews]);
+
+    if (isGridView) {
+        // 그리드 형태
+        displayPhotoReviewsGrid(gridContainer, sortedReviews);
+        listContainer.style.display = 'none';
+        gridContainer.style.display = 'grid';
+    } else {
+        // 리스트 형태
+        displayPhotoReviewsList(listContainer, sortedReviews);
+        listContainer.style.display = 'block';
+        gridContainer.style.display = 'none';
+    }
+}
+
+// 포토리뷰 정렬
+function sortPhotoReviews(reviews) {
+    if (currentSort === 'latest') {
+        return reviews.sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.created_at || 0);
+            const dateB = new Date(b.createdAt || b.created_at || 0);
+            return dateB - dateA;
+        });
+    } else if (currentSort === 'popular') {
+        return reviews.sort((a, b) => {
+            const likesA = a.likes || a.likeCount || 0;
+            const likesB = b.likes || b.likeCount || 0;
+            return likesB - likesA;
+        });
+    }
+    return reviews;
+}
+
+// 포토리뷰 리스트 형태 표시
+function displayPhotoReviewsList(container, reviews) {
+    container.innerHTML = '';
+
+    // 최대 6개만 표시 (리스트 형태)
+    const displayReviews = reviews.slice(0, 6);
+
+    displayReviews.forEach((review) => {
+        const reviewElement = createPhotoReviewListItem(review);
+        container.appendChild(reviewElement);
+    });
+}
+
+// 포토리뷰 그리드 형태 표시
+function displayPhotoReviewsGrid(container, reviews) {
+    container.innerHTML = '';
+
+    reviews.forEach((review) => {
+        const reviewElement = createPhotoReviewGridItem(review);
+        container.appendChild(reviewElement);
+    });
+}
+
+// 포토리뷰 리스트 아이템 생성
+function createPhotoReviewListItem(review) {
+    const item = document.createElement('div');
+    item.setAttribute('data-review-id', review.id);
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    let currentUserId = null;
+    if (loggedInUser) {
+        try {
+            const userData = JSON.parse(loggedInUser);
+            currentUserId = userData.id;
+        } catch (e) {}
+    }
+
+    // 리뷰 작성자 ID 가져오기
+    const reviewUserId = review.userId || review.user_id;
+    const isMyReview = currentUserId && reviewUserId && currentUserId == reviewUserId;
+
+    // 본인 리뷰인 경우 클래스 추가
+    item.className = isMyReview
+        ? 'photo-review-list-item my-photo-review'
+        : 'photo-review-list-item';
+
+    const firstImage =
+        review.images && review.images.length > 0
+            ? review.images[0].imageUrl || review.images[0].image_url || ''
+            : '/images/logo.png';
+
+    const userName = review.userName || review.user_name || '익명';
+    const title = review.title || '';
+    const rating = review.rating || 0;
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    const createdAt = formatDate(review.createdAt || review.created_at || new Date().toISOString());
+    const imageCount = review.images ? review.images.length : 0;
+
+    item.innerHTML = `
+        <div class="photo-review-list-image">
+            <img src="${firstImage}" alt="${title}" onerror="this.src='/images/logo.png'" />
+            ${imageCount > 1 ? `<span class="image-count">+${imageCount - 1}</span>` : ''}
+        </div>
+        <div class="photo-review-list-info">
+            <div class="photo-review-list-header">
+                <p class="photo-review-user">${userName}${
+        isMyReview ? ' <span class="my-photo-review-badge">내 리뷰</span>' : ''
+    }</p>
+                <p class="photo-review-date">${createdAt}</p>
+            </div>
+            <p class="photo-review-title">${title}</p>
+            <div class="photo-review-rating">${stars} (${rating}/5)</div>
+        </div>
+    `;
+
+    item.addEventListener('click', () => {
+        openPhotoReviewModal(review);
+    });
+
+    return item;
+}
+
+// 포토리뷰 그리드 아이템 생성
+function createPhotoReviewGridItem(review) {
+    const item = document.createElement('div');
+    item.setAttribute('data-review-id', review.id);
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    let currentUserId = null;
+    if (loggedInUser) {
+        try {
+            const userData = JSON.parse(loggedInUser);
+            currentUserId = userData.id;
+        } catch (e) {}
+    }
+
+    // 리뷰 작성자 ID 가져오기
+    const reviewUserId = review.userId || review.user_id;
+    const isMyReview = currentUserId && reviewUserId && currentUserId == reviewUserId;
+
+    // 본인 리뷰인 경우 클래스 추가
+    item.className = isMyReview
+        ? 'photo-review-grid-item my-photo-review'
+        : 'photo-review-grid-item';
+
+    const firstImage =
+        review.images && review.images.length > 0
+            ? review.images[0].imageUrl || review.images[0].image_url || ''
+            : '/images/logo.png';
+
+    const imageCount = review.images ? review.images.length : 0;
+
+    item.innerHTML = `
+        <div class="photo-review-grid-image">
+            <img src="${firstImage}" alt="포토리뷰" onerror="this.src='/images/logo.png'" />
+            ${imageCount > 1 ? `<span class="image-count">+${imageCount - 1}</span>` : ''}
+            ${isMyReview ? '<span class="my-photo-review-indicator">내 리뷰</span>' : ''}
+        </div>
+    `;
+
+    item.addEventListener('click', () => {
+        openPhotoReviewModal(review);
+    });
+
+    return item;
+}
+
+// 포토리뷰 모달 열기
+function openPhotoReviewModal(review) {
+    const modal = document.getElementById('photo-review-modal');
+    const content = document.getElementById('photo-review-modal-content');
+
+    if (!modal || !content) return;
+
+    // 배경 스크롤 방지
+    document.body.style.overflow = 'hidden';
+
+    // 현재 로그인한 사용자 정보 가져오기
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    let currentUserId = null;
+
+    if (loggedInUser) {
+        try {
+            const user = JSON.parse(loggedInUser);
+            currentUserId = user.id;
+        } catch (error) {
+            console.error('사용자 정보 파싱 오류:', error);
+        }
+    }
+
+    // 리뷰 작성자 ID 가져오기
+    const reviewUserId = review.userId || review.user_id;
+    const isMyReview = currentUserId && reviewUserId && currentUserId == reviewUserId;
+
+    const userName = review.userName || review.user_name || '익명';
+    const title = review.title || '';
+    const contentText = review.content || '';
+    const rating = review.rating || 0;
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    const createdAt = formatDate(review.createdAt || review.created_at || new Date().toISOString());
+    const images = review.images || [];
+    const likes = review.likes || review.likeCount || 0;
+    const replies = review.replies || review.comments || review.commentCount || 0;
+    const isLiked = review.isLiked || false;
+    const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
+
+    // 본인 리뷰인 경우 신고 버튼 숨김
+    const reportButtonHTML = isMyReview
+        ? ''
+        : `<div class="reportBtn">
+            <button onclick="reportReview(${review.id})">신고</button>
+        </div>`;
+
+    let imagesHTML = '';
+    if (images.length > 0) {
+        imagesHTML = `
+            <div class="photo-review-modal-images">
+                ${images
+                    .map((img, index) => {
+                        const imageUrl = img.imageUrl || img.image_url || '';
+                        return `
+                        <div class="photo-review-modal-image-item">
+                            <img src="${imageUrl}" alt="리뷰 이미지 ${
+                            index + 1
+                        }" onerror="this.src='/images/logo.png'" />
+                        </div>
+                    `;
+                    })
+                    .join('')}
+            </div>
+        `;
+    }
+
+    content.innerHTML = `
+        <div class="photo-review-modal-header">
+            <div class="photo-review-modal-user-info">
+                <p class="photo-review-modal-user">
+                    <strong>${userName}</strong>${
+        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
+    }
+                </p>
+                <p class="photo-review-modal-date">${createdAt}</p>
+            </div>
+        </div>
+        <div class="photo-review-modal-title">${title}</div>
+        <div class="photo-review-modal-rating">${stars} (${rating}/5)</div>
+        <div class="photo-review-modal-body">${contentText}</div>
+        ${imagesHTML}
+        <div class="reviewActions" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--neutral-200);">
+            <div class="reviewInteractions">
+                <div class="reviewLike">
+                    <button class="${likeClass}" onclick="toggleReviewLike(${review.id})"></button>
+                    <p class="reviewLikeCount">${likes}</p>
+                </div>
+                <div class="reviewRe">
+                    <button onclick="toggleReviewReply(${review.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.34737 2.46818C4.94215 2.46818 1.36821 6.04213 1.36821 10.4473C1.36821 14.7616 4.19681 18.4265 8.68711 18.4265H8.94846L10.7383 20.9075C10.9438 21.2069 11.2834 21.4018 11.6705 21.4018C12.0576 21.4018 12.3972 21.2069 12.6027 20.9075L14.3926 18.4265H15.3142C19.8045 18.4265 22.6331 14.7616 22.6331 10.4473C22.6331 6.04162 19.0586 2.46818 14.6458 2.46818H9.34737ZM2.76821 10.4473C2.76821 6.81533 5.71535 3.86818 9.34737 3.86818H14.6458C18.2864 3.86818 21.2331 6.81584 21.2331 10.4473C21.2331 14.1703 18.8611 17.0265 15.3142 17.0265H14.0344H13.6762L13.4667 17.317L11.6705 19.8068L9.87431 17.317L9.66477 17.0265H9.30661H8.68711C5.14017 17.0265 2.76821 14.1703 2.76821 10.4473ZM8.00003 11.5C8.55232 11.5 9.00003 11.0523 9.00003 10.5C9.00003 9.94772 8.55232 9.5 8.00003 9.5C7.44775 9.5 7.00003 9.94772 7.00003 10.5C7.00003 11.0523 7.44775 11.5 8.00003 11.5ZM12 11.5C12.5523 11.5 13 11.0523 13 10.5C13 9.94772 12.5523 9.5 12 9.5C11.4477 9.5 11 9.94772 11 10.5C11 11.0523 11.4477 11.5 12 11.5ZM17 10.5C17 11.0523 16.5523 11.5 16 11.5C15.4477 11.5 15 11.0523 15 10.5C15 9.94772 15.4477 9.5 16 9.5C16.5523 9.5 17 9.94772 17 10.5Z" fill="#333333"></path>
+                        </svg>
+                    </button>
+                    <p class="reviewReCount">${replies}</p>
+                </div>
+                ${reportButtonHTML}
+            </div>
+        </div>
+        <!-- 댓글 컨테이너 (동적으로 추가됨) -->
+        <div class="review-comments-container" id="photo-review-comments-${
+            review.id
+        }" style="display: none;">
+            <!-- 댓글이 동적으로 추가됩니다 -->
+        </div>
+    `;
+
+    // 모달 컨텐츠에 data-review-id 속성 추가 (댓글 기능을 위해)
+    content.setAttribute('data-review-id', review.id);
+
+    modal.style.display = 'block';
+}
+
+// 포토리뷰 모달 닫기
+function closePhotoReviewModal() {
+    const modal = document.getElementById('photo-review-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        // 배경 스크롤 복원 (다른 모달이 열려있지 않은 경우에만)
+        restoreBodyScroll();
+    }
+}
+
+// 포토리뷰 뷰 전환 (리스트/그리드)
+function togglePhotoReviewView() {
+    isGridView = !isGridView;
+    const toggleBtn = document.getElementById('view-all-photos');
+
+    if (toggleBtn) {
+        toggleBtn.textContent = isGridView ? '리스트보기' : '전체보기';
+    }
+
+    displayPhotoReviews();
+}
+
+// 포토리뷰 정렬 변경
+function changePhotoReviewSort(sortType) {
+    currentSort = sortType;
+
+    // 정렬 버튼 활성화 상태 업데이트
+    const sortButtons = document.querySelectorAll('.sort-btn');
+    sortButtons.forEach((btn) => {
+        if (btn.getAttribute('data-sort') === sortType) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    displayPhotoReviews();
+}
+
+// 포토리뷰 기능 초기화
+function initPhotoReviews() {
+    // 전체보기 버튼 클릭 이벤트
+    const viewToggleBtn = document.getElementById('view-all-photos');
+    if (viewToggleBtn) {
+        viewToggleBtn.addEventListener('click', togglePhotoReviewView);
+    }
+
+    // 정렬 버튼 클릭 이벤트
+    const sortButtons = document.querySelectorAll('.sort-btn');
+    sortButtons.forEach((btn) => {
+        btn.addEventListener('click', function () {
+            const sortType = this.getAttribute('data-sort');
+            changePhotoReviewSort(sortType);
+        });
+    });
+
+    // 포토리뷰 모달 닫기 이벤트
+    const closeModalBtn = document.getElementById('close-photo-review-modal');
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closePhotoReviewModal);
+    }
+
+    // 모달 외부 클릭 시 닫기
+    const modal = document.getElementById('photo-review-modal');
+    if (modal) {
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closePhotoReviewModal();
+            }
+        });
+    }
+}
+
 // DOM 로드 완료 후 초기화
 document.addEventListener('DOMContentLoaded', function () {
     // 뒤로가기 버튼 초기화
@@ -1307,6 +3187,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 리뷰 관련 기능 초기화
     initRatingSystem();
+
+    // 신고 모달 초기화
+    initReportModal();
     initCharCount();
     initReviewSubmission();
 
@@ -1315,6 +3198,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 사진 등록 신청 모달 초기화
     initPhotoRequestModal();
+
+    // 관광지 정보 수정요청 모달 초기화
+    initSpotEditRequestModal();
+
+    // 포토리뷰 기능 초기화
+    initPhotoReviews();
 
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
     // ID만 사용 (title 기반 검색은 사용하지 않음)

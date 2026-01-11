@@ -13,6 +13,7 @@
     </head>
     <body>
         <div layout:fragment="content">
+            <div id="Wrapper" th:data-kakao-api-key="${kakaoMapApiKey}">
             <section class="admin-page">
                 <div class="container">
                     <div class="admin-header">
@@ -22,7 +23,6 @@
 
                     <div class="admin-tabs">
                         <button class="tab-btn active" data-tab="list">관광지 목록</button>
-                        <button class="tab-btn" data-tab="add">관광지 추가</button>
                         <button class="tab-btn" data-tab="users">사용자 관리</button>
                         <button class="tab-btn" data-tab="user-reports">유저 신고관리</button>
                         <button class="tab-btn" data-tab="spot-requests">
@@ -33,49 +33,15 @@
                     </div>
 
                     <div class="tab-content active" id="list-tab">
-                        <div class="search-filter">
-                            <input
-                                type="text"
-                                id="admin-search-input"
-                                placeholder="관광지명으로 검색..."
-                            />
-                            <select id="region-filter">
-                                <option value="">전체 지역</option>
-                                <option value="area01">기장군</option>
-                                <option value="area02">금정구</option>
-                                <option value="area03">해운대구</option>
-                                <option value="area04">동래구</option>
-                                <option value="area05">북구</option>
-                                <option value="area06">강서구</option>
-                                <option value="area07">사상구</option>
-                                <option value="area08">부산진구</option>
-                                <option value="area09">남구</option>
-                                <option value="area10">사하구</option>
-                                <option value="area11">동구</option>
-                                <option value="area12">서구</option>
-                                <option value="area13">중구</option>
-                                <option value="area14">연제구</option>
-                                <option value="area15">수영구</option>
-                                <option value="area16">영도구</option>
-                            </select>
-                        </div>
-
-                        <div class="tourist-spots-grid" id="tourist-spots-grid">
-                            <!-- 관광지 목록이 동적으로 생성됩니다 -->
-                        </div>
-                    </div>
-
-                    <div class="tab-content" id="add-tab">
-                        <form class="add-form" id="add-tourist-spot-form">
-                            <div class="form-group">
-                                <label for="spot-title">관광지명</label>
-                                <input type="text" id="spot-title" required />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="spot-region">지역</label>
-                                <select id="spot-region" required>
-                                    <option value="">지역 선택</option>
+                        <div class="list-header">
+                            <div class="search-filter">
+                                <input
+                                    type="text"
+                                    id="admin-search-input"
+                                    placeholder="관광지명으로 검색..."
+                                />
+                                <select id="region-filter">
+                                    <option value="">전체 지역</option>
                                     <option value="area01">기장군</option>
                                     <option value="area02">금정구</option>
                                     <option value="area03">해운대구</option>
@@ -94,38 +60,14 @@
                                     <option value="area16">영도구</option>
                                 </select>
                             </div>
+                            <button class="add-spot-btn" onclick="openAddSpotModal()">
+                                + 관광지 추가
+                            </button>
+                        </div>
 
-                            <div class="form-group">
-                                <label for="spot-hashtags">해시태그 (쉼표로 구분)</label>
-                                <input
-                                    type="text"
-                                    id="spot-hashtags"
-                                    placeholder="#해변, #관광, #부산"
-                                    required
-                                />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="spot-img">이미지 경로</label>
-                                <input
-                                    type="text"
-                                    id="spot-img"
-                                    placeholder="../../images/example.jpg"
-                                />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="spot-link">링크</label>
-                                <input type="text" id="spot-link" placeholder="#" value="#" />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="spot-description">설명</label>
-                                <textarea id="spot-description" rows="4" required></textarea>
-                            </div>
-
-                            <button type="submit" class="submit-btn">관광지 추가</button>
-                        </form>
+                        <div class="tourist-spots-grid" id="tourist-spots-grid">
+                            <!-- 관광지 목록이 동적으로 생성됩니다 -->
+                        </div>
                     </div>
 
                     <div class="tab-content" id="users-tab">
@@ -150,9 +92,6 @@
                                         <option value="suspended">정지</option>
                                     </select>
                                 </div>
-                                <button class="add-user-btn" onclick="openAddUserModal()">
-                                    새 사용자 추가
-                                </button>
                             </div>
                         </div>
 
@@ -439,6 +378,7 @@
                                     <option value="">전체 유형</option>
                                     <option value="spot">관광지 추가</option>
                                     <option value="photo">사진 추가</option>
+                                    <option value="edit">정보 수정</option>
                                 </select>
                                 <select id="request-status-filter">
                                     <option value="">전체 상태</option>
@@ -476,11 +416,11 @@
                 </div>
             </section>
 
-            <!-- 관광지 수정 모달 -->
+            <!-- 관광지 수정/추가 모달 -->
             <div class="modal" id="edit-modal">
                 <div class="modal-content">
                     <span class="close" id="close-modal">&times;</span>
-                    <h2>관광지 정보 수정</h2>
+                    <h2 id="edit-modal-title">관광지 정보 수정</h2>
                     <form id="edit-tourist-spot-form">
                         <div class="form-group">
                             <label for="edit-spot-title">관광지명</label>
@@ -510,6 +450,23 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="edit-spot-category">카테고리</label>
+                            <select id="edit-spot-category" required>
+                                <option value="BEACH">해변</option>
+                                <option value="MOUNTAIN">산/공원</option>
+                                <option value="CULTURE">문화</option>
+                                <option value="FOOD">전통시장</option>
+                                <option value="SHOPPING">쇼핑</option>
+                                <option value="CAFE">카페</option>
+                                <option value="FAMILY">가족</option>
+                                <option value="COUPLE">연인</option>
+                                <option value="SOLO">혼자</option>
+                                <option value="FRIEND">친구</option>
+                                <option value="ETC">기타</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <label for="edit-spot-hashtags">해시태그 (쉼표로 구분)</label>
                             <input
                                 type="text"
@@ -519,13 +476,41 @@
                             />
                         </div>
 
-                        <div class="form-group">
-                            <label for="edit-spot-img">이미지 경로</label>
-                            <input
-                                type="text"
-                                id="edit-spot-img"
-                                placeholder="../../images/example.jpg"
-                            />
+                        <!-- 이미지 관리 섹션 -->
+                        <div class="form-group image-management-section">
+                            <label>이미지 관리</label>
+
+                            <!-- 등록된 이미지 목록 -->
+                            <div class="registered-images">
+                                <h4>📷 등록된 이미지</h4>
+                                <div class="image-list" id="edit-spot-images">
+                                    <!-- 등록된 이미지가 동적으로 표시됩니다 -->
+                                    <p class="no-images">등록된 이미지가 없습니다.</p>
+                                </div>
+                            </div>
+
+                            <!-- 새 이미지 추가 -->
+                            <div class="new-images">
+                                <h4>➕ 새 이미지 추가</h4>
+                                <div class="file-upload-area">
+                                    <input
+                                        type="file"
+                                        id="edit-spot-new-images"
+                                        accept="image/*"
+                                        multiple
+                                        class="file-input"
+                                    />
+                                    <label for="edit-spot-new-images" class="file-label">
+                                        <span class="file-icon">📁</span>
+                                        <span class="file-text"
+                                            >클릭하여 이미지 선택 (여러 장 가능)</span
+                                        >
+                                    </label>
+                                    <div class="selected-files" id="selected-files-preview">
+                                        <!-- 선택된 파일 미리보기 -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -533,47 +518,62 @@
                             <input type="text" id="edit-spot-link" placeholder="#" value="#" />
                         </div>
 
+                        <!-- 위치 검색 섹션 -->
+                        <div class="form-group">
+                            <label for="edit-spot-location-search">위치 검색</label>
+                            <div class="location-search-container">
+                                <div class="location-search-input-group">
+                                    <input
+                                        type="text"
+                                        id="edit-spot-location-search"
+                                        placeholder="주소나 관광지명을 입력하세요 (예: 부산 해운대해수욕장)"
+                                    />
+                                    <button
+                                        type="button"
+                                        id="edit-spot-location-search-btn"
+                                        class="search-btn"
+                                    >
+                                        검색
+                                    </button>
+                                </div>
+                                <div
+                                    id="edit-spot-location-results"
+                                    class="location-search-results"
+                                    style="display: none"
+                                >
+                                    <!-- 검색 결과가 여기에 표시됩니다 -->
+                                </div>
+                                <div
+                                    class="location-selected-info"
+                                    id="edit-spot-location-selected"
+                                    style="display: none"
+                                >
+                                    <p>
+                                        <strong>선택된 위치:</strong>
+                                        <span id="edit-spot-location-selected-text"></span>
+                                    </p>
+                                    <button
+                                        type="button"
+                                        id="edit-spot-location-clear"
+                                        class="clear-btn"
+                                    >
+                                        선택 취소
+                                    </button>
+                                </div>
+                                <input type="hidden" id="edit-spot-latitude" />
+                                <input type="hidden" id="edit-spot-longitude" />
+                                <input type="hidden" id="edit-spot-address" />
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label for="edit-spot-description">설명</label>
                             <textarea id="edit-spot-description" rows="4" required></textarea>
                         </div>
 
-                        <button type="submit" class="submit-btn">수정 완료</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- 사용자 추가 모달 -->
-            <div class="modal" id="add-user-modal">
-                <div class="modal-content">
-                    <span class="close" id="close-add-user-modal">&times;</span>
-                    <h2>새 사용자 추가</h2>
-                    <form id="add-user-form">
-                        <div class="form-group">
-                            <label for="new-username">사용자명</label>
-                            <input type="text" id="new-username" required />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="new-email">이메일</label>
-                            <input type="email" id="new-email" required />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="new-password">비밀번호</label>
-                            <input type="password" id="new-password" required minlength="6" />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="new-user-role">권한</label>
-                            <select id="new-user-role" required>
-                                <option value="member">일반회원</option>
-                                <option value="vip">VIP회원</option>
-                                <option value="admin">관리자</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="submit-btn">사용자 추가</button>
+                        <button type="submit" class="submit-btn" id="edit-modal-submit-btn">
+                            수정 완료
+                        </button>
                     </form>
                 </div>
             </div>
@@ -818,6 +818,111 @@
                     </form>
                 </div>
             </div>
+
+            <!-- 유저 신고 처리 모달 (처벌 설정) -->
+            <div class="modal" id="penalty-modal">
+                <div class="modal-content penalty-modal-content">
+                    <span class="close" id="close-penalty-modal">&times;</span>
+                    <h2>🚨 신고 처리 - 처벌 설정</h2>
+                    <div id="penalty-report-info" class="penalty-info-section">
+                        <!-- 신고 정보가 동적으로 표시됩니다 -->
+                    </div>
+                    <form id="penalty-form">
+                        <input type="hidden" id="penalty-report-id" />
+                        <input type="hidden" id="penalty-report-type" />
+                        <input type="hidden" id="penalty-reported-user-id" />
+                        
+                        <div class="form-group">
+                            <label for="penalty-type">처벌 유형 <span class="required">*</span></label>
+                            <select id="penalty-type" required>
+                                <option value="">처벌 유형을 선택하세요</option>
+                                <option value="warning">경고</option>
+                                <option value="content_delete">해당 콘텐츠 삭제</option>
+                                <option value="temp_ban_1">임시 정지 (1일)</option>
+                                <option value="temp_ban_3">임시 정지 (3일)</option>
+                                <option value="temp_ban_7">임시 정지 (7일)</option>
+                                <option value="temp_ban_30">임시 정지 (30일)</option>
+                                <option value="permanent_ban">영구 정지</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="penalty-reason">처벌 사유</label>
+                            <textarea id="penalty-reason" rows="3" placeholder="처벌 사유를 입력하세요 (선택사항)"></textarea>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="penalty-delete-content" checked />
+                                <span>관련 콘텐츠(리뷰/댓글) 삭제</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="penalty-notify-user" checked />
+                                <span>피신고자에게 알림 전송</span>
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn" id="cancel-penalty-btn">취소</button>
+                            <button type="submit" class="submit-btn">처벌 적용</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 사진 추가 신청 상세 보기 모달 -->
+            <div class="modal" id="photo-request-detail-modal">
+                <div class="modal-content photo-request-modal-content">
+                    <span class="close" id="close-photo-request-detail-modal">&times;</span>
+                    <h2>📷 사진 추가 신청 상세</h2>
+                    <input type="hidden" id="photo-request-detail-id" />
+                    
+                    <div class="photo-request-detail-container">
+                        <div class="photo-request-spot-info">
+                            <h3>관광지 정보</h3>
+                            <div class="spot-info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">관광지명</span>
+                                    <span class="info-value" id="photo-request-spot-name">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">신청자</span>
+                                    <span class="info-value" id="photo-request-applicant">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">신청일시</span>
+                                    <span class="info-value" id="photo-request-date">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">설명</span>
+                                    <span class="info-value" id="photo-request-description">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="photo-request-image-section">
+                            <h3>신청 사진</h3>
+                            <div class="photo-request-image-container">
+                                <img id="photo-request-detail-image" src="" alt="신청 사진" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="reject-btn" id="reject-photo-request-btn">거부</button>
+                        <button type="button" class="approve-btn" id="approve-photo-request-btn">승인</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 관광지 추가 신청 상세 보기/승인 모달 (기존 추가 모달 재활용을 위한 플래그) -->
+            <div class="modal" id="spot-request-approval-modal" style="display: none;">
+                <!-- 이 모달은 기존 add-modal을 재활용하여 표시합니다 -->
+            </div>
+            </section>
         </div>
         <th:block layout:fragment="script">
             <script th:src="@{/js/admin.js}"></script>
