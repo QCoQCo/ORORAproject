@@ -10,5 +10,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SpotLikeDto {
     private Long userId;
-    private Long touristSpotId;
+    private Long spotId;
 }

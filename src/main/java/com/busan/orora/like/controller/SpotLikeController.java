@@ -28,27 +28,25 @@ public class SpotLikeController {
             @RequestParam Long userId) {
 
         boolean liked = spotLikeService.existsSpotLike(userId, spotId);
+        int likeCount = spotLikeService.countSpotLikesBySpotId(spotId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("liked", liked);
+        response.put("likeCount", likeCount);
 
         return ResponseEntity.ok(response);
     }
 
-
-
     @PostMapping("/{spotId}/like")
     public ResponseEntity<?> toggleSpotLike(@PathVariable Long spotId
-                                            // @AuthenticationPrincipal CustomUserDetails userDetails
                                             ,@RequestParam Long userId) {
 
-        // Long userId = userDetails.getUser().getId();
-
         boolean liked = spotLikeService.toggleSpotLike(userId, spotId);
+        int likeCount = spotLikeService.countSpotLikesBySpotId(spotId);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("likes", liked);
+        response.put("liked", liked);
+        response.put("likeCount", likeCount);
 
         return ResponseEntity.ok(response);
     }
