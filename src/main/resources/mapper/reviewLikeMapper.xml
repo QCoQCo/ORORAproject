@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.like.mapper.ReviewLikeMapper">
+
+    <!-- 리뷰 좋아요 추가 -->
+    <insert id="addReviewLike" parameterType="com.busan.orora.like.dto.ReviewLikeDto">
+        INSERT INTO review_likes (user_id, review_id)
+        VALUES (#{userId}, #{reviewId})
+    </insert>
+
+    <!-- 리뷰 좋아요 삭제 -->
+    <delete id="deleteReviewLike" parameterType="com.busan.orora.like.dto.ReviewLikeDto">
+        DELETE FROM review_likes
+        WHERE user_id = #{userId} AND review_id = #{reviewId}
+    </delete>
+
+    <!-- 리뷰 좋아요 존재 여부 확인 -->
+    <select id="existsReviewLike" resultType="int">
+        SELECT COUNT(*)
+        FROM review_likes
+        WHERE user_id = #{userId} AND review_id = #{reviewId}
+    </select>
+
+    <!-- 리뷰 좋아요 수 조회 -->
+    <select id="countReviewLikesByReviewId" resultType="int">
+        SELECT COUNT(*)
+        FROM review_likes
+        WHERE review_id = #{reviewId}
+    </select>
+
+</mapper>

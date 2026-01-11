@@ -1,5 +1,6 @@
 package com.busan.orora.review.controller;
 
+import com.busan.orora.like.service.ReviewLikeService;
 import com.busan.orora.review.dto.ReviewDto;
 import com.busan.orora.review.service.ReviewService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,17 +20,32 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
+    @Autowired
+    private ReviewLikeService reviewLikeService;
+
     /**
      * 관광지별 리뷰 목록 조회
-     * GET /api/reviews?touristSpotId={spotId}
+     * GET /api/reviews?touristSpotId={spotId}&userId={userId}
+     * userId는 선택적 파라미터로, 제공되면 각 리뷰에 대한 좋아요 여부를 함께 반환
      */
     @GetMapping("/reviews")
     @ResponseBody
-    public Map<String, Object> getReviewsBySpotId(@RequestParam Long touristSpotId) {
+    public Map<String, Object> getReviewsBySpotId(
+            @RequestParam Long touristSpotId,
+            @RequestParam(required = false) Long userId) {
         Map<String, Object> response = new HashMap<>();
 
         try {
             List<Map<String, Object>> reviews = reviewService.getReviewsBySpotId(touristSpotId);
+
+            // 로그인한 사용자가 있으면 각 리뷰에 대한 좋아요 여부 추가
+            if (userId != null) {
+                for (Map<String, Object> review : reviews) {
+                    Long reviewId = ((Number) review.get("id")).longValue();
+                    boolean isLiked = reviewLikeService.existsReviewLike(userId, reviewId);
+                    review.put("isLiked", isLiked);
+                }
+            }
 
             response.put("success", true);
             response.put("content", reviews);
