@@ -3,6 +3,7 @@ class TagSearchSystem {
         this.allSpots = [];
         this.allTags = new Map(); // tag -> count
         this.selectedTags = new Set();
+        this.selectedCategory = 'all'; // 선택된 카테고리
         this.filteredSpots = [];
         this.currentResults = [];
         this.resultsPerPage = 12;
@@ -252,12 +253,19 @@ class TagSearchSystem {
             return true;
         });
 
-        // 카테고리 필터 적용
+        // 카테고리 필터 적용 (드롭다운)
         const categoryFilter = document.getElementById('category-filter').value;
         if (categoryFilter !== 'all') {
             this.filteredSpots = this.filteredSpots.filter((spot) =>
                 this.matchesCategory(spot, categoryFilter)
             );
+        }
+
+        // 카테고리 버튼 필터 적용 (공통코드 기반)
+        if (this.selectedCategory !== 'all') {
+            this.filteredSpots = this.filteredSpots.filter((spot) => {
+                return spot.categoryCode === this.selectedCategory;
+            });
         }
 
         // 정렬
@@ -409,6 +417,7 @@ class TagSearchSystem {
             link: '#',
             categoryCode: spot.categoryCode || spot.category_code || 'culture',
             isActive: spot.isActive !== false,
+            categoryActive: spot.categoryActive !== false,
         }));
 
         // 컨테이너 초기화
@@ -606,6 +615,24 @@ class TagSearchSystem {
         this.performSearch();
     }
 
+    selectCategory(category) {
+        this.selectedCategory = category;
+        
+        // 카테고리 버튼 active 상태 업데이트
+        const categoryButtons = document.querySelectorAll('.category-item');
+        categoryButtons.forEach((btn) => {
+            if (btn.dataset.category === category) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // 검색 수행
+        const searchInput = document.getElementById('search-keyword');
+        this.performSearch(searchInput ? searchInput.value.trim() : '');
+    }
+
     // 전체 태그 접기/펼치기 관련 메서드들
     setAllTagsCollapsedState() {
         const allTagsContainer = document.getElementById('all-tags');
@@ -656,11 +683,23 @@ class TagSearchSystem {
             }
         });
 
-        // 카테고리 필터
+        // 카테고리 필터 (드롭다운)
         const categoryFilter = document.getElementById('category-filter');
         categoryFilter.addEventListener('change', () => {
             this.performSearch(searchInput.value.trim());
         });
+
+        // 카테고리 버튼 클릭 이벤트
+        const categoryGrid = document.getElementById('category-grid');
+        if (categoryGrid) {
+            categoryGrid.addEventListener('click', (e) => {
+                const categoryBtn = e.target.closest('.category-item');
+                if (categoryBtn) {
+                    const category = categoryBtn.dataset.category;
+                    this.selectCategory(category);
+                }
+            });
+        }
 
         // 정렬 옵션
         const sortSelect = document.getElementById('sort-select');

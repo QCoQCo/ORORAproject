@@ -208,6 +208,108 @@ class LanguageManager {
             'about.culture': '문화',
             'about.tourism': '관광',
             'about.economy': '경제',
+            'about.busan_name': '부산(釜山)',
+            'about.busan_name_desc': ': \'가마솥(釜)을 닮은 산(山)\'',
+            'about.busan_name_explanation': '부산의 지명은 지역의 산 모양이 가마솥을 닮았다는 특징에서 유래되었다. 펄펄 끓는 열기로 많은 재료를 끓여내고 섞어내는 가마솥처럼 많은 문화접변을 이루어내고 다이내믹한 \'섞임\'의 허브가 된 대한민국 최고의 융복합도시이다.',
+            'about.global_marine_city': '한반도 최남단 글로벌 해양도시',
+            'about.global_marine_city_desc': '해운대, 광안리 등 수많은 해변에는 젊음과 생동감이 넘쳐나고, 미래지향적인 마천루들이 속속 스카이라인을 바꾸고 있다. 항구와 부두에는 엄청난 양의 컨테이너와 수출입 무역 상품들이 즐비하며, 금융물류 중심의 글로벌허브도시로 성장해 나가고 있다.',
+            'about.history_title': '대전환의 역사가 살아 숨 쉬는 부산',
+            'about.history_desc': '한국전쟁 당시 각 지역에서 온 피란민들은 낙동강을 보호막으로 한반도의 평화를 지켰고 경제 성장의 뿌리를 내렸다. 각지에서 흘러든 이질적인 문화들이 융합되어 문화 예술의 향기가 한껏 피어오르는 예술도시로 성장하였다. 거리와 공연장에는 문화와 예술의 향기가 가득하며, 국제영화제와 불꽃축제 등 낭만의 페스티벌들이 일년 내내 도시를 달군다.',
+            'about.goals_title': '도시비전과 목표',
+            'about.vision': '도시 비전',
+            'about.goal': '도시 목표',
+            'about.symbol_title': '지역 상징',
+            'about.camellia_flower': '동백꽃',
+            'about.camellia_flower_city': '시화 - 동백꽃 1970. 3. 1. 지정',
+            'about.camellia_tree_city': '시목 - 동백나무 1970. 7. 1. 지정',
+            'about.camellia_desc': '진녹색의 잎과 진홍색의 꽃의 조화는 푸른 바다와, 사랑이 많은 시민의 정신을 그려내고, 싱싱하고 빛이 나는 진녹색 활엽은 시민의 젊음과 의욕을 나타낸다.',
+            'about.seagull': '갈매기',
+            'about.seagull_city': '시조 - 갈매기 1978. 7. 1. 지정',
+            'about.seagull_desc': '새하얀 날개와 몸은 백의민족을 상징한다. 끈기있게 먼 뱃길을 따라 하늘을 나는 갈매기의 강인함은 부산 시민의 정신을 잘 나타내기 때문에 부산의 새로 선정되었다.',
+            'about.mackerel': '고등어',
+            'about.mackerel_city': '시어 - 고등어 2011. 7. 6. 지정',
+            'about.mackerel_desc': '\'Dynamic, Powerful, Speedy\' 태평양을 누비는 강한 힘으로 목표를 향해 끊임없이 도약하는 해양수산도시 부산을 상징한다.',
+            'about.character_title': '캐릭터 소개',
+            'about.basisinfo_title': '기본현황',
+            'about.location': '위치',
+            'about.location_desc': '한반도의 남동단에 위치하며 남으로는 대한해협에 면해 있고, 남쪽을 제외하고는 경상남도와 접하고 있다.',
+            'about.location_mathematical': '수리적 위치',
+            'about.location_east': '동단: 동경 129°18′13″(장안읍 효암리)',
+            'about.location_west': '서단: 동경 128°45′54″(가덕도동 미백도)',
+            'about.location_south': '남단: 북위 34°52′50″(다대동 남형제도)',
+            'about.location_north': '북단: 북위 35°23′ 36″(장안읍 명례리)',
+            'about.location_note1': '→ 북반구 중위도와 동반구 중경도에 해당한다.',
+            'about.location_note2': '→ 위도는 일본의 도쿄, 경도는 일본의 나카사키와 비슷하다.',
+            'about.location_climate': '기후대적 위치',
+            'about.location_climate_desc': '온대 계절풍 기후대와 대륙 동안 기후대에 속한다. 대한해협에 면해있기 때문에 해양의 영향을 크게 받아 해양성기후의 특징이 잘 나타난다.',
+            'about.location_climate_note': '→ 여름과 겨울의 기온차가 크지 않으며 4계절의 변화가 뚜렷하여 사람이 살기에 적합한 도시이다.',
+            'about.location_gateway': '관문적 위치',
+            'about.location_gateway_desc': '부산은 우리나라 제1의 국제무역항이자 국제공항을 갖고 있어 여러 나라와 연결하는 관문역할을 다하고 있다.',
+            'about.location_gateway_note': '→ 일본은 도쿄를 비롯하여 오사카 및 시모노세키·후쿠오카·나고야와 연결되어 있다.',
+            'about.climate': '기후',
+            'about.climate_kma': '기상청 바로가기',
+            'about.climate_desc': '동아시아 계절풍이 탁월한 유라시아 대륙의 동쪽 한반도의 남동단에 위치하고 있기 때문에 4계절이 뚜렷한 온대기후를 나타낸다.',
+            'about.spring': '봄',
+            'about.spring_period': '시기: 3월 초순~6월 말',
+            'about.spring_temp': '평균 기온: 14.9℃',
+            'about.spring_desc': '봄바람이 무척 강하기(평균 4.4m/s) 때문에 체감온도는 상당히 낮다. 봄에는 일교차가 매우 크고, 이상건조, 황사, 늦서리 같은 특수한 기상현상이 나타난다.',
+            'about.spring_tip': 'Tip 꽃이 많이 피므로 화사한 톤의 옷을 추천!',
+            'about.summer': '여름',
+            'about.summer_period': '시기: 6월 말~9월 초순 / 장마기간: 6월 말~8월초',
+            'about.summer_temp': '평균 기온: 7월 23.9℃ / 7월 하순~8월 중순 최고기온 32℃ 이상',
+            'about.summer_desc': '기온의 일교차가 5.3℃로서 아주 작은 편이지만 강수량이 가장 많은 계절로, 연 총 강수량 50 ∼ 60%가 내린다. 열대야: 밤에도 최저기온이 25℃이상이 되는 현상',
+            'about.summer_tip': 'Tip 최고기온 32℃ 이상인 무더운 날씨이므로 얇은 옷을 추천! 장마기간에 우산은 필수!',
+            'about.fall': '가을',
+            'about.fall_period': '시기: 9월 초순~11월 말',
+            'about.fall_temp': '평균 기온: 9월 21.8℃, 10월 17℃, 11월부터 기온 급강하',
+            'about.fall_desc': '이동성 고기압의 영향으로 날씨가 주기적으로 변하여 9월에 들어서면 아침 저녁으로는 서늘해지기 시작한다.',
+            'about.fall_tip': 'Tip 아침 저녁으로는 서늘하기 때문에 입고 벗을 수 있는 겉옷을 챙기는 것을 추천!!',
+            'about.winter': '겨울',
+            'about.winter_period': '시기: 11월 말~이듬해 2월 말',
+            'about.winter_temp': '평균기온: 3.8℃',
+            'about.winter_desc': '일 최저기온이 0℃ 이하인 일수가 부산은 53일로서 제주도를 제외하고 가장 적다. 삼한사온: 북서계절풍이 3 ∼ 4일을 주기로 강해지기도 하고 약해지기도 하는 현상',
+            'about.winter_tip': 'Tip 일본에 비해 많이 춥기 때문에 따뜻하게 입는 것을 추천!',
+            'about.coast': '해안',
+            'about.coast_desc': '부산의 해안은 해안선의 출입이 심한 리아스식 해안으로서 해안을 이루는 구성물질이 다양한 것도 하나의 특색이다. 해안을 구성하는 물질이 기반암으로만 되어 있는 암석 해안과 모래로 되어 있는 사질해안이 있다.',
+            'about.rocky_coast': '암석해안',
+            'about.rocky_coast_desc': '암석해안은 해안을 구성하는 물질이 기반암으로 되어 있고 자갈이나 모래, 실트 등과 같은 퇴적물을 찾아볼 수 없는 해안이다. 주로 외해(外海)에 면한 반도, 두각지 또는 여러 섬들의 선단에 잘 나타난다.',
+            'about.rocky_coast_example': '예) 해운대의 고두말, 동백섬, 우암반도, 오륙도, 영도, 장군반도, 두송 반도, 몰운반도 그리고 가덕도와 같은 대부분의 해안',
+            'about.sandy_coast': '사질해안',
+            'about.sandy_coast_desc': '사질해안은 암석해안과는 달리 대체로 수려한 모래로 구성된 해안이다.',
+            'about.sandy_coast_example': '예) 송정만, 수영만, 부산만, 감천만, 다대만 등의 내만(內灣), 낙동강의 하구 해안',
+            'about.coast_detail': '자세히 보기',
+            'about.sand_beach': '사빈 - 순수한 모래로 된 해안',
+            'about.sand_beach_desc': '현재 해수욕장으로 이용되고 있음',
+            'about.sand_beach_example': '예) 해운대 해수욕장, 송정 해수욕장, 광안리 해수욕장 등',
+            'about.gravel_beach': '역빈 - 자갈로 된 해안',
+            'about.gravel_beach_desc': '사빈에 비해 규모는 크지 않으나 모양새가 좋은 둥근 옥돌로 되어 있는 것이 특징',
+            'about.gravel_beach_example': '예) 영도의 동삼동 해안, 곤포의 집 해안, 우암반도의 승두말과 신선대 사이의 만입 등의 해안',
+            'about.mud_beach': '이빈 - 뻘로 된 해안',
+            'about.mud_beach_desc': '낙동강이 운반해온 미세한 입자의 실트 내지는 실트질 점토가 퇴적되어 형성된 해안',
+            'about.mud_beach_example': '예) 낙동강 하구인 낙동강 삼각주의 말단',
+            'about.busan_today': '부산의 오늘',
+            'about.scroll_top': '클릭하시면 최상단으로 이동합니다',
+            'about.sidenav.busan_today': '부산의 오늘',
+            'about.sidenav.what_is_busan': '부산은?',
+            'about.sidenav.vision_goals': '도시비전과 목표',
+            'about.sidenav.basic_info': '기본현황',
+            'about.sidenav.busan_symbol': '부산의 상징',
+            'about.sidenav.regional_symbol': '지역상징',
+            'about.sidenav.communication_character': '소통 캐릭터',
+            'about.sidenav.character_intro': '캐릭터 소개',
+            'about.sidenav.boogi_instagram': '부기 인스타그램',
+            'about.sidenav.boogi_youtube': '부기튜브',
+            'about.sidenav.submenu_open': '하위메뉴 열기',
+            'about.sidenav.submenu_close': '하위메뉴 닫기',
+            'about.breadcrumb.busan_today': '부산의 오늘',
+            'about.breadcrumb.what_is_busan': '부산은?',
+            'about.breadcrumb.vision_goals': '도시비전과 목표',
+            'about.breadcrumb.basic_info': '기본현황',
+            'about.breadcrumb.regional_symbol': '지역상징',
+            'about.breadcrumb.character_intro': '캐릭터 소개',
+            'about.breadcrumb.busan_symbol': '부산의 상징',
+            'about.breadcrumb.communication_character': '소통 캐릭터',
+            'about.breadcrumb.home_alt': '홈페이지 바로가기',
 
             // 지역별 검색 페이지
             'place.title': '부산 지역별 관광지',
@@ -277,11 +379,20 @@ class LanguageManager {
                 '미리 택시를 예약할 수 있어 원하는 시간과 장소에 맞춰 이용할 수 있습니다',
             'tip.kakao_taxi_feature':
                 '외국인 전용 플랫폼 k.ride가 있어서 한국 전화번호나 한국 카드가 없어도 카카오 택시를 이용할 수 있습니다',
+            'tip.kakao_taxi_feature_desc':
+                '외국인 전용 플랫폼 k.ride가 있어서 한국 전화번호나 한국 카드가 없어도 카카오 택시를 이용할 수 있습니다',
+            'tip.map_apps_title': '지도 앱',
+            'tip.kakao_taxi_feature_desc':
+                '외국인 전용 플랫폼 k.ride가 있어서 한국 전화번호나 한국 카드가 없어도 카카오 택시를 이용할 수 있습니다',
+            'tip.map_apps_title': '지도 앱',
+            'tip.map_app_recommend': '지도 어플 추천',
             'tip.naver_map': '네이버지도',
             'tip.naver_map_desc':
                 '주변 정보 검색을 통해 주변 음식점, 카페, 편의점 등 다양한 시설 정보를 쉽게 얻을 수 있습니다',
-            'tip.naver_map_feature':
+            'tip.naver_map_feature1':
                 '가고 싶은 장소들을 주제별로 저장할수 있어 지도에서 보기가 편리합니다',
+            'tip.naver_map_feature2':
+                '네이버 예약과 연계되어 있어 네이버 지도에서 예약도 할 수 있습니다',
             'tip.kakao_map': '카카오맵',
             'tip.kakao_map_desc': '실시간 대중교통 정보의 정확성이 높습니다',
             'tip.kakao_map_feature':
@@ -290,11 +401,11 @@ class LanguageManager {
             'tip.usage_method_foreigner': '사용 방법(외국인)',
 
             'tip.visit_busan_pass': '비짓부산패스',
-            'tip.pass_desc': '부산 주요 유료 관광시설 42곳을 이용할 수 있습니다',
-            'tip.pass_facilities':
+            'tip.visit_busan_pass_facilities': '부산 주요 유료 관광시설 42곳을 이용할 수 있습니다',
+            'tip.visit_busan_pass_facilities_desc':
                 '주요 관광시설 : 송도해상케이블카, 해운대 블루라인파크 해변열차, 시티투어버스 이용권 등',
-            'tip.pass_transport': '교통카드 기능까지 연계되어 부산 여행의 편의를 제공합니다',
-            'tip.pass_types': '시간제한형 2종, 수량제한형 2종으로 나뉘어 있습니다',
+            'tip.visit_busan_pass_transport': '교통카드 기능까지 연계되어 부산 여행의 편의를 제공합니다',
+            'tip.visit_busan_pass_types': '시간제한형 2종, 수량제한형 2종으로 나뉘어 있습니다',
             'tip.time_limited': '시간제한형',
             'tip.time_limited_desc':
                 '추가비용 없이 제한된 시간 내 무료가맹점으로 등록된 관광시설을 자유롭게 관람, 입장, 이용하는 방식',
@@ -306,20 +417,20 @@ class LanguageManager {
             'tip.pass_big3': 'VISIT BUSAN PASS BIG3',
             'tip.pass_big5': 'VISIT BUSAN PASS BIG5',
             'tip.purchase_method': '구매 방법',
-            'tip.purchase_desc':
+            'tip.purchase_method_desc':
                 '비짓부산패스 홈페이지에서 구매하거나 부산패스 어플에서 구매하실 수 있습니다',
             'tip.pickup_location': '수령처(카드 구매시)',
-            'tip.pickup_desc':
+            'tip.pickup_location_desc':
                 '부산시 공식 여행안내소, 부산은행 지정 지점, 키오스크에서 카드를 수령하실 수 있습니다',
             'tip.card_usage':
                 '카드 패스 : 실물 카드 패스를 매표소에 제시하시면 무료 티켓 또는 할인 혜택을 받으실 수 있습니다',
             'tip.mobile_usage':
                 '모바일 패스 : 매표소에서 모바일 패스를 제시하시면 무료 티켓 또는 할인 혜택을 받으실 수 있습니다',
 
-            'tip.convenience': '편의',
-            'tip.restaurant_reservation': '식당 예약',
+            'tip.convenience_title': '편의',
+            'tip.reservation_title': '식당 예약',
             'tip.remote_waiting': '원격 웨이팅',
-            'tip.waiting_desc':
+            'tip.remote_waiting_desc':
                 '인기 맛집의 경우, 직접 줄을 서지 않고 앱으로 원격 웨이팅을 신청하여 순서를 기다릴 수 있습니다',
             'tip.real_time_queue':
                 '실시간으로 매장 입장 순서를 확인할 수 있어 효율적인 시간 관리가 가능합니다',
@@ -335,11 +446,11 @@ class LanguageManager {
             'tip.catch_table_feature':
                 '원격으로 웨이팅 등록을 하고, 실시간으로 대기 현황을 확인할 수 있어 시간을 효율적으로 활용할 수 있습니다',
 
-            'tip.delivery': '배달',
+            'tip.delivery_title': '배달',
             'tip.delivery_desc':
                 '한국의 빠른 서비스 문화를 그대로 반영하여, 주문 후 30분~1시간 이내에 음식을 받아보는 것이 일반적입니다',
             'tip.late_night_delivery': '24시간 배달',
-            'tip.late_night_desc':
+            'tip.late_night_delivery_desc':
                 '늦은 시간 야식 배달이 매우 활성화되어 있어 24시간 배달이 가능한 음식점도 많습니다',
             'tip.motorcycle_delivery':
                 '오토바이를 이용한 배달 라이더 시스템이 매우 잘 갖춰져 있습니다',
@@ -350,14 +461,15 @@ class LanguageManager {
             'tip.baemin_feature':
                 '비회원 해외카드 결제가 가능하여 외국인들도 서비스를 이용할 수 있습니다',
             'tip.shuttle_delivery': '셔틀딜리버리',
-            'tip.shuttle_desc': '한국 전화번호 없이 가입이 가능하고 PayPal 사용이 가능합니다',
+            'tip.shuttle_delivery_desc': '한국 전화번호 없이 가입이 가능하고 PayPal 사용이 가능합니다',
 
             'tip.photobooth': '포토부스',
+            'tip.photobooth_title': '포토부스',
             'tip.photobooth_desc':
                 "한국에서 네컷사진은 단순히 사진을 찍는 행위를 넘어, 친구나 연인과 함께 소품을 활용하고 다양한 포즈를 취하며 추억을 만드는 '놀이 문화'로 자리 잡았습니다",
-            'tip.natural_editing':
+            'tip.photobooth_feature1':
                 '과도한 보정보다는 자연스러운 피부 보정이나 얼굴형 보정 기능이 주를 이룹니다',
-            'tip.self_photo_booth':
+            'tip.photobooth_feature2':
                 '24시간 무인 셀프 사진관이 대부분이라 언제든지 이용할 수 있습니다',
             'tip.photo_apps': '포토부스 추천',
             'tip.photoism': '포토이즘',
@@ -497,6 +609,27 @@ class LanguageManager {
                 }
             }
         });
+        
+        // alt 속성 번역 처리
+        const altElements = document.querySelectorAll('[data-translate-alt]');
+        altElements.forEach((element) => {
+            const key = element.getAttribute('data-translate-alt');
+            const translation = this.getTranslation(key);
+            if (translation) {
+                element.setAttribute('alt', translation);
+            }
+        });
+        
+        // title 속성 번역 처리
+        const titleElements = document.querySelectorAll('[data-translate-title]');
+        titleElements.forEach((element) => {
+            const key = element.getAttribute('data-translate-title');
+            const translation = this.getTranslation(key);
+            if (translation) {
+                element.setAttribute('title', translation);
+            }
+        });
+        
         console.log('번역 적용 완료');
     }
 

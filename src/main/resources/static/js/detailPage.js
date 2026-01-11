@@ -183,6 +183,7 @@ async function loadTouristSpotDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const spotId = urlParams.get('id');
         const userId = getCurrentUser()?.id;
+        const userRole = getCurrentUser()?.roleCode || null;
         console.log('로드할 관광지 ID:', spotId);
 
         // ID가 없으면 에러
@@ -192,9 +193,20 @@ async function loadTouristSpotDetail() {
             return;
         }
 
-        // 백엔드 API를 통해 데이터 로드
+        // 백엔드 API를 통해 데이터 로드 (ADMIN인 경우 userRole 전송)
         try {
-            const response = await fetch(`/api/tourist-spots/${spotId}`);
+            let apiUrl = `/api/tourist-spots/${spotId}`;
+            if (userRole) {
+                apiUrl += `?userRole=${userRole}`;
+            }
+            const response = await fetch(apiUrl);
+            if (response.status === 403) {
+                // 비활성화된 카테고리인 경우
+                const errorData = await response.json();
+                alert(errorData.error || '비활성화된 카테고리의 관광지는 접근할 수 없습니다.');
+                window.location.href = '/';
+                return;
+            }
             if (response.ok) {
                 const spotData = await response.json();
                 // 백엔드 API 응답 형식에 맞게 데이터 변환
@@ -212,18 +224,27 @@ async function loadTouristSpotDetail() {
                     latitude: spotData.latitude || null,
                     longitude: spotData.longitude || null,
                     address: spotData.address || null,
+                    viewCount: spotData.viewCount || 0,
+                    categoryActive: spotData.categoryActive,
                 };
                 const regionName = spotData.region ? spotData.region.name : '';
                 updatePageContent(spot, regionName);
 
+                // 비활성화된 카테고리인 경우 경고 배너 표시 (ADMIN만 볼 수 있음)
+                if (spotData.categoryActive === false) {
+                    showInactiveCategoryBanner();
+                }
+
                 const likeBtn = document.querySelector('.likeBtn');
                 const likeCount = document.querySelector('.likeCount');
-                
+
                 if (!likeBtn) return;
 
                 // 좋아요 상태 호출
                 if (userId) {
-                    const likeResponse = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`);
+                    const likeResponse = await fetch(
+                        `/api/tourist-spots/${spotId}/like?userId=${userId}`
+                    );
                     const likeData = await likeResponse.json();
 
                     likeBtn.classList.toggle('likeBtnActive', likeData.liked);
@@ -239,13 +260,14 @@ async function loadTouristSpotDetail() {
 
                 // 좋아요 토글
                 likeBtn.addEventListener('click', async () => {
-                    
                     if (!userId) {
                         alert('로그인이 필요합니다');
                         return;
                     }
 
-                    const res = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`,{ method: 'POST' });
+                    const res = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`, {
+                        method: 'POST',
+                    });
 
                     if (!res.ok) {
                         console.error('좋아요 토글 실패', res.status);
@@ -263,7 +285,6 @@ async function loadTouristSpotDetail() {
                         likeCount.textContent = data.likeCount;
                     }
                 });
-
             } else {
                 console.error('백엔드 API 호출 실패:', response.status);
                 alert('관광지 정보를 불러올 수 없습니다.');
@@ -831,8 +852,16 @@ async function loadReviews() {
     }
 
     try {
-        // 백엔드 API를 통해 리뷰 데이터 로드
-        const response = await fetch(`/api/reviews?touristSpotId=${currentSpotId}`);
+        // 로그인한 사용자 ID 가져오기
+        const user = getCurrentUser();
+        const userId = user?.id;
+
+        // 백엔드 API를 통해 리뷰 데이터 로드 (userId가 있으면 좋아요 여부도 함께 조회)
+        let apiUrl = `/api/reviews?touristSpotId=${currentSpotId}`;
+        if (userId) {
+            apiUrl += `&userId=${userId}`;
+        }
+        const response = await fetch(apiUrl);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -1456,46 +1485,71 @@ function resetReviewForm() {
 }
 
 // 리뷰 좋아요 토글
-function toggleReviewLike(reviewId) {
-    // TODO: 백엔드 연결 시 API 호출로 변경
-    // 백엔드 API 엔드포인트: POST /api/reviews/{reviewId}/like
-    // 요청 형식: { userId, action: 'like' | 'unlike' }
-    // 응답 형식: { success: true, likes: number }
-
-    // 로컬 스토리지에서 좋아요 정보 관리
-    const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
-    const isLiked = likedReviews.includes(reviewId);
-
-    if (isLiked) {
-        // 좋아요 취소
-        const index = likedReviews.indexOf(reviewId);
-        likedReviews.splice(index, 1);
-    } else {
-        // 좋아요 추가
-        likedReviews.push(reviewId);
+async function toggleReviewLike(reviewId) {
+    // 로그인 상태 확인
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        alert('좋아요를 누르려면 로그인이 필요합니다.');
+        window.location.href = '/login';
+        return;
     }
 
-    localStorage.setItem('likedReviews', JSON.stringify(likedReviews));
+    const userId = user.id;
 
-    // 화면의 좋아요 수 업데이트
-    const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
-    if (reviewElement) {
-        const likeBtn = reviewElement.querySelector('.reviewLikeBtn');
-        const likeCount = reviewElement.querySelector('.reviewLikeCount');
+    try {
+        // 백엔드 API 호출
+        const response = await fetch(`/api/reviews/${reviewId}/like?userId=${userId}`, {
+            method: 'POST',
+        });
 
-        if (likeBtn && likeCount) {
-            let currentCount = parseInt(likeCount.textContent) || 0;
+        if (!response.ok) {
+            throw new Error('좋아요 처리에 실패했습니다.');
+        }
 
-            if (isLiked) {
-                // currentCount--;
-                likeBtn.classList.remove('active');
-            } else {
-                // currentCount++;
-                likeBtn.classList.add('active');
+        const data = await response.json();
+
+        if (data.success) {
+            // 화면의 좋아요 수 업데이트
+            const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
+            if (reviewElement) {
+                const likeBtn = reviewElement.querySelector('.reviewLikeBtn');
+                const likeCount = reviewElement.querySelector('.reviewLikeCount');
+
+                if (likeBtn && likeCount) {
+                    likeCount.textContent = data.likeCount;
+
+                    if (data.liked) {
+                        likeBtn.classList.add('active');
+                    } else {
+                        likeBtn.classList.remove('active');
+                    }
+                }
             }
 
-            likeCount.textContent = currentCount;
+            // 포토리뷰 모달에서도 업데이트
+            const modalReviewElement = document.querySelector(
+                `#photo-review-modal [data-review-id="${reviewId}"]`
+            );
+            if (modalReviewElement) {
+                const modalLikeBtn = modalReviewElement.querySelector('.reviewLikeBtn');
+                const modalLikeCount = modalReviewElement.querySelector('.reviewLikeCount');
+
+                if (modalLikeBtn && modalLikeCount) {
+                    modalLikeCount.textContent = data.likeCount;
+
+                    if (data.liked) {
+                        modalLikeBtn.classList.add('active');
+                    } else {
+                        modalLikeBtn.classList.remove('active');
+                    }
+                }
+            }
+        } else {
+            throw new Error(data.message || '좋아요 처리에 실패했습니다.');
         }
+    } catch (error) {
+        console.error('리뷰 좋아요 토글 오류:', error);
+        alert(error.message || '좋아요 처리 중 오류가 발생했습니다.');
     }
 }
 
@@ -2392,6 +2446,84 @@ window.cancelEditComment = cancelEditComment;
 window.saveComment = saveComment;
 window.deleteComment = deleteComment;
 
+// 비활성화된 카테고리 경고 배너 표시 (ADMIN 전용)
+function showInactiveCategoryBanner() {
+    // 이미 배너가 있으면 제거
+    const existingBanner = document.getElementById('inactive-category-banner');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+
+    // 경고 배너 생성
+    const banner = document.createElement('div');
+    banner.id = 'inactive-category-banner';
+    banner.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            animation: slideDown 0.3s ease;
+        ">
+            <div style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                max-width: 1200px;
+                margin: 0 auto;
+            ">
+                <span style="font-size: 24px;">⚠️</span>
+                <div style="text-align: left;">
+                    <strong style="font-size: 16px;">비활성화된 카테고리</strong>
+                    <p style="margin: 4px 0 0 0; font-size: 14px; opacity: 0.9;">
+                        이 관광지는 현재 비활성화된 카테고리에 속해 있어 일반 사용자에게 표시되지 않습니다. (관리자만 접근 가능)
+                    </p>
+                </div>
+                <button onclick="document.getElementById('inactive-category-banner').remove()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    margin-left: 20px;
+                    transition: background 0.2s ease;
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    닫기
+                </button>
+            </div>
+        </div>
+        <style>
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-100%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    `;
+
+    document.body.insertBefore(banner, document.body.firstChild);
+
+    // 페이지 상단에 여백 추가 (배너 높이만큼)
+    const wrapper = document.getElementById('Wrapper');
+    if (wrapper) {
+        wrapper.style.marginTop = '80px';
+    }
+}
+
 // 페이지 콘텐츠 업데이트 함수 수정 (기존 함수에 currentSpotTitle 설정 추가)
 function updatePageContent(spot, regionName) {
     // 현재 관광지 ID와 제목, 해시태그 설정
@@ -2409,6 +2541,12 @@ function updatePageContent(spot, regionName) {
     if (spotLocation) spotLocation.textContent = `부산 ${regionName}`;
     if (spotDescription) spotDescription.textContent = spot.description;
     if (detailedDescription) detailedDescription.textContent = spot.description;
+
+    // 조회수 업데이트
+    const eyesCount = document.querySelector('.eyesCount');
+    if (eyesCount) {
+        eyesCount.textContent = spot.viewCount || 0;
+    }
 
     // 이미지 설정
     updateImages(spot);
@@ -2810,7 +2948,16 @@ async function loadPhotoReviews() {
     }
 
     try {
-        const response = await fetch(`/api/reviews?touristSpotId=${currentSpotId}`);
+        // 로그인한 사용자 ID 가져오기
+        const user = getCurrentUser();
+        const userId = user?.id;
+
+        // API URL 구성 (userId가 있으면 좋아요 여부도 함께 조회)
+        let apiUrl = `/api/reviews?touristSpotId=${currentSpotId}`;
+        if (userId) {
+            apiUrl += `&userId=${userId}`;
+        }
+        const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
