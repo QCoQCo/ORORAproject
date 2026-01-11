@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}" lang="ko">
 <head>
-    <title layout:fragment="title">부산 소개</title>
+    <title layout:fragment="title" data-translate="about.title">부산 소개</title>
     <th:block layout:fragment="css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
         <link rel="stylesheet" th:href="@{/css/sidenav.css}" />
@@ -21,7 +21,7 @@
                     <div class="swiper-slide"><img src="../../images/main_goal02.jpg" alt="도시비전과 목표"></div>
                     <div class="swiper-slide"><img src="../../images/main_goal03.jpg" alt="도시비전과 목표"></div>
                 </div>
-                <h2 class="title">도시비전과 목표</h2>
+                <h2 class="title" data-translate="about.goals_title">도시비전과 목표</h2>
             </div>
             <div class="container">
                 <div th:replace="~{components/sidenav-busan.html :: sidenav-busan}"></div>
@@ -31,7 +31,7 @@
                         <div class="vision">
                             <div>
                                 <span class="seagull"></span>
-                                <p>도시 비전</p>
+                                <p data-translate="about.vision">도시 비전</p>
                             </div>
                             <span class="line-gray"></span>
                             <p class="photo"><img src="../../images/vision.jpg" alt="도시 비전"></p>
@@ -39,14 +39,14 @@
                         <div class="goal">
                             <div>
                                 <span class="seagull"></span>
-                                <p>도시 목표</p>
+                                <p data-translate="about.goal">도시 목표</p>
                             </div>
                             <span class="line-gray"></span>
                             <p class="photo"><img src="../../images/goal.jpg" alt="도시 목표"></p>
                         </div>
                     </div>
                 </main>
-                <button title="클릭하시면 최상단으로 이동합니다" id="scrollTop"></button>
+                <button title="클릭하시면 최상단으로 이동합니다" data-translate-title="about.scroll_top" id="scrollTop"></button>
             </div>
         </section>
     </div>

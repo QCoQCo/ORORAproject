@@ -1099,7 +1099,8 @@
 }
 
 .codes-table tbody .edit-btn,
-.codes-table tbody .delete-btn {
+.codes-table tbody .delete-btn,
+.codes-table tbody .toggle-btn {
     padding: 6px 12px;
     border: none;
     border-radius: 4px;
@@ -1107,7 +1108,7 @@
     font-size: 0.85rem;
     font-weight: 500;
     margin-right: 5px;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .codes-table tbody .edit-btn {
@@ -1117,6 +1118,8 @@
 
 .codes-table tbody .edit-btn:hover {
     background: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
 }
 
 .codes-table tbody .delete-btn {
@@ -1126,6 +1129,19 @@
 
 .codes-table tbody .delete-btn:hover {
     background: #c0392b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+}
+
+.codes-table tbody .toggle-btn {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+}
+
+.codes-table tbody .toggle-btn:hover {
+    background: linear-gradient(135deg, #8e44ad, #7d3c98);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(155, 89, 182, 0.3);
 }
 
 /* 공통코드 모달 스타일 (기존 모달 스타일과 동일하게 사용) */
@@ -1811,7 +1827,7 @@
     color: #333;
 }
 
-.checkbox-group input[type="checkbox"] {
+.checkbox-group input[type='checkbox'] {
     width: 18px;
     height: 18px;
     margin-right: 10px;
@@ -1986,4 +2002,70 @@
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.875rem;
+}
+
+/* 비활성화된 카테고리 관광지 카드 스타일 */
+.tourist-spot-card.inactive-category {
+    opacity: 0.6;
+    position: relative;
+    filter: grayscale(30%);
+    border: 2px solid #dc3545;
+}
+
+.tourist-spot-card.inactive-category:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 비활성화 배지 스타일 */
+.inactive-badge {
+    display: inline-block;
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 8px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+/* 비활성화/활성화 토글 버튼 */
+.toggle-btn {
+    background: linear-gradient(45deg, #9b59b6, #8e44ad);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    background: linear-gradient(45deg, #8e44ad, #7d3c98);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+}
+
+.toggle-btn.active {
+    background: linear-gradient(45deg, #27ae60, #2ecc71);
+}
+
+.toggle-btn.active:hover {
+    background: linear-gradient(45deg, #219a52, #27ae60);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.toggle-btn.inactive {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+}
+
+.toggle-btn.inactive:hover {
+    background: linear-gradient(45deg, #c0392b, #a93226);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }

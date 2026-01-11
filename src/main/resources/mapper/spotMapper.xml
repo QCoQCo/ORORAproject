@@ -63,4 +63,18 @@
         DELETE FROM tourist_spots
         WHERE id = #{id}
     </delete>
+
+    <!-- 조회수 증가 -->
+    <update id="incrementViewCount" parameterType="Long">
+        UPDATE tourist_spots
+        SET view_count = view_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <!-- 조회수 조회 -->
+    <select id="getViewCount" resultType="Integer" parameterType="Long">
+        SELECT view_count
+        FROM tourist_spots
+        WHERE id = #{id}
+    </select>
 </mapper>

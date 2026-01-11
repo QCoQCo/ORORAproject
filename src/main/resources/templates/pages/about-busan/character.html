@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}" lang="ko">
 <head>
-    <title layout:fragment="title">부산 소개</title>
+    <title layout:fragment="title" data-translate="about.title">부산 소개</title>
     <th:block layout:fragment="css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
         <link rel="stylesheet" th:href="@{/css/sidenav.css}" />
@@ -21,7 +21,7 @@
                     <div class="swiper-slide"><img src="../../images/main_character02.jpg" alt="캐릭터 소개"></div>
                     <div class="swiper-slide"><img src="../../images/main_character03.jpg" alt="캐릭터 소개"></div>
                 </div>
-                <h2 class="title">캐릭터 소개</h2>
+                <h2 class="title" data-translate="about.character_title">캐릭터 소개</h2>
             </div>
             <div class="container">
                 <div th:replace="~{components/sidenav-busan.html :: sidenav-busan}"></div>
@@ -39,7 +39,7 @@
                         <a href="https://www.youtube.com/watch?v=gySTfYBTv9M" class="youtube">7</a>
                     </div>
                 </main>
-                <button title="클릭하시면 최상단으로 이동합니다" id="scrollTop"></button>
+                <button title="클릭하시면 최상단으로 이동합니다" data-translate-title="about.scroll_top" id="scrollTop"></button>
             </div>
         </section>
     </div>
