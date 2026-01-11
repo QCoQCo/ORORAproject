@@ -18,7 +18,9 @@ public interface SpotLikeMapper {
 
     int addSpotLike(SpotLikeDto likeDto);
     int deleteSpotLike(SpotLikeDto likeDto);
-    int existsSpotLike(@Param("userId") Long userId, @Param("touristSpotId") Long touristSpotId);
+    int existsSpotLike(@Param("userId") Long userId, @Param("spotId") Long spotId);
     List<SearchSpotLikeListByUserDto> searchSpotLikeListByUser(@Param("userId") Long userId);
 
+    
+    Integer countSpotLikesBySpotId(@Param("spotId") Long spotId);
 }

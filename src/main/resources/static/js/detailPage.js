@@ -1,10 +1,9 @@
 // DOM 요소들을 함수 내부에서 초기화하도록 변경
-let likeBtn, like, sectionEl, sectionList, doc;
+let likeBtn, sectionEl, sectionList, doc;
 
 // DOM 요소 초기화 함수
 function initDOMElements() {
     likeBtn = document.querySelector('.likeBtn');
-    like = document.querySelector('.like');
     sectionEl = document.querySelectorAll('.section');
     sectionList = document.querySelectorAll('.sectionList');
     doc = document.documentElement;
@@ -183,7 +182,7 @@ async function loadTouristSpotDetail() {
         // URL 파라미터에서 관광지 ID 가져오기 (title 기반 검색은 사용하지 않음)
         const urlParams = new URLSearchParams(window.location.search);
         const spotId = urlParams.get('id');
-        // const userId = 7;
+        const userId = getCurrentUser()?.id;
         console.log('로드할 관광지 ID:', spotId);
 
         // ID가 없으면 에러
@@ -217,16 +216,54 @@ async function loadTouristSpotDetail() {
                 const regionName = spotData.region ? spotData.region.name : '';
                 updatePageContent(spot, regionName);
 
-                //  백엔드 API 좋아요 상태 확인
+                const likeBtn = document.querySelector('.likeBtn');
+                const likeCount = document.querySelector('.likeCount');
+                
+                if (!likeBtn) return;
 
-                // const likeResponse = await fetch(
-                //     `/api/tourist-spots/${spotId}/like?userId=${userId}`
-                // );
-                // const likeData = await likeResponse.json();
+                // 좋아요 상태 호출
+                if (userId) {
+                    const likeResponse = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`);
+                    const likeData = await likeResponse.json();
 
-                // if (likeData.liked) {
-                //     document.querySelector('.likeBtn').classList.add('likeBtnActive');
-                // }
+                    likeBtn.classList.toggle('likeBtnActive', likeData.liked);
+                    if (likeCount) {
+                        likeCount.textContent = likeData.likeCount;
+                    }
+                } else {
+                    likeBtn.classList.remove('likeBtnActive');
+                    if (likeCount) {
+                        likeCount.textContent = '0';
+                    }
+                }
+
+                // 좋아요 토글
+                likeBtn.addEventListener('click', async () => {
+                    
+                    if (!userId) {
+                        alert('로그인이 필요합니다');
+                        return;
+                    }
+
+                    const res = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`,{ method: 'POST' });
+
+                    if (!res.ok) {
+                        console.error('좋아요 토글 실패', res.status);
+                        return;
+                    }
+
+                    const data = await res.json();
+
+                    if (typeof data.likeCount === 'number') {
+                        likeCount.textContent = data.likeCount;
+                    }
+
+                    likeBtn.classList.toggle('likeBtnActive', data.liked);
+                    if (likeCount) {
+                        likeCount.textContent = data.likeCount;
+                    }
+                });
+
             } else {
                 console.error('백엔드 API 호출 실패:', response.status);
                 alert('관광지 정보를 불러올 수 없습니다.');
@@ -240,27 +277,6 @@ async function loadTouristSpotDetail() {
         alert('관광지 정보를 불러오는 중 오류가 발생했습니다.');
     }
 }
-
-// likeBtn.addEventListener('click', async () => {
-//     const spotId = new URLSearchParams(window.location.search).get('id');
-//     const userId = 7; // 나중에 교체
-
-//     try {
-//         const response = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`, {
-//             method: 'POST',
-//         });
-
-//         const data = await response.json();
-
-//         if (data.likes) {
-//             likeBtn.classList.add('likeBtnActive');
-//         } else {
-//             likeBtn.classList.remove('likeBtnActive');
-//         }
-//     } catch (e) {
-//         console.error('좋아요 토글 실패', e);
-//     }
-// });
 
 // 좋아요 별로예요 버튼
 const good = document.querySelector('.good');

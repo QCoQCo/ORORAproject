@@ -390,13 +390,43 @@ class TagSearchSystem {
         await this.loadListTemplate();
 
         // 결과 표시
+        // resultsGrid.innerHTML = '';
+        // this.currentResults.forEach((spot) => {
+        //     const itemElement = this.createResultItem(spot);
+        //     if (itemElement) {
+        //         resultsGrid.appendChild(itemElement);
+        //     }
+        // });
+
+
+        // 🔥 ListLoader용 데이터 변환
+        const listData = this.currentResults.map(spot => ({
+            id: spot.id,
+            title: spot.title || '제목 없음',
+            description: spot.description || '',
+            hashtags: Array.isArray(spot.hashtags) ? spot.hashtags : [],
+            img: spot.imageUrl || spot.image_url || '',
+            link: '#',
+            categoryCode: spot.categoryCode || spot.category_code || 'culture',
+            isActive: spot.isActive !== false,
+        }));
+
+        // 컨테이너 초기화
         resultsGrid.innerHTML = '';
-        this.currentResults.forEach((spot) => {
-            const itemElement = this.createResultItem(spot);
-            if (itemElement) {
-                resultsGrid.appendChild(itemElement);
-            }
+
+        const listLoader = new ListLoader({
+            containerSelector: '#results-grid',
+            data: listData,
+            fallbackImage: '/images/common.jpg',
+            onItemClick: (itemData) => {
+                window.location.href = `/pages/detailed/detailed?id=${itemData.id}`;
+            },
         });
+
+        await listLoader.render();
+
+        this.applyTagHighlight();
+        this.applyRegionInfo();
 
         // 더보기 버튼 표시/숨김
         const hasMore = this.currentResults.length < this.filteredSpots.length;
@@ -414,98 +444,141 @@ class TagSearchSystem {
         }
     }
 
-    createResultItem(spot) {
-        const template = document.getElementById('list-item');
-        if (!template) {
-            console.error('리스트 템플릿을 찾을 수 없습니다.');
-            return null;
-        }
+    applyTagHighlight() {
+        document.querySelectorAll('#results-grid .item').forEach(itemEl => {
+            const spotId = itemEl.dataset.spotId;
+            const spot = this.currentResults.find(s => String(s.id) === spotId);
+            if (!spot) return;
 
-        const itemFragment = document.importNode(template.content, true);
+            const hashtagElement = itemEl.querySelector('.hash-tag');
+            if (hashtagElement && spot.hashtags) {
+                const hashtagText = spot.hashtags
+                    .map((tag) => {
+                        const cleanTag = tag.trim();
+                        if (this.selectedTags.has(cleanTag)) {
+                            return `<strong>#${tag}</strong>`;
+                        }
+                        return `#${tag}`;
+                    })
+                    .join(' ');
 
-        // 이미지 설정
-        const imgElement = itemFragment.querySelector('.item-photo img');
-        if (imgElement) {
-            // 백엔드 API 응답 형식에 맞춰 imageUrl 사용
-            imgElement.src = spot.imageUrl || spot.img || '';
-            imgElement.alt = spot.title || '';
-            imgElement.onerror = () => {
-                // Thymeleaf 정적 리소스 경로 사용
-                imgElement.src = '/images/common.jpg';
-                imgElement.onerror = null;
-            };
-        }
+                hashtagElement.innerHTML = hashtagText;
+            }
+        });
+    }
 
-        // 텍스트 데이터 설정
-        const titleElement = itemFragment.querySelector('.item-title');
-        if (titleElement) {
-            titleElement.textContent = spot.title || '';
-        }
+    applyRegionInfo() {
+        document.querySelectorAll('#results-grid .item').forEach(itemEl => {
+            const spotId = itemEl.dataset.spotId;
+            const spot = this.currentResults.find(s => String(s.id) === spotId);
+            if (!spot) return;
 
-        const descriptionElement = itemFragment.querySelector('.item-description');
-        if (descriptionElement) {
-            descriptionElement.textContent = spot.description || '';
-        }
+            const regionElement = itemEl.querySelector('.item-info');
+            if (!regionElement) return;
 
-        const hashtagElement = itemFragment.querySelector('.hash-tag');
-        if (hashtagElement && spot.hashtags) {
-            // 선택된 태그는 강조 표시
-            const hashtagText = spot.hashtags
-                .map((tag) => {
-                    const cleanTag = tag.trim();
-                    if (this.selectedTags.has(cleanTag)) {
-                        return `<strong>#${tag}</strong>`;
-                    }
-                    return `#${tag}`;
-                })
-                .join(' ');
-            hashtagElement.innerHTML = hashtagText;
-        }
+            // 중복 추가 방지
+            if (regionElement.querySelector('.item-region')) return;
 
-        // 지역 정보 추가
-        const regionElement = itemFragment.querySelector('.item-info');
-        if (regionElement) {
             const regionInfo = document.createElement('p');
             regionInfo.className = 'item-region';
             regionInfo.textContent = `📍 ${spot.region}`;
+
             regionElement.appendChild(regionInfo);
-        }
-
-        // 링크 설정 - 상세 페이지로 이동
-        const linkElement = itemFragment.querySelector('.item-link');
-        if (linkElement) {
-            linkElement.href = 'javascript:void(0)'; // 기본 링크 동작 방지
-            linkElement.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (!e.target.closest('.likeBtn')) {
-                    this.navigateToDetail(spot);
-                }
-            });
-        }
-
-        // 아이템 클릭 이벤트
-        const itemElement = itemFragment.querySelector('.item');
-        if (itemElement) {
-            itemElement.style.cursor = 'pointer';
-            itemElement.addEventListener('click', (e) => {
-                if (!e.target.closest('.likeBtn')) {
-                    this.navigateToDetail(spot);
-                }
-            });
-        }
-
-        // 좋아요 버튼 이벤트
-        const likeBtn = itemFragment.querySelector('.likeBtn');
-        if (likeBtn) {
-            likeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                likeBtn.classList.toggle('liked');
-            });
-        }
-
-        return itemFragment;
+        });
     }
+    
+    // createResultItem(spot) {
+    //     const template = document.getElementById('list-item');
+    //     if (!template) {
+    //         console.error('리스트 템플릿을 찾을 수 없습니다.');
+    //         return null;
+    //     }
+
+    //     const itemFragment = document.importNode(template.content, true);
+
+    //     // 이미지 설정
+    //     const imgElement = itemFragment.querySelector('.item-photo img');
+    //     if (imgElement) {
+    //         // 백엔드 API 응답 형식에 맞춰 imageUrl 사용
+    //         imgElement.src = spot.imageUrl || spot.img || '';
+    //         imgElement.alt = spot.title || '';
+    //         imgElement.onerror = () => {
+    //             // Thymeleaf 정적 리소스 경로 사용
+    //             imgElement.src = '/images/common.jpg';
+    //             imgElement.onerror = null;
+    //         };
+    //     }
+
+    //     // 텍스트 데이터 설정
+    //     const titleElement = itemFragment.querySelector('.item-title');
+    //     if (titleElement) {
+    //         titleElement.textContent = spot.title || '';
+    //     }
+
+    //     const descriptionElement = itemFragment.querySelector('.item-description');
+    //     if (descriptionElement) {
+    //         descriptionElement.textContent = spot.description || '';
+    //     }    
+
+    //     const hashtagElement = itemFragment.querySelector('.hash-tag');
+    //     if (hashtagElement && spot.hashtags) {
+    //         // 선택된 태그는 강조 표시
+    //         const hashtagText = spot.hashtags
+    //             .map((tag) => {
+    //                 const cleanTag = tag.trim();
+    //                 if (this.selectedTags.has(cleanTag)) {
+    //                     return `<strong>#${tag}</strong>`;
+    //                 }
+    //                 return `#${tag}`;
+    //             })
+    //             .join(' ');
+    //         hashtagElement.innerHTML = hashtagText;
+    //     }
+
+    //     // 지역 정보 추가
+    //     const regionElement = itemFragment.querySelector('.item-info');
+    //     if (regionElement) {
+    //         const regionInfo = document.createElement('p');
+    //         regionInfo.className = 'item-region';
+    //         regionInfo.textContent = `📍 ${spot.region}`;
+    //         regionElement.appendChild(regionInfo);
+    //     }
+
+    //     // 링크 설정 - 상세 페이지로 이동
+    //     const linkElement = itemFragment.querySelector('.item-link');
+    //     if (linkElement) {
+    //         linkElement.href = 'javascript:void(0)'; // 기본 링크 동작 방지
+    //         linkElement.addEventListener('click', (e) => {
+    //             e.preventDefault();
+    //             if (!e.target.closest('.likeBtn')) {
+    //                 this.navigateToDetail(spot);
+    //             }
+    //         });
+    //     }
+
+    //     // 아이템 클릭 이벤트
+    //     const itemElement = itemFragment.querySelector('.item');
+    //     if (itemElement) {
+    //         itemElement.style.cursor = 'pointer';
+    //         itemElement.addEventListener('click', (e) => {
+    //             if (!e.target.closest('.likeBtn')) {
+    //                 this.navigateToDetail(spot);
+    //             }
+    //         });
+    //     }
+
+    //     // 좋아요 버튼 이벤트
+    //     // const likeBtn = itemFragment.querySelector('.likeBtn');
+    //     // if (likeBtn) {
+    //     //     likeBtn.addEventListener('click', (e) => {
+    //     //         e.preventDefault();
+    //     //         e.stopPropagation();
+    //     //         likeBtn.classList.toggle('liked');
+    //     //     });
+    //     // }
+
+    //     return itemFragment;
+    // }
 
     // 상세 페이지로 이동하는 함수
     navigateToDetail(spot) {

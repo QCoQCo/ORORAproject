@@ -406,21 +406,30 @@ class ThemeCarousel {
             const endIndex = (this.currentPage[carouselId] + 1) * this.itemsPerPage;
             this.displayedData[carouselId] = data.slice(startIndex, endIndex);
 
-            // 그리드 렌더링
-            const grid = document.getElementById(carouselId);
-            if (grid) {
-                grid.innerHTML = '';
+            // listLoader용 데이터 포맷 변환
+            const listData = this.displayedData[carouselId].map(item => ({
+                id: item.id,
+                title: item.title || '제목 없음',
+                description: item.description || '',
+                hashtags: Array.isArray(item.hashtags) ? item.hashtags : [],
+                img: item.imageUrl || item.image_url || '',
+                link: '#',
+                categoryCode: item.categoryCode || item.category_code || 'culture',
+                isActive: item.isActive !== false,
+            }));
 
-                this.displayedData[carouselId].forEach((item) => {
-                    const itemElement = this.createListItem(item);
-                    if (itemElement) {
-                        grid.appendChild(itemElement);
-                    }
-                });
-            }
 
-            // 더보기 버튼 상태 업데이트
-            this.updateMoreButton(carouselId, data.length);
+            const listLoader = new ListLoader({
+            containerSelector: `#${carouselId}`,
+            data: listData,
+            fallbackImage: '/images/common.jpg',
+            onItemClick: (itemData) => {
+                window.location.href = `/pages/detailed/detailed?id=${itemData.id}`;
+            },
+        });
+
+        await listLoader.render();
+
         } catch (error) {
             console.error('테마 그리드 렌더링 중 오류:', error);
             const grid = document.getElementById(carouselId);
@@ -432,95 +441,10 @@ class ThemeCarousel {
     }
 
     async loadListTemplate() {
-        // 템플릿은 이제 Thymeleaf fragment로 제공되므로 로드 불필요
-        // 템플릿이 이미 DOM에 있는지 확인만 수행
         const template = document.getElementById('list-item');
         if (!template) {
             console.warn('리스트 템플릿을 찾을 수 없습니다. Thymeleaf fragment가 포함되어 있는지 확인하세요.');
         }
-    }
-
-    createListItem(itemData) {
-        const template = document.getElementById('list-item');
-        if (!template) {
-            console.error('리스트 템플릿을 찾을 수 없습니다.');
-            return null;
-        }
-
-        const itemFragment = document.importNode(template.content, true);
-
-        // 이미지 설정
-        const imgElement = itemFragment.querySelector('.item-photo img');
-        if (imgElement) {
-            // 이미지 URL 정규화
-            let imageUrl = itemData.imageUrl || '';
-            if (imageUrl) {
-                // 상대 경로를 절대 경로로 변환
-                if (imageUrl.startsWith('../../images/')) {
-                    imageUrl = '/images/' + imageUrl.substring('../../images/'.length());
-                } else if (imageUrl.startsWith('../images/')) {
-                    imageUrl = '/images/' + imageUrl.substring('../images/'.length());
-                } else if (!imageUrl.startsWith('/')) {
-                    imageUrl = '/images/' + imageUrl;
-                }
-            }
-            
-            imgElement.src = imageUrl;
-            imgElement.alt = itemData.title || '';
-            imgElement.onerror = () => {
-                imgElement.src = '/images/common.jpg';
-                imgElement.onerror = null;
-            };
-        }
-
-        // 텍스트 데이터 설정
-        const titleElement = itemFragment.querySelector('.item-title');
-        if (titleElement) titleElement.textContent = itemData.title || '';
-
-        const descriptionElement = itemFragment.querySelector('.item-description');
-        if (descriptionElement) descriptionElement.textContent = itemData.description || '';
-
-        const hashtagElement = itemFragment.querySelector('.hash-tag');
-        if (hashtagElement && itemData.hashtags) {
-            hashtagElement.textContent = Array.isArray(itemData.hashtags)
-                ? itemData.hashtags.join(' ')
-                : itemData.hashtags;
-        }
-
-        // 링크 설정 - 상세 페이지로 이동
-        const linkElement = itemFragment.querySelector('.item-link');
-        if (linkElement) {
-            linkElement.href = 'javascript:void(0)'; // 기본 링크 동작 방지
-            linkElement.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (!e.target.closest('.likeBtn')) {
-                    this.navigateToDetail(itemData);
-                }
-            });
-        }
-
-        // 아이템 클릭 이벤트
-        const itemElement = itemFragment.querySelector('.item');
-        if (itemElement) {
-            itemElement.style.cursor = 'pointer';
-            itemElement.addEventListener('click', (e) => {
-                if (!e.target.closest('.likeBtn')) {
-                    this.navigateToDetail(itemData);
-                }
-            });
-        }
-
-        // 좋아요 버튼 이벤트
-        const likeBtn = itemFragment.querySelector('.likeBtn');
-        if (likeBtn) {
-            likeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                likeBtn.classList.toggle('liked');
-            });
-        }
-
-        return itemFragment;
     }
 
     // 상세 페이지로 이동하는 함수

@@ -72,7 +72,6 @@ class ListLoader {
             console.error('리스트 템플릿을 찾을 수 없습니다.');
             return null;
         }
-
         const itemFragment = document.importNode(template.content, true);
 
         // 이미지 설정
@@ -119,23 +118,38 @@ class ListLoader {
             });
         }
 
-        // 좋아요 버튼 이벤트
+        // 좋아요 버튼 클릭 이벤트
         const likeBtn = itemFragment.querySelector('.likeBtn');
         if (likeBtn) {
-            likeBtn.addEventListener('click', (e) => {
+            likeBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                likeBtn.classList.toggle('liked');
+                
+                const itemEl = likeBtn.closest('.item');
+                const spotId = itemEl.dataset.spotId;
+                const userId = getCurrentUser()?.id;
 
-                if (this.onLikeClick) {
-                    this.onLikeClick(itemData, likeBtn.classList.contains('liked'));
+                if (!userId) {
+                    alert('로그인이 필요합니다');
+                    return;
                 }
+                
+                const res = await fetch(
+                    `/api/tourist-spots/${spotId}/like?userId=${userId}`,
+                    { method: 'POST' }
+                );
+
+                const data = await res.json();
+                const liked = data.liked;
+
+                likeBtn.classList.toggle('liked', liked);
             });
         }
 
         // 아이템 클릭 이벤트 (추가적인 클릭 처리)
         const itemElement = itemFragment.querySelector('.item');
         if (itemElement) {
+            itemElement.dataset.spotId = itemData.id;
             itemElement.style.cursor = 'pointer'; // 커서 모양 변경
             itemElement.addEventListener('click', (e) => {
                 if (!e.target.closest('.likeBtn')) {
@@ -180,11 +194,41 @@ class ListLoader {
                 }
             });
 
+            // 좋아요 상태 동기화
+            await this.applyLikedState();
+
             // console.log(`${data.length}개의 리스트 아이템이 렌더링되었습니다.`);
         } catch (error) {
             console.error('리스트 렌더링 중 오류:', error);
         }
     }
+
+    // 좋아요 상태 동기화 함수
+    async applyLikedState() {
+        const userId = getCurrentUser()?.id;
+        if (!userId) return;
+        
+        try {
+            const res = await fetch(`/api/users/${userId}/liked-spots`);
+            if (!res.ok) return;
+
+            const data = await res.json();
+            const likedSpotIds = new Set(
+                data.likes.map(l => String(l.spotId))
+            );
+            document.querySelectorAll('.item').forEach(item => {
+                const spotId = item.dataset.spotId;
+                if (likedSpotIds.has(spotId)) {
+                    item.querySelector('.likeBtn')
+                        ?.classList.add('liked');
+                }
+            });
+        } catch (e) {
+            console.error('좋아요 상태 반영 실패:', e);
+        }
+        
+    }
+
 }
 
 // 간편 사용을 위한 전역 함수
@@ -206,3 +250,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+
