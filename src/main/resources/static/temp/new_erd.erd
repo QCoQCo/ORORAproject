@@ -45,6 +45,7 @@
       "TstSpImgsTbl2025",
       "RvwImgsTbl2025",
       "RvwRptsTbl2025",
+      "CmtRptsTbl2025",
       "SpotReqsTbl2025"
     ],
     "relationshipIds": [
@@ -68,6 +69,8 @@
       "RelCCUsrStatus2025",
       "RelCCUsrGender2025",
       "RelCCRptsStatus2025",
+      "CmtRptsUsrRel2025",
+      "CmtRptsCmtRel2025",
       "SpotReqsUsrRel2025",
       "SpotReqsTstSpRel2025",
       "SpotReqsRegionRel2025"
@@ -121,6 +124,8 @@
           "CV-HsHiFJIXWNjlZ_AuqW",
           "TstSpLnkUrl2025",
           "TstSpCatCode2025",
+          "TstSpLatitude2025",
+          "TstSpLongitude2025",
           "ea0KN7iT5kZ_8NI5yBdlz",
           "pEtSlv3EwrGuCIMQMshAE",
           "4CIVF_T4pHWgGeY12WdBv",
@@ -133,6 +138,8 @@
           "CV-HsHiFJIXWNjlZ_AuqW",
           "TstSpLnkUrl2025",
           "TstSpCatCode2025",
+          "TstSpLatitude2025",
+          "TstSpLongitude2025",
           "ea0KN7iT5kZ_8NI5yBdlz",
           "pEtSlv3EwrGuCIMQMshAE",
           "4CIVF_T4pHWgGeY12WdBv",
@@ -505,6 +512,41 @@
         "meta": {
           "updateAt": 1767079973864,
           "createAt": 1767018316001
+        }
+      },
+      "CmtRptsTbl2025": {
+        "id": "CmtRptsTbl2025",
+        "name": "comment_reports",
+        "comment": "",
+        "columnIds": [
+          "CmtRptsId2025",
+          "CmtRptsUsrId2025",
+          "CmtRptsCmtId2025",
+          "CmtRptsRsn2025",
+          "CmtRptsStsCode2025",
+          "CmtRptsCrtAt2025",
+          "CmtRptsUpdAt2025"
+        ],
+        "seqColumnIds": [
+          "CmtRptsId2025",
+          "CmtRptsUsrId2025",
+          "CmtRptsCmtId2025",
+          "CmtRptsRsn2025",
+          "CmtRptsStsCode2025",
+          "CmtRptsCrtAt2025",
+          "CmtRptsUpdAt2025"
+        ],
+        "ui": {
+          "x": 1000,
+          "y": 1521,
+          "zIndex": 2,
+          "widthName": 95,
+          "widthComment": 60,
+          "color": ""
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
         }
       },
       "SpotReqsTbl2025": {
@@ -3288,6 +3330,46 @@
           "createAt": 1767074460541
         }
       },
+      "TstSpLatitude2025": {
+        "id": "TstSpLatitude2025",
+        "tableId": "dRKU_DzdlhJNayK4xtdLl",
+        "name": "latitude",
+        "comment": "위도 (카카오맵 위치 정보)",
+        "dataType": "DECIMAL(10, 8)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 200,
+          "widthDataType": 100,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1768000000000,
+          "createAt": 1768000000000
+        }
+      },
+      "TstSpLongitude2025": {
+        "id": "TstSpLongitude2025",
+        "tableId": "dRKU_DzdlhJNayK4xtdLl",
+        "name": "longitude",
+        "comment": "경도 (카카오맵 위치 정보)",
+        "dataType": "DECIMAL(11, 8)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 200,
+          "widthDataType": 100,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1768000000000,
+          "createAt": 1768000000000
+        }
+      },
       "RvwRptsStsCode2025": {
         "id": "RvwRptsStsCode2025",
         "tableId": "RvwRptsTbl2025",
@@ -3306,6 +3388,146 @@
         "meta": {
           "updateAt": 1767074460541,
           "createAt": 1767074460541
+        }
+      },
+      "CmtRptsId2025": {
+        "id": "CmtRptsId2025",
+        "tableId": "CmtRptsTbl2025",
+        "name": "id",
+        "comment": "",
+        "dataType": "INT",
+        "default": "",
+        "options": 11,
+        "ui": {
+          "keys": 1,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
+        }
+      },
+      "CmtRptsUsrId2025": {
+        "id": "CmtRptsUsrId2025",
+        "tableId": "CmtRptsTbl2025",
+        "name": "user_id",
+        "comment": "",
+        "dataType": "INT",
+        "default": "ON DELETE CASCADE",
+        "options": 8,
+        "ui": {
+          "keys": 2,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 116
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
+        }
+      },
+      "CmtRptsCmtId2025": {
+        "id": "CmtRptsCmtId2025",
+        "tableId": "CmtRptsTbl2025",
+        "name": "comment_id",
+        "comment": "",
+        "dataType": "INT",
+        "default": "ON DELETE CASCADE",
+        "options": 8,
+        "ui": {
+          "keys": 2,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 116
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
+        }
+      },
+      "CmtRptsRsn2025": {
+        "id": "CmtRptsRsn2025",
+        "tableId": "CmtRptsTbl2025",
+        "name": "reason",
+        "comment": "",
+        "dataType": "TEXT",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
+        }
+      },
+      "CmtRptsStsCode2025": {
+        "id": "CmtRptsStsCode2025",
+        "tableId": "CmtRptsTbl2025",
+        "name": "status_code",
+        "comment": "신고 상태 코드 (REPORT_STATUS 그룹 참조)",
+        "dataType": "VARCHAR(50)",
+        "default": "PENDING",
+        "options": 8,
+        "ui": {
+          "keys": 2,
+          "widthName": 64,
+          "widthComment": 232,
+          "widthDataType": 75,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
+        }
+      },
+      "CmtRptsCrtAt2025": {
+        "id": "CmtRptsCrtAt2025",
+        "tableId": "CmtRptsTbl2025",
+        "name": "created_at",
+        "comment": "",
+        "dataType": "TIMESTAMP",
+        "default": "CURRENT_TIMESTAMP",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 65,
+          "widthDefault": 122
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
+        }
+      },
+      "CmtRptsUpdAt2025": {
+        "id": "CmtRptsUpdAt2025",
+        "tableId": "CmtRptsTbl2025",
+        "name": "updated_at",
+        "comment": "",
+        "dataType": "TIMESTAMP",
+        "default": "CURRENT_TIMESTAMP",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 62,
+          "widthComment": 60,
+          "widthDataType": 65,
+          "widthDefault": 122
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
         }
       }
     },
@@ -3728,6 +3950,62 @@
         "meta": {
           "updateAt": 1767018316001,
           "createAt": 1767018316001
+        }
+      },
+      "CmtRptsUsrRel2025": {
+        "id": "CmtRptsUsrRel2025",
+        "identification": false,
+        "relationshipType": 4,
+        "startRelationshipType": 2,
+        "start": {
+          "tableId": "knwr2P1d0dp8rSZ_XCnTe",
+          "columnIds": [
+            "WiTWYpjwbgvTqFekcExWq"
+          ],
+          "x": -11,
+          "y": 1036,
+          "direction": 2
+        },
+        "end": {
+          "tableId": "CmtRptsTbl2025",
+          "columnIds": [
+            "CmtRptsUsrId2025"
+          ],
+          "x": 1000,
+          "y": 1633,
+          "direction": 1
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
+        }
+      },
+      "CmtRptsCmtRel2025": {
+        "id": "CmtRptsCmtRel2025",
+        "identification": false,
+        "relationshipType": 4,
+        "startRelationshipType": 2,
+        "start": {
+          "tableId": "Xbgy2E8cTplG44kY-9PNn",
+          "columnIds": [
+            "UwHGidVADanQr5QYQ6vvi"
+          ],
+          "x": 724,
+          "y": 1843,
+          "direction": 1
+        },
+        "end": {
+          "tableId": "CmtRptsTbl2025",
+          "columnIds": [
+            "CmtRptsCmtId2025"
+          ],
+          "x": 1400,
+          "y": 1633,
+          "direction": 2
+        },
+        "meta": {
+          "updateAt": 1767079973864,
+          "createAt": 1767079973864
         }
       },
       "RelCCGCC2025": {

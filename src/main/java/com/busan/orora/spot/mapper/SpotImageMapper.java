@@ -9,7 +9,10 @@ import java.util.List;
 public interface SpotImageMapper {
     List<SpotImageDto> findImagesBySpotId(@Param("spotId") Long spotId);
     List<SpotImageDto> findRepImagesBySpotIds(@Param("spotIds") List<Long> spotIds);
+    SpotImageDto findImageById(@Param("id") Long id);
     void insertImage(SpotImageDto imageDto);
     void deleteImage(@Param("id") Long id);
     void deleteImagesBySpotId(@Param("spotId") Long spotId);
+    void resetRepImages(@Param("spotId") Long spotId);
+    void setRepImage(@Param("id") Long id);
 }

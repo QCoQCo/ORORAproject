@@ -7,23 +7,23 @@ USE arata_busan;
 -- ============================================
 -- 1. 지역 데이터 (4개)
 -- ============================================
-INSERT INTO regions (area_code, name) VALUES
-(26710, '기장군'),
-(26410, '금정구'),
-(26440, '해운대구'),
-(26290, '동래구'),
-(26320, '북구'),
-(26350, '강서구'),
-(26530, '사상구'),
-(26200, '부산진구'),
-(26260, '남구'),
-(26380, '사하구'),
-(26230, '동구'),
-(26140, '서구'),
-(26110, '중구'),
-(26470, '연제구'),
-(26500, '수영구'),
-(26170, '영도구');
+INSERT INTO regions (area_code, name, sigungu_code) VALUES
+(26710, '기장군', 3),
+(26410, '금정구', 2),
+(26440, '해운대구', 16),
+(26290, '동래구', 6),
+(26320, '북구', 8),
+(26350, '강서구', 1),
+(26530, '사상구', 9),
+(26200, '부산진구', 7),
+(26260, '남구', 4),
+(26380, '사하구', 10),
+(26230, '동구', 5),
+(26140, '서구', 11),
+(26110, '중구', 15),
+(26470, '연제구', 13),
+(26500, '수영구', 12),
+(26170, '영도구', 14);
 
 -- ============================================
 -- 2. 해시태그 데이터 (6개)
@@ -34,19 +34,24 @@ INSERT INTO hashtags (name) VALUES
 ('문화'),
 ('맛집'),
 ('쇼핑'),
-('카페');
+('카페'),
+('가족'),
+('연인'),
+('혼자'),
+('친구'),
+('기타');
 
 -- ============================================
 -- 3. 사용자 데이터 (6개)
 -- ============================================
 -- 공통코드 사용: role_code (ADMIN, VIP, MEMBER), status_code (ACTIVE, INACTIVE, SUSPENDED), gender_code (MALE, FEMALE, OTHER)
-INSERT INTO users (login_id, username, email, password_hash, role_code, status_code, profile_image, phone_number, address, birth_date, gender_code, join_date, last_login) VALUES
-('admin', '관리자', 'admin@busan.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'ADMIN', 'ACTIVE', NULL, '010-1234-5678', '부산광역시 해운대구', '1985-03-15', 'MALE', '2024-01-01', '2024-12-19 10:30:00'),
-('user001', '홍길동', 'user001@gmail.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'MEMBER', 'ACTIVE', NULL, '010-2345-6789', '부산광역시 중구', '1990-07-22', 'MALE', '2024-02-15', '2024-12-18 14:20:00'),
-('vipuser', '김영희', 'vip@example.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'VIP', 'ACTIVE', NULL, '010-3456-7890', '부산광역시 수영구', '1988-11-08', 'FEMALE', '2024-03-10', '2024-12-17 16:45:00'),
-('testuser', '이철수', 'test@test.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'MEMBER', 'INACTIVE', NULL, '010-4567-8901', '부산광역시 동래구', '1995-01-30', 'MALE', '2024-04-20', '2024-11-15 09:15:00'),
-('suspended_user', '박민수', 'suspended@example.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'MEMBER', 'SUSPENDED', NULL, '010-5678-9012', '부산광역시 해운대구', '1992-09-12', 'MALE', '2024-05-05', '2024-10-01 11:30:00'),
-('busan_lover', '최지영', 'busan.lover@naver.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'VIP', 'ACTIVE', NULL, '010-6789-0123', '부산광역시 수영구', '1987-04-18', 'FEMALE', '2024-06-01', '2024-12-16 13:25:00');
+INSERT INTO users (login_id, username, email, password_hash, role_code, status_code, phone_number, address, birth_date, gender_code, join_date, last_login) VALUES
+('admin', '관리자', 'admin@busan.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'ADMIN', 'ACTIVE', '010-1234-5678', '부산광역시 해운대구', '1985-03-15', 'MALE', '2024-01-01', '2024-12-19 10:30:00'),
+('user001', '홍길동', 'user001@gmail.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'MEMBER', 'ACTIVE', '010-2345-6789', '부산광역시 중구', '1990-07-22', 'MALE', '2024-02-15', '2024-12-18 14:20:00'),
+('vipuser', '김영희', 'vip@example.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'VIP', 'ACTIVE', '010-3456-7890', '부산광역시 수영구', '1988-11-08', 'FEMALE', '2024-03-10', '2024-12-17 16:45:00'),
+('testuser', '이철수', 'test@test.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'MEMBER', 'INACTIVE', '010-4567-8901', '부산광역시 동래구', '1995-01-30', 'MALE', '2024-04-20', '2024-11-15 09:15:00'),
+('suspended_user', '박민수', 'suspended@example.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'MEMBER', 'SUSPENDED', '010-5678-9012', '부산광역시 해운대구', '1992-09-12', 'MALE', '2024-05-05', '2024-10-01 11:30:00'),
+('busan_lover', '최지영', 'busan.lover@naver.com', '$2b$10$rQZ8K9mN2pL3qR4sT5uV6w', 'VIP', 'ACTIVE', '010-6789-0123', '부산광역시 수영구', '1987-04-18', 'FEMALE', '2024-06-01', '2024-12-16 13:25:00');
 
 -- ============================================
 -- 4. 관광지 데이터 (6개)
@@ -162,3 +167,24 @@ SELECT * FROM review_reports;
 -- 테스트용 복잡한 조회 쿼리
 -- ============================================
 SELECT * FROM tourist_spots WHERE region_id = 1;
+
+
+
+-- ============================================
+-- 데이터베이스 비우는 쿼리
+-- ============================================
+DROP DATABASE arata_busan;
+
+
+TRUNCATE TABLE users;
+TRUNCATE TABLE user_profile_images;
+TRUNCATE TABLE tourist_spots;
+TRUNCATE TABLE tourist_spot_images;
+TRUNCATE TABLE hashtags;
+TRUNCATE TABLE tourist_spot_hashtags;
+TRUNCATE TABLE reviews;
+TRUNCATE TABLE review_images;
+TRUNCATE TABLE tourist_spot_likes;
+TRUNCATE TABLE review_likes;
+TRUNCATE TABLE review_comments;
+TRUNCATE TABLE review_reports;

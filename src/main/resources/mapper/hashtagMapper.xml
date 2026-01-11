@@ -40,7 +40,7 @@
 
     <!-- 여러 관광지 ID로 해시태그 목록 배치 조회 -->
     <select id="findHashtagsBySpotIds" resultMap="HashtagResultMap" parameterType="list">
-        SELECT h.id, h.name, h.created_at, tsh.tourist_spot_id AS touristSpotId
+        SELECT h.id, h.name, h.created_at, tsh.tourist_spot_id
         FROM hashtags h
         INNER JOIN tourist_spot_hashtags tsh ON h.id = tsh.hashtag_id
         WHERE tsh.tourist_spot_id IN
@@ -72,15 +72,16 @@
     <!-- 여기서부터 작업 -->
     <select id="selectTouristSpotHashtags" resultType="com.busan.orora.hashtag.dto.HashtagDto">
         SELECT  t.id AS id,
-                GROUP_CONCAT(DISTINCT tsi.image_url SEPARATOR ', ') AS imageUrl,
+                MAX(CASE WHEN tsi.rep_img_yn = 'Y' THEN tsi.image_url END) AS imageUrl,
                 t.title, 
                 t.description, 
-                GROUP_CONCAT(h.name SEPARATOR ', ') AS hashtagList,
+                GROUP_CONCAT(DISTINCT h.name SEPARATOR ', ') AS hashtagList,
                 r.name AS regionsName
-        FROM tourist_spots t    JOIN tourist_spot_hashtags tsh ON t.id = tsh.tourist_spot_id
-                                JOIN hashtags h ON tsh.hashtag_id = h.id
-                                JOIN regions r ON t.region_id = r.id
-                                JOIN tourist_spot_images tsi ON t.id = tsi.tourist_spot_id
+        FROM tourist_spots t    JOIN regions r ON t.region_id = r.id
+                                LEFT JOIN tourist_spot_hashtags tsh ON t.id = tsh.tourist_spot_id
+                                LEFT JOIN hashtags h ON tsh.hashtag_id = h.id
+                                LEFT JOIN tourist_spot_images tsi ON t.id = tsi.tourist_spot_id
+        WHERE t.is_active = TRUE
         GROUP BY t.id, t.title, t.description, r.name
         ORDER BY t.title ASC
     </select>
