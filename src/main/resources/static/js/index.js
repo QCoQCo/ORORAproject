@@ -544,6 +544,32 @@ function initTransportationEffects() {
     // Parallax effect for transport apps section
 }
 
+//detail/id
+const urlParams = new URLSearchParams(window.location.search);
+const spotId = urlParams.get('id'); 
+
+async function fetchDetailId() {
+    if (!spotId) {
+        console.error("ID가 주소창에 없습니다.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/places/${spotId}`);
+         const data = await response.json();
+        
+        if (document.getElementById('placeName')) {
+            document.getElementById('placeName').innerText = data.name;
+        }
+        
+        console.log("불러온 데이터:", data);
+    } catch (error) {
+        console.error("데이터를 불러오지 못했습니다:", error);
+    }
+}
+
+fetchDetailId();
+
 // Add CSS animation keyframes for bounce and ripple effects
 const style = document.createElement('style');
 style.textContent = `

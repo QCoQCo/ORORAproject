@@ -1,9 +1,16 @@
 package com.busan.orora.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.busan.orora.commoncode.dto.CommonCodeDto;
+import com.busan.orora.commoncode.service.CommonCodeService;
 
 @Controller
 public class PageController {
@@ -11,9 +18,22 @@ public class PageController {
     @Value("${kakao.map.api-key}")
     private String kakaoMapApiKey;
 
+    @Autowired
+    private CommonCodeService commonCodeService;
+
     // Index page
     @GetMapping({ "/", "/index" })
-    public String index() {
+    public String index(Model model) {
+        List<CommonCodeDto> allCodes = commonCodeService.getAllCodes();
+        
+        Long randId = 1L;
+        
+        if (allCodes != null && !allCodes.isEmpty()) {
+            int randomIndex = (int)(Math.random() * allCodes.size());
+            randId = allCodes.get(randomIndex).getId(); 
+        }
+        
+        model.addAttribute("randId", randId);
         return "index";
     }
 
@@ -109,8 +129,9 @@ public class PageController {
 
     // Detailed pages
     @GetMapping("/pages/detailed/detailed")
-    public String detailed(Model model) {
+    public String detailed(@RequestParam("id") String id, Model model) {
         model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
+        model.addAttribute("spotId", id);
         return "pages/detailed/detailed";
     }
 
