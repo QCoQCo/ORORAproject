@@ -241,21 +241,16 @@ async function loadTouristSpotDetail() {
                 if (!likeBtn) return;
 
                 // 좋아요 상태 호출
-                if (userId) {
-                    const likeResponse = await fetch(
-                        `/api/tourist-spots/${spotId}/like?userId=${userId}`
-                    );
-                    const likeData = await likeResponse.json();
+                const likeUrl = userId
+                    ? `/api/tourist-spots/${spotId}/like?userId=${userId}`
+                    : `/api/tourist-spots/${spotId}/like`;
 
-                    likeBtn.classList.toggle('likeBtnActive', likeData.liked);
-                    if (likeCount) {
-                        likeCount.textContent = likeData.likeCount;
-                    }
-                } else {
-                    likeBtn.classList.remove('likeBtnActive');
-                    if (likeCount) {
-                        likeCount.textContent = '0';
-                    }
+                const likeResponse = await fetch(likeUrl);
+                const likeData = await likeResponse.json();
+
+                likeBtn.classList.toggle('likeBtnActive', likeData.liked);
+                if (likeCount) {
+                    likeCount.textContent = likeData.likeCount;
                 }
 
                 // 좋아요 토글

@@ -25,10 +25,14 @@ public class SpotLikeController {
     @GetMapping("/{spotId}/like")
     public ResponseEntity<?> existsSpotLike(
             @PathVariable Long spotId,
-            @RequestParam Long userId) {
+            @RequestParam(required = false) Long userId) {
 
-        boolean liked = spotLikeService.existsSpotLike(userId, spotId);
         int likeCount = spotLikeService.countSpotLikesBySpotId(spotId);
+        
+        boolean liked = false;
+        if (userId != null) {
+            liked = spotLikeService.existsSpotLike(userId, spotId);
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("liked", liked);
