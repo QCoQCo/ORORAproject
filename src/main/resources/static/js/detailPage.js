@@ -956,10 +956,19 @@ function createReviewElement(review) {
 
     // API 응답 형식에 맞게 필드명 처리
     const userName = review.userName || review.user_name || '익명';
+    // const userProfileImage = review.userProfileImage || '/images/defaultProfile.png';
     const likes = review.likes || review.likeCount || 0;
     const replies = review.replies || review.comments || review.commentCount || 0;
     const isLiked = review.isLiked || false;
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
+    const userImageHTML = review.userProfileImage
+    ? `<p class="userImage">
+           <img src="${review.userProfileImage}"
+                alt="${userName}"
+                class="comment-user-image">
+       </p>`
+    : `<p class="userImage"></p>`;
+
 
     // 본인 리뷰인 경우: 수정/삭제 버튼 표시, 신고 버튼 숨김
     const myReviewButtonsHTML = isMyReview
@@ -990,7 +999,7 @@ function createReviewElement(review) {
 
     reviewDiv.innerHTML = `
         <div class="userReviewTop">
-            <p class="userImage"></p>
+            ${userImageHTML}
             <div class="userInfo">
                 <p class="userId"><strong>${userName}</strong>${
         isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
