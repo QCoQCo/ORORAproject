@@ -161,6 +161,12 @@
         VALUES (#{reviewId}, #{imageUrl}, #{imageOrder}, #{altText})
     </insert>
 
+    <!-- 리뷰 이미지 삭제 -->
+    <delete id="deleteReviewImage" parameterType="Long">
+        DELETE FROM review_images
+        WHERE id = #{imageId}
+    </delete>
+
     <!-- 리뷰 수정 -->
     <update id="updateReview" parameterType="com.busan.orora.review.dto.ReviewDto">
         UPDATE reviews
