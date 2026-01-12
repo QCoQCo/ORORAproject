@@ -221,10 +221,21 @@ function getCategoryFromHashtags(hashtags) {
     return 'culture'; // 기본값
 }
 
+// 탭별 설명 텍스트
+const tabDescriptions = {
+    'list': '부산 관광지 정보를 관리할 수 있습니다.',
+    'users': '사용자 정보와 권한을 관리할 수 있습니다.',
+    'user-reports': '사용자들이 신고한 내용을 확인하고 처리할 수 있습니다.',
+    'spot-requests': '사용자들이 신청한 관광지 및 사진 추가 요청을 관리할 수 있습니다.',
+    'common-codes': '공통코드 그룹과 코드를 관리할 수 있습니다.',
+    'stats': '관광지 및 사용자 통계를 확인할 수 있습니다.'
+};
+
 // 탭 기능 초기화
 function initializeTabs() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
+    const adminDescription = document.getElementById('admin-description');
 
     tabButtons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -237,6 +248,11 @@ function initializeTabs() {
             // 선택된 탭 활성화
             button.classList.add('active');
             document.getElementById(`${targetTab}-tab`).classList.add('active');
+
+            // 탭에 맞는 설명 업데이트
+            if (adminDescription && tabDescriptions[targetTab]) {
+                adminDescription.textContent = tabDescriptions[targetTab];
+            }
 
             // 통계 탭을 클릭한 경우 통계 업데이트
             if (targetTab === 'stats') {
