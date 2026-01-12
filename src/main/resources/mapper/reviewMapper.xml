@@ -351,4 +351,29 @@
         DELETE FROM comment_reports WHERE id = #{reportId}
     </delete>
 
+    <!-- 사용자별 댓글 조회 (리뷰 및 관광지 정보 포함) -->
+    <select id="findCommentsByUserId" resultType="java.util.HashMap" parameterType="Long">
+        SELECT 
+            rc.id,
+            rc.user_id as userId,
+            rc.review_id as reviewId,
+            rc.content,
+            rc.is_approved as isApproved,
+            rc.created_at as createdAt,
+            rc.updated_at as updatedAt,
+            r.title as reviewTitle,
+            r.content as reviewContent,
+            ts.id as touristSpotId,
+            ts.title as touristSpotName,
+            u.username as reviewAuthorName
+        FROM review_comments rc
+        INNER JOIN reviews r ON rc.review_id = r.id
+        LEFT JOIN tourist_spots ts ON r.tourist_spot_id = ts.id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE rc.user_id = #{userId}
+          AND rc.is_approved = TRUE
+          AND r.is_approved = TRUE
+        ORDER BY rc.created_at DESC
+    </select>
+
 </mapper>

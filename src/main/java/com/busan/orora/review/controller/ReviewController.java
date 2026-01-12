@@ -353,6 +353,31 @@ public class ReviewController {
     }
 
     /**
+     * 사용자별 댓글 목록 조회
+     * GET /api/users/{userId}/comments
+     */
+    @GetMapping("/users/{userId}/comments")
+    @ResponseBody
+    public Map<String, Object> getCommentsByUserId(@PathVariable Long userId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<Map<String, Object>> comments = reviewService.getCommentsByUserId(userId);
+
+            response.put("success", true);
+            response.put("comments", comments);
+            response.put("totalElements", comments.size());
+
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "댓글을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+    /**
      * 리뷰별 댓글 목록 조회
      * GET /api/reviews/{reviewId}/comments
      */
