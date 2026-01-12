@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/layout}"
+    lang="ko"
+>
+    <head>
+        <title layout:fragment="title">관리자 페이지 - arataBUSAN</title>
+        <th:block layout:fragment="css">
+            <link rel="stylesheet" th:href="@{/css/admin.css}" />
+        </th:block>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div id="Wrapper" th:data-kakao-api-key="${kakaoMapApiKey}">
+            <section class="admin-page">
+                <div class="container">
+                    <div class="admin-header">
+                        <h1>관리자 페이지</h1>
+                        <p>부산 관광지 정보를 관리할 수 있습니다.</p>
+                    </div>
+
+                    <div class="admin-tabs">
+                        <button class="tab-btn active" data-tab="list">관광지 목록</button>
+                        <button class="tab-btn" data-tab="users">사용자 관리</button>
+                        <button class="tab-btn" data-tab="user-reports">유저 신고관리</button>
+                        <button class="tab-btn" data-tab="spot-requests">
+                            관광지 & 사진 추가 신청관리
+                        </button>
+                        <button class="tab-btn" data-tab="common-codes">공통코드 관리</button>
+                        <button class="tab-btn" data-tab="stats">통계</button>
+                    </div>
+
+                    <div class="tab-content active" id="list-tab">
+                        <div class="list-header">
+                            <div class="search-filter">
+                                <input
+                                    type="text"
+                                    id="admin-search-input"
+                                    placeholder="관광지명으로 검색..."
+                                />
+                                <select id="region-filter">
+                                    <option value="">전체 지역</option>
+                                    <option value="area01">기장군</option>
+                                    <option value="area02">금정구</option>
+                                    <option value="area03">해운대구</option>
+                                    <option value="area04">동래구</option>
+                                    <option value="area05">북구</option>
+                                    <option value="area06">강서구</option>
+                                    <option value="area07">사상구</option>
+                                    <option value="area08">부산진구</option>
+                                    <option value="area09">남구</option>
+                                    <option value="area10">사하구</option>
+                                    <option value="area11">동구</option>
+                                    <option value="area12">서구</option>
+                                    <option value="area13">중구</option>
+                                    <option value="area14">연제구</option>
+                                    <option value="area15">수영구</option>
+                                    <option value="area16">영도구</option>
+                                </select>
+                            </div>
+                            <button class="add-spot-btn" onclick="openAddSpotModal()">
+                                + 관광지 추가
+                            </button>
+                        </div>
+
+                        <div class="tourist-spots-grid" id="tourist-spots-grid">
+                            <!-- 관광지 목록이 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="users-tab">
+                        <div class="users-header">
+                            <div class="users-controls">
+                                <div class="search-filter">
+                                    <input
+                                        type="text"
+                                        id="user-search-input"
+                                        placeholder="사용자명, 이메일로 검색..."
+                                    />
+                                    <select id="user-role-filter">
+                                        <option value="">전체 권한</option>
+                                        <option value="admin">관리자</option>
+                                        <option value="member">일반회원</option>
+                                        <option value="vip">VIP회원</option>
+                                    </select>
+                                    <select id="user-status-filter">
+                                        <option value="">전체 상태</option>
+                                        <option value="active">활성</option>
+                                        <option value="inactive">비활성</option>
+                                        <option value="suspended">정지</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="users-table-container">
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>사용자명</th>
+                                        <th>이메일</th>
+                                        <th>권한</th>
+                                        <th>상태</th>
+                                        <th>가입일</th>
+                                        <th>마지막 로그인</th>
+                                        <th>작업</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- 사용자 목록이 동적으로 생성됩니다 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="users-pagination" id="users-pagination">
+                            <!-- 페이지네이션이 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="common-codes-tab">
+                        <div class="common-codes-header">
+                            <h2>공통코드 관리</h2>
+                            <p class="section-description">
+                                공통코드는 그룹 테이블(common_code_groups)과 코드
+                                테이블(common_codes)로 구성됩니다. 그룹은 코드의 카테고리를
+                                정의하고, 코드는 실제 코드값을 저장합니다.
+                            </p>
+                        </div>
+
+                        <div class="common-codes-container">
+                            <!-- 코드 그룹 섹션 -->
+                            <div class="code-groups-section">
+                                <div class="section-header">
+                                    <h3>코드 그룹 관리 (common_code_groups)</h3>
+                                    <p class="section-subtitle">
+                                        코드의 카테고리를 정의합니다. 예: USER_ROLE, USER_STATUS,
+                                        GENDER 등
+                                    </p>
+                                    <div class="section-controls">
+                                        <button class="add-group-btn" onclick="openAddGroupModal()">
+                                            + 코드 그룹 추가
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="code-groups-grid" id="code-groups-grid">
+                                    <!-- 코드 그룹 목록이 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+
+                            <!-- 코드 섹션 -->
+                            <div class="codes-section">
+                                <div class="section-header">
+                                    <h3>코드 관리 (common_codes)</h3>
+                                    <p class="section-subtitle">
+                                        실제 코드값들을 저장합니다. 각 코드는 반드시 하나의 그룹에
+                                        속해야 합니다.
+                                    </p>
+                                    <div class="section-controls">
+                                        <div class="search-filter">
+                                            <label for="code-group-filter">그룹 필터:</label>
+                                            <select id="code-group-filter">
+                                                <option value="">전체 그룹</option>
+                                            </select>
+                                        </div>
+                                        <button class="add-code-btn" onclick="openAddCodeModal()">
+                                            + 코드 추가
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="codes-table-container">
+                                    <table class="codes-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>그룹 코드</th>
+                                                <th>코드</th>
+                                                <th>코드명 (한국어)</th>
+                                                <th>코드명 (영어)</th>
+                                                <th>코드명 (일본어)</th>
+                                                <th>정렬 순서</th>
+                                                <th>활성화</th>
+                                                <th>작업</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="codes-table-body">
+                                            <!-- 코드 목록이 동적으로 생성됩니다 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="stats-tab">
+                        <div class="stats-section">
+                            <h3>관광지 통계</h3>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <h3>총 관광지 수</h3>
+                                    <div class="stat-number" id="total-spots">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>해변</h3>
+                                    <div class="stat-number" id="beach-count">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>산/공원</h3>
+                                    <div class="stat-number" id="mountain-count">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>문화</h3>
+                                    <div class="stat-number" id="culture-count">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>전통시장</h3>
+                                    <div class="stat-number" id="food-count">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>쇼핑</h3>
+                                    <div class="stat-number" id="shopping-count">0</div>
+                                </div>
+                            </div>
+
+                            <div class="category-chart">
+                                <h3>카테고리별 분포</h3>
+                                <div class="chart-container" id="category-chart">
+                                    <!-- 차트가 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+
+                            <div class="region-chart">
+                                <h3>지역별 분포</h3>
+                                <div class="chart-container" id="region-chart">
+                                    <!-- 차트가 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-section">
+                            <h3>사용자 통계</h3>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <h3>총 사용자 수</h3>
+                                    <div class="stat-number" id="total-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>활성 사용자</h3>
+                                    <div class="stat-number" id="active-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>관리자</h3>
+                                    <div class="stat-number" id="admin-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>VIP 회원</h3>
+                                    <div class="stat-number" id="vip-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>일반 회원</h3>
+                                    <div class="stat-number" id="member-users">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>정지된 사용자</h3>
+                                    <div class="stat-number" id="suspended-users">0</div>
+                                </div>
+                            </div>
+
+                            <div class="user-chart">
+                                <h3>사용자 권한별 분포</h3>
+                                <div class="chart-container" id="user-role-chart">
+                                    <!-- 차트가 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-section">
+                            <h3>데이터 관리</h3>
+                            <div class="export-buttons">
+                                <button class="export-btn" onclick="exportAllData()">
+                                    전체 데이터 백업
+                                </button>
+                                <button class="export-btn" onclick="exportTouristSpotsData()">
+                                    관광지 데이터 내보내기
+                                </button>
+                                <button class="export-btn" onclick="exportUsersData()">
+                                    사용자 데이터 내보내기
+                                </button>
+                            </div>
+                            <div class="export-info">
+                                <p><strong>키보드 단축키:</strong></p>
+                                <ul>
+                                    <li>Ctrl + S: 전체 데이터 백업</li>
+                                    <li>Ctrl + Shift + T: 관광지 데이터만 내보내기</li>
+                                    <li>Ctrl + Shift + U: 사용자 데이터만 내보내기</li>
+                                    <li>ESC: 모달 창 닫기</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="user-reports-tab">
+                        <div class="reports-header">
+                            <h2>유저 신고관리</h2>
+                            <p class="section-description">
+                                사용자들이 신고한 내용을 확인하고 처리할 수 있습니다.
+                            </p>
+                        </div>
+
+                        <div class="reports-controls">
+                            <div class="search-filter">
+                                <input
+                                    type="text"
+                                    id="report-search-input"
+                                    placeholder="신고자, 피신고자, 신고 내용으로 검색..."
+                                />
+                                <select id="report-status-filter">
+                                    <option value="">전체 상태</option>
+                                    <option value="pending">대기중</option>
+                                    <option value="processing">처리중</option>
+                                    <option value="resolved">처리완료</option>
+                                    <option value="rejected">반려</option>
+                                </select>
+                                <select id="report-type-filter">
+                                    <option value="">전체 유형</option>
+                                    <option value="spam">스팸</option>
+                                    <option value="abuse">욕설/비방</option>
+                                    <option value="inappropriate">부적절한 내용</option>
+                                    <option value="other">기타</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="reports-table-container">
+                            <table class="reports-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>신고자</th>
+                                        <th>피신고자</th>
+                                        <th>신고 유형</th>
+                                        <th>신고 내용</th>
+                                        <th>신고 일시</th>
+                                        <th>상태</th>
+                                        <th>작업</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reports-table-body">
+                                    <!-- 신고 목록이 동적으로 생성됩니다 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="reports-pagination" id="reports-pagination">
+                            <!-- 페이지네이션이 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="spot-requests-tab">
+                        <div class="requests-header">
+                            <h2>관광지 & 사진 추가 신청관리</h2>
+                            <p class="section-description">
+                                사용자들이 신청한 관광지 및 사진 추가 요청을 확인하고 승인/거부할 수
+                                있습니다.
+                            </p>
+                        </div>
+
+                        <div class="requests-controls">
+                            <div class="search-filter">
+                                <input
+                                    type="text"
+                                    id="request-search-input"
+                                    placeholder="신청자, 관광지명으로 검색..."
+                                />
+                                <select id="request-type-filter">
+                                    <option value="">전체 유형</option>
+                                    <option value="spot">관광지 추가</option>
+                                    <option value="photo">사진 추가</option>
+                                    <option value="edit">정보 수정</option>
+                                </select>
+                                <select id="request-status-filter">
+                                    <option value="">전체 상태</option>
+                                    <option value="pending">대기중</option>
+                                    <option value="approved">승인됨</option>
+                                    <option value="rejected">거부됨</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="requests-table-container">
+                            <table class="requests-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>신청 유형</th>
+                                        <th>신청자</th>
+                                        <th>관광지명</th>
+                                        <th>신청 내용</th>
+                                        <th>신청 일시</th>
+                                        <th>상태</th>
+                                        <th>작업</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="requests-table-body">
+                                    <!-- 신청 목록이 동적으로 생성됩니다 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="requests-pagination" id="requests-pagination">
+                            <!-- 페이지네이션이 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 관광지 수정/추가 모달 -->
+            <div class="modal" id="edit-modal">
+                <div class="modal-content">
+                    <span class="close" id="close-modal">&times;</span>
+                    <h2 id="edit-modal-title">관광지 정보 수정</h2>
+                    <form id="edit-tourist-spot-form">
+                        <div class="form-group">
+                            <label for="edit-spot-title">관광지명</label>
+                            <input type="text" id="edit-spot-title" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-spot-region">지역</label>
+                            <select id="edit-spot-region" required>
+                                <option value="area01">기장군</option>
+                                <option value="area02">금정구</option>
+                                <option value="area03">해운대구</option>
+                                <option value="area04">동래구</option>
+                                <option value="area05">북구</option>
+                                <option value="area06">강서구</option>
+                                <option value="area07">사상구</option>
+                                <option value="area08">부산진구</option>
+                                <option value="area09">남구</option>
+                                <option value="area10">사하구</option>
+                                <option value="area11">동구</option>
+                                <option value="area12">서구</option>
+                                <option value="area13">중구</option>
+                                <option value="area14">연제구</option>
+                                <option value="area15">수영구</option>
+                                <option value="area16">영도구</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-spot-category">카테고리</label>
+                            <select id="edit-spot-category" required>
+                                <option value="BEACH">해변</option>
+                                <option value="MOUNTAIN">산/공원</option>
+                                <option value="CULTURE">문화</option>
+                                <option value="FOOD">전통시장</option>
+                                <option value="SHOPPING">쇼핑</option>
+                                <option value="CAFE">카페</option>
+                                <option value="FAMILY">가족</option>
+                                <option value="COUPLE">연인</option>
+                                <option value="SOLO">혼자</option>
+                                <option value="FRIEND">친구</option>
+                                <option value="ETC">기타</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-spot-hashtags">해시태그 (쉼표로 구분)</label>
+                            <input
+                                type="text"
+                                id="edit-spot-hashtags"
+                                placeholder="#해변, #관광, #부산"
+                                required
+                            />
+                        </div>
+
+                        <!-- 이미지 관리 섹션 -->
+                        <div class="form-group image-management-section">
+                            <label>이미지 관리</label>
+
+                            <!-- 등록된 이미지 목록 -->
+                            <div class="registered-images">
+                                <h4>📷 등록된 이미지</h4>
+                                <div class="image-list" id="edit-spot-images">
+                                    <!-- 등록된 이미지가 동적으로 표시됩니다 -->
+                                    <p class="no-images">등록된 이미지가 없습니다.</p>
+                                </div>
+                            </div>
+
+                            <!-- 새 이미지 추가 -->
+                            <div class="new-images">
+                                <h4>➕ 새 이미지 추가</h4>
+                                <div class="file-upload-area">
+                                    <input
+                                        type="file"
+                                        id="edit-spot-new-images"
+                                        accept="image/*"
+                                        multiple
+                                        class="file-input"
+                                    />
+                                    <label for="edit-spot-new-images" class="file-label">
+                                        <span class="file-icon">📁</span>
+                                        <span class="file-text"
+                                            >클릭하여 이미지 선택 (여러 장 가능)</span
+                                        >
+                                    </label>
+                                    <div class="selected-files" id="selected-files-preview">
+                                        <!-- 선택된 파일 미리보기 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-spot-link">링크</label>
+                            <input type="text" id="edit-spot-link" placeholder="#" value="#" />
+                        </div>
+
+                        <!-- 위치 검색 섹션 -->
+                        <div class="form-group">
+                            <label for="edit-spot-location-search">위치 검색</label>
+                            <div class="location-search-container">
+                                <div class="location-search-input-group">
+                                    <input
+                                        type="text"
+                                        id="edit-spot-location-search"
+                                        placeholder="주소나 관광지명을 입력하세요 (예: 부산 해운대해수욕장)"
+                                    />
+                                    <button
+                                        type="button"
+                                        id="edit-spot-location-search-btn"
+                                        class="search-btn"
+                                    >
+                                        검색
+                                    </button>
+                                </div>
+                                <div
+                                    id="edit-spot-location-results"
+                                    class="location-search-results"
+                                    style="display: none"
+                                >
+                                    <!-- 검색 결과가 여기에 표시됩니다 -->
+                                </div>
+                                <div
+                                    class="location-selected-info"
+                                    id="edit-spot-location-selected"
+                                    style="display: none"
+                                >
+                                    <p>
+                                        <strong>선택된 위치:</strong>
+                                        <span id="edit-spot-location-selected-text"></span>
+                                    </p>
+                                    <button
+                                        type="button"
+                                        id="edit-spot-location-clear"
+                                        class="clear-btn"
+                                    >
+                                        선택 취소
+                                    </button>
+                                </div>
+                                <input type="hidden" id="edit-spot-latitude" />
+                                <input type="hidden" id="edit-spot-longitude" />
+                                <input type="hidden" id="edit-spot-address" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-spot-description">설명</label>
+                            <textarea id="edit-spot-description" rows="4" required></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="edit-modal-submit-btn">
+                            수정 완료
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 사용자 수정 모달 -->
+            <div class="modal" id="edit-user-modal">
+                <div class="modal-content">
+                    <span class="close" id="close-edit-user-modal">&times;</span>
+                    <h2>사용자 정보 수정</h2>
+                    <form id="edit-user-form">
+                        <div class="form-group">
+                            <label for="edit-username">사용자명</label>
+                            <input type="text" id="edit-username" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-email">이메일</label>
+                            <input type="email" id="edit-email" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-user-role">권한</label>
+                            <select id="edit-user-role" required>
+                                <option value="member">일반회원</option>
+                                <option value="vip">VIP회원</option>
+                                <option value="admin">관리자</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-user-status">상태</label>
+                            <select id="edit-user-status" required>
+                                <option value="active">활성</option>
+                                <option value="inactive">비활성</option>
+                                <option value="suspended">정지</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="submit-btn">수정 완료</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 코드 그룹 추가 모달 -->
+            <div class="modal" id="add-group-modal">
+                <div class="modal-content">
+                    <span class="close" id="close-add-group-modal">&times;</span>
+                    <h2>코드 그룹 추가</h2>
+                    <form id="add-group-form">
+                        <div class="form-group">
+                            <label for="new-group-code">그룹 코드</label>
+                            <input
+                                type="text"
+                                id="new-group-code"
+                                placeholder="예: USER_ROLE"
+                                required
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-group-name">그룹명 (한국어)</label>
+                            <input type="text" id="new-group-name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-group-name-en">그룹명 (영어)</label>
+                            <input type="text" id="new-group-name-en" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-group-name-jp">그룹명 (일본어)</label>
+                            <input type="text" id="new-group-name-jp" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-group-description">설명</label>
+                            <textarea id="new-group-description" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-group-sort-order">정렬 순서</label>
+                            <input type="number" id="new-group-sort-order" value="0" />
+                        </div>
+
+                        <button type="submit" class="submit-btn">그룹 추가</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 코드 그룹 수정 모달 -->
+            <div class="modal" id="edit-group-modal">
+                <div class="modal-content">
+                    <span class="close" id="close-edit-group-modal">&times;</span>
+                    <h2>코드 그룹 수정</h2>
+                    <form id="edit-group-form">
+                        <div class="form-group">
+                            <label for="edit-group-code">그룹 코드</label>
+                            <input type="text" id="edit-group-code" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-group-name">그룹명 (한국어)</label>
+                            <input type="text" id="edit-group-name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-group-name-en">그룹명 (영어)</label>
+                            <input type="text" id="edit-group-name-en" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-group-name-jp">그룹명 (일본어)</label>
+                            <input type="text" id="edit-group-name-jp" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-group-description">설명</label>
+                            <textarea id="edit-group-description" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-group-sort-order">정렬 순서</label>
+                            <input type="number" id="edit-group-sort-order" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-group-active">활성화</label>
+                            <select id="edit-group-active">
+                                <option value="true">활성</option>
+                                <option value="false">비활성</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="submit-btn">수정 완료</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 코드 추가 모달 -->
+            <div class="modal" id="add-code-modal">
+                <div class="modal-content">
+                    <span class="close" id="close-add-code-modal">&times;</span>
+                    <h2>코드 추가</h2>
+                    <form id="add-code-form">
+                        <div class="form-group">
+                            <label for="new-code-group-code">그룹 코드</label>
+                            <select id="new-code-group-code" required>
+                                <option value="">그룹 선택</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-code-code">코드</label>
+                            <input
+                                type="text"
+                                id="new-code-code"
+                                placeholder="예: ADMIN"
+                                required
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-code-name">코드명 (한국어)</label>
+                            <input type="text" id="new-code-name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-code-name-en">코드명 (영어)</label>
+                            <input type="text" id="new-code-name-en" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-code-name-jp">코드명 (일본어)</label>
+                            <input type="text" id="new-code-name-jp" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-code-description">설명</label>
+                            <textarea id="new-code-description" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-code-sort-order">정렬 순서</label>
+                            <input type="number" id="new-code-sort-order" value="0" />
+                        </div>
+
+                        <button type="submit" class="submit-btn">코드 추가</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 코드 수정 모달 -->
+            <div class="modal" id="edit-code-modal">
+                <div class="modal-content">
+                    <span class="close" id="close-edit-code-modal">&times;</span>
+                    <h2>코드 수정</h2>
+                    <form id="edit-code-form">
+                        <div class="form-group">
+                            <label for="edit-code-group-code">그룹 코드</label>
+                            <input type="text" id="edit-code-group-code" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-code-code">코드</label>
+                            <input type="text" id="edit-code-code" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-code-name">코드명 (한국어)</label>
+                            <input type="text" id="edit-code-name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-code-name-en">코드명 (영어)</label>
+                            <input type="text" id="edit-code-name-en" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-code-name-jp">코드명 (일본어)</label>
+                            <input type="text" id="edit-code-name-jp" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-code-description">설명</label>
+                            <textarea id="edit-code-description" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-code-sort-order">정렬 순서</label>
+                            <input type="number" id="edit-code-sort-order" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-code-active">활성화</label>
+                            <select id="edit-code-active">
+                                <option value="true">활성</option>
+                                <option value="false">비활성</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="submit-btn">수정 완료</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 유저 신고 처리 모달 (처벌 설정) -->
+            <div class="modal" id="penalty-modal">
+                <div class="modal-content penalty-modal-content">
+                    <span class="close" id="close-penalty-modal">&times;</span>
+                    <h2>🚨 신고 처리 - 처벌 설정</h2>
+                    <div id="penalty-report-info" class="penalty-info-section">
+                        <!-- 신고 정보가 동적으로 표시됩니다 -->
+                    </div>
+                    <form id="penalty-form">
+                        <input type="hidden" id="penalty-report-id" />
+                        <input type="hidden" id="penalty-report-type" />
+                        <input type="hidden" id="penalty-reported-user-id" />
+                        
+                        <div class="form-group">
+                            <label for="penalty-type">처벌 유형 <span class="required">*</span></label>
+                            <select id="penalty-type" required>
+                                <option value="">처벌 유형을 선택하세요</option>
+                                <option value="warning">경고</option>
+                                <option value="content_delete">해당 콘텐츠 삭제</option>
+                                <option value="temp_ban_1">임시 정지 (1일)</option>
+                                <option value="temp_ban_3">임시 정지 (3일)</option>
+                                <option value="temp_ban_7">임시 정지 (7일)</option>
+                                <option value="temp_ban_30">임시 정지 (30일)</option>
+                                <option value="permanent_ban">영구 정지</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="penalty-reason">처벌 사유</label>
+                            <textarea id="penalty-reason" rows="3" placeholder="처벌 사유를 입력하세요 (선택사항)"></textarea>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="penalty-delete-content" checked />
+                                <span>관련 콘텐츠(리뷰/댓글) 삭제</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="penalty-notify-user" checked />
+                                <span>피신고자에게 알림 전송</span>
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn" id="cancel-penalty-btn">취소</button>
+                            <button type="submit" class="submit-btn">처벌 적용</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 사진 추가 신청 상세 보기 모달 -->
+            <div class="modal" id="photo-request-detail-modal">
+                <div class="modal-content photo-request-modal-content">
+                    <span class="close" id="close-photo-request-detail-modal">&times;</span>
+                    <h2>📷 사진 추가 신청 상세</h2>
+                    <input type="hidden" id="photo-request-detail-id" />
+                    
+                    <div class="photo-request-detail-container">
+                        <div class="photo-request-spot-info">
+                            <h3>관광지 정보</h3>
+                            <div class="spot-info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">관광지명</span>
+                                    <span class="info-value" id="photo-request-spot-name">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">신청자</span>
+                                    <span class="info-value" id="photo-request-applicant">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">신청일시</span>
+                                    <span class="info-value" id="photo-request-date">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">설명</span>
+                                    <span class="info-value" id="photo-request-description">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="photo-request-image-section">
+                            <h3>신청 사진</h3>
+                            <div class="photo-request-image-container">
+                                <img id="photo-request-detail-image" src="" alt="신청 사진" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="reject-btn" id="reject-photo-request-btn">거부</button>
+                        <button type="button" class="approve-btn" id="approve-photo-request-btn">승인</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 관광지 추가 신청 상세 보기/승인 모달 (기존 추가 모달 재활용을 위한 플래그) -->
+            <div class="modal" id="spot-request-approval-modal" style="display: none;">
+                <!-- 이 모달은 기존 add-modal을 재활용하여 표시합니다 -->
+            </div>
+            </section>
+        </div>
+        <th:block layout:fragment="script">
+            <script th:src="@{/js/admin.js}"></script>
+        </th:block>
+    </body>
+</html>

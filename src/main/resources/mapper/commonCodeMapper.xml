@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.commoncode.mapper.CommonCodeMapper">
+    <resultMap id="CommonCodeResultMap" type="com.busan.orora.commoncode.dto.CommonCodeDto">
+        <id property="id" column="id" />
+        <result property="groupCode" column="group_code" />
+        <result property="code" column="code" />
+        <result property="codeName" column="code_name" />
+        <result property="codeNameEn" column="code_name_en" />
+        <result property="codeNameJp" column="code_name_jp" />
+        <result property="description" column="description" />
+        <result property="sortOrder" column="sort_order" />
+        <result property="isActive" column="is_active" />
+        <result property="extraData" column="extra_data" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <!-- 모든 코드 조회 -->
+    <select id="findAllCodes" resultMap="CommonCodeResultMap">
+        SELECT id, group_code, code, code_name, code_name_en, code_name_jp, description, 
+               sort_order, is_active, extra_data, created_at, updated_at
+        FROM common_codes
+        ORDER BY group_code ASC, sort_order ASC, id ASC
+    </select>
+
+    <!-- 그룹 코드로 코드 목록 조회 -->
+    <select id="findCodesByGroupCode" resultMap="CommonCodeResultMap" parameterType="String">
+        SELECT id, group_code, code, code_name, code_name_en, code_name_jp, description, 
+               sort_order, is_active, extra_data, created_at, updated_at
+        FROM common_codes
+        WHERE group_code = #{groupCode}
+        ORDER BY sort_order ASC, id ASC
+    </select>
+
+    <!-- ID로 코드 조회 -->
+    <select id="findCodeById" resultMap="CommonCodeResultMap" parameterType="Long">
+        SELECT id, group_code, code, code_name, code_name_en, code_name_jp, description, 
+               sort_order, is_active, extra_data, created_at, updated_at
+        FROM common_codes
+        WHERE id = #{id}
+    </select>
+
+    <!-- 그룹 코드와 코드값으로 조회 -->
+    <select id="findCodeByGroupAndCode" resultMap="CommonCodeResultMap">
+        SELECT id, group_code, code, code_name, code_name_en, code_name_jp, description, 
+               sort_order, is_active, extra_data, created_at, updated_at
+        FROM common_codes
+        WHERE group_code = #{groupCode} AND code = #{code}
+    </select>
+
+    <!-- 코드 추가 -->
+    <insert id="insertCode" parameterType="com.busan.orora.commoncode.dto.CommonCodeDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO common_codes (group_code, code, code_name, code_name_en, code_name_jp, description, 
+                                  sort_order, is_active, extra_data, created_at, updated_at)
+        VALUES (#{groupCode}, #{code}, #{codeName}, #{codeNameEn}, #{codeNameJp}, #{description}, 
+                #{sortOrder}, #{isActive}, #{extraData}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <!-- 코드 수정 -->
+    <update id="updateCode" parameterType="com.busan.orora.commoncode.dto.CommonCodeDto">
+        UPDATE common_codes
+        SET code_name = #{codeName},
+            code_name_en = #{codeNameEn},
+            code_name_jp = #{codeNameJp},
+            description = #{description},
+            sort_order = #{sortOrder},
+            is_active = #{isActive},
+            extra_data = #{extraData},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 코드 삭제 -->
+    <delete id="deleteCode" parameterType="Long">
+        DELETE FROM common_codes
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 그룹 코드로 모든 코드 삭제 -->
+    <delete id="deleteCodesByGroupCode" parameterType="String">
+        DELETE FROM common_codes
+        WHERE group_code = #{groupCode}
+    </delete>
+</mapper>
