@@ -2813,3 +2813,82 @@ h6 {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
 }
+
+/* ===== 클립보드 복사 알림 스타일 ===== */
+.copy-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 20px 32px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10000;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.copy-notification.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.copy-notification-icon {
+    width: 28px;
+    height: 28px;
+    background: #4caf50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.copy-notification-text {
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* 프린트 및 공유 버튼 호버 효과 */
+.middleButtons .right .print,
+.middleButtons .right .share {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.middleButtons .right .print:hover,
+.middleButtons .right .share:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+/* 프린트 시 숨길 요소들 */
+@media print {
+    .back-button-container,
+    .middleButtons .right,
+    .reviewWriteForm,
+    .modal,
+    .copy-notification,
+    .goodBad,
+    header,
+    footer,
+    nav {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+    }
+
+    #Wrapper {
+        padding: 20px !important;
+    }
+}
