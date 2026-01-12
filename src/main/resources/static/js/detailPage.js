@@ -1978,37 +1978,19 @@ async function submitComment(reviewId) {
 
             // 댓글창이 열려있었으면 다시 열기
             if (wasOpen) {
-                // 댓글 컨테이너 다시 찾기 (loadReviews 후 DOM이 재생성되었을 수 있음)
-                commentsContainer = document.getElementById(`photo-review-comments-${reviewId}`);
-                if (!commentsContainer) {
-                    const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
-                    if (reviewElement) {
-                        commentsContainer =
-                            reviewElement.querySelector('.review-comments-container') ||
-                            document.getElementById(`review-comments-${reviewId}`);
-                    }
-                }
+                // loadReviews() 후 DOM이 재생성되었으므로 toggleReviewReply를 호출하여 댓글창 다시 열기
+                await toggleReviewReply(reviewId);
 
-                if (commentsContainer) {
-                    // 댓글 목록 다시 로드
-                    await loadReviewComments(reviewId, commentsContainer);
-                    // 댓글창이 열려있도록 유지
-                    commentsContainer.style.display = 'block';
-
-                    // 폼 초기화 (댓글 목록 로드 후)
-                    const newTextarea = document.getElementById(`comment-input-${reviewId}`);
-                    const charCount = document.getElementById(`comment-char-count-${reviewId}`);
-                    if (newTextarea) {
-                        newTextarea.value = '';
-                    }
-                    if (charCount) {
-                        charCount.textContent = '0';
-                        charCount.style.color = 'var(--neutral-500)';
-                    }
+                // 폼 초기화 (댓글 목록 로드 후)
+                const newTextarea = document.getElementById(`comment-input-${reviewId}`);
+                const charCount = document.getElementById(`comment-char-count-${reviewId}`);
+                if (newTextarea) {
+                    newTextarea.value = '';
                 }
-            } else if (commentsContainer) {
-                // 댓글창이 닫혀있었어도 댓글 목록은 업데이트 (다음에 열 때 최신 댓글 표시)
-                await loadReviewComments(reviewId, commentsContainer);
+                if (charCount) {
+                    charCount.textContent = '0';
+                    charCount.style.color = 'var(--neutral-500)';
+                }
             }
         } else {
             alert('댓글 작성에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
@@ -2238,20 +2220,24 @@ async function deleteComment(commentId) {
                     ? reviewElement.getAttribute('data-review-id')
                     : null;
 
-                commentItem.remove();
+                // 댓글창이 열려있는지 확인
+                const commentsContainer = document.querySelector(
+                    `#review-comments-${reviewId}, #photo-review-comments-${reviewId}`
+                );
+                const wasOpen =
+                    commentsContainer &&
+                    commentsContainer.style.display !== 'none' &&
+                    window.getComputedStyle(commentsContainer).display !== 'none';
 
-                // 댓글 목록 다시 로드
-                if (reviewId) {
-                    const commentsContainer = document.querySelector(
-                        `#review-comments-${reviewId}, #photo-review-comments-${reviewId}`
-                    );
-                    if (commentsContainer) {
-                        await loadReviewComments(reviewId, commentsContainer);
-                    }
-                }
+                commentItem.remove();
 
                 // 리뷰 목록 새로고침 (댓글 수 업데이트)
                 await loadReviews();
+
+                // 댓글창이 열려있었으면 다시 열기
+                if (wasOpen && reviewId) {
+                    await toggleReviewReply(reviewId);
+                }
             }
         } else {
             alert('댓글 삭제에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
