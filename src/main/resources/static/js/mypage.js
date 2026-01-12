@@ -38,10 +38,10 @@ async function displayUserInfo() {
 
             // 가입일 표시
             if (userInfo.join_date) {
-                const joinDate = new Date(userInfo.join_date);
+                const joinDateStr = formatJoinDate(userInfo.join_date);
                 document.getElementById(
                     'join-date'
-                ).textContent = `가입일: ${joinDate.toLocaleDateString('ko-KR')}`;
+                ).textContent = `가입일: ${joinDateStr}`;
             } else {
                 document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
             }
@@ -464,14 +464,70 @@ function createLikeHTML(like) {
     `;
 }
 
-// 날짜 포맷팅
+// 날짜 포맷팅 (한국 시간 기준, 시간대 변환 방지)
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+    if (!dateString) return '';
+    
+    const dateStr = dateString.toString();
+    
+    // 날짜 문자열에서 직접 년/월/일 추출 (시간대 변환 없이)
+    // 지원 형식: "2026-01-12", "2026-01-12 15:26:20", "2026-01-12T15:26:20"
+    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]);
+        const day = parseInt(match[3]);
+        return `${year}년 ${month}월 ${day}일`;
+    }
+    
+    // 다른 형식의 날짜인 경우
+    try {
+        const date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+            // 한국 시간대(UTC+9)로 변환하여 표시
+            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+            const year = koreaTime.getUTCFullYear();
+            const month = koreaTime.getUTCMonth() + 1;
+            const day = koreaTime.getUTCDate();
+            return `${year}년 ${month}월 ${day}일`;
+        }
+    } catch (e) {
+        console.error('날짜 파싱 오류:', e);
+    }
+    
+    return '';
+}
+
+// 가입일 포맷팅 (한국 시간 기준)
+function formatJoinDate(dateString) {
+    if (!dateString) return '정보 없음';
+    
+    const dateStr = dateString.toString();
+    
+    // 날짜 문자열에서 직접 년/월/일 추출
+    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]);
+        const day = parseInt(match[3]);
+        return `${year}. ${month}. ${day}.`;
+    }
+    
+    // 다른 형식의 날짜인 경우
+    try {
+        const date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+            const year = koreaTime.getUTCFullYear();
+            const month = koreaTime.getUTCMonth() + 1;
+            const day = koreaTime.getUTCDate();
+            return `${year}. ${month}. ${day}.`;
+        }
+    } catch (e) {
+        console.error('날짜 파싱 오류:', e);
+    }
+    
+    return '정보 없음';
 }
 
 // 이미지 모달 열기
