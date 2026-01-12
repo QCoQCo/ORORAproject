@@ -1573,6 +1573,7 @@ h6 {
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
+    box-shadow: 0 0 0 2px var(--neutral-200);
 }
 
 .userImage > .comment-user-image {
@@ -1583,7 +1584,6 @@ h6 {
     object-fit: cover;
     border-radius: 50%;
     display: block;
-    box-shadow: 0 0 0 2px var(--neutral-200);
 }
 
 .userReview .userReviewTop .userInfo {
