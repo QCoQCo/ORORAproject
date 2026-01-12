@@ -334,7 +334,7 @@ p {
 }
 
 .theme-grid-container::-webkit-scrollbar-thumb:hover {
-    background: var(--neutral-400);
+    background: var(--neutral-500);
 }
 
 /* Theme Actions */

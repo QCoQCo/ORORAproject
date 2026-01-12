@@ -27,4 +27,5 @@ public class HashtagDto {
     private String description;
     private String hashtagList;
     private String regionsName;
+    private String categoryCode; // 카테고리 코드 (SPOT_CATEGORY)
 }

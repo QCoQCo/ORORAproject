@@ -1,5 +1,7 @@
 package com.busan.orora.hashtag.controller;
 
+import com.busan.orora.commoncode.dto.CommonCodeDto;
+import com.busan.orora.commoncode.service.CommonCodeService;
 import com.busan.orora.hashtag.dto.HashtagDto;
 import com.busan.orora.hashtag.service.HashtagService;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,15 @@ public class HashtagController {
     @Autowired
     private HashtagService hashtagService;
 
+    @Autowired
+    private CommonCodeService commonCodeService;
+
     // 화면
     @GetMapping("/tourist-spots")
     public String getTagPage(Model model) {
+        // SPOT_CATEGORY 공통코드 목록을 모델에 추가
+        List<CommonCodeDto> categories = commonCodeService.getCodesByGroupCode("SPOT_CATEGORY");
+        model.addAttribute("categories", categories);
         return "pages/search-place/tag";
     }
 
@@ -34,6 +42,12 @@ public class HashtagController {
         List<HashtagDto> hashtagDtos = hashtagService.getAllHashtags();
         List<HashtagDto> spotHashtags = hashtagService.getTouristSpotHashtags();
         
+        // 카테고리 활성 상태 캐시 (SPOT_CATEGORY 코드 그룹에서)
+        Map<String, Boolean> categoryActiveMap = new HashMap<>();
+        List<CommonCodeDto> categoryCodes = commonCodeService.getCodesByGroupCode("SPOT_CATEGORY");
+        for (CommonCodeDto code : categoryCodes) {
+            categoryActiveMap.put(code.getCode(), code.getIsActive() != null && code.getIsActive());
+        }
         
         Map<String, List<Map<String, Object>>> groupingMap = new HashMap<>();
         
@@ -51,7 +65,13 @@ public class HashtagController {
             spot.put("imageUrl", dto.getImageUrl());
             spot.put("id", dto.getId());
             spot.put("title", dto.getTitle());      
-            spot.put("description", dto.getDescription()); 
+            spot.put("description", dto.getDescription());
+            spot.put("categoryCode", dto.getCategoryCode());
+            
+            // 카테고리 활성 상태 확인
+            String categoryCode = dto.getCategoryCode();
+            boolean categoryActive = categoryCode == null || categoryActiveMap.getOrDefault(categoryCode, true);
+            spot.put("categoryActive", categoryActive);
             
             if (dto.getHashtagList() != null && !dto.getHashtagList().isEmpty()) {
                 spot.put("hashtags", dto.getHashtagList().split(", "));

@@ -41,7 +41,9 @@ public class PageController {
     @GetMapping("/pages/about-busan/busan")
     public String busan(Model model) {
         model.addAttribute("breadcrumbCurrentPage", "부산은?");
+        model.addAttribute("breadcrumbCurrentPageKey", "about.breadcrumb.what_is_busan");
         model.addAttribute("breadcrumbMenuTitle", "부산의 오늘");
+        model.addAttribute("breadcrumbMenuTitleKey", "about.breadcrumb.busan_today");
         model.addAttribute("activeMenuGroup", "busan-today");
         model.addAttribute("activeMenuItem", "busan");
         return "pages/about-busan/busan";
@@ -50,7 +52,9 @@ public class PageController {
     @GetMapping("/pages/about-busan/basisinfo")
     public String basisinfo(Model model) {
         model.addAttribute("breadcrumbCurrentPage", "기본현황");
+        model.addAttribute("breadcrumbCurrentPageKey", "about.breadcrumb.basic_info");
         model.addAttribute("breadcrumbMenuTitle", "부산의 오늘");
+        model.addAttribute("breadcrumbMenuTitleKey", "about.breadcrumb.busan_today");
         model.addAttribute("activeMenuGroup", "busan-today");
         model.addAttribute("activeMenuItem", "basisinfo");
         return "pages/about-busan/basisinfo";
@@ -59,7 +63,9 @@ public class PageController {
     @GetMapping("/pages/about-busan/goals")
     public String goals(Model model) {
         model.addAttribute("breadcrumbCurrentPage", "도시비전과 목표");
+        model.addAttribute("breadcrumbCurrentPageKey", "about.breadcrumb.vision_goals");
         model.addAttribute("breadcrumbMenuTitle", "부산의 오늘");
+        model.addAttribute("breadcrumbMenuTitleKey", "about.breadcrumb.busan_today");
         model.addAttribute("activeMenuGroup", "busan-today");
         model.addAttribute("activeMenuItem", "goals");
         return "pages/about-busan/goals";
@@ -68,7 +74,9 @@ public class PageController {
     @GetMapping("/pages/about-busan/symbol")
     public String symbol(Model model) {
         model.addAttribute("breadcrumbCurrentPage", "지역상징");
+        model.addAttribute("breadcrumbCurrentPageKey", "about.breadcrumb.regional_symbol");
         model.addAttribute("breadcrumbMenuTitle", "부산의 상징");
+        model.addAttribute("breadcrumbMenuTitleKey", "about.breadcrumb.busan_symbol");
         model.addAttribute("activeMenuGroup", "busan-symbol");
         model.addAttribute("activeMenuItem", "symbol");
         return "pages/about-busan/symbol";
@@ -77,7 +85,9 @@ public class PageController {
     @GetMapping("/pages/about-busan/character")
     public String character(Model model) {
         model.addAttribute("breadcrumbCurrentPage", "캐릭터 소개");
+        model.addAttribute("breadcrumbCurrentPageKey", "about.breadcrumb.character_intro");
         model.addAttribute("breadcrumbMenuTitle", "소통 캐릭터");
+        model.addAttribute("breadcrumbMenuTitleKey", "about.breadcrumb.communication_character");
         model.addAttribute("activeMenuGroup", "character");
         model.addAttribute("activeMenuItem", "character");
         return "pages/about-busan/character";
@@ -90,7 +100,10 @@ public class PageController {
     }
 
     @GetMapping("/pages/search-place/tag")
-    public String tag() {
+    public String tag(Model model) {
+        // SPOT_CATEGORY 공통코드 목록을 모델에 추가
+        List<CommonCodeDto> categories = commonCodeService.getCodesByGroupCode("SPOT_CATEGORY");
+        model.addAttribute("categories", categories);
         return "pages/search-place/tag";
     }
 
