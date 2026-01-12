@@ -3368,6 +3368,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // 포토리뷰 기능 초기화
     initPhotoReviews();
 
+    // 프린트 및 공유 버튼 초기화
+    initPrintAndShareButtons();
+
     // URL 파라미터가 있으면 동적 데이터 로드 (detailed.html용)
     // ID만 사용 (title 기반 검색은 사용하지 않음)
     const urlParams = new URLSearchParams(window.location.search);
@@ -3381,3 +3384,81 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 100);
     }
 });
+
+/**
+ * 프린트 및 공유 버튼 기능 초기화
+ */
+function initPrintAndShareButtons() {
+    // 프린트 버튼 클릭 이벤트
+    const printBtn = document.querySelector('.print');
+    if (printBtn) {
+        printBtn.style.cursor = 'pointer';
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+    }
+
+    // 공유(URL 복사) 버튼 클릭 이벤트
+    const shareBtn = document.querySelector('.share');
+    if (shareBtn) {
+        shareBtn.style.cursor = 'pointer';
+        shareBtn.addEventListener('click', function() {
+            const currentUrl = window.location.href;
+            
+            // Clipboard API를 사용하여 URL 복사
+            navigator.clipboard.writeText(currentUrl).then(function() {
+                // 복사 성공 시 알림 표시
+                showCopyNotification();
+            }).catch(function(err) {
+                // 구형 브라우저 대응 (fallback)
+                const textArea = document.createElement('textarea');
+                textArea.value = currentUrl;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-9999px';
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showCopyNotification();
+                } catch (e) {
+                    alert('URL 복사에 실패했습니다.');
+                }
+                document.body.removeChild(textArea);
+            });
+        });
+    }
+}
+
+/**
+ * URL 복사 완료 알림 표시
+ */
+function showCopyNotification() {
+    // 기존 알림이 있으면 제거
+    const existingNotification = document.querySelector('.copy-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    // 알림 요소 생성
+    const notification = document.createElement('div');
+    notification.className = 'copy-notification';
+    notification.innerHTML = `
+        <span class="copy-notification-icon">✓</span>
+        <span class="copy-notification-text">클립보드에 저장되었습니다!</span>
+    `;
+    
+    document.body.appendChild(notification);
+
+    // 애니메이션을 위해 약간의 지연 후 show 클래스 추가
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+
+    // 2.5초 후 알림 제거
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 2500);
+}
