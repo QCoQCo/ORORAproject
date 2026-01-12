@@ -384,7 +384,7 @@
     z-index: 10;
     display: flex;
     align-items: stretch;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, top 0.15s ease-out;
 }
 
 .list-section-sticky.hidden {

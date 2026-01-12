@@ -121,6 +121,45 @@ function initListToggle() {
     }
 }
 
+// 리스트 섹션이 hero 섹션 위로 올라가지 않도록 처리
+function initListStickyBoundary() {
+    const listSection = document.querySelector('.list-section-sticky');
+    const heroSection = document.querySelector('.hero-section');
+    
+    if (!listSection || !heroSection) return;
+    
+    // 화면 크기에 따른 기본 top 값 반환
+    function getDefaultTop() {
+        const width = window.innerWidth;
+        if (width <= 480) return 10;
+        if (width <= 768) return 10;
+        if (width <= 1024) return 15;
+        return 110;
+    }
+    
+    function updateListPosition() {
+        const heroBottom = heroSection.getBoundingClientRect().bottom;
+        const defaultTop = getDefaultTop();
+        
+        // hero 섹션의 하단이 기본 top 값보다 크면 (아직 hero가 보이면)
+        // list를 hero 아래로 밀어냄
+        if (heroBottom > defaultTop) {
+            listSection.style.top = heroBottom + 'px';
+        } else {
+            listSection.style.top = defaultTop + 'px';
+        }
+    }
+    
+    // 초기 위치 설정
+    updateListPosition();
+    
+    // 스크롤 시 위치 업데이트
+    window.addEventListener('scroll', updateListPosition, { passive: true });
+    
+    // 리사이즈 시 위치 업데이트
+    window.addEventListener('resize', updateListPosition, { passive: true });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // 컨트롤 패널 토글 기능 초기화
     initControlPanelToggle();
@@ -130,6 +169,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 리스트 토글 기능 초기화
     initListToggle();
+
+    // 리스트 섹션 스크롤 경계 초기화
+    initListStickyBoundary();
 
     // 지도 로드
     loadMap();
