@@ -299,8 +299,15 @@ async function loadUserComments(userId) {
         '<div class="loading-state"><div class="loading-spinner"></div><p>댓글을 불러오는 중...</p></div>';
 
     try {
-        // 실제 API 호출 대신 샘플 데이터 사용
-        const comments = await getSampleUserComments(userId);
+        // 실제 API 호출
+        const response = await fetch(`/api/users/${userId}/comments`);
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || '댓글을 불러오는데 실패했습니다.');
+        }
+
+        const comments = data.comments || [];
 
         if (comments.length === 0) {
             commentsList.innerHTML = `
@@ -311,11 +318,24 @@ async function loadUserComments(userId) {
                 </div>
             `;
         } else {
-            commentsList.innerHTML = comments.map((comment) => createCommentHTML(comment)).join('');
+            // API 응답 데이터를 프론트엔드 형식으로 변환
+            const formattedComments = comments.map((comment) => ({
+                id: comment.id,
+                content: comment.content,
+                review_id: comment.reviewId || comment.review_id,
+                review_title: comment.reviewTitle || comment.review_title || '제목 없음',
+                tourist_spot_id: comment.touristSpotId || comment.tourist_spot_id,
+                tourist_spot_name: comment.touristSpotName || comment.tourist_spot_name || '알 수 없는 관광지',
+                review_author_name: comment.reviewAuthorName || comment.review_author_name || '익명',
+                created_at: comment.createdAt || comment.created_at,
+            }));
+
+            commentsList.innerHTML = formattedComments.map((comment) => createCommentHTML(comment)).join('');
         }
 
         commentsCount.textContent = `${comments.length}개`;
     } catch (error) {
+        console.error('댓글 로드 오류:', error);
         commentsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -408,19 +428,19 @@ function createReviewHTML(review) {
 
 // 댓글 HTML 생성
 function createCommentHTML(comment) {
+    const reviewAuthor = comment.review_author_name ? `<span class="review-author">리뷰 작성자: ${comment.review_author_name}</span>` : '';
     return `
-        <div class="comment-item">
+        <div class="comment-item" onclick="window.location.href='/pages/detailed/detailed?id=${comment.tourist_spot_id}'">
             <div class="item-header">
-                <h3 class="item-title">${comment.review_title}</h3>
+                <h3 class="item-title">📝 ${comment.review_title}</h3>
                 <span class="item-date">${formatDate(comment.created_at)}</span>
             </div>
-            <div class="item-content">${comment.content}</div>
+            <div class="item-content">"${comment.content}"</div>
             <div class="item-meta">
-                <a href="/pages/detailed/detailed?id=${
-                    comment.tourist_spot_id
-                }" class="tourist-spot">
-                    ${comment.tourist_spot_name}
+                <a href="/pages/detailed/detailed?id=${comment.tourist_spot_id}" class="tourist-spot">
+                    📍 ${comment.tourist_spot_name}
                 </a>
+                ${reviewAuthor}
             </div>
         </div>
     `;
@@ -531,30 +551,8 @@ async function getSampleUserReviews(userId) {
     });
 }
 
-async function getSampleUserComments(userId) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                {
-                    id: 1,
-                    content: '저도 일출 보러 가봤는데 정말 환상적이었어요!',
-                    review_title: '일출이 정말 아름다워요!',
-                    tourist_spot_id: 1,
-                    tourist_spot_name: '해동 용궁사',
-                    created_at: '2024-12-15T11:00:00Z',
-                },
-                {
-                    id: 2,
-                    content: '서핑 배우고 싶었는데 좋은 정보 감사합니다!',
-                    review_title: '서핑하기 좋은 곳',
-                    tourist_spot_id: 3,
-                    tourist_spot_name: '송정해수욕장',
-                    created_at: '2024-12-10T15:30:00Z',
-                },
-            ]);
-        }, 800);
-    });
-}
+// 샘플 데이터 함수 (실제 API로 대체됨)
+// async function getSampleUserComments(userId) { ... }
 
 // async function getSampleUserLikes(userId) {
 //     return new Promise((resolve) => {

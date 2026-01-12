@@ -1028,35 +1028,38 @@ function createReviewElement(review) {
     return reviewDiv;
 }
 
-// 날짜 포맷팅 (시간대 문제 해결)
+// 날짜 포맷팅 (한국 시간 기준, 시간대 변환 방지)
 function formatDate(dateString) {
     if (!dateString) return '';
     
-    // 날짜 문자열에서 직접 파싱 (시간대 변환 방지)
-    // "2026-01-12 15:26:20" 또는 "2026-01-12T15:26:20" 형식 지원
-    let dateStr = dateString.toString();
+    const dateStr = dateString.toString();
     
-    // ISO 형식이 아닌 경우 (공백으로 구분된 경우) 처리
-    if (dateStr.includes(' ') && !dateStr.includes('T')) {
-        dateStr = dateStr.replace(' ', 'T');
+    // 날짜 문자열에서 직접 년/월/일 추출 (시간대 변환 없이)
+    // 지원 형식: "2026-01-12", "2026-01-12 15:26:20", "2026-01-12T15:26:20", "2026-01-12T15:26:20Z"
+    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]);
+        const day = parseInt(match[3]);
+        return `${year}. ${month}. ${day}`;
     }
     
-    // 시간대 정보가 없으면 로컬 시간으로 처리
-    if (!dateStr.includes('Z') && !dateStr.includes('+') && !dateStr.match(/[+-]\d{2}:\d{2}$/)) {
-        // 날짜 부분만 추출하여 직접 파싱
-        const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
-        if (match) {
-            const year = parseInt(match[1]);
-            const month = parseInt(match[2]);
-            const day = parseInt(match[3]);
+    // 다른 형식의 날짜인 경우 (예: "Jan 12, 2026")
+    try {
+        const date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+            // 한국 시간대(UTC+9)로 변환하여 표시
+            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+            const year = koreaTime.getUTCFullYear();
+            const month = koreaTime.getUTCMonth() + 1;
+            const day = koreaTime.getUTCDate();
             return `${year}. ${month}. ${day}`;
         }
+    } catch (e) {
+        console.error('날짜 파싱 오류:', e);
     }
     
-    // 기존 방식으로 폴백
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return '';
-    return date.toLocaleDateString('ko-KR').replace(/\./g, '.').slice(0, -1);
+    return '';
 }
 
 // 리뷰 없음 메시지 표시
