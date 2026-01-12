@@ -359,6 +359,79 @@
             </div>
         </div>
 
+        <!-- 리뷰 수정 모달 -->
+        <div class="modal" id="edit-review-modal">
+            <div class="modal-content edit-review-modal-content">
+                <span class="close" id="close-edit-review-modal">&times;</span>
+                <h2>리뷰 수정</h2>
+                <form id="edit-review-form">
+                    <input type="hidden" id="edit-review-id" />
+                    <div class="form-group">
+                        <label for="edit-review-title">리뷰 제목</label>
+                        <input 
+                            type="text" 
+                            id="edit-review-title" 
+                            placeholder="리뷰 제목을 입력해주세요"
+                            maxlength="50"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>별점</label>
+                        <div class="rating-input edit-rating-input">
+                            <div class="stars edit-stars">
+                                <button type="button" class="star edit-star" data-rating="1">★</button>
+                                <button type="button" class="star edit-star" data-rating="2">★</button>
+                                <button type="button" class="star edit-star" data-rating="3">★</button>
+                                <button type="button" class="star edit-star" data-rating="4">★</button>
+                                <button type="button" class="star edit-star" data-rating="5">★</button>
+                            </div>
+                            <span class="rating-text edit-rating-text">별점을 선택해주세요</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-review-content">리뷰 내용</label>
+                        <textarea 
+                            id="edit-review-content" 
+                            placeholder="이 관광지에 대한 후기를 수정해주세요. (최대 1000자)"
+                            maxlength="1000"
+                            required
+                        ></textarea>
+                        <span class="char-count"><span id="edit-review-char-count">0</span>/1000</span>
+                    </div>
+
+                    <!-- 이미지 관리 섹션 -->
+                    <div class="form-group" id="edit-images-section">
+                        <label>사진 관리</label>
+                        <div id="edit-existing-images" class="edit-images-container">
+                            <!-- 기존 이미지들이 동적으로 추가됩니다 -->
+                        </div>
+                        <div id="edit-new-images-preview" class="edit-images-container" style="display: none;">
+                            <div class="edit-new-images-header">
+                                <span>새로 추가할 사진</span>
+                                <button type="button" class="remove-all-new-images" id="remove-all-new-images">전체 삭제</button>
+                            </div>
+                            <div id="edit-new-images-container" class="edit-new-images-list">
+                                <!-- 새 이미지 미리보기들이 동적으로 추가됩니다 -->
+                            </div>
+                        </div>
+                        <input type="file" id="edit-review-image-input" accept="image/*" multiple style="display: none;" />
+                        <button type="button" class="add-image-btn" id="edit-add-image-btn">
+                            <span>📷</span> 사진 추가
+                        </button>
+                        <small class="form-hint">최대 5장까지 업로드 가능합니다.</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" id="cancel-edit-review-btn">취소</button>
+                        <button type="submit" class="submit-btn">수정 완료</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <th:block layout:fragment="script">
             <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
             <script th:src="@{/js/detailPage.js}"></script>
