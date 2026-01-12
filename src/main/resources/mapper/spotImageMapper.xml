@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.spot.mapper.SpotImageMapper">
+    <resultMap id="SpotImageResultMap" type="com.busan.orora.spot.dto.SpotImageDto">
+        <id property="id" column="id" />
+        <result property="imgName" column="img_name" />
+        <result property="oriImgName" column="ori_img_name" />
+        <result property="touristSpotId" column="tourist_spot_id" />
+        <result property="imageUrl" column="image_url" />
+        <result property="repImgYn" column="rep_img_yn" />
+        <result property="regTime" column="reg_time" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <select id="findImagesBySpotId" resultMap="SpotImageResultMap" parameterType="Long">
+        SELECT id, img_name, ori_img_name, tourist_spot_id, image_url, rep_img_yn, reg_time, update_time
+        FROM tourist_spot_images
+        WHERE tourist_spot_id = #{spotId}
+        ORDER BY rep_img_yn DESC, reg_time ASC
+    </select>
+
+    <!-- 여러 관광지의 대표 이미지(Y)만 배치 조회 - 각 spot_id당 하나만 -->
+    <select id="findRepImagesBySpotIds" resultMap="SpotImageResultMap" parameterType="list">
+        SELECT tsi.id, tsi.img_name, tsi.ori_img_name, tsi.tourist_spot_id, tsi.image_url, tsi.rep_img_yn, tsi.reg_time, tsi.update_time
+        FROM tourist_spot_images tsi
+        INNER JOIN (
+            SELECT tourist_spot_id, MIN(id) as min_id
+            FROM tourist_spot_images
+            WHERE rep_img_yn = 'Y'
+              AND tourist_spot_id IN
+            <foreach item="id" collection="spotIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            GROUP BY tourist_spot_id
+        ) first_img ON tsi.tourist_spot_id = first_img.tourist_spot_id AND tsi.id = first_img.min_id
+        WHERE tsi.rep_img_yn = 'Y'
+        ORDER BY tsi.tourist_spot_id
+    </select>
+
+    <insert id="insertImage" parameterType="com.busan.orora.spot.dto.SpotImageDto">
+        INSERT INTO tourist_spot_images (img_name, ori_img_name, tourist_spot_id, image_url, rep_img_yn)
+        VALUES (#{imgName}, #{oriImgName}, #{touristSpotId}, #{imageUrl}, #{repImgYn})
+    </insert>
+
+    <delete id="deleteImage" parameterType="Long">
+        DELETE FROM tourist_spot_images
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteImagesBySpotId" parameterType="Long">
+        DELETE FROM tourist_spot_images
+        WHERE tourist_spot_id = #{spotId}
+    </delete>
+
+    <!-- ID로 이미지 조회 -->
+    <select id="findImageById" resultMap="SpotImageResultMap" parameterType="Long">
+        SELECT id, img_name, ori_img_name, tourist_spot_id, image_url, rep_img_yn, reg_time, update_time
+        FROM tourist_spot_images
+        WHERE id = #{id}
+    </select>
+
+    <!-- 관광지의 모든 이미지 대표 여부 초기화 -->
+    <update id="resetRepImages" parameterType="Long">
+        UPDATE tourist_spot_images
+        SET rep_img_yn = 'N'
+        WHERE tourist_spot_id = #{spotId}
+    </update>
+
+    <!-- 대표 이미지 설정 -->
+    <update id="setRepImage" parameterType="Long">
+        UPDATE tourist_spot_images
+        SET rep_img_yn = 'Y'
+        WHERE id = #{id}
+    </update>
+</mapper>
