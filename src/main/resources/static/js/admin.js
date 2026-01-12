@@ -271,10 +271,21 @@ function initializeTabs() {
 function initializeEventListeners() {
     // 검색 기능
     const searchInput = document.getElementById('admin-search-input');
+    const searchBtn = document.getElementById('admin-search-btn');
     const regionFilter = document.getElementById('region-filter');
 
+    // 검색 버튼 클릭 시 검색
+    if (searchBtn) {
+        searchBtn.addEventListener('click', filterTouristSpots);
+    }
+    
+    // Enter 키로 검색
     if (searchInput) {
-        searchInput.addEventListener('input', filterTouristSpots);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                filterTouristSpots();
+            }
+        });
     }
     if (regionFilter) {
         regionFilter.addEventListener('change', filterTouristSpots);

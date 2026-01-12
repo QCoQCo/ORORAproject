@@ -229,6 +229,31 @@ public class ReviewController {
     }
 
     /**
+     * 사용자가 좋아요 누른 리뷰 목록 조회
+     * GET /api/users/{userId}/liked-reviews
+     */
+    @GetMapping("/users/{userId}/liked-reviews")
+    @ResponseBody
+    public Map<String, Object> getLikedReviewsByUserId(@PathVariable Long userId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<Map<String, Object>> reviews = reviewService.getLikedReviewsByUserId(userId);
+
+            response.put("success", true);
+            response.put("reviews", reviews);
+            response.put("totalElements", reviews.size());
+
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "좋아요 누른 리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+    /**
      * 리뷰별 댓글 목록 조회
      * GET /api/reviews/{reviewId}/comments
      */

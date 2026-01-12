@@ -126,6 +126,9 @@ async function loadUserData() {
     try {
         // 리뷰 데이터 로드
         await loadUserReviews(user.id);
+        
+        // 좋아요 누른 리뷰 데이터 로드
+        await loadLikedReviews(user.id);
 
         // 댓글 데이터 로드
         await loadUserComments(user.id);
@@ -196,6 +199,94 @@ async function loadUserReviews(userId) {
             </div>
         `;
     }
+}
+
+// 좋아요 누른 리뷰 로드
+async function loadLikedReviews(userId) {
+    const likedReviewsList = document.getElementById('liked-reviews-list');
+    const likedReviewsCount = document.getElementById('liked-reviews-count');
+
+    if (!likedReviewsList) return;
+
+    // 로딩 상태 표시
+    likedReviewsList.innerHTML =
+        '<div class="loading-state"><div class="loading-spinner"></div><p>좋아요 누른 리뷰를 불러오는 중...</p></div>';
+
+    try {
+        // API 호출
+        const response = await fetch(`/api/users/${userId}/liked-reviews`);
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || '좋아요 누른 리뷰를 불러오는데 실패했습니다.');
+        }
+
+        const reviews = data.reviews || [];
+
+        if (reviews.length === 0) {
+            likedReviewsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">❤️</div>
+                    <h3>좋아요 누른 리뷰가 없습니다</h3>
+                    <p>마음에 드는 리뷰에 좋아요를 눌러보세요!</p>
+                </div>
+            `;
+        } else {
+            // API 응답 데이터를 프론트엔드 형식으로 변환
+            const formattedReviews = reviews.map((review) => ({
+                id: review.id,
+                title: review.title,
+                content: review.content,
+                rating: review.rating,
+                tourist_spot_id: review.touristSpotId || review.tourist_spot_id,
+                tourist_spot_name:
+                    review.touristSpotName || review.tourist_spot_name || '알 수 없는 관광지',
+                created_at: review.createdAt || review.created_at,
+                author_name: review.authorName || review.author_name || '익명',
+                images: [],
+            }));
+
+            likedReviewsList.innerHTML = formattedReviews
+                .map((review) => createLikedReviewHTML(review))
+                .join('');
+        }
+
+        if (likedReviewsCount) {
+            likedReviewsCount.textContent = `${reviews.length}개`;
+        }
+    } catch (error) {
+        console.error('좋아요 누른 리뷰 로드 오류:', error);
+        likedReviewsList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">❌</div>
+                <h3>좋아요 누른 리뷰를 불러올 수 없습니다</h3>
+                <p>잠시 후 다시 시도해주세요.</p>
+            </div>
+        `;
+    }
+}
+
+// 좋아요 누른 리뷰 HTML 생성
+function createLikedReviewHTML(review) {
+    const rating = review.rating || 0;
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    const date = formatDate(review.created_at);
+    const authorName = review.author_name || '익명';
+
+    return `
+        <div class="review-item liked-review-item" onclick="window.location.href='/pages/detailed/detailed?id=${review.tourist_spot_id}'">
+            <div class="review-header">
+                <span class="review-author">👤 ${authorName}</span>
+                <span class="review-spot">${review.tourist_spot_name}</span>
+            </div>
+            <h3 class="review-title">${review.title || '제목 없음'}</h3>
+            <div class="review-rating">${stars}</div>
+            <p class="review-content">${review.content || ''}</p>
+            <div class="review-footer">
+                <span class="review-date">${date}</span>
+            </div>
+        </div>
+    `;
 }
 
 // 사용자 댓글 로드
