@@ -73,7 +73,7 @@ function initControlPanelToggle() {
 // 컨트롤 버튼 이벤트 초기화
 function initControlButtons() {
     // 전체 해제 버튼
-    const clearAllBtn = document.querySelector('.control-button.btn-secondary');
+    const clearAllBtn = document.querySelector('.control-button-compact.btn-secondary-compact');
     if (clearAllBtn) {
         clearAllBtn.addEventListener('click', function () {
             // 모든 선택 해제
@@ -97,7 +97,7 @@ function initControlButtons() {
     }
 
     // 선택된 지역 보기 버튼
-    const viewSelectedBtn = document.querySelector('.control-button.btn-primary');
+    const viewSelectedBtn = document.querySelector('.control-button-compact.btn-primary-compact');
     if (viewSelectedBtn) {
         viewSelectedBtn.addEventListener('click', function () {
             if (selectedRegionIds.size > 0) {
@@ -109,12 +109,69 @@ function initControlButtons() {
     }
 }
 
+// 리스트 섹션 토글 기능 초기화
+function initListToggle() {
+    const listToggleBtn = document.getElementById('listToggleBtn');
+    const listSection = document.querySelector('.list-section-sticky');
+
+    if (listToggleBtn && listSection) {
+        listToggleBtn.addEventListener('click', function () {
+            listSection.classList.toggle('hidden');
+        });
+    }
+}
+
+// 리스트 섹션이 hero 섹션 위로 올라가지 않도록 처리
+// function initListStickyBoundary() {
+//     const listSection = document.querySelector('.list-section-sticky');
+//     const heroSection = document.querySelector('.hero-section');
+
+//     if (!listSection || !heroSection) return;
+
+//     // 화면 크기에 따른 기본 top 값 반환
+//     function getDefaultTop() {
+//         const width = window.innerWidth;
+//         if (width <= 480) return 10;
+//         if (width <= 768) return 10;
+//         if (width <= 1024) return 15;
+//         return 110;
+//     }
+
+//     function updateListPosition() {
+//         const heroBottom = heroSection.getBoundingClientRect().bottom;
+//         const defaultTop = getDefaultTop();
+
+//         // hero 섹션의 하단이 기본 top 값보다 크면 (아직 hero가 보이면)
+//         // list를 hero 아래로 밀어냄
+//         if (heroBottom > defaultTop) {
+//             listSection.style.top = heroBottom + 'px';
+//         } else {
+//             listSection.style.top = defaultTop + 'px';
+//         }
+//     }
+
+//     // 초기 위치 설정
+//     updateListPosition();
+
+//     // 스크롤 시 위치 업데이트
+//     window.addEventListener('scroll', updateListPosition, { passive: true });
+
+//     // 리사이즈 시 위치 업데이트
+//     window.addEventListener('resize', updateListPosition, { passive: true });
+// }
+
 document.addEventListener('DOMContentLoaded', function () {
     // 컨트롤 패널 토글 기능 초기화
     initControlPanelToggle();
 
     // 컨트롤 버튼 이벤트 초기화
     initControlButtons();
+
+    // 리스트 토글 기능 초기화
+    initListToggle();
+
+    // 리스트 섹션 스크롤 경계 초기화
+    // initListStickyBoundary();
 
     // 지도 로드
     loadMap();
@@ -186,8 +243,6 @@ function bindRegionClick() {
                 region.classList.add('selected');
             }
 
-            console.log('선택된 지역:', [...selectedRegionIds]);
-
             fetchRegionSpots([...selectedRegionIds]);
             updateSelectionInfo();
         });
@@ -217,8 +272,7 @@ async function fetchRegionSpots(regionIds) {
         const res = await fetch(`/api/regions/spots?regionIds=${query}`);
         if (!res.ok) throw new Error('API 요청 실패');
 
-        const spots = await res.json();
-        console.log('API 응답:', spots);
+        const spots = await res.json();;
 
         await renderSpotList(spots);
     } catch (e) {
@@ -274,6 +328,7 @@ async function renderSpotList(spots) {
                     link: spot.linkUrl || spot.link_url || '#',
                     categoryCode: spot.categoryCode || spot.category_code || 'culture',
                     isActive: spot.isActive !== false,
+                    categoryActive: spot.categoryActive !== false,
                 };
             });
 
@@ -320,10 +375,21 @@ async function renderSpotList(spots) {
 function updateSelectionInfo() {
     const info = document.getElementById('selection-info');
     if (!info) return;
+    
+    const regionName = new Set();
+    selectedRegionIds.forEach((id) => {
+        const regionElement = document.querySelector(`.c-click[sigungu-code="${id}"]`);
+        if (regionElement) {
+            const name = regionElement.getAttribute('sigungu-name');
+            if (name) {
+                regionName.add(name);
+            }
+        }
+    });
 
     if (selectedRegionIds.size === 0) {
         info.textContent = '지역을 클릭해 선택하세요.';
     } else {
-        info.textContent = `선택된 지역 수: ${selectedRegionIds.size}`;
+        info.textContent = `선택된 지역 목록 (${selectedRegionIds.size}) : ${[...regionName].join(', ')}`;
     }
 }

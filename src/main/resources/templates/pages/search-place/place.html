@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}" lang="ko">
+<html
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/layout}"
+    lang="ko"
+>
     <head>
         <title layout:fragment="title" data-translate="place.title">searchByPlace</title>
         <th:block layout:fragment="css">
@@ -11,7 +15,6 @@
     </head>
     <body>
         <div layout:fragment="content">
-
             <!-- Hero Section -->
             <section class="hero-section">
                 <div class="hero-background"></div>
@@ -24,95 +27,87 @@
             </section>
 
             <section class="search-place">
-                <div class="container">
-                    <!-- 지역 선택 컨트롤 패널 -->
-                    <div class="control-panel">
-                        <div class="control-toggle">
-                            <button class="toggle-button" id="controlToggle">
-                                <span class="toggle-text" data-translate="place.control_toggle"
-                                    >지역 선택 옵션</span
-                                >
-                                <span class="toggle-icon">▼</span>
-                            </button>
-                        </div>
-                        <div class="control-content" id="controlContent">
-                            <div class="control-header">
-                                <div class="control-description">
-                                    <p id="selection-info" data-translate="place.selection_info">
-                                        지도에서 지역을 클릭하여 선택/해제할 수 있습니다.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="control-buttons">
-                                <button
-                                    class="control-button btn-secondary"
-                                    data-translate="place.clear_all"
-                                >
-                                    전체 해제
-                                </button>
-                                <button
-                                    class="control-button btn-primary"
-                                    data-translate="place.view_selected"
-                                >
-                                    선택된 지역 보기
-                                </button>
-                            </div>
-                        </div>
+                <!-- 지도 섹션 (전체 화면) -->
+                <div class="map-fullscreen">
+                    <div class="wave-background"></div>
+                    <div id="map-container">
+                        <svg
+                            id="mapSvg"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="100%"
+                            height="100%"
+                            version="1.1"
+                            viewBox="0 0 1000 820"
+                        ></svg>
                     </div>
+                </div>
 
-                    <!-- 메인 컨텐츠 -->
-                    <div class="main-content">
-                        <div class="content-grid">
-                            <!-- 지도 섹션 -->
-                            <div class="map-section">
-                                <div class="map-card">
-                                    <div class="map-header">
-                                        <h3 data-translate="place.busan_region_map">
-                                            부산 지역 지도
-                                        </h3>
-                                        <p data-translate="place.click_region_desc">
-                                            지역을 클릭하여 관광지를 확인하세요
+                <!-- 리스트 섹션 (오른쪽 sticky) -->
+                <div class="list-section-sticky">
+                    <button
+                        class="list-toggle-btn"
+                        id="listToggleBtn"
+                        aria-label="리스트 숨기기/보이기"
+                    >
+                        <span class="toggle-arrow">▶</span>
+                    </button>
+                    <div class="list-card">
+                        <div class="list-header">
+                            <p id="region-subtitle">
+                                지도에서 지역을 클릭하면 해당 지역의 관광지를 확인할 수 있습니다.
+                            </p>
+                            <!-- 지역 선택 컨트롤 (작게) -->
+                            <div class="control-panel-compact">
+                                <div class="control-toggle-compact">
+                                    <button class="toggle-button-compact" id="controlToggle">
+                                        <span
+                                            class="toggle-text-compact"
+                                            data-translate="place.control_toggle"
+                                            >지역 선택 옵션</span
+                                        >
+                                        <span class="toggle-icon-compact">▼</span>
+                                    </button>
+                                </div>
+                                <div class="control-content-compact" id="controlContent">
+                                    <div class="control-description-compact">
+                                        <p
+                                            id="selection-info"
+                                            data-translate="place.selection_info"
+                                        >
+                                            지도에서 지역을 클릭하여 선택/해제할 수 있습니다.
                                         </p>
                                     </div>
-                                    <div id="map-container">
-                                        <svg
-                                            id="mapSvg"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="100%"
-                                            height="100%"
-                                            version="1.1"
-                                            viewBox="0 0 1000 820"
-                                        ></svg>
+                                    <div class="control-buttons-compact">
+                                        <button
+                                            class="control-button-compact btn-secondary-compact"
+                                            data-translate="place.clear_all"
+                                        >
+                                            전체 해제
+                                        </button>
+                                        <button
+                                            class="control-button-compact btn-primary-compact"
+                                            data-translate="place.view_selected"
+                                        >
+                                            선택된 지역 보기
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- 리스트 섹션 -->
-                            <div class="list-section">
-                                <div class="list-card">
-                                    <div class="list-header">
-                                        <h3 data-translate="place.busan_attractions">
-                                            부산 관광지
-                                        </h3>
-                                        <p id="region-subtitle">
-                                            지도에서 지역을 클릭하면 해당 지역의 관광지를 확인할 수
-                                            있습니다.
-                                        </p>
-                                    </div>
-                                    <div class="list-content">
-                                        <ul class="list-item" id="tourist-spots-list">
-                                            <!-- 관광지 리스트가 여기에 동적으로 추가됩니다 -->
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="list-content">
+                            <ul class="list-item" id="tourist-spots-list">
+                                <!-- 관광지 리스트가 여기에 동적으로 추가됩니다 -->
+                            </ul>
                         </div>
                     </div>
                 </div>
             </section>
 
             <!-- 템플릿 컨테이너 -->
-            <div id="list-template-container" th:replace="~{components/list-item.html :: list-item-template}"></div>
+            <div
+                id="list-template-container"
+                th:replace="~{components/list-item.html :: list-item-template}"
+            ></div>
         </div>
         <th:block layout:fragment="script">
             <script th:src="@{/js/list-loader.js}"></script>

@@ -1,5 +1,6 @@
 package com.busan.orora.review.controller;
 
+import com.busan.orora.like.service.ReviewLikeService;
 import com.busan.orora.review.dto.ReviewDto;
 import com.busan.orora.review.service.ReviewService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,17 +20,32 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
+    @Autowired
+    private ReviewLikeService reviewLikeService;
+
     /**
      * 관광지별 리뷰 목록 조회
-     * GET /api/reviews?touristSpotId={spotId}
+     * GET /api/reviews?touristSpotId={spotId}&userId={userId}
+     * userId는 선택적 파라미터로, 제공되면 각 리뷰에 대한 좋아요 여부를 함께 반환
      */
     @GetMapping("/reviews")
     @ResponseBody
-    public Map<String, Object> getReviewsBySpotId(@RequestParam Long touristSpotId) {
+    public Map<String, Object> getReviewsBySpotId(
+            @RequestParam Long touristSpotId,
+            @RequestParam(required = false) Long userId) {
         Map<String, Object> response = new HashMap<>();
 
         try {
             List<Map<String, Object>> reviews = reviewService.getReviewsBySpotId(touristSpotId);
+
+            // 로그인한 사용자가 있으면 각 리뷰에 대한 좋아요 여부 추가
+            if (userId != null) {
+                for (Map<String, Object> review : reviews) {
+                    Long reviewId = ((Number) review.get("id")).longValue();
+                    boolean isLiked = reviewLikeService.existsReviewLike(userId, reviewId);
+                    review.put("isLiked", isLiked);
+                }
+            }
 
             response.put("success", true);
             response.put("content", reviews);
@@ -188,6 +204,105 @@ public class ReviewController {
     }
 
     /**
+     * 리뷰 수정
+     * PUT /api/reviews/{id}
+     * multipart/form-data 지원 (이미지 수정 가능)
+     */
+    @PutMapping("/reviews/{id}")
+    @ResponseBody
+    public Map<String, Object> updateReview(
+            @PathVariable Long id,
+            @RequestParam(value = "userId") Long userId,
+            @RequestParam(value = "title") String title,
+            @RequestParam(value = "content") String content,
+            @RequestParam(value = "rating") Integer rating,
+            @RequestParam(value = "deleteImageIds", required = false) String deleteImageIdsJson,
+            @RequestParam(value = "images", required = false) MultipartFile[] images) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 유효성 검사
+            if (userId == null) {
+                response.put("success", false);
+                response.put("message", "사용자 정보가 필요합니다.");
+                return response;
+            }
+            if (title == null || title.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "제목을 입력해주세요.");
+                return response;
+            }
+            if (content == null || content.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "내용을 입력해주세요.");
+                return response;
+            }
+            if (rating == null || rating < 1 || rating > 5) {
+                response.put("success", false);
+                response.put("message", "평점은 1~5 사이의 값이어야 합니다.");
+                return response;
+            }
+
+            // 삭제할 이미지 ID 파싱
+            List<Long> deleteImageIds = new java.util.ArrayList<>();
+            if (deleteImageIdsJson != null && !deleteImageIdsJson.isEmpty()) {
+                try {
+                    // JSON 배열 파싱 [1, 2, 3]
+                    String cleaned = deleteImageIdsJson.replaceAll("[\\[\\]\\s]", "");
+                    if (!cleaned.isEmpty()) {
+                        String[] idStrings = cleaned.split(",");
+                        for (String idStr : idStrings) {
+                            if (!idStr.trim().isEmpty()) {
+                                deleteImageIds.add(Long.valueOf(idStr.trim()));
+                            }
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // 파싱 오류 무시
+                }
+            }
+
+            // 리뷰 수정 (이미지 삭제 및 추가 포함)
+            reviewService.updateReviewWithImages(id, userId, title.trim(), content.trim(), rating, deleteImageIds, images);
+
+            response.put("success", true);
+            response.put("message", "리뷰가 성공적으로 수정되었습니다.");
+
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "리뷰 수정 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+    /**
+     * 리뷰 삭제
+     * DELETE /api/reviews/{id}
+     */
+    @DeleteMapping("/reviews/{id}")
+    @ResponseBody
+    public Map<String, Object> deleteReview(@PathVariable Long id, @RequestParam Long userId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 리뷰 삭제
+            reviewService.deleteReview(id, userId);
+
+            response.put("success", true);
+            response.put("message", "리뷰가 성공적으로 삭제되었습니다.");
+
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "리뷰 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+    /**
      * 사용자별 리뷰 목록 조회
      * GET /api/users/{userId}/reviews
      */
@@ -207,6 +322,56 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+    /**
+     * 사용자가 좋아요 누른 리뷰 목록 조회
+     * GET /api/users/{userId}/liked-reviews
+     */
+    @GetMapping("/users/{userId}/liked-reviews")
+    @ResponseBody
+    public Map<String, Object> getLikedReviewsByUserId(@PathVariable Long userId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<Map<String, Object>> reviews = reviewService.getLikedReviewsByUserId(userId);
+
+            response.put("success", true);
+            response.put("reviews", reviews);
+            response.put("totalElements", reviews.size());
+
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "좋아요 누른 리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+    /**
+     * 사용자별 댓글 목록 조회
+     * GET /api/users/{userId}/comments
+     */
+    @GetMapping("/users/{userId}/comments")
+    @ResponseBody
+    public Map<String, Object> getCommentsByUserId(@PathVariable Long userId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<Map<String, Object>> comments = reviewService.getCommentsByUserId(userId);
+
+            response.put("success", true);
+            response.put("comments", comments);
+            response.put("totalElements", comments.size());
+
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "댓글을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
             e.printStackTrace();
             return response;
         }

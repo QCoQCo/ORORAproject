@@ -75,6 +75,28 @@
                         </div>
                     </div>
 
+                    <!-- 카테고리 섹션 -->
+                    <div class="category-section">
+                        <h3>카테고리</h3>
+                        <div class="category-grid" id="category-grid">
+                            <!-- 전체 카테고리 -->
+                            <button type="button" class="category-item active" data-category="all">
+                                <span class="category-name">전체</span>
+                            </button>
+                            <!-- 공통코드 카테고리 -->
+                            <th:block th:if="${categories != null and !categories.empty}">
+                                <th:block th:each="category : ${categories}">
+                                    <button type="button" class="category-item" 
+                                            th:if="${category.isActive}"
+                                            th:data-category="${category.code}"
+                                            th:title="${category.description}">
+                                        <span class="category-name" th:text="${category.codeName}">카테고리명</span>
+                                    </button>
+                                </th:block>
+                            </th:block>
+                        </div>
+                    </div>
+
                     <!-- 인기 태그 섹션 -->
                     <div class="popular-tags-section">
                         <h3 data-translate="tag.popular_tags">인기 태그</h3>

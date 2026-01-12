@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.busan.orora.common.service.FileService;
+import com.busan.orora.commoncode.service.CommonCodeService;
+import com.busan.orora.commoncode.dto.CommonCodeDto;
 import org.springframework.beans.factory.annotation.Value;
 import java.io.File;
 import java.time.LocalDateTime;
@@ -26,6 +28,9 @@ public class UserService {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private CommonCodeService commonCodeService;
 
     @Value("${file.upload.profileImgLocation}")
     private String profileImgLocation;
@@ -82,6 +87,12 @@ public class UserService {
         UserDto user = userMapper.findByLoginId(loginId);
 
         if (user != null && passwordEncoder.matches(password, user.getPasswordHash())) {
+            // 사용자 역할이 비활성화되었는지 확인
+            if (user.getRoleCode() != null && !isRoleActive(user.getRoleCode())) {
+                // 역할이 비활성화된 경우 로그인 불가
+                return null;
+            }
+            
             // 마지막 로그인 시간 업데이트
             user.setLastLogin(LocalDateTime.now());
             userMapper.updateLastLogin(user.getId(), user.getLastLogin());
@@ -89,6 +100,19 @@ public class UserService {
         }
 
         return null;
+    }
+    
+    /**
+     * 역할 코드가 활성화되어 있는지 확인
+     */
+    private boolean isRoleActive(String roleCode) {
+        try {
+            CommonCodeDto roleCodeDto = commonCodeService.getCodeByGroupAndCode("USER_ROLE", roleCode);
+            return roleCodeDto != null && roleCodeDto.getIsActive() != null && roleCodeDto.getIsActive();
+        } catch (Exception e) {
+            // 오류 발생 시 기본적으로 활성으로 간주
+            return true;
+        }
     }
 
     public boolean isLoginIdExists(String loginId) {
