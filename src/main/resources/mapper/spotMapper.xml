@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.spot.mapper.SpotMapper">
+    <resultMap id="SpotResultMap" type="com.busan.orora.spot.dto.SpotDto">
+        <id property="id" column="id" />
+        <result property="regionId" column="region_id" />
+        <result property="title" column="title" />
+        <result property="description" column="description" />
+        <result property="linkUrl" column="link_url" />
+        <result property="categoryCode" column="category_code" />
+        <result property="latitude" column="latitude" />
+        <result property="longitude" column="longitude" />
+        <result property="address" column="address" />
+        <result property="isActive" column="is_active" />
+        <result property="viewCount" column="view_count" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <select id="findAllSpots" resultMap="SpotResultMap">
+        SELECT id, region_id, title, description, link_url, category_code, latitude, longitude, address,
+               is_active, view_count, created_at, updated_at
+        FROM tourist_spots
+        WHERE is_active = TRUE
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findSpotsByRegion" resultMap="SpotResultMap" parameterType="Long">
+        SELECT id, region_id, title, description, link_url, category_code, latitude, longitude, address,
+               is_active, view_count, created_at, updated_at
+        FROM tourist_spots
+        WHERE region_id = #{regionId}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findSpotById" resultMap="SpotResultMap" parameterType="Long">
+        SELECT id, region_id, title, description, link_url, category_code, latitude, longitude, address,
+               is_active, view_count, created_at, updated_at
+        FROM tourist_spots
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insertSpot" parameterType="com.busan.orora.spot.dto.SpotDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tourist_spots (region_id, title, description, link_url, category_code, latitude, longitude, address, is_active, view_count)
+        VALUES (#{regionId}, #{title}, #{description}, #{linkUrl}, #{categoryCode}, #{latitude}, #{longitude}, #{address}, #{isActive}, #{viewCount})
+    </insert>
+
+    <update id="updateSpot" parameterType="com.busan.orora.spot.dto.SpotDto">
+        UPDATE tourist_spots
+        SET region_id = #{regionId},
+            title = #{title},
+            description = #{description},
+            link_url = #{linkUrl},
+            category_code = #{categoryCode},
+            latitude = #{latitude},
+            longitude = #{longitude},
+            address = #{address},
+            is_active = #{isActive}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteSpot" parameterType="Long">
+        DELETE FROM tourist_spots
+        WHERE id = #{id}
+    </delete>
+</mapper>
