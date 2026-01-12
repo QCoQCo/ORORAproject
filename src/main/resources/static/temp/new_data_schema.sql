@@ -218,6 +218,11 @@ CREATE TABLE spot_requests (
     link_url VARCHAR(500) COMMENT '링크 URL (관광지 추가 신청의 경우)',
     hashtags TEXT COMMENT '해시태그 (쉼표로 구분, 관광지 추가 신청의 경우)',
     
+    -- 위치 정보 필드 (관광지 추가 신청 시 사용)
+    latitude DECIMAL(10, 8) COMMENT '위도 (카카오맵 위치 정보)',
+    longitude DECIMAL(11, 8) COMMENT '경도 (카카오맵 위치 정보)',
+    address VARCHAR(200) COMMENT '주소',
+    
     -- 공통 필드
     description TEXT COMMENT '신청 설명',
     status VARCHAR(50) DEFAULT 'pending' COMMENT '신청 상태: pending(대기중), approved(승인됨), rejected(거부됨)',
@@ -247,7 +252,7 @@ CREATE TABLE comment_reports (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (comment_id) REFERENCES review_comments(id) ON DELETE CASCADE,
     UNIQUE KEY unique_user_comment_report (user_id, comment_id),
-    INDEX idx_comment_id (comment_id),ㅗ
+    INDEX idx_comment_id (comment_id),
     INDEX idx_user_id (user_id),
     INDEX idx_status_code (status_code)
 );
@@ -283,6 +288,16 @@ DESCRIBE tourist_spots;
 
 -- 위도/경도 인덱스 추가
 ALTER TABLE tourist_spots ADD INDEX idx_latitude_longitude (latitude, longitude);
+
+-- spot_requests 테이블에 위치 정보 컬럼 추가 (관광지 추가 신청 시 사용)
+ALTER TABLE spot_requests 
+ADD COLUMN latitude DECIMAL(10, 8) COMMENT '위도 (카카오맵 위치 정보)' AFTER hashtags,
+ADD COLUMN longitude DECIMAL(11, 8) COMMENT '경도 (카카오맵 위치 정보)' AFTER latitude,
+ADD COLUMN address VARCHAR(200) COMMENT '주소' AFTER longitude;
+
+ALTER TABLE spot_requests MODIFY COLUMN latitude DECIMAL(10, 8) COMMENT '위도 (카카오맵 위치 정보)' AFTER hashtags;
+ALTER TABLE spot_requests MODIFY COLUMN longitude DECIMAL(11, 8) COMMENT '경도 (카카오맵 위치 정보)' AFTER latitude;
+ALTER TABLE spot_requests MODIFY COLUMN address VARCHAR(200) COMMENT '주소' AFTER longitude;
 
 
 -- -- 7. 축제/이벤트 테이블

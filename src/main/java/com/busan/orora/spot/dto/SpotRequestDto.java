@@ -53,6 +53,11 @@ public class SpotRequestDto {
     private Long regionId;
     private String linkUrl;
     private String hashtags; // 쉼표로 구분된 해시태그 문자열
+    
+    // 위치 정보 필드 (관광지 추가 신청 시 사용)
+    private Double latitude;  // 위도
+    private Double longitude; // 경도
+    private String address;   // 주소
 
     // 공통 필드
     private String description;
