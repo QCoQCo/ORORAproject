@@ -1,0 +1,50 @@
+[
+  {
+    "img": "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20241215_138%2F1734249223427jJSEF_JPEG%2FKakaoTalk_Photo_2024-12-15-16-50-32_001.jpeg",
+    "title": "감성적인 카페",
+    "description": "부산시 해운대구",
+    "hashtags": ["#부산카페", "#감성", "#데이트코스"]
+  },
+  {
+    "img": "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDA5MTlfOTMg%2FMDAxNzI2NjkwNTcwMDcy.Pqlv1MHL055GVEIu06MiC0lAYZN5oVLlSFijsvz8-0gg.I5iiBgbApMPq4vUNaQQxlZxPftyOedrHzHjl9xsTAAog.JPEG%2F20240918%25A3%25DF174419.jpg&type=sc960_832",
+    "title": "광안리 해수욕장",
+    "description": "부산시 수영구",
+    "hashtags": ["#바다", "#광안대교", "#야경"]
+  },
+  {
+    "img": "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTAyMjJfMTQ1%2FMDAxNzQwMjE1NTcyOTgz.A5_bpb4e73ORFGxRYXZatEzVZq7zigeFeaxIQr0jrjEg.Kv8qj3ewpTmnFbm3_VYqDBNNhzK_RJ-PXgqmdutzG8gg.JPEG%2F%25C0%25CC%25B9%25CC%25C1%25F6.jpeg",
+    "title": "흰여울문화마을",
+    "description": "부산시 영도구",
+    "hashtags": ["#산책", "#바다뷰", "#사진스팟"]
+  },
+  {
+    "img": "https://search.pstatic.net/common/?src=https%3A%2F%2Fpup-review-phinf.pstatic.net%2FMjAyNDEyMTFfMzAw%2FMDAxNzMzODc5NDYxODI4.gCTciERd1jkRTMcfb0TRLUZHVNLqEAIgjxPV2sYnnWcg.Si8I-jyK1lJxjY3VeYIVgcWrTOqkgPZeXPgupklr3kYg.JPEG%2F1000130077.jpg.jpg%3Ftype%3Dw1500_60_sharpen",
+    "title": "자갈치 시장",
+    "description": "부산시 중구",
+    "hashtags": ["#시장", "#해산물", "#먹거리"]
+  },
+  {
+    "img": "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTA1MDlfODcg%2FMDAxNzQ2NzU5MjA0Mzc2.128OP3opdiuHQKSigsDlBwaNDagog0xYZ6xHk5wwHDAg.8aSZReYQU40m3LDMBQydUGyv9W6puBFL_xxS7lh6Eb0g.JPEG%2FKakaoTalk_20250508_094340080_18.jpg",
+    "title": "해동 용궁사",
+    "description": "부산시 기장군",
+    "hashtags": ["#절", "#관광지", "#오션뷰"]
+  },
+  {
+    "img": "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20200212_147%2F1581487911868NYGo5_JPEG%2FqZZib0-McoIMT7eNawSvwg59.jpg",
+    "title": "더베이 101",
+    "description": "부산시 해운대구",
+    "hashtags": ["#야경", "#도시", "#핫플"]
+  },
+  {
+    "img": "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTAxMTRfODEg%2FMDAxNzM2NzgyNjgyNjI0.RHwgfyl1TORwpjcGifMHcQjW3Vv89VmLAxgAoxFDmLkg.a_S1v4DKfpr_voDbRiOS-XBd3etzevAnsWLkYcjgWp4g.JPEG%2FSDIM0032.jpg&type=sc960_832",
+    "title": "감천문화마을",
+    "description": "부산시 사하구",
+    "hashtags": ["#골목", "#알록달록", "#어린왕자"]
+  },
+  {
+    "img": "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDAzMThfMTUg%2FMDAxNzEwNzQxNjI1NDQ5.I2bdpPCUSIZN0FAaz-aKNZW4fQ5I4RgBMyw9ZEX-J8kg.x_Yr5bqEWyzly6uZrOSImj13goKFGe0h1rs3eM15p2Eg.JPEG%2F20240301_142000.jpg&type=sc960_832",
+    "title": "송도 해상 케이블카",
+    "description": "부산시 서구",
+    "hashtags": ["#케이블카", "#바다위", "#스카이워크"]
+  }
+] 

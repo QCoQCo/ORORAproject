@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+    <head>
+        <title layout:fragment="title">통합 검색 결과</title>
+        <th:block layout:fragment="css">
+            <link rel="stylesheet" th:href="@{/css/search.css}" />
+            <link rel="stylesheet" th:href="@{/css/list-component.css}" />
+            <link rel="stylesheet" th:href="@{/css/loading-animation.css}" />
+        </th:block>
+    </head>
+
+    <body>
+        <div layout:fragment="content">
+            <section class="search-section">
+                <div class="container">
+                    <h2 class="page-title">검색 결과</h2>
+
+                    <!-- 검색어 표시 -->
+                    <div class="search-keyword-section">
+                        <div class="search-input-group">
+                            <input
+                                type="text"
+                                name="search_keyword"
+                                id="search-keyword"
+                                placeholder="검색어를 입력하세요..."
+                                class="search-input"
+                            />
+                            <button
+                                type="button"
+                                class="search-btn"
+                                id="search-btn"
+                            >
+                                검색
+                            </button>
+                        </div>
+                        <div class="keyword-display" id="keyword-display" style="display: none;">
+                            <span class="keyword-label">검색어:</span>
+                            <span class="keyword-value" id="keyword-value"></span>
+                            <span class="result-count" id="result-count">(0개 결과)</span>
+                        </div>
+                    </div>
+
+                    <!-- 검색 결과 탭 -->
+                    <div class="search-tabs" id="search-tabs">
+                        <button class="tab-btn active" data-tab="all">전체</button>
+                        <button class="tab-btn" data-tab="spots">관광지</button>
+                        <button class="tab-btn" data-tab="reviews">리뷰</button>
+                        <button class="tab-btn" data-tab="hashtags">태그</button>
+                        <button class="tab-btn" data-tab="comments">댓글</button>
+                    </div>
+
+                    <!-- 검색 결과 영역 -->
+                    <div class="search-results" id="search-results">
+                        <!-- 관광지 결과 -->
+                        <div class="result-category" id="spots-results" style="display: none;">
+                            <h3 class="category-title">
+                                <span>관광지</span>
+                                <span class="count-badge" id="spots-count">0</span>
+                            </h3>
+                            <div class="results-grid" id="spots-grid">
+                                <!-- 동적으로 생성됩니다 -->
+                            </div>
+                        </div>
+
+                        <!-- 리뷰 결과 -->
+                        <div class="result-category" id="reviews-results" style="display: none;">
+                            <h3 class="category-title">
+                                <span>리뷰</span>
+                                <span class="count-badge" id="reviews-count">0</span>
+                            </h3>
+                            <div class="results-list" id="reviews-list">
+                                <!-- 동적으로 생성됩니다 -->
+                            </div>
+                        </div>
+
+                        <!-- 태그 결과 -->
+                        <div class="result-category" id="hashtags-results" style="display: none;">
+                            <h3 class="category-title">
+                                <span>태그</span>
+                                <span class="count-badge" id="hashtags-count">0</span>
+                            </h3>
+                            <div class="tags-grid" id="hashtags-grid">
+                                <!-- 동적으로 생성됩니다 -->
+                            </div>
+                        </div>
+
+                        <!-- 댓글 결과 -->
+                        <div class="result-category" id="comments-results" style="display: none;">
+                            <h3 class="category-title">
+                                <span>댓글</span>
+                                <span class="count-badge" id="comments-count">0</span>
+                            </h3>
+                            <div class="results-list" id="comments-list">
+                                <!-- 동적으로 생성됩니다 -->
+                            </div>
+                        </div>
+
+                        <!-- 검색 결과 없음 -->
+                        <div class="no-results" id="no-results" style="display: none;">
+                            <p>검색 결과가 없습니다.</p>
+                            <p class="no-results-hint">다른 검색어로 시도해보세요.</p>
+                        </div>
+
+                        <!-- 로딩 중 -->
+                        <div class="loading-results" id="loading-results" style="display: none;">
+                            <p>검색 중...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <th:block layout:fragment="script">
+            <script th:src="@{/js/search.js}"></script>
+        </th:block>
+    </body>
+</html>

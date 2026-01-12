@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.busan.orora.like.mapper.SpotLikeMapper">
+    <!-- TODO: 관광지 좋아요 관련 SQL 쿼리 구현 -->
+
+    <!-- 관광지 좋아요 추가 -->
+    <insert id="addSpotLike" parameterType="com.busan.orora.like.dto.SpotLikeDto">
+        INSERT INTO tourist_spot_likes (user_id, tourist_spot_id)
+        VALUES (#{userId}, #{spotId})
+    </insert>
+
+    <!-- 관광지 좋아요 삭제 -->
+    <delete id="deleteSpotLike" parameterType="com.busan.orora.like.dto.SpotLikeDto">
+        DELETE FROM tourist_spot_likes
+        WHERE user_id = #{userId} AND tourist_spot_id = #{spotId}
+    </delete>            
+
+    <!-- 관광지 좋아요 존재 여부 확인 -->
+    <select id="existsSpotLike" resultType="int">
+        SELECT  COUNT(*)
+        FROM    tourist_spot_likes
+        WHERE   user_id = #{userId} AND tourist_spot_id = #{spotId}
+    </select>
+
+    <!-- 유저가 좋아요 한 관광지 목록 조회 -->
+    <select id="searchSpotLikeListByUser" resultType="SearchSpotLikeListByUserDto">
+        SELECT  tsl.tourist_spot_id AS spotId
+                , ts.title AS title
+                , ts.description AS description
+                , tsl.created_at AS likedAt
+        FROM	tourist_spot_likes tsl	JOIN	tourist_spots ts    ON  tsl.tourist_spot_id = ts.id
+        WHERE	tsl.user_id = #{userId}
+        ORDER BY tsl.created_at DESC
+    </select>
+
+    <!-- 관광지 좋아요 수 조회 -->
+    <select id="countSpotLikesBySpotId" resultType="int">
+        SELECT	count(*)
+        FROM	tourist_spot_likes
+        WHERE	tourist_spot_id = #{spotId}
+    </select>
+
+</mapper>
