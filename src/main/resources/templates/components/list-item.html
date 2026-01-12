@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- List Item Template Fragment -->
+    <!-- 이 템플릿은 JavaScript에서 사용되므로 <template> 태그를 유지합니다 -->
+    <div th:fragment="list-item-template">
+        <template id="list-item">
+            <li class="item">
+                <div class="item-content">
+                    <a href="" class="item-link">
+                        <div class="item-photo">
+                            <p><img src="" alt="" /></p>
+                            <p class="like">
+                                <button class="likeBtn"></button>
+                            </p>
+                        </div>
+                        <div class="item-info">
+                            <p class="item-title"></p>
+                            <p class="item-description"></p>
+                            <p class="hash-tag"></p>
+                        </div>
+                    </a>
+                </div>
+            </li>
+        </template>
+    </div>
+</body>
+</html>
