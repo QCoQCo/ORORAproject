@@ -77,4 +77,7 @@ public interface ReviewMapper {
 
     // 리뷰 이미지 조회
     List<Map<String, Object>> findReviewImagesByReviewId(@Param("reviewId") Long reviewId);
+
+    // 리뷰 이미지 삭제
+    void deleteReviewImage(@Param("imageId") Long imageId);
 }
