@@ -243,6 +243,9 @@ public class SpotController {
             @RequestParam(value = "linkUrl", required = false) String linkUrl,
             @RequestParam(value = "hashtags", required = false) String hashtags,
             @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "latitude", required = false) Double latitude,
+            @RequestParam(value = "longitude", required = false) Double longitude,
+            @RequestParam(value = "address", required = false) String address,
             @RequestPart(value = "image", required = false) MultipartFile image,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         Map<String, Object> response = new HashMap<>();
@@ -307,6 +310,11 @@ public class SpotController {
             requestDto.setImgName(imgName);
             requestDto.setOriImgName(oriImgName);
             requestDto.setStatus("pending");
+            
+            // 위치 정보 설정
+            requestDto.setLatitude(latitude);
+            requestDto.setLongitude(longitude);
+            requestDto.setAddress(address);
 
             // 4. DB에 저장
             spotRequestService.addRequest(requestDto);

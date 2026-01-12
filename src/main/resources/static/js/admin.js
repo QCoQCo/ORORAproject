@@ -2703,7 +2703,9 @@ function openSpotRequestApprovalModal(requestId) {
         // 지역 선택 (신청에 지역 정보가 있으면 설정)
         if (regionSelect) {
             if (request.regionId) {
-                regionSelect.value = request.regionId;
+                // regionId를 area01 형식으로 변환
+                const regionKey = `area${String(request.regionId).padStart(2, '0')}`;
+                regionSelect.value = regionKey;
             } else {
                 regionSelect.value = 'area01'; // 기본값
             }
@@ -2770,8 +2772,31 @@ function openSpotRequestApprovalModal(requestId) {
         const newImagesInput = document.getElementById('edit-spot-new-images');
         if (newImagesInput) newImagesInput.value = '';
 
-        // 위치 정보 초기화
-        clearLocationSelection();
+        // 위치 정보 설정 (신청에 위치 정보가 있으면 사용)
+        if (request.latitude && request.longitude) {
+            // 신청자가 제공한 위치 정보로 설정
+            const latitudeInput = document.getElementById('edit-spot-latitude');
+            const longitudeInput = document.getElementById('edit-spot-longitude');
+            const addressInput = document.getElementById('edit-spot-address');
+            const selectedInfo = document.getElementById('edit-spot-location-selected');
+            const selectedText = document.getElementById('edit-spot-location-selected-text');
+            const resultsContainer = document.getElementById('edit-spot-location-results');
+            
+            if (latitudeInput) latitudeInput.value = request.latitude;
+            if (longitudeInput) longitudeInput.value = request.longitude;
+            if (addressInput) addressInput.value = request.address || '';
+            
+            // 선택된 위치 정보 표시
+            if (selectedInfo && selectedText) {
+                const displayText = request.address || `위도: ${request.latitude}, 경도: ${request.longitude}`;
+                selectedText.textContent = displayText;
+                selectedInfo.style.display = 'flex';
+            }
+            if (resultsContainer) resultsContainer.style.display = 'none';
+        } else {
+            // 위치 정보 초기화
+            clearLocationSelection();
+        }
 
         // 위치 검색 초기화
         initLocationSearch();
