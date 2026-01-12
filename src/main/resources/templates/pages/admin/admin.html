@@ -18,7 +18,7 @@
                 <div class="container">
                     <div class="admin-header">
                         <h1>관리자 페이지</h1>
-                        <p>부산 관광지 정보를 관리할 수 있습니다.</p>
+                        <p id="admin-description">부산 관광지 정보를 관리할 수 있습니다.</p>
                     </div>
 
                     <div class="admin-tabs">
@@ -40,6 +40,7 @@
                                     id="admin-search-input"
                                     placeholder="관광지명으로 검색..."
                                 />
+                                <button type="button" id="admin-search-btn" class="search-btn">검색</button>
                                 <select id="region-filter">
                                     <option value="">전체 지역</option>
                                     <option value="area01">기장군</option>
@@ -165,9 +166,6 @@
                                                 <option value="">전체 그룹</option>
                                             </select>
                                         </div>
-                                        <button class="add-code-btn" onclick="openAddCodeModal()">
-                                            + 코드 추가
-                                        </button>
                                     </div>
                                 </div>
                                 <div class="codes-table-container">
@@ -197,38 +195,26 @@
                     <div class="tab-content" id="stats-tab">
                         <div class="stats-section">
                             <h3>관광지 통계</h3>
-                            <div class="stats-grid">
-                                <div class="stat-card">
+                            <div class="stats-overview">
+                                <div class="stat-card stat-card-large">
                                     <h3>총 관광지 수</h3>
                                     <div class="stat-number" id="total-spots">0</div>
                                 </div>
-                                <div class="stat-card">
-                                    <h3>해변</h3>
-                                    <div class="stat-number" id="beach-count">0</div>
-                                </div>
-                                <div class="stat-card">
-                                    <h3>산/공원</h3>
-                                    <div class="stat-number" id="mountain-count">0</div>
-                                </div>
-                                <div class="stat-card">
-                                    <h3>문화</h3>
-                                    <div class="stat-number" id="culture-count">0</div>
-                                </div>
-                                <div class="stat-card">
-                                    <h3>전통시장</h3>
-                                    <div class="stat-number" id="food-count">0</div>
-                                </div>
-                                <div class="stat-card">
-                                    <h3>쇼핑</h3>
-                                    <div class="stat-number" id="shopping-count">0</div>
+                                <div class="category-chart">
+                                    <h3>카테고리별 분포</h3>
+                                    <div class="chart-container" id="category-chart">
+                                        <!-- 차트가 동적으로 생성됩니다 -->
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="category-chart">
-                                <h3>카테고리별 분포</h3>
-                                <div class="chart-container" id="category-chart">
-                                    <!-- 차트가 동적으로 생성됩니다 -->
-                                </div>
+                            <!-- 숨겨진 카운터들 (JavaScript에서 사용) -->
+                            <div style="display: none;">
+                                <span id="beach-count">0</span>
+                                <span id="mountain-count">0</span>
+                                <span id="culture-count">0</span>
+                                <span id="food-count">0</span>
+                                <span id="shopping-count">0</span>
                             </div>
 
                             <div class="region-chart">
@@ -273,30 +259,6 @@
                                 <div class="chart-container" id="user-role-chart">
                                     <!-- 차트가 동적으로 생성됩니다 -->
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="stats-section">
-                            <h3>데이터 관리</h3>
-                            <div class="export-buttons">
-                                <button class="export-btn" onclick="exportAllData()">
-                                    전체 데이터 백업
-                                </button>
-                                <button class="export-btn" onclick="exportTouristSpotsData()">
-                                    관광지 데이터 내보내기
-                                </button>
-                                <button class="export-btn" onclick="exportUsersData()">
-                                    사용자 데이터 내보내기
-                                </button>
-                            </div>
-                            <div class="export-info">
-                                <p><strong>키보드 단축키:</strong></p>
-                                <ul>
-                                    <li>Ctrl + S: 전체 데이터 백업</li>
-                                    <li>Ctrl + Shift + T: 관광지 데이터만 내보내기</li>
-                                    <li>Ctrl + Shift + U: 사용자 데이터만 내보내기</li>
-                                    <li>ESC: 모달 창 닫기</li>
-                                </ul>
                             </div>
                         </div>
                     </div>

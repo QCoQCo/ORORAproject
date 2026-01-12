@@ -38,10 +38,10 @@ async function displayUserInfo() {
 
             // 가입일 표시
             if (userInfo.join_date) {
-                const joinDate = new Date(userInfo.join_date);
+                const joinDateStr = formatJoinDate(userInfo.join_date);
                 document.getElementById(
                     'join-date'
-                ).textContent = `가입일: ${joinDate.toLocaleDateString('ko-KR')}`;
+                ).textContent = `가입일: ${joinDateStr}`;
             } else {
                 document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
             }
@@ -126,6 +126,9 @@ async function loadUserData() {
     try {
         // 리뷰 데이터 로드
         await loadUserReviews(user.id);
+        
+        // 좋아요 누른 리뷰 데이터 로드
+        await loadLikedReviews(user.id);
 
         // 댓글 데이터 로드
         await loadUserComments(user.id);
@@ -198,6 +201,94 @@ async function loadUserReviews(userId) {
     }
 }
 
+// 좋아요 누른 리뷰 로드
+async function loadLikedReviews(userId) {
+    const likedReviewsList = document.getElementById('liked-reviews-list');
+    const likedReviewsCount = document.getElementById('liked-reviews-count');
+
+    if (!likedReviewsList) return;
+
+    // 로딩 상태 표시
+    likedReviewsList.innerHTML =
+        '<div class="loading-state"><div class="loading-spinner"></div><p>좋아요 누른 리뷰를 불러오는 중...</p></div>';
+
+    try {
+        // API 호출
+        const response = await fetch(`/api/users/${userId}/liked-reviews`);
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || '좋아요 누른 리뷰를 불러오는데 실패했습니다.');
+        }
+
+        const reviews = data.reviews || [];
+
+        if (reviews.length === 0) {
+            likedReviewsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">❤️</div>
+                    <h3>좋아요 누른 리뷰가 없습니다</h3>
+                    <p>마음에 드는 리뷰에 좋아요를 눌러보세요!</p>
+                </div>
+            `;
+        } else {
+            // API 응답 데이터를 프론트엔드 형식으로 변환
+            const formattedReviews = reviews.map((review) => ({
+                id: review.id,
+                title: review.title,
+                content: review.content,
+                rating: review.rating,
+                tourist_spot_id: review.touristSpotId || review.tourist_spot_id,
+                tourist_spot_name:
+                    review.touristSpotName || review.tourist_spot_name || '알 수 없는 관광지',
+                created_at: review.createdAt || review.created_at,
+                author_name: review.authorName || review.author_name || '익명',
+                images: [],
+            }));
+
+            likedReviewsList.innerHTML = formattedReviews
+                .map((review) => createLikedReviewHTML(review))
+                .join('');
+        }
+
+        if (likedReviewsCount) {
+            likedReviewsCount.textContent = `${reviews.length}개`;
+        }
+    } catch (error) {
+        console.error('좋아요 누른 리뷰 로드 오류:', error);
+        likedReviewsList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">❌</div>
+                <h3>좋아요 누른 리뷰를 불러올 수 없습니다</h3>
+                <p>잠시 후 다시 시도해주세요.</p>
+            </div>
+        `;
+    }
+}
+
+// 좋아요 누른 리뷰 HTML 생성
+function createLikedReviewHTML(review) {
+    const rating = review.rating || 0;
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    const date = formatDate(review.created_at);
+    const authorName = review.author_name || '익명';
+
+    return `
+        <div class="review-item liked-review-item" onclick="window.location.href='/pages/detailed/detailed?id=${review.tourist_spot_id}'">
+            <div class="review-header">
+                <span class="review-author">👤 ${authorName}</span>
+                <span class="review-spot">${review.tourist_spot_name}</span>
+            </div>
+            <h3 class="review-title">${review.title || '제목 없음'}</h3>
+            <div class="review-rating">${stars}</div>
+            <p class="review-content">${review.content || ''}</p>
+            <div class="review-footer">
+                <span class="review-date">${date}</span>
+            </div>
+        </div>
+    `;
+}
+
 // 사용자 댓글 로드
 async function loadUserComments(userId) {
     const commentsList = document.getElementById('comments-list');
@@ -208,8 +299,15 @@ async function loadUserComments(userId) {
         '<div class="loading-state"><div class="loading-spinner"></div><p>댓글을 불러오는 중...</p></div>';
 
     try {
-        // 실제 API 호출 대신 샘플 데이터 사용
-        const comments = await getSampleUserComments(userId);
+        // 실제 API 호출
+        const response = await fetch(`/api/users/${userId}/comments`);
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || '댓글을 불러오는데 실패했습니다.');
+        }
+
+        const comments = data.comments || [];
 
         if (comments.length === 0) {
             commentsList.innerHTML = `
@@ -220,11 +318,24 @@ async function loadUserComments(userId) {
                 </div>
             `;
         } else {
-            commentsList.innerHTML = comments.map((comment) => createCommentHTML(comment)).join('');
+            // API 응답 데이터를 프론트엔드 형식으로 변환
+            const formattedComments = comments.map((comment) => ({
+                id: comment.id,
+                content: comment.content,
+                review_id: comment.reviewId || comment.review_id,
+                review_title: comment.reviewTitle || comment.review_title || '제목 없음',
+                tourist_spot_id: comment.touristSpotId || comment.tourist_spot_id,
+                tourist_spot_name: comment.touristSpotName || comment.tourist_spot_name || '알 수 없는 관광지',
+                review_author_name: comment.reviewAuthorName || comment.review_author_name || '익명',
+                created_at: comment.createdAt || comment.created_at,
+            }));
+
+            commentsList.innerHTML = formattedComments.map((comment) => createCommentHTML(comment)).join('');
         }
 
         commentsCount.textContent = `${comments.length}개`;
     } catch (error) {
+        console.error('댓글 로드 오류:', error);
         commentsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -317,19 +428,19 @@ function createReviewHTML(review) {
 
 // 댓글 HTML 생성
 function createCommentHTML(comment) {
+    const reviewAuthor = comment.review_author_name ? `<span class="review-author">리뷰 작성자: ${comment.review_author_name}</span>` : '';
     return `
-        <div class="comment-item">
+        <div class="comment-item" onclick="window.location.href='/pages/detailed/detailed?id=${comment.tourist_spot_id}'">
             <div class="item-header">
-                <h3 class="item-title">${comment.review_title}</h3>
+                <h3 class="item-title">📝 ${comment.review_title}</h3>
                 <span class="item-date">${formatDate(comment.created_at)}</span>
             </div>
-            <div class="item-content">${comment.content}</div>
+            <div class="item-content">"${comment.content}"</div>
             <div class="item-meta">
-                <a href="/pages/detailed/detailed?id=${
-                    comment.tourist_spot_id
-                }" class="tourist-spot">
-                    ${comment.tourist_spot_name}
+                <a href="/pages/detailed/detailed?id=${comment.tourist_spot_id}" class="tourist-spot">
+                    📍 ${comment.tourist_spot_name}
                 </a>
+                ${reviewAuthor}
             </div>
         </div>
     `;
@@ -353,14 +464,70 @@ function createLikeHTML(like) {
     `;
 }
 
-// 날짜 포맷팅
+// 날짜 포맷팅 (한국 시간 기준, 시간대 변환 방지)
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+    if (!dateString) return '';
+    
+    const dateStr = dateString.toString();
+    
+    // 날짜 문자열에서 직접 년/월/일 추출 (시간대 변환 없이)
+    // 지원 형식: "2026-01-12", "2026-01-12 15:26:20", "2026-01-12T15:26:20"
+    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]);
+        const day = parseInt(match[3]);
+        return `${year}년 ${month}월 ${day}일`;
+    }
+    
+    // 다른 형식의 날짜인 경우
+    try {
+        const date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+            // 한국 시간대(UTC+9)로 변환하여 표시
+            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+            const year = koreaTime.getUTCFullYear();
+            const month = koreaTime.getUTCMonth() + 1;
+            const day = koreaTime.getUTCDate();
+            return `${year}년 ${month}월 ${day}일`;
+        }
+    } catch (e) {
+        console.error('날짜 파싱 오류:', e);
+    }
+    
+    return '';
+}
+
+// 가입일 포맷팅 (한국 시간 기준)
+function formatJoinDate(dateString) {
+    if (!dateString) return '정보 없음';
+    
+    const dateStr = dateString.toString();
+    
+    // 날짜 문자열에서 직접 년/월/일 추출
+    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]);
+        const day = parseInt(match[3]);
+        return `${year}. ${month}. ${day}.`;
+    }
+    
+    // 다른 형식의 날짜인 경우
+    try {
+        const date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+            const year = koreaTime.getUTCFullYear();
+            const month = koreaTime.getUTCMonth() + 1;
+            const day = koreaTime.getUTCDate();
+            return `${year}. ${month}. ${day}.`;
+        }
+    } catch (e) {
+        console.error('날짜 파싱 오류:', e);
+    }
+    
+    return '정보 없음';
 }
 
 // 이미지 모달 열기
@@ -440,30 +607,8 @@ async function getSampleUserReviews(userId) {
     });
 }
 
-async function getSampleUserComments(userId) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                {
-                    id: 1,
-                    content: '저도 일출 보러 가봤는데 정말 환상적이었어요!',
-                    review_title: '일출이 정말 아름다워요!',
-                    tourist_spot_id: 1,
-                    tourist_spot_name: '해동 용궁사',
-                    created_at: '2024-12-15T11:00:00Z',
-                },
-                {
-                    id: 2,
-                    content: '서핑 배우고 싶었는데 좋은 정보 감사합니다!',
-                    review_title: '서핑하기 좋은 곳',
-                    tourist_spot_id: 3,
-                    tourist_spot_name: '송정해수욕장',
-                    created_at: '2024-12-10T15:30:00Z',
-                },
-            ]);
-        }, 800);
-    });
-}
+// 샘플 데이터 함수 (실제 API로 대체됨)
+// async function getSampleUserComments(userId) { ... }
 
 // async function getSampleUserLikes(userId) {
 //     return new Promise((resolve) => {

@@ -17,10 +17,14 @@ public class SearchSpotsByRegionDto {
     private Long id;
     private String title;
     private String description;
+    private String categoryCode;
 
     // image    
     private String imageUrl;
 
     // hashtags
     private String hashtags;
+    
+    // category active status (populated by service)
+    private Boolean categoryActive;
 }

@@ -414,8 +414,9 @@ class ThemeCarousel {
                 hashtags: Array.isArray(item.hashtags) ? item.hashtags : [],
                 img: item.imageUrl || item.image_url || '',
                 link: '#',
-                categoryCode: item.categoryCode || item.category_code || 'culture',
+                categoryCode: item.categoryCode || item.category_code || item.category || 'culture',
                 isActive: item.isActive !== false,
+                categoryActive: item.categoryActive !== false,
             }));
 
 

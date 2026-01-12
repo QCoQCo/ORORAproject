@@ -611,6 +611,14 @@ public class AdminController {
                 requestMap.put("status", request.getStatus());
                 requestMap.put("rejectReason", request.getRejectReason());
                 requestMap.put("createdAt", request.getCreatedAt());
+                // 관광지 추가 신청 관련 추가 필드
+                requestMap.put("regionId", request.getRegionId());
+                requestMap.put("regionName", request.getRegionName());
+                requestMap.put("linkUrl", request.getLinkUrl());
+                requestMap.put("hashtags", request.getHashtags());
+                requestMap.put("latitude", request.getLatitude());
+                requestMap.put("longitude", request.getLongitude());
+                requestMap.put("address", request.getAddress());
                 return requestMap;
             }).collect(Collectors.toList());
 

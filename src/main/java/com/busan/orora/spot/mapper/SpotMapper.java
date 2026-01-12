@@ -13,4 +13,10 @@ public interface SpotMapper {
     List<SpotDto> findAllSpots();
     List<SpotDto> findSpotsByRegion(@Param("regionId") Long regionId);
     SpotDto findSpotById(@Param("id") Long id);
+    
+    // 조회수 증가
+    void incrementViewCount(@Param("id") Long id);
+    
+    // 조회수 조회
+    Integer getViewCount(@Param("id") Long id);
 }
