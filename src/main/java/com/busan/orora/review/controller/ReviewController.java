@@ -204,6 +204,105 @@ public class ReviewController {
     }
 
     /**
+     * 리뷰 수정
+     * PUT /api/reviews/{id}
+     * multipart/form-data 지원 (이미지 수정 가능)
+     */
+    @PutMapping("/reviews/{id}")
+    @ResponseBody
+    public Map<String, Object> updateReview(
+            @PathVariable Long id,
+            @RequestParam(value = "userId") Long userId,
+            @RequestParam(value = "title") String title,
+            @RequestParam(value = "content") String content,
+            @RequestParam(value = "rating") Integer rating,
+            @RequestParam(value = "deleteImageIds", required = false) String deleteImageIdsJson,
+            @RequestParam(value = "images", required = false) MultipartFile[] images) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 유효성 검사
+            if (userId == null) {
+                response.put("success", false);
+                response.put("message", "사용자 정보가 필요합니다.");
+                return response;
+            }
+            if (title == null || title.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "제목을 입력해주세요.");
+                return response;
+            }
+            if (content == null || content.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "내용을 입력해주세요.");
+                return response;
+            }
+            if (rating == null || rating < 1 || rating > 5) {
+                response.put("success", false);
+                response.put("message", "평점은 1~5 사이의 값이어야 합니다.");
+                return response;
+            }
+
+            // 삭제할 이미지 ID 파싱
+            List<Long> deleteImageIds = new java.util.ArrayList<>();
+            if (deleteImageIdsJson != null && !deleteImageIdsJson.isEmpty()) {
+                try {
+                    // JSON 배열 파싱 [1, 2, 3]
+                    String cleaned = deleteImageIdsJson.replaceAll("[\\[\\]\\s]", "");
+                    if (!cleaned.isEmpty()) {
+                        String[] idStrings = cleaned.split(",");
+                        for (String idStr : idStrings) {
+                            if (!idStr.trim().isEmpty()) {
+                                deleteImageIds.add(Long.valueOf(idStr.trim()));
+                            }
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // 파싱 오류 무시
+                }
+            }
+
+            // 리뷰 수정 (이미지 삭제 및 추가 포함)
+            reviewService.updateReviewWithImages(id, userId, title.trim(), content.trim(), rating, deleteImageIds, images);
+
+            response.put("success", true);
+            response.put("message", "리뷰가 성공적으로 수정되었습니다.");
+
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "리뷰 수정 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+    /**
+     * 리뷰 삭제
+     * DELETE /api/reviews/{id}
+     */
+    @DeleteMapping("/reviews/{id}")
+    @ResponseBody
+    public Map<String, Object> deleteReview(@PathVariable Long id, @RequestParam Long userId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 리뷰 삭제
+            reviewService.deleteReview(id, userId);
+
+            response.put("success", true);
+            response.put("message", "리뷰가 성공적으로 삭제되었습니다.");
+
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "리뷰 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+    /**
      * 사용자별 리뷰 목록 조회
      * GET /api/users/{userId}/reviews
      */

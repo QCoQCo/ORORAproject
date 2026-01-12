@@ -966,12 +966,32 @@ function createReviewElement(review) {
     const isLiked = review.isLiked || false;
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
 
-    // 본인 리뷰인 경우 신고 버튼 숨김
+    // 본인 리뷰인 경우: 수정/삭제 버튼 표시, 신고 버튼 숨김
+    const myReviewButtonsHTML = isMyReview
+        ? `<div class="myReviewBtns">
+            <button class="editReviewBtn" onclick="openEditReviewModal(${review.id})">수정</button>
+            <button class="deleteReviewBtn" onclick="deleteReview(${review.id})">삭제</button>
+        </div>`
+        : '';
+
     const reportButtonHTML = isMyReview
         ? ''
         : `<div class="reportBtn">
             <button onclick="reportReview(${review.id})">신고</button>
         </div>`;
+
+    // 수정 날짜 처리
+    const createdAt = review.createdAt || review.created_at;
+    const updatedAt = review.updatedAt || review.updated_at;
+    const createdDateStr = formatDate(createdAt || new Date().toISOString());
+    const updatedDateStr = formatDate(updatedAt);
+    
+    // 수정 날짜가 생성 날짜와 다른 경우에만 표시
+    const isEdited = updatedAt && createdDateStr !== updatedDateStr;
+    const dateHTML = isEdited 
+        ? `<p class="reviewDate">${createdDateStr}</p>
+           <p class="reviewDateEdited">(수정: ${updatedDateStr})</p>`
+        : `<p class="reviewDate">${createdDateStr}</p>`;
 
     reviewDiv.innerHTML = `
         <div class="userReviewTop">
@@ -983,9 +1003,9 @@ function createReviewElement(review) {
                 <div class="reviewRating">${stars} (${review.rating || 0}/5)</div>
                 <p class="reviewTitle">${review.title || ''}</p>
             </div>
-            <p class="reviewDate">${formatDate(
-                review.createdAt || review.created_at || new Date().toISOString()
-            )}</p>
+            <div class="reviewDateContainer">
+                ${dateHTML}
+            </div>
         </div>
         <div class="reviewContent">
             <p>${review.content || ''}</p>
@@ -1004,6 +1024,7 @@ function createReviewElement(review) {
                     </button>
                     <p class="reviewReCount">${replies}</p>
                 </div>
+                ${myReviewButtonsHTML}
                 ${reportButtonHTML}
             </div>
         </div>
@@ -1012,9 +1033,34 @@ function createReviewElement(review) {
     return reviewDiv;
 }
 
-// 날짜 포맷팅
+// 날짜 포맷팅 (시간대 문제 해결)
 function formatDate(dateString) {
+    if (!dateString) return '';
+    
+    // 날짜 문자열에서 직접 파싱 (시간대 변환 방지)
+    // "2026-01-12 15:26:20" 또는 "2026-01-12T15:26:20" 형식 지원
+    let dateStr = dateString.toString();
+    
+    // ISO 형식이 아닌 경우 (공백으로 구분된 경우) 처리
+    if (dateStr.includes(' ') && !dateStr.includes('T')) {
+        dateStr = dateStr.replace(' ', 'T');
+    }
+    
+    // 시간대 정보가 없으면 로컬 시간으로 처리
+    if (!dateStr.includes('Z') && !dateStr.includes('+') && !dateStr.match(/[+-]\d{2}:\d{2}$/)) {
+        // 날짜 부분만 추출하여 직접 파싱
+        const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) {
+            const year = parseInt(match[1]);
+            const month = parseInt(match[2]);
+            const day = parseInt(match[3]);
+            return `${year}. ${month}. ${day}`;
+        }
+    }
+    
+    // 기존 방식으로 폴백
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
     return date.toLocaleDateString('ko-KR').replace(/\./g, '.').slice(0, -1);
 }
 
@@ -3190,14 +3236,28 @@ function openPhotoReviewModal(review) {
     const contentText = review.content || '';
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-    const createdAt = formatDate(review.createdAt || review.created_at || new Date().toISOString());
+    
+    // 수정 날짜 처리
+    const createdAtRaw = review.createdAt || review.created_at;
+    const updatedAtRaw = review.updatedAt || review.updated_at;
+    const createdAt = formatDate(createdAtRaw || new Date().toISOString());
+    const updatedAt = formatDate(updatedAtRaw);
+    const isEdited = updatedAtRaw && createdAt !== updatedAt;
+    
     const images = review.images || [];
     const likes = review.likes || review.likeCount || 0;
     const replies = review.replies || review.comments || review.commentCount || 0;
     const isLiked = review.isLiked || false;
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
 
-    // 본인 리뷰인 경우 신고 버튼 숨김
+    // 본인 리뷰인 경우: 수정/삭제 버튼 표시, 신고 버튼 숨김
+    const myReviewButtonsHTML = isMyReview
+        ? `<div class="myReviewBtns">
+            <button class="editReviewBtn" onclick="openEditReviewModal(${review.id})">수정</button>
+            <button class="deleteReviewBtn" onclick="deleteReview(${review.id})">삭제</button>
+        </div>`
+        : '';
+
     const reportButtonHTML = isMyReview
         ? ''
         : `<div class="reportBtn">
@@ -3224,6 +3284,12 @@ function openPhotoReviewModal(review) {
         `;
     }
 
+    // 날짜 HTML 생성
+    const modalDateHTML = isEdited 
+        ? `<p class="photo-review-modal-date">${createdAt}</p>
+           <p class="photo-review-modal-date-edited">(수정: ${updatedAt})</p>`
+        : `<p class="photo-review-modal-date">${createdAt}</p>`;
+
     content.innerHTML = `
         <div class="photo-review-modal-header">
             <div class="photo-review-modal-user-info">
@@ -3232,7 +3298,9 @@ function openPhotoReviewModal(review) {
         isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
     }
                 </p>
-                <p class="photo-review-modal-date">${createdAt}</p>
+                <div class="photo-review-modal-date-container">
+                    ${modalDateHTML}
+                </div>
             </div>
         </div>
         <div class="photo-review-modal-title">${title}</div>
@@ -3253,6 +3321,7 @@ function openPhotoReviewModal(review) {
                     </button>
                     <p class="reviewReCount">${replies}</p>
                 </div>
+                ${myReviewButtonsHTML}
                 ${reportButtonHTML}
             </div>
         </div>
@@ -3461,4 +3530,530 @@ function showCopyNotification() {
             notification.remove();
         }, 300);
     }, 2500);
+}
+
+// ===== 리뷰 수정 기능 =====
+
+// 수정 중인 리뷰의 선택된 별점
+let editSelectedRating = 0;
+
+// 수정 모달에서 관리할 이미지 상태
+let editExistingImages = []; // 기존 이미지 (삭제할 ID 관리)
+let editDeletedImageIds = []; // 삭제할 이미지 ID 목록
+let editNewImages = []; // 새로 추가할 이미지
+
+/**
+ * 리뷰 수정 모달 열기
+ * @param {number} reviewId - 수정할 리뷰 ID
+ */
+function openEditReviewModal(reviewId) {
+    // 현재 로그인한 사용자 확인
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        alert('로그인이 필요합니다.');
+        window.location.href = '/login';
+        return;
+    }
+
+    // 리뷰 데이터 가져오기
+    const review = reviews.find(r => r.id === reviewId);
+    if (!review) {
+        alert('리뷰를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 리뷰 작성자 확인
+    const reviewUserId = review.userId || review.user_id;
+    if (user.id != reviewUserId) {
+        alert('본인이 작성한 리뷰만 수정할 수 있습니다.');
+        return;
+    }
+
+    // 모달 요소 가져오기
+    const modal = document.getElementById('edit-review-modal');
+    const reviewIdInput = document.getElementById('edit-review-id');
+    const titleInput = document.getElementById('edit-review-title');
+    const contentInput = document.getElementById('edit-review-content');
+    const charCount = document.getElementById('edit-review-char-count');
+
+    if (!modal || !reviewIdInput || !titleInput || !contentInput) {
+        console.error('리뷰 수정 모달 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 폼에 기존 데이터 채우기
+    reviewIdInput.value = reviewId;
+    titleInput.value = review.title || '';
+    contentInput.value = review.content || '';
+    
+    // 글자 수 업데이트
+    if (charCount) {
+        charCount.textContent = (review.content || '').length;
+    }
+
+    // 별점 설정
+    editSelectedRating = review.rating || 0;
+    updateEditStarDisplay(editSelectedRating);
+
+    // 기존 이미지 로드
+    editExistingImages = review.images || [];
+    editDeletedImageIds = [];
+    editNewImages = [];
+    displayEditExistingImages();
+    updateEditNewImagesPreview();
+
+    // 모달 표시
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    // 이벤트 리스너 초기화
+    initEditReviewModal();
+}
+
+/**
+ * 리뷰 수정 모달 닫기
+ */
+function closeEditReviewModal() {
+    const modal = document.getElementById('edit-review-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+    // 폼 초기화
+    resetEditReviewForm();
+}
+
+/**
+ * 수정 모달 폼 초기화
+ */
+function resetEditReviewForm() {
+    const reviewIdInput = document.getElementById('edit-review-id');
+    const titleInput = document.getElementById('edit-review-title');
+    const contentInput = document.getElementById('edit-review-content');
+    const charCount = document.getElementById('edit-review-char-count');
+    const imageInput = document.getElementById('edit-review-image-input');
+
+    if (reviewIdInput) reviewIdInput.value = '';
+    if (titleInput) titleInput.value = '';
+    if (contentInput) contentInput.value = '';
+    if (charCount) charCount.textContent = '0';
+    if (imageInput) imageInput.value = '';
+
+    editSelectedRating = 0;
+    updateEditStarDisplay(0);
+
+    // 이미지 상태 초기화
+    editExistingImages = [];
+    editDeletedImageIds = [];
+    editNewImages = [];
+    displayEditExistingImages();
+    updateEditNewImagesPreview();
+}
+
+/**
+ * 수정 모달 별점 표시 업데이트
+ * @param {number} rating - 별점 (1-5)
+ */
+function updateEditStarDisplay(rating) {
+    const stars = document.querySelectorAll('.edit-star');
+    const ratingText = document.querySelector('.edit-rating-text');
+
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('selected');
+            star.style.color = '#fbbf24';
+        } else {
+            star.classList.remove('selected');
+            star.style.color = '#d1d5db';
+        }
+    });
+
+    if (ratingText) {
+        if (rating > 0) {
+            const ratingLabels = ['', '별로예요', '그저 그래요', '괜찮아요', '좋아요', '최고예요!'];
+            ratingText.textContent = ratingLabels[rating] || `${rating}점`;
+        } else {
+            ratingText.textContent = '별점을 선택해주세요';
+        }
+    }
+}
+
+/**
+ * 리뷰 수정 모달 이벤트 초기화
+ */
+function initEditReviewModal() {
+    // 닫기 버튼
+    const closeBtn = document.getElementById('close-edit-review-modal');
+    if (closeBtn) {
+        closeBtn.onclick = closeEditReviewModal;
+    }
+
+    // 취소 버튼
+    const cancelBtn = document.getElementById('cancel-edit-review-btn');
+    if (cancelBtn) {
+        cancelBtn.onclick = closeEditReviewModal;
+    }
+
+    // 모달 외부 클릭 시 닫기
+    const modal = document.getElementById('edit-review-modal');
+    if (modal) {
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                closeEditReviewModal();
+            }
+        };
+    }
+
+    // 별점 선택
+    const stars = document.querySelectorAll('.edit-star');
+    stars.forEach(star => {
+        star.onclick = function(e) {
+            e.preventDefault();
+            const rating = parseInt(this.getAttribute('data-rating'));
+            editSelectedRating = rating;
+            updateEditStarDisplay(rating);
+        };
+    });
+
+    // 글자 수 카운트
+    const contentInput = document.getElementById('edit-review-content');
+    const charCount = document.getElementById('edit-review-char-count');
+    if (contentInput && charCount) {
+        contentInput.oninput = function() {
+            charCount.textContent = this.value.length;
+        };
+    }
+
+    // 이미지 추가 버튼
+    const addImageBtn = document.getElementById('edit-add-image-btn');
+    const imageInput = document.getElementById('edit-review-image-input');
+    if (addImageBtn && imageInput) {
+        addImageBtn.onclick = function(e) {
+            e.preventDefault();
+            imageInput.click();
+        };
+
+        imageInput.onchange = function() {
+            handleEditImageSelect(this.files);
+            this.value = ''; // 같은 파일 재선택 허용
+        };
+    }
+
+    // 새 이미지 전체 삭제 버튼
+    const removeAllNewBtn = document.getElementById('remove-all-new-images');
+    if (removeAllNewBtn) {
+        removeAllNewBtn.onclick = function(e) {
+            e.preventDefault();
+            editNewImages = [];
+            updateEditNewImagesPreview();
+        };
+    }
+
+    // 폼 제출
+    const form = document.getElementById('edit-review-form');
+    if (form) {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            submitEditReview();
+        };
+    }
+}
+
+/**
+ * 기존 이미지 표시
+ */
+function displayEditExistingImages() {
+    const container = document.getElementById('edit-existing-images');
+    if (!container) return;
+
+    // 삭제되지 않은 기존 이미지만 필터링
+    const activeImages = editExistingImages.filter(img => {
+        const imgId = img.id || img.imageId;
+        return !editDeletedImageIds.includes(imgId);
+    });
+
+    if (activeImages.length === 0) {
+        container.innerHTML = '<p class="no-images-text">등록된 사진이 없습니다.</p>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="edit-existing-images-header">
+            <span>기존 사진 (${activeImages.length}장)</span>
+        </div>
+        <div class="edit-existing-images-list">
+            ${activeImages.map(img => {
+                const imgId = img.id || img.imageId;
+                const imgUrl = img.imageUrl || img.image_url || '';
+                return `
+                    <div class="edit-image-item" data-image-id="${imgId}">
+                        <img src="${imgUrl}" alt="리뷰 이미지" onerror="this.src='/images/logo.png'" />
+                        <button type="button" class="remove-existing-image-btn" onclick="removeEditExistingImage(${imgId})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+/**
+ * 기존 이미지 삭제 (표시에서만 제거, 실제 삭제는 제출 시)
+ */
+function removeEditExistingImage(imageId) {
+    if (!editDeletedImageIds.includes(imageId)) {
+        editDeletedImageIds.push(imageId);
+    }
+    displayEditExistingImages();
+}
+
+/**
+ * 새 이미지 선택 처리
+ */
+function handleEditImageSelect(files) {
+    if (!files || files.length === 0) return;
+
+    // 현재 유효한 기존 이미지 수 계산
+    const activeExistingCount = editExistingImages.filter(img => {
+        const imgId = img.id || img.imageId;
+        return !editDeletedImageIds.includes(imgId);
+    }).length;
+
+    // 최대 5장 제한 체크
+    const totalAfterAdd = activeExistingCount + editNewImages.length + files.length;
+    if (totalAfterAdd > 5) {
+        alert(`최대 5장까지만 업로드할 수 있습니다.\n현재: ${activeExistingCount + editNewImages.length}장, 추가 가능: ${5 - activeExistingCount - editNewImages.length}장`);
+        return;
+    }
+
+    // 파일 처리
+    Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) {
+            alert('이미지 파일만 업로드할 수 있습니다.');
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            alert('파일 크기는 10MB 이하여야 합니다.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            editNewImages.push({
+                id: Date.now() + Math.random(),
+                file: file,
+                preview: e.target.result
+            });
+            updateEditNewImagesPreview();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+/**
+ * 새 이미지 미리보기 업데이트
+ */
+function updateEditNewImagesPreview() {
+    const container = document.getElementById('edit-new-images-preview');
+    const imagesContainer = document.getElementById('edit-new-images-container');
+    
+    if (!container || !imagesContainer) return;
+
+    if (editNewImages.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'block';
+    imagesContainer.innerHTML = editNewImages.map((img, index) => `
+        <div class="edit-image-item" data-new-image-id="${img.id}">
+            <img src="${img.preview}" alt="새 이미지 ${index + 1}" />
+            <button type="button" class="remove-new-image-btn" onclick="removeEditNewImage('${img.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    `).join('');
+}
+
+/**
+ * 새 이미지 삭제
+ */
+function removeEditNewImage(imageId) {
+    editNewImages = editNewImages.filter(img => img.id.toString() !== imageId.toString());
+    updateEditNewImagesPreview();
+}
+
+/**
+ * 리뷰 수정 제출
+ */
+async function submitEditReview() {
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        alert('로그인이 필요합니다.');
+        return;
+    }
+
+    const reviewIdInput = document.getElementById('edit-review-id');
+    const titleInput = document.getElementById('edit-review-title');
+    const contentInput = document.getElementById('edit-review-content');
+    const submitBtn = document.querySelector('#edit-review-form .submit-btn');
+
+    const reviewId = reviewIdInput?.value;
+    const title = titleInput?.value?.trim();
+    const content = contentInput?.value?.trim();
+
+    // 유효성 검사
+    if (!reviewId) {
+        alert('리뷰 정보가 올바르지 않습니다.');
+        return;
+    }
+
+    if (!title) {
+        alert('리뷰 제목을 입력해주세요.');
+        titleInput?.focus();
+        return;
+    }
+
+    if (!content) {
+        alert('리뷰 내용을 입력해주세요.');
+        contentInput?.focus();
+        return;
+    }
+
+    if (editSelectedRating === 0) {
+        alert('별점을 선택해주세요.');
+        return;
+    }
+
+    // 제출 버튼 비활성화
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '수정 중...';
+    }
+
+    try {
+        // FormData 생성 (이미지 포함)
+        const formData = new FormData();
+        formData.append('userId', user.id);
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('rating', editSelectedRating);
+
+        // 삭제할 이미지 ID 목록 추가
+        if (editDeletedImageIds.length > 0) {
+            formData.append('deleteImageIds', JSON.stringify(editDeletedImageIds));
+        }
+
+        // 새 이미지 파일 추가
+        editNewImages.forEach(img => {
+            if (img.file) {
+                formData.append('images', img.file);
+            }
+        });
+
+        const response = await fetch(`/api/reviews/${reviewId}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('리뷰가 수정되었습니다.');
+            closeEditReviewModal();
+            
+            // 포토리뷰 모달이 열려있으면 함께 닫기
+            const photoReviewModal = document.getElementById('photo-review-modal');
+            if (photoReviewModal && photoReviewModal.style.display !== 'none' && photoReviewModal.style.display !== '') {
+                photoReviewModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+            
+            // 리뷰 목록 새로고침
+            await loadReviews();
+        } else {
+            alert('리뷰 수정에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('리뷰 수정 중 오류:', error);
+        alert('리뷰 수정 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+        // 제출 버튼 다시 활성화
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '수정 완료';
+        }
+    }
+}
+
+/**
+ * 리뷰 삭제
+ * @param {number} reviewId - 삭제할 리뷰 ID
+ */
+async function deleteReview(reviewId) {
+    // 현재 로그인한 사용자 확인
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        alert('로그인이 필요합니다.');
+        window.location.href = '/login';
+        return;
+    }
+
+    // 리뷰 데이터 가져오기
+    const review = reviews.find(r => r.id === reviewId);
+    if (!review) {
+        alert('리뷰를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 리뷰 작성자 확인
+    const reviewUserId = review.userId || review.user_id;
+    if (user.id != reviewUserId) {
+        alert('본인이 작성한 리뷰만 삭제할 수 있습니다.');
+        return;
+    }
+
+    // 삭제 확인
+    if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?\n삭제된 리뷰는 복구할 수 없습니다.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/reviews/${reviewId}?userId=${user.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('리뷰가 삭제되었습니다.');
+            
+            // 포토리뷰 모달이 열려있으면 닫기
+            const photoReviewModal = document.getElementById('photo-review-modal');
+            if (photoReviewModal && photoReviewModal.style.display !== 'none') {
+                photoReviewModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+            
+            // 리뷰 목록 새로고침
+            await loadReviews();
+        } else {
+            alert('리뷰 삭제에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('리뷰 삭제 중 오류:', error);
+        alert('리뷰 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    }
 }
