@@ -243,8 +243,6 @@ function bindRegionClick() {
                 region.classList.add('selected');
             }
 
-            console.log('선택된 지역:', [...selectedRegionIds]);
-
             fetchRegionSpots([...selectedRegionIds]);
             updateSelectionInfo();
         });
@@ -274,8 +272,7 @@ async function fetchRegionSpots(regionIds) {
         const res = await fetch(`/api/regions/spots?regionIds=${query}`);
         if (!res.ok) throw new Error('API 요청 실패');
 
-        const spots = await res.json();
-        console.log('API 응답:', spots);
+        const spots = await res.json();;
 
         await renderSpotList(spots);
     } catch (e) {
@@ -378,10 +375,21 @@ async function renderSpotList(spots) {
 function updateSelectionInfo() {
     const info = document.getElementById('selection-info');
     if (!info) return;
+    
+    const regionName = new Set();
+    selectedRegionIds.forEach((id) => {
+        const regionElement = document.querySelector(`.c-click[sigungu-code="${id}"]`);
+        if (regionElement) {
+            const name = regionElement.getAttribute('sigungu-name');
+            if (name) {
+                regionName.add(name);
+            }
+        }
+    });
 
     if (selectedRegionIds.size === 0) {
         info.textContent = '지역을 클릭해 선택하세요.';
     } else {
-        info.textContent = `선택된 지역 수: ${selectedRegionIds.size}`;
+        info.textContent = `선택된 지역 목록 (${selectedRegionIds.size}) : ${[...regionName].join(', ')}`;
     }
 }
