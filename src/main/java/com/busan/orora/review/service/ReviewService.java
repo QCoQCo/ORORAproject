@@ -54,6 +54,10 @@ public class ReviewService {
         return reviewMapper.findCommentsByReviewId(reviewId);
     }
 
+    public List<Map<String, Object>> getCommentsByUserId(Long userId) {
+        return reviewMapper.findCommentsByUserId(userId);
+    }
+
     public void createComment(Long reviewId, Long userId, String content) {
         reviewMapper.insertComment(reviewId, userId, content);
     }

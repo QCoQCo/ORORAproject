@@ -80,4 +80,7 @@ public interface ReviewMapper {
 
     // 리뷰 이미지 삭제
     void deleteReviewImage(@Param("imageId") Long imageId);
+
+    // 사용자별 댓글 조회 (리뷰 및 관광지 정보 포함)
+    List<Map<String, Object>> findCommentsByUserId(@Param("userId") Long userId);
 }
