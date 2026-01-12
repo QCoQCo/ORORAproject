@@ -3,59 +3,65 @@
 <body>
     <!-- Side Navigation Fragment -->
     <nav th:fragment="sidenav-busan" id="sideNav">
-        <h1>about BUSAN</h1>
+        <h1 data-translate="about.title">about BUSAN</h1>
         <div class="sideNavMenu">
             <ul>
                 <!-- 부산의 오늘 메뉴 -->
                 <li th:classappend="${activeMenuGroup == 'busan-today' ? 'active' : ''}">
                     <div class="sideNavMenuTitle">
-                        <a th:href="@{/pages/about-busan/busan}">부산의 오늘</a>
+                        <a th:href="@{/pages/about-busan/busan}" data-translate="about.sidenav.busan_today">부산의 오늘</a>
                         <button type="button" class="btnMenuDropDown" aria-label="하위메뉴 토글"
+                            data-translate-open="about.sidenav.submenu_open"
+                            data-translate-close="about.sidenav.submenu_close"
                             th:text="${activeMenuGroup == 'busan-today' ? '하위메뉴 닫기' : '하위메뉴 열기'}">하위메뉴 열기</button>
                     </div>
                     <ul class="bsInfo" th:style="${activeMenuGroup == 'busan-today' ? 'display: block;' : 'display: none;'}">
                         <li th:classappend="${activeMenuItem == 'busan' ? 'active' : ''}">
-                            <a th:href="@{/pages/about-busan/busan}">부산은?</a>
+                            <a th:href="@{/pages/about-busan/busan}" data-translate="about.sidenav.what_is_busan">부산은?</a>
                         </li>
                         <li th:classappend="${activeMenuItem == 'goals' ? 'active' : ''}">
-                            <a th:href="@{/pages/about-busan/goals}">도시비전과 목표</a>
+                            <a th:href="@{/pages/about-busan/goals}" data-translate="about.sidenav.vision_goals">도시비전과 목표</a>
                         </li>
                         <li th:classappend="${activeMenuItem == 'basisinfo' ? 'active' : ''}">
-                            <a th:href="@{/pages/about-busan/basisinfo}">기본현황</a>
+                            <a th:href="@{/pages/about-busan/basisinfo}" data-translate="about.sidenav.basic_info">기본현황</a>
                         </li>
                     </ul>
                 </li>
                 <!-- 부산의 상징 메뉴 -->
                 <li th:classappend="${activeMenuGroup == 'busan-symbol' ? 'active' : ''}">
                     <div class="sideNavMenuTitle">
-                        <a th:href="@{/pages/about-busan/symbol}">부산의 상징</a>
+                        <a th:href="@{/pages/about-busan/symbol}" data-translate="about.sidenav.busan_symbol">부산의 상징</a>
                         <button type="button" class="btnMenuDropDown" aria-label="하위메뉴 토글"
+                            data-translate-open="about.sidenav.submenu_open"
+                            data-translate-close="about.sidenav.submenu_close"
                             th:text="${activeMenuGroup == 'busan-symbol' ? '하위메뉴 닫기' : '하위메뉴 열기'}">하위메뉴 열기</button>
                     </div>
                     <ul class="symbol" th:style="${activeMenuGroup == 'busan-symbol' ? 'display: block;' : 'display: none;'}">
                         <li th:classappend="${activeMenuItem == 'symbol' ? 'active' : ''}">
-                            <a th:href="@{/pages/about-busan/symbol}">지역상징</a>
+                            <a th:href="@{/pages/about-busan/symbol}" data-translate="about.sidenav.regional_symbol">지역상징</a>
                         </li>
                     </ul>
                 </li>
                 <!-- 소통 캐릭터 메뉴 -->
                 <li th:classappend="${activeMenuGroup == 'character' ? 'active' : ''}">
                     <div class="sideNavMenuTitle">
-                        <a th:href="@{/pages/about-busan/character}">소통 캐릭터</a>
+                        <a th:href="@{/pages/about-busan/character}" data-translate="about.sidenav.communication_character">소통 캐릭터</a>
                         <button type="button" class="btnMenuDropDown" aria-label="하위메뉴 토글"
+                            data-translate-open="about.sidenav.submenu_open"
+                            data-translate-close="about.sidenav.submenu_close"
                             th:text="${activeMenuGroup == 'character' ? '하위메뉴 닫기' : '하위메뉴 열기'}">하위메뉴 열기</button>
                     </div>
                     <ul class="sns" th:style="${activeMenuGroup == 'character' ? 'display: block;' : 'display: none;'}">
                         <li th:classappend="${activeMenuItem == 'character' ? 'active' : ''}">
-                            <a th:href="@{/pages/about-busan/character}">캐릭터 소개</a>
+                            <a th:href="@{/pages/about-busan/character}" data-translate="about.sidenav.character_intro">캐릭터 소개</a>
                         </li>
                         <li>
                             <a href="https://www.instagram.com/boogi_in_busan/" target="_blank"
-                                rel="noopener noreferrer" title="새창열기">부기 인스타그램</a>
+                                rel="noopener noreferrer" title="새창열기" data-translate="about.sidenav.boogi_instagram">부기 인스타그램</a>
                         </li>
                         <li>
                             <a href="https://www.youtube.com/@boogi_in_busan" target="_blank"
-                                rel="noopener noreferrer" title="새창열기">부기튜브</a>
+                                rel="noopener noreferrer" title="새창열기" data-translate="about.sidenav.boogi_youtube">부기튜브</a>
                         </li>
                     </ul>
                 </li>

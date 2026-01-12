@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}" lang="ko">
+<html
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/layout}"
+    lang="ko"
+>
     <head>
         <title layout:fragment="title" data-translate="tip.transportation">koreanTip</title>
         <th:block layout:fragment="css">
@@ -36,7 +40,13 @@
                 <div class="transportaion">
                     <h3 data-translate="tip.transportation_title">교통 · 지도 · 패스권</h3>
                     <div class="mapTrans">
-                        <h4 id="trans-section" class="section">&#128643; 교통 · 지도</h4>
+                        <h4
+                            id="trans-section"
+                            class="section"
+                            data-translate="tip.transportation_section"
+                        >
+                            &#128643; 교통 · 지도
+                        </h4>
                         <div class="transApp">
                             <div class="transAppComent">
                                 <p class="s600" data-translate="tip.foreign_card_guide">
@@ -120,24 +130,26 @@
                                                 >카카오 T</a
                                             >
                                         </p>
-                                        <p>카카오 T</p>
+                                        <p data-translate="tip.kakao_taxi">카카오 T</p>
                                     </div>
                                     <div class="right">
                                         <div class="good">
-                                            <p>
+                                            <p data-translate="tip.kakao_taxi_desc">
                                                 미리 택시를 예약할 수 있어 원하는 시간과 장소에 맞춰
                                                 이용할 수 있습니다
                                             </p>
-                                            <p>
+                                            <p data-translate="tip.kakao_taxi_feature_desc">
                                                 외국인 전용 플랫폼 k.ride가 있어서 한국 전화번호나
                                                 한국 카드가 없어도 카카오 택시를 이용할 수 있습니다
                                             </p>
                                         </div>
                                         <div class="how">
-                                            <p>사용 방법(외국인)</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
+                                            <p data-translate="tip.usage_method_foreigner">
+                                                사용 방법(외국인)
+                                            </p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
                                         </div>
                                     </div>
                                 </div>
@@ -149,7 +161,7 @@
                                 <!-- <p>지도 설명</p> -->
                             </div>
                             <div class="mapRecommend">
-                                <h4>지도 어플 추천</h4>
+                                <h4 data-translate="tip.map_app_recommend">지도 어플 추천</h4>
                                 <div class="navermap">
                                     <div class="left">
                                         <p class="image">
@@ -157,28 +169,28 @@
                                                 >네이버지도</a
                                             >
                                         </p>
-                                        <p>네이버 지도</p>
+                                        <p data-translate="tip.naver_map">네이버 지도</p>
                                     </div>
                                     <div class="right">
                                         <div class="good">
-                                            <p>
+                                            <p data-translate="tip.naver_map_desc">
                                                 주변 정보 검색을 통해 주변 음식점, 카페, 편의점 등
                                                 다양한 시설 정보를 쉽게 얻을 수 있습니다
                                             </p>
-                                            <p>
+                                            <p data-translate="tip.naver_map_feature1">
                                                 가고 싶은 장소들을 주제별로 저장할수 있어 지도에서
                                                 보기가 편리합니다
                                             </p>
-                                            <p>
+                                            <p data-translate="tip.naver_map_feature2">
                                                 네이버 예약과 연계되어 있어 네이버 지도에서 예약도
                                                 할 수 있습니다
                                             </p>
                                         </div>
                                         <div class="how">
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
                                         </div>
                                     </div>
                                 </div>
@@ -189,21 +201,23 @@
                                                 >카카오맵</a
                                             >
                                         </p>
-                                        <p>카카오맵</p>
+                                        <p data-translate="tip.kakao_map">카카오맵</p>
                                     </div>
                                     <div class="right">
                                         <div class="good">
-                                            <p>실시간 대중교통 정보의 정확성이 높습니다</p>
-                                            <p>
+                                            <p data-translate="tip.kakao_map_desc">
+                                                실시간 대중교통 정보의 정확성이 높습니다
+                                            </p>
+                                            <p data-translate="tip.kakao_map_feature">
                                                 지도를 확대하면 지하철의 움직임을 실시간으로 확인할
                                                 수 있어 정보를 직관적으로 확인할 수 있습니다
                                             </p>
                                         </div>
                                         <div class="how">
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
                                         </div>
                                     </div>
                                 </div>
@@ -211,7 +225,9 @@
                         </div>
                     </div>
                     <div class="pass">
-                        <h4 id="pass-section" class="section"><br />🎫 패스권</h4>
+                        <h4 id="pass-section" class="section" data-translate="tip.pass_section">
+                            <br />🎫 패스권
+                        </h4>
                         <div class="visitbusanpass">
                             <div class="left">
                                 <p class="image">
@@ -219,26 +235,33 @@
                                         >비짓부산패스</a
                                     >
                                 </p>
-                                <p>비짓부산패스</p>
+                                <p data-translate="tip.visit_busan_pass">비짓부산패스</p>
                             </div>
                             <div class="right">
                                 <div class="good">
                                     <p>
-                                        부산 주요 유료 관광시설 <span class="s600">42곳</span>을
-                                        이용할 수 있습니다
+                                        <span data-translate="tip.visit_busan_pass_facilities"
+                                            >부산 주요 유료 관광시설 42곳을 이용할 수 있습니다</span
+                                        >
                                     </p>
-                                    <p>
-                                        <span class="s600">주요 관광시설 :</span> 송도해상케이블카,
-                                        해운대 블루라인파크 해변열차, 시티투어버스 이용권 등
+                                    <p data-translate="tip.visit_busan_pass_facilities_desc">
+                                        주요 관광시설 : 송도해상케이블카, 해운대 블루라인파크
+                                        해변열차, 시티투어버스 이용권 등
                                     </p>
-                                    <p>교통카드 기능까지 연계되어 부산 여행의 편의를 제공합니다</p>
-                                    <p>시간제한형 2종, 수량제한형 2종으로 나뉘어 있습니다</p>
+                                    <p data-translate="tip.visit_busan_pass_transport">
+                                        교통카드 기능까지 연계되어 부산 여행의 편의를 제공합니다
+                                    </p>
+                                    <p data-translate="tip.visit_busan_pass_types">
+                                        시간제한형 2종, 수량제한형 2종으로 나뉘어 있습니다
+                                    </p>
                                 </div>
                                 <div class="howTo">
                                     <div class="cards">
                                         <div class="timeLimit">
-                                            <p class="s600">시간제한형</p>
-                                            <p>
+                                            <p class="s600" data-translate="tip.time_limited">
+                                                시간제한형
+                                            </p>
+                                            <p data-translate="tip.time_limited_desc">
                                                 추가비용 없이 제한된 시간 내 무료가맹점으로 등록된
                                                 관광시설을 자유롭게 관람, 입장, 이용하는 방식
                                             </p>
@@ -249,10 +272,13 @@
                                                         target="_blank"
                                                     >
                                                         <p class="cardImg">24h</p>
-                                                        <p class="name s600">
+                                                        <p
+                                                            class="name s600"
+                                                            data-translate="tip.pass_24h"
+                                                        >
                                                             VISIT BUSAN PASS 24H
                                                         </p>
-                                                        <p class="price">55,000원</p>
+                                                        <p class="price">55,000₩</p>
                                                     </a>
                                                 </li>
                                                 <li class="pass48h">
@@ -261,18 +287,23 @@
                                                         target="_blank"
                                                     >
                                                         <p class="cardImg">48h</p>
-                                                        <p class="name s600">
+                                                        <p
+                                                            class="name s600"
+                                                            data-translate="tip.pass_48h"
+                                                        >
                                                             VISIT BUSAN PASS 48H
                                                         </p>
-                                                        <p class="price">85,000원</p>
+                                                        <p class="price">85,000₩</p>
                                                     </a>
                                                 </li>
                                             </ul>
                                             <p></p>
                                         </div>
                                         <div class="big">
-                                            <p class="s600">수량제한형</p>
-                                            <p>
+                                            <p class="s600" data-translate="tip.quantity_limited">
+                                                수량제한형
+                                            </p>
+                                            <p data-translate="tip.quantity_limited_desc">
                                                 등록된 무료가맹점을 3곳 또는 5곳을 선택하여 자유롭게
                                                 이용하는 방식
                                             </p>
@@ -283,10 +314,13 @@
                                                         target="_blank"
                                                     >
                                                         <p class="cardImg">big3</p>
-                                                        <p class="name s600">
+                                                        <p
+                                                            class="name s600"
+                                                            data-translate="tip.pass_big3"
+                                                        >
                                                             VISIT BUSAN PASS BIG3
                                                         </p>
-                                                        <p class="price">45,000원</p>
+                                                        <p class="price">45,000₩</p>
                                                     </a>
                                                 </li>
                                                 <li class="passBig5">
@@ -295,34 +329,43 @@
                                                         target="_blank"
                                                     >
                                                         <p class="cardImg">big5</p>
-                                                        <p class="name s600">
+                                                        <p
+                                                            class="name s600"
+                                                            data-translate="tip.pass_big5"
+                                                        >
                                                             VISIT BUSAN PASS BIG5
                                                         </p>
-                                                        <p class="price">65,000원</p>
+                                                        <p class="price">65,000₩</p>
                                                     </a>
                                                 </li>
                                             </ul>
                                         </div>
                                     </div>
                                     <div class="buy">
-                                        <p class="s600">구매 방법</p>
-                                        <p>
+                                        <p class="s600" data-translate="tip.purchase_method">
+                                            구매 방법
+                                        </p>
+                                        <p data-translate="tip.purchase_method_desc">
                                             비짓부산패스 홈페이지에서 구매하거나 부산패스 어플에서
                                             구매하실 수 있습니다
                                         </p>
                                     </div>
-                                    <p class="s600">수령처(카드 구매시)</p>
-                                    <p>
+                                    <p class="s600" data-translate="tip.pickup_location">
+                                        수령처(카드 구매시)
+                                    </p>
+                                    <p data-translate="tip.pickup_location_desc">
                                         부산시 공식 여행안내소, 부산은행 지정 지점, 키오스크에서
                                         카드를 수령하실 수 있습니다
                                     </p>
                                     <div class="use">
-                                        <p class="s600">사용 방법</p>
-                                        <div>
+                                        <p class="s600" data-translate="tip.usage_method">
+                                            사용 방법
+                                        </p>
+                                        <div data-translate="tip.card_usage">
                                             카드 패스 : 실물 카드 패스를 매표소에 제시하시면 무료
                                             티켓 또는 할인 혜택을 받으실 수 있습니다
                                         </div>
-                                        <div>
+                                        <div data-translate="tip.mobile_usage">
                                             모바일 패스 : 매표소에서 모바일 패스를 제시하시면 무료
                                             티켓 또는 할인 혜택을 받으실 수 있습니다
                                         </div>
@@ -333,23 +376,30 @@
                     </div>
                 </div>
                 <div class="convenience">
-                    <h3>편의</h3>
+                    <h3 data-translate="tip.convenience_title">편의</h3>
                     <div class="reservation">
-                        <h4 id="reserve-section" class="section">📅 식당 예약</h4>
+                        <h4
+                            id="reserve-section"
+                            class="section"
+                            data-translate="tip.reservation_title"
+                        >
+                            📅 식당 예약
+                        </h4>
                         <div class="eat">
                             <div class="eatComent">
-                                <p>
+                                <p data-translate="tip.remote_waiting_desc">
                                     인기 맛집의 경우, 직접 줄을 서지 않고 앱으로
-                                    <span class="s600">원격 웨이팅</span>을 신청하여 순서를 기다릴
-                                    수 있습니다
+                                    <span class="s600" data-translate="tip.remote_waiting"
+                                        >원격 웨이팅</span
+                                    >을 신청하여 순서를 기다릴 수 있습니다
                                 </p>
-                                <p>
+                                <p data-translate="tip.real_time_queue">
                                     실시간으로 매장 입장 순서를 확인할 수 있어 효율적인 시간 관리가
                                     가능합니다
                                 </p>
                             </div>
                             <div class="eatRecommend">
-                                <h4>식당 예약어플 추천</h4>
+                                <h4 data-translate="tip.reservation_apps">식당 예약어플 추천</h4>
                                 <div class="tabling">
                                     <div class="left">
                                         <p class="image">
@@ -357,24 +407,24 @@
                                                 >테이블링</a
                                             >
                                         </p>
-                                        <p>테이블링</p>
+                                        <p data-translate="tip.tabling">테이블링</p>
                                     </div>
                                     <div class="right">
                                         <div class="good">
-                                            <p>
+                                            <p data-translate="tip.tabling_desc">
                                                 테이블링 앱을 통해 메뉴 주문부터 결제까지 간편하게
                                                 처리할 수 있습니다
                                             </p>
-                                            <p>
+                                            <p data-translate="tip.tabling_feature">
                                                 매장별 대기 시간, 메뉴 정보, 예약 가능 여부 등을 앱
                                                 내에서 쉽게 확인할 수 있습니다
                                             </p>
                                         </div>
                                         <div class="how">
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
                                         </div>
                                     </div>
                                 </div>
@@ -385,24 +435,24 @@
                                                 >캐치테이블</a
                                             >
                                         </p>
-                                        <p>캐치테이블</p>
+                                        <p data-translate="tip.catch_table">캐치테이블</p>
                                     </div>
                                     <div class="right">
                                         <div class="good">
-                                            <p>
+                                            <p data-translate="tip.catch_table_desc">
                                                 외국인 전용 어플이 있어서 외국인들도 편리하게 이용할
                                                 수 있습니다
                                             </p>
-                                            <p>
+                                            <p data-translate="tip.catch_table_feature">
                                                 원격으로 웨이팅 등록을 하고, 실시간으로 대기 현황을
                                                 확인할 수 있어 시간을 효율적으로 활용할 수 있습니다
                                             </p>
                                         </div>
                                         <div class="how">
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
-                                            <p>사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
+                                            <p data-translate="tip.usage_method">사용 방법</p>
                                         </div>
                                     </div>
                                 </div>
@@ -410,43 +460,55 @@
                         </div>
                     </div>
                     <div class="delivery">
-                        <h4 id="deliver-section" class="section">&#128757; 배달</h4>
+                        <h4
+                            id="deliver-section"
+                            class="section"
+                            data-translate="tip.delivery_title"
+                        >
+                            &#128757; 배달
+                        </h4>
                         <div class="deliveryComent">
-                            <p>
+                            <p data-translate="tip.delivery_desc">
                                 한국의 빠른 서비스 문화를 그대로 반영하여, 주문 후 30분~1시간 이내에
                                 음식을 받아보는 것이 일반적입니다
                             </p>
-                            <p>
+                            <p data-translate="tip.late_night_delivery_desc">
                                 늦은 시간 야식 배달이 매우 활성화되어 있어
-                                <span class="s600">24시간 배달</span>이 가능한 음식점도 많습니다
+                                <span class="s600" data-translate="tip.late_night_delivery"
+                                    >24시간 배달</span
+                                >이 가능한 음식점도 많습니다
                             </p>
-                            <p>오토바이를 이용한 배달 라이더 시스템이 매우 잘 갖춰져 있습니다</p>
+                            <p data-translate="tip.motorcycle_delivery">
+                                오토바이를 이용한 배달 라이더 시스템이 매우 잘 갖춰져 있습니다
+                            </p>
                         </div>
                         <div class="deliveryRecommend">
-                            <h4>배달어플 추천</h4>
+                            <h4 data-translate="tip.delivery_apps">배달어플 추천</h4>
                             <div class="baemin">
                                 <div class="left">
                                     <p class="image">
                                         <a href="https://baemin.com/" target="_blank">배달의민족</a>
                                     </p>
-                                    <p>배달의민족</p>
+                                    <p data-translate="tip.baemin">배달의민족</p>
                                 </div>
                                 <div class="right">
                                     <div class="good">
-                                        <p>
+                                        <p data-translate="tip.baemin_desc">
                                             다양한 음식점, 카페, 편의점 등 광범위한 가맹점
                                             네트워크를 보유하고 있습니다
                                         </p>
-                                        <p>
+                                        <p data-translate="tip.baemin_feature">
                                             비회원 해외카드 결제가 가능하여 외국인들도 서비스를
                                             이용할 수 있습니다
                                         </p>
                                     </div>
                                     <div class="how">
-                                        <p>사용 방법(외국인)</p>
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
+                                        <p data-translate="tip.usage_method_foreigner">
+                                            사용 방법(외국인)
+                                        </p>
+                                        <p data-translate="tip.usage_method">사용 방법</p>
+                                        <p data-translate="tip.usage_method">사용 방법</p>
+                                        <p data-translate="tip.usage_method">사용 방법</p>
                                     </div>
                                 </div>
                             </div>
@@ -459,41 +521,52 @@
                                             >셔틀딜리버리</a
                                         >
                                     </p>
-                                    <p>셔틀딜리버리</p>
+                                    <p data-translate="tip.shuttle_delivery">셔틀딜리버리</p>
                                 </div>
                                 <div class="right">
                                     <div class="good">
-                                        <p>
+                                        <p data-translate="tip.shuttle_delivery_desc">
                                             한국 전화번호 없이 가입이 가능하고 PayPal 사용이
                                             가능합니다
                                         </p>
                                     </div>
                                     <div class="how">
-                                        <p>사용 방법(외국인)</p>
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
-                                        <p>사용 방법</p>
+                                        <p data-translate="tip.usage_method_foreigner">
+                                            사용 방법(외국인)
+                                        </p>
+                                        <p data-translate="tip.usage_method">사용 방법</p>
+                                        <p data-translate="tip.usage_method">사용 방법</p>
+                                        <p data-translate="tip.usage_method">사용 방법</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="photo">
-                        <h4 id="photob-section" class="section">📸 포토부스</h4>
+                        <h4
+                            id="photob-section"
+                            class="section"
+                            data-translate="tip.photobooth_title"
+                        >
+                            📸 포토부스
+                        </h4>
                         <div class="photoComent">
-                            <p>
+                            <p data-translate="tip.photobooth_desc">
                                 한국에서 네컷사진은 단순히 사진을 찍는 행위를 넘어, 친구나 연인과
                                 함께 소품을 활용하고 다양한 포즈를 취하며 추억을 만드는
-                                <span class="s600">'놀이 문화'</span>로 자리 잡았습니다
+                                <span class="s600" data-translate="tip.photobooth">'놀이 문화'</span
+                                >로 자리 잡았습니다
                             </p>
-                            <p>
+                            <p data-translate="tip.photobooth_feature1">
                                 과도한 보정보다는 자연스러운 피부 보정이나 얼굴형 보정 기능이 주를
                                 이룹니다
                             </p>
-                            <p>24시간 무인 셀프 사진관이 대부분이라 언제든지 이용할 수 있습니다</p>
+                            <p data-translate="tip.photobooth_feature2">
+                                24시간 무인 셀프 사진관이 대부분이라 언제든지 이용할 수 있습니다
+                            </p>
                         </div>
                         <div class="photoRecommend">
-                            <h4>포토부스 추천</h4>
+                            <h4 data-translate="tip.photo_apps">포토부스 추천</h4>
                             <div class="photoism">
                                 <div class="left">
                                     <p class="image">
@@ -501,21 +574,21 @@
                                             >포토이즘</a
                                         >
                                     </p>
-                                    <p>포토이즘</p>
+                                    <p data-translate="tip.photoism">포토이즘</p>
                                 </div>
                                 <div class="right">
                                     <div class="good">
-                                        <p>
+                                        <p data-translate="tip.photoism_desc">
                                             포토이즘 스튜디오, 박스, 컬러드 등 목적과 취향에 따라
                                             선택할 수 있는 옵션이 많습니다
                                         </p>
-                                        <p>
+                                        <p data-translate="tip.photoism_feature">
                                             유명 연예인들과 활발한 콜라보를 통해 다양한 한정판
                                             프레임을 제공합니다
                                         </p>
                                     </div>
                                     <div class="how">
-                                        <p>사용 방법</p>
+                                        <p data-translate="tip.usage_method">사용 방법</p>
                                     </div>
                                 </div>
                             </div>
@@ -526,18 +599,20 @@
                                             >인생네컷</a
                                         >
                                     </p>
-                                    <p>인생네컷</p>
+                                    <p data-translate="tip.life_four_cuts">인생네컷</p>
                                 </div>
                                 <div class="right">
                                     <div class="good">
-                                        <p>'네컷사진'의 원조이자 가장 대중적인 브랜드 입니다</p>
-                                        <p>
+                                        <p data-translate="tip.life_four_cuts_desc">
+                                            '네컷사진'의 원조이자 가장 대중적인 브랜드 입니다
+                                        </p>
+                                        <p data-translate="tip.life_four_cuts_feature">
                                             인생네컷 어플에서 자신만의 프레임을 제작하여 사용할 수
                                             있습니다
                                         </p>
                                     </div>
                                     <div class="how">
-                                        <p>사용 방법</p>
+                                        <p data-translate="tip.usage_method">사용 방법</p>
                                     </div>
                                 </div>
                             </div>

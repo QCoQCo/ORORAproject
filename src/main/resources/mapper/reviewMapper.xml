@@ -107,6 +107,32 @@
         ORDER BY r.created_at DESC
     </select>
 
+    <!-- 사용자가 좋아요 누른 리뷰 조회 -->
+    <select id="findLikedReviewsByUserId" resultType="java.util.HashMap" parameterType="Long">
+        SELECT 
+            r.id,
+            r.user_id as userId,
+            r.tourist_spot_id as touristSpotId,
+            r.title,
+            r.content,
+            r.rating,
+            r.is_approved as isApproved,
+            r.created_at as createdAt,
+            r.updated_at as updatedAt,
+            ts.title as touristSpotName,
+            ts.title as tourist_spot_name,
+            u.username as authorName,
+            u.username as author_name,
+            rl.created_at as likedAt
+        FROM review_likes rl
+        INNER JOIN reviews r ON rl.review_id = r.id
+        LEFT JOIN tourist_spots ts ON r.tourist_spot_id = ts.id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE rl.user_id = #{userId}
+          AND r.is_approved = TRUE
+        ORDER BY rl.created_at DESC
+    </select>
+
     <!-- 리뷰 ID로 조회 -->
     <select id="findReviewById" resultMap="ReviewResultMap" parameterType="Long">
         SELECT 
@@ -134,6 +160,12 @@
         INSERT INTO review_images (review_id, image_url, image_order, alt_text)
         VALUES (#{reviewId}, #{imageUrl}, #{imageOrder}, #{altText})
     </insert>
+
+    <!-- 리뷰 이미지 삭제 -->
+    <delete id="deleteReviewImage" parameterType="Long">
+        DELETE FROM review_images
+        WHERE id = #{imageId}
+    </delete>
 
     <!-- 리뷰 수정 -->
     <update id="updateReview" parameterType="com.busan.orora.review.dto.ReviewDto">
@@ -318,5 +350,30 @@
     <delete id="deleteCommentReport">
         DELETE FROM comment_reports WHERE id = #{reportId}
     </delete>
+
+    <!-- 사용자별 댓글 조회 (리뷰 및 관광지 정보 포함) -->
+    <select id="findCommentsByUserId" resultType="java.util.HashMap" parameterType="Long">
+        SELECT 
+            rc.id,
+            rc.user_id as userId,
+            rc.review_id as reviewId,
+            rc.content,
+            rc.is_approved as isApproved,
+            rc.created_at as createdAt,
+            rc.updated_at as updatedAt,
+            r.title as reviewTitle,
+            r.content as reviewContent,
+            ts.id as touristSpotId,
+            ts.title as touristSpotName,
+            u.username as reviewAuthorName
+        FROM review_comments rc
+        INNER JOIN reviews r ON rc.review_id = r.id
+        LEFT JOIN tourist_spots ts ON r.tourist_spot_id = ts.id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE rc.user_id = #{userId}
+          AND rc.is_approved = TRUE
+          AND r.is_approved = TRUE
+        ORDER BY rc.created_at DESC
+    </select>
 
 </mapper>

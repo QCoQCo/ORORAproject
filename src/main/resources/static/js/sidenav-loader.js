@@ -40,7 +40,8 @@ class SideNavLoader {
             } else {
                 subMenu.style.display = 'block';
             }
-            button.textContent = '하위메뉴 닫기';
+            // 번역 시스템 사용
+            this.updateButtonText(button, 'close');
         }
     }
 
@@ -58,8 +59,29 @@ class SideNavLoader {
             } else {
                 subMenu.style.display = 'none';
             }
-            button.textContent = '하위메뉴 열기';
+            // 번역 시스템 사용
+            this.updateButtonText(button, 'open');
         }
+    }
+
+    // 버튼 텍스트 업데이트 (번역 지원)
+    updateButtonText(button, state) {
+        if (!button) return;
+        
+        // 번역 시스템이 있는 경우
+        if (window.languageManager) {
+            const key = state === 'open' 
+                ? 'about.sidenav.submenu_open' 
+                : 'about.sidenav.submenu_close';
+            const translation = window.languageManager.getTranslation(key);
+            if (translation) {
+                button.textContent = translation;
+                return;
+            }
+        }
+        
+        // 번역 시스템이 없는 경우 기본값
+        button.textContent = state === 'open' ? '하위메뉴 열기' : '하위메뉴 닫기';
     }
 
     // 메뉴 이벤트 초기화
@@ -113,7 +135,7 @@ class SideNavLoader {
                 
                 if (subMenu && button) {
                     subMenu.style.display = 'none';
-                    button.textContent = '하위메뉴 열기';
+                    this.updateButtonText(button, 'open');
                 }
             }
         });
