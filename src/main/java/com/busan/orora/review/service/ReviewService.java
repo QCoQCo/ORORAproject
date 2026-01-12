@@ -46,6 +46,10 @@ public class ReviewService {
         return reviewMapper.findReviewsByUserIdWithSpotInfo(userId);
     }
 
+    public List<Map<String, Object>> getLikedReviewsByUserId(Long userId) {
+        return reviewMapper.findLikedReviewsByUserId(userId);
+    }
+
     public List<Map<String, Object>> getCommentsByReviewId(Long reviewId) {
         return reviewMapper.findCommentsByReviewId(reviewId);
     }

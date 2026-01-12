@@ -35,6 +35,9 @@ public interface ReviewMapper {
     // 사용자별 리뷰 조회 (관광지 정보 포함)
     List<Map<String, Object>> findReviewsByUserIdWithSpotInfo(@Param("userId") Long userId);
 
+    // 사용자가 좋아요 누른 리뷰 조회
+    List<Map<String, Object>> findLikedReviewsByUserId(@Param("userId") Long userId);
+
     // 리뷰별 댓글 목록 조회
     List<Map<String, Object>> findCommentsByReviewId(@Param("reviewId") Long reviewId);
 

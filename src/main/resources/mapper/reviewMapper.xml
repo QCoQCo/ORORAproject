@@ -107,6 +107,32 @@
         ORDER BY r.created_at DESC
     </select>
 
+    <!-- 사용자가 좋아요 누른 리뷰 조회 -->
+    <select id="findLikedReviewsByUserId" resultType="java.util.HashMap" parameterType="Long">
+        SELECT 
+            r.id,
+            r.user_id as userId,
+            r.tourist_spot_id as touristSpotId,
+            r.title,
+            r.content,
+            r.rating,
+            r.is_approved as isApproved,
+            r.created_at as createdAt,
+            r.updated_at as updatedAt,
+            ts.title as touristSpotName,
+            ts.title as tourist_spot_name,
+            u.username as authorName,
+            u.username as author_name,
+            rl.created_at as likedAt
+        FROM review_likes rl
+        INNER JOIN reviews r ON rl.review_id = r.id
+        LEFT JOIN tourist_spots ts ON r.tourist_spot_id = ts.id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE rl.user_id = #{userId}
+          AND r.is_approved = TRUE
+        ORDER BY rl.created_at DESC
+    </select>
+
     <!-- 리뷰 ID로 조회 -->
     <select id="findReviewById" resultMap="ReviewResultMap" parameterType="Long">
         SELECT 

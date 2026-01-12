@@ -236,6 +236,30 @@
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
+/* 리뷰 탭 2열 레이아웃 */
+.mypage-container .reviews-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.mypage-container .reviews-column {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.mypage-container .reviews-column .section-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.mypage-container .reviews-column .section-header h2 {
+    font-size: 1.2rem;
+}
+
 /* 리뷰/댓글/좋아요 목록 */
 .mypage-container .reviews-list,
 .mypage-container .comments-list,
@@ -428,6 +452,10 @@
     .mypage-container .mypage-header,
     .mypage-container .mypage-content {
         padding: 0 15px;
+    }
+
+    .mypage-container .reviews-columns {
+        grid-template-columns: 1fr;
     }
 
     .mypage-container .user-profile {
