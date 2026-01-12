@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}" lang="ko">
+<head>
+    <title layout:fragment="title">부산 소개</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+        <link rel="stylesheet" th:href="@{/css/sidenav.css}" />
+        <link rel="stylesheet" th:href="@{/css/about-Busan.css}" />
+        <link rel="stylesheet" th:href="@{/css/breadcrumb.css}" />
+    </th:block>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div th:replace="~{components/breadcrumb.html :: breadcrumb}"></div>
+        <section class="abBusan">
+            <div class="swiper main_bg">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="../../images/main_basisInfo01.jpg" alt="기본현황"></div>
+                    <div class="swiper-slide"><img src="../../images/main_basisInfo02.jpg" alt="기본현황"></div>
+                    <div class="swiper-slide"><img src="../../images/main_basisInfo03.jpg" alt="기본현황"></div>
+                </div>
+                <h2 class="title">기본현황</h2>
+            </div>
+            <div class="container">
+                <div th:replace="~{components/sidenav-busan.html :: sidenav-busan}"></div>
+                <main id="contents">
+                    <ul class="basisinfo">
+                        <li class="place">
+                            <div class="placeTitle">
+                                <span class="seagull"></span>
+                                <p>위치</p>
+                            </div>
+                            <div class="placeInfo">
+                                <ul>
+                                    <li class="placePhoto"><img src="../../images/map.jpg" alt="부산 지도"></li>
+                                    <li>
+                                        <p>
+                                            한반도의 남동단에 위치하며 남으로는 대한해협에 면해 있고,<br>
+                                            남쪽을 제외하고는 경상남도와 접하고 있다.
+                                        </p>
+                                    </li>
+                                </ul>
+                                <ul class="placeList">
+                                    <li class="placeLi">
+                                        <p class="placeLiTi">수리적 위치</p>
+                                        <p class="enter">
+                                            동단: 동경 129°18′13″(장안읍 효암리)<br>
+                                            서단: 동경 128°45′54″(가덕도동 미백도)<br>
+                                            남단: 북위 34°52′50″(다대동 남형제도)<br>
+                                            북단: 북위 35°23′ 36″(장안읍 명례리)
+                                        </p>
+                                        <p>
+                                            <span class="bold">→</span>북반구 중위도와 동반구 중경도에 해당한다.<br>
+                                            <span class="bold">→</span>위도는 일본의 도쿄, 경도는 일본의 나카사키와 비슷하다.
+                                        </p>
+                                    </li>
+                                    <li class="placeLi">
+                                        <p class="placeLiTi">기후대적 위치</p>
+                                        <div>
+                                            <p class="enter">
+                                                온대 계절풍 기후대와 대륙 동안 기후대에 속한다.<br>
+                                                대한해협에 면해있기 때문에 해양의 영향을 크게 받아 해양성기후의<br>특징이 잘 나타난다.
+                                            </p>
+                                            <p>
+                                                <span class="bold">→</span>여름과 겨울의 기온차가 크지 않으며 4계절의 변화가 뚜렷하여 <br>사람이 살기에
+                                                적합한 도시이다.
+                                            </p>
+                                        </div>
+                                    </li>
+                                    <li class="placeLi">
+                                        <p class="placeLiTi">관문적 위치</p>
+                                        <p class="enter">
+                                            부산은 우리나라 제1의 국제무역항이자 국제공항을 갖고 있어 여러 <br>나라와 연결하는 관문역할을 다하고 있다.
+                                        </p>
+                                        <p>
+                                            <span class="bold">→</span>일본은 도쿄를 비롯하여 오사카 및 시모노세키·후쿠오카·나고야와 <br>연결되어 있다.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="climate">
+                            <div class="climateTitle">
+                                <span class="seagull"></span>
+                                <p>기후</p>
+                                <p class="kma"><a href="https://testweather.kma.go.kr/busan/html/main/index.jsp">기상청
+                                        바로가기</a></p>
+                            </div>
+                            <div class="climateInfo">
+                                <p>
+                                    동아시아 계절풍이 탁월한 유라시아 대륙의 동쪽 한반도의 남동단에 위치하고 있기 때문에 4계절이 뚜렷한 온대기후를 나타낸다.
+                                </p>
+                                <ul class="seasonList">
+                                    <li>
+                                        <div><img src="../../images/spring.jpg" alt="봄"></div>
+                                        <div>
+                                            <p class="seasonLiTi">봄</p>
+                                            <p>
+                                                시기: 3월 초순~6월 말<br>
+                                                평균 기온: 14.9℃
+                                            </p>
+                                            <p>
+                                                봄바람이 무척 강하기(평균 4.4m/s) 때문에 체감온도는 상당히 낮다.<br>
+                                                봄에는 일교차가 매우 크고, 이상건조, 황사, 늦서리 같은 특수한 <br>기상현상이 나타난다.
+                                            </p>
+                                            <p><span class="bold">Tip</span>꽃이 많이 피므로 화사한 톤의 옷을 추천!</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div><img src="../../images/summer.jpg" alt="여름"></div>
+                                        <div>
+                                            <p class="seasonLiTi">여름</p>
+                                            <p>
+                                                시기: 6월 말~9월 초순 / 장마기간: 6월 말~8월초<br>
+                                                평균 기온: 7월 23.9℃ / 7월 하순~8월 중순 최고기온 32℃ 이상
+                                            </p>
+                                            <p>
+                                                기온의 일교차가 5.3℃로서 아주 작은 편이지만 강수량이 가장 많은 <br>계절로, 연 총 강수량 50 ∼ 60%가
+                                                내린다.<br>
+                                                열대야: 밤에도 최저기온이 25℃이상이 되는 현상
+                                            </p>
+                                            <p><span class="bold">Tip</span>최고기온 32℃ 이상인 무더운 날씨이므로 얇은 옷을 추천! <br>장마기간에
+                                                우산은 필수!</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div><img src="../../images/fall.jpg" alt="가을"></div>
+                                        <div>
+                                            <p class="seasonLiTi">가을</p>
+                                            <p>
+                                                시기: 9월 초순~11월 말<br>
+                                                평균 기온: 9월 21.8℃, 10월 17℃, 11월부터 기온 급강하
+                                            </p>
+                                            <p>
+                                                이동성 고기압의 영향으로 날씨가 주기적으로 변하여 9월에 들어서면 <br>아침 저녁으로는 서늘해지기 시작한다.
+                                            </p>
+                                            <p><span class="bold">Tip</span>아침 저녁으로는 서늘하기 때문에 입고 벗을 수 있는 겉옷을 <br>챙기는 것을
+                                                추천!!</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div><img src="../../images/winter.jpg" alt="겨울"></div>
+                                        <div>
+                                            <p class="seasonLiTi">겨울</p>
+                                            <p>
+                                                시기: 11월 말~이듬해 2월 말<br>
+                                                평균기온: 3.8℃
+                                            </p>
+                                            <p>
+                                                일 최저기온이 0℃ 이하인 일수가 부산은 53일로서 제주도를<br>제외하고 가장 적다.<br>
+                                                삼한사온: 북서계절풍이 3 ∼ 4일을 주기로 강해지기도 하고<br>약해지기도 하는 현상
+                                            </p>
+                                            <p><span class="bold">Tip</span>일본에 비해 많이 춥기 때문에 따뜻하게 입는 것을 추천!</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="coast">
+                            <div class="coastTitle">
+                                <span class="seagull"></span>
+                                <p>해안</p>
+                            </div>
+                            <div class="coastInfo">
+                                <p>
+                                    부산의 해안은 해안선의 출입이 심한 리아스식 해안으로서 해안을 이루는 구성물질이 다양한 것도 하나의 특색이다.<br>
+                                    해안을 구성하는 물질이 기반암으로만 되어 있는 암석 해안과 모래로 되어 있는 사질해안이 있다.
+                                </p>
+                                <ul class="coastList">
+                                    <li>
+                                        <div><img src="../../images/rock.jpg" alt="암석해안"></div>
+                                        <div>
+                                            <p class="coastLiTi">암석해안</p>
+                                            <p class="enter">
+                                                암석해안은 해안을 구성하는 물질이 기반암으로 되어 있고 자갈이나 <br>모래, 실트 등과 같은 퇴적물을 찾아볼 수 없는
+                                                해안이다.<br>
+                                                주로 외해(外海)에 면한 반도, 두각지 또는 여러 섬들의 선단에 잘<br>나타난다.
+                                            </p>
+                                            <p class="example">
+                                                예&#41; 해운대의 고두말, 동백섬, 우암반도, 오륙도, 영도, 장군반도, <br>두송 반도, 몰운반도 그리고 가덕도와 같은
+                                                대부분의 해안
+                                            </p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div><img src="../../images/sand.jpg" alt="사질해안"></div>
+                                        <div>
+                                            <p class="coastLiTi">사질해안</p>
+                                            <p class="enter">
+                                                사질해안은 암석해안과는 달리 대체로 수려한 모래로 구성된<br>해안이다.
+                                            </p>
+                                            <p class="example">
+                                                예&#41; 송정만, 수영만, 부산만, 감천만, 다대만 등의 내만(內灣),<br>낙동강의 하구 해안
+                                            </p>
+                                            <p class="coastDetail"><button onclick="toggleContent()">자세히 보기</button></p>
+                                        </div>
+                                    </li>
+                                    <li class="sandbeach hidden">
+                                        <p class="arr"><span></span></p>
+                                        <div class="sand">
+                                            <p><img src="../../images/sandbeach.jpg" alt="사빈"></p>
+                                            <p class="coastLiTi">사빈 - 순수한 모래로 된 해안</p>
+                                            <p class="enter">현재 해수욕장으로 이용되고 있음</p>
+                                            <p class="example">예&#41; 해운대 해수욕장, 송정 해수욕장,<br>광안리 해수욕장 등</p>
+                                        </div>
+                                        <div class="sand">
+                                            <p><img src="../../images/gravel.jpg" alt="역빈"></p>
+                                            <p class="coastLiTi">역빈 - 자갈로 된 해안</p>
+                                            <p class="enter">사빈에 비해 규모는 크지 않으나 모양새가 <br>좋은 둥근 옥돌로 되어 있는 것이 특징</p>
+                                            <p class="example">예&#41; 영도의 동삼동 해안, 곤포의 집 해안, <br>우암반도의 승두말과 신선대 사이의 만입<br>등의 해안
+                                            </p>
+                                        </div>
+                                        <div class="sand">
+                                            <p><img src="../../images/mud.jpg" alt="이빈"></p>
+                                            <p class="coastLiTi">이빈 - 뻘로 된 해안</p>
+                                            <p class="enter">낙동강이 운반해온 미세한 입자의 실트<br>내지는 실트질 점토가 퇴적되어 형성된<br>해안</p>
+                                            <p class="example">예&#41; 낙동강 하구인 낙동강 삼각주의 말단</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </main>
+                <button title="클릭하시면 최상단으로 이동합니다" id="scrollTop"></button>
+            </div>
+        </section>
+    </div>
+    <th:block layout:fragment="script">
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+        <!-- sidenav-loader.js는 이벤트 리스너만 사용합니다. -->
+        <script th:src="@{/js/sidenav-loader.js}"></script>
+        <script th:src="@{/js/busan.js}"></script>
+        <!-- breadcrumb-loader.js는 더 이상 필요하지 않습니다. Thymeleaf fragment로 대체되었습니다. -->
+    </th:block>
+</body>
+
+</html>

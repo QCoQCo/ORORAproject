@@ -1,0 +1,2815 @@
+@charset "utf-8";
+
+/* CSS Variables for consistent theming */
+:root {
+    --primary-blue: #1e5a8b;
+    --secondary-blue: #3b82c4;
+    --accent-blue: #60a5fa;
+    --gradient-blue: linear-gradient(135deg, #dbf6ff 0%, #96daff 100%);
+    --neutral-50: #f8fafc;
+    --neutral-100: #f1f5f9;
+    --neutral-200: #e2e8f0;
+    --neutral-300: #cbd5e1;
+    --neutral-400: #94a3b8;
+    --neutral-500: #64748b;
+    --neutral-600: #475569;
+    --neutral-700: #334155;
+    --neutral-800: #1e293b;
+    --neutral-900: #0f172a;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard Variable', Pretendard, sans-serif;
+    line-height: 1.6;
+    color: var(--neutral-700);
+    background-color: var(--neutral-50);
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+button {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    color: var(--neutral-800);
+}
+
+/* Main wrapper */
+#Wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--neutral-50);
+}
+
+/* Back button */
+.back-button-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: white;
+    border: 2px solid var(--neutral-200);
+    border-radius: 12px;
+    color: var(--neutral-700);
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.back-button:hover {
+    background: var(--gradient-blue);
+    border-color: var(--accent-blue);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.back-button::before {
+    content: '←';
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Inner container */
+.inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    box-shadow: var(--shadow-xl);
+    position: relative;
+}
+
+/* Title section */
+.title {
+    text-align: center;
+    padding: 60px 0 40px;
+    background: var(--gradient-blue);
+    margin: 0 -20px 40px;
+    border-radius: 20px 20px 0 0;
+}
+
+.title h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 12px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title .local {
+    font-size: 1.25rem;
+    color: var(--neutral-600);
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.title .descript {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--neutral-800);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(10px);
+}
+
+/* Middle buttons */
+.middleButtons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.middleButtons .left,
+.middleButtons .right {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+#Wrapper .inner .middleButtons .left .eyes button {
+    pointer-events: none;
+}
+
+.like,
+.eyes,
+.save,
+.print,
+.map,
+.share,
+.review-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: white;
+    border: 2px solid var(--neutral-200);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--neutral-600);
+}
+
+.like,
+.save,
+.print,
+.map,
+.share,
+.review-info {
+    cursor: pointer;
+}
+
+/* .like button,
+.eyes button,
+.save button,
+.print button,
+.map button,
+.share button */
+
+.like:hover,
+.save:hover,
+.print:hover,
+.map:hover,
+.share:hover,
+.review-info:hover {
+    background: var(--gradient-blue);
+    border-color: var(--accent-blue);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.likeBtn {
+    background: url(../images/icon_like_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.likeBtnActive {
+    background: url(../images/icon_like_active_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .eyes .eyesPho {
+    background: url(../images/ico_eyes_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .save .saveBtn {
+    background: url(../images/ico_save_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .save .saveBtnActive {
+    background: url(../images/ico_saveActive_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .print .printPho {
+    background: url(../images/ico_print_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .map .mapPho {
+    background: url(../images/ico_map_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.middleButtons .share .sharePho {
+    background: url(../images/ico_share_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.likeBtn,
+.eyes .eyesPho,
+.save .saveBtn,
+.print .printPho,
+.map .mapPho,
+.share .sharePho {
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s ease;
+    object-fit: contain;
+}
+
+.likeBtn:hover,
+.save .saveBtn:hover,
+.print .printPho:hover,
+.map .mapPho:hover,
+.share .sharePho:hover {
+    transform: scale(1.1);
+}
+
+.likeCount,
+.eyesCount,
+.shareCount {
+    color: var(--neutral-500);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Review info styles */
+.review-info {
+    gap: 12px;
+    min-width: 140px;
+}
+
+.review-info .reviewIcon {
+    font-size: 1.5rem;
+    margin: 0;
+    line-height: 1;
+}
+
+.review-info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.review-info-text .review-average {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.review-info-text .review-total {
+    font-size: 0.85rem;
+    color: var(--neutral-500);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.review-info-text .review-total span {
+    font-weight: 600;
+    color: var(--neutral-700);
+}
+
+.inner .tap {
+    position: sticky;
+    top: 120px;
+    left: 0;
+    z-index: 100;
+}
+
+/* Sub navigation */
+#subTitle {
+    /* position: sticky;
+    top: 120px;
+    left: 0; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 40px;
+    overflow: hidden;
+}
+
+#subTitle li {
+    flex: 1;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--neutral-600);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-right: 1px solid var(--neutral-200);
+}
+
+#subTitle li:last-child {
+    border-right: none;
+}
+
+#subTitle li:hover {
+    background: var(--gradient-blue);
+    color: var(--primary-blue);
+}
+
+#subTitle li.active {
+    background: var(--gradient-blue);
+    color: var(--primary-blue);
+}
+
+/* Photo submission */
+.subPic {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.submitPicture {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: white;
+    border: 2px solid var(--neutral-300);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.submitPicture:hover {
+    background: var(--gradient-blue);
+    border-color: var(--accent-blue);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.submitPicture span {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon_btn_picture_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+/* Photo gallery */
+.photo {
+    position: relative;
+    height: 600px;
+    margin-bottom: 60px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    scroll-margin-top: 570px;
+}
+
+.swiper {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--neutral-100);
+}
+
+.swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mySwiper2 {
+    height: 80%;
+}
+
+.mySwiper {
+    height: 20%;
+    margin-top: 10px;
+}
+
+.mySwiper .swiper-slide {
+    width: 25%;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.mySwiper .swiper-slide:hover {
+    opacity: 0.7;
+}
+
+.mySwiper .swiper-slide-thumb-active {
+    opacity: 1;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    color: rgba(30, 90, 139, 0.8);
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background: rgba(30, 90, 139, 0.7);
+    transform: scale(1.1);
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+    font-size: 20px;
+}
+
+/* Detail section */
+.detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 0;
+    margin-bottom: 40px;
+    border-bottom: 3px solid var(--primary-blue);
+    background: var(--gradient-blue);
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 16px;
+}
+
+.detail h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin: 0;
+}
+
+.detailPicture {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: white;
+    border: 2px solid var(--neutral-300);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.detailPicture:hover {
+    background: var(--primary-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.detailPicture span {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon_btn_pen_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+/* Detail description */
+.detailScript {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--neutral-700);
+    margin-bottom: 60px;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    border-left: 4px solid var(--accent-blue);
+}
+
+/* Map section */
+#map-container {
+    margin-bottom: 60px;
+}
+
+#map-container h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#kakao-map {
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+/* About section */
+.aboutAhop {
+    margin-bottom: 60px;
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+}
+
+.aboutAhop ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+.aboutAhop li {
+    display: flex;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.aboutAhop li:last-child {
+    border-bottom: none;
+}
+
+.aboutAhop p {
+    font-weight: 600;
+    color: var(--neutral-800);
+    min-width: 140px;
+    margin-right: 20px;
+}
+
+.aboutAhop .cont {
+    flex: 1;
+    color: var(--neutral-600);
+    font-weight: 400;
+}
+
+.aboutAhop a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.aboutAhop a:hover {
+    color: var(--accent-blue);
+    text-decoration: underline;
+}
+
+/* Tags */
+.tag {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 60px;
+    padding: 40px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    border-top: 4px solid var(--primary-blue);
+    border-bottom: 4px solid var(--primary-blue);
+}
+
+.tag button {
+    padding: 10px 20px;
+    background: skyblue;
+    color: var(--primary-blue);
+    border: 2px solid var(--accent-blue);
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tag button:hover {
+    background: var(--primary-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Good/Bad rating */
+.goodBad {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 60px;
+}
+
+.goodBad .left {
+    flex: 1;
+}
+
+.goodBad .left .goodBadTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--neutral-800);
+    margin-bottom: 10px;
+}
+
+.goodBad .left .goodBadscr {
+    color: var(--neutral-600);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.goodBad .right {
+    display: flex;
+    gap: 20px;
+}
+
+.goodBad .right button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 160px;
+    background-color: #f1f5f9;
+    justify-content: center;
+}
+
+.goodBad .right .good {
+    border: 2px solid #10b981;
+}
+
+.goodBad .right .good:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+.goodBad .right .bad {
+    border: 2px solid #ef4444;
+}
+
+.goodBad .right .bad:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+.goodBad .right .likeIco,
+.goodBad .right .dislikeIco {
+    width: 45px;
+    height: 45px;
+    background-image: url(../images/icon_user_expression_detailPage.png);
+    background-repeat: no-repeat;
+    /* background-size: 45px px; Corrected from 'contain' */
+}
+
+.goodBad .right .good .likeIco {
+    background-position: 0 0;
+}
+
+.goodBad .right .good.active .likeIco {
+    background-position: 0 -45px;
+}
+
+.goodBad .right .bad .dislikeIco {
+    background-position: 0 -90px;
+}
+
+.goodBad .right .bad.active .dislikeIco {
+    background-position: 0 -135px;
+}
+
+/* Comment section */
+.comment {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.comment .commentTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.comment .commentTitle h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin: 0;
+}
+
+.comment .commentTitle p {
+    color: var(--neutral-500);
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* Review Write Form */
+.reviewWriteForm {
+    border: 2px solid var(--neutral-200);
+    border-radius: 16px;
+    padding: 30px;
+    background: var(--neutral-50);
+    margin-bottom: 40px;
+}
+
+.reviewFormTop {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.reviewWriteForm #review-title {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-family: inherit;
+    font-weight: 500;
+    transition: border-color 0.3s ease;
+}
+
+.reviewWriteForm #review-title:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.rating-input {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.rating-input span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--neutral-700);
+}
+
+.stars {
+    display: flex;
+    gap: 5px;
+}
+
+.star {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--neutral-300);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px;
+}
+
+.star:hover {
+    color: #ffd700;
+    transform: scale(1.1);
+}
+
+.star.active {
+    color: #ffd700;
+}
+
+.rating-text {
+    font-size: 1rem;
+    color: var(--neutral-500);
+}
+
+.reviewWriteForm #review-content {
+    width: 100%;
+    height: 120px;
+    padding: 20px;
+    border: 2px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.reviewWriteForm #review-content:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.reviewFormBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.reviewFormInfo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.char-count {
+    font-size: 0.9rem;
+    color: var(--neutral-500);
+}
+
+.commentPicture {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.commentPicture button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.commentPicture .pho {
+    background: white;
+    border: 2px solid var(--neutral-300);
+    color: var(--neutral-700);
+}
+
+.commentPicture .pho:hover {
+    background: var(--gradient-blue);
+    border-color: var(--accent-blue);
+    color: var(--primary-blue);
+}
+
+.commentPicture .pho span {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon_btn_picture_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.commentPicture .sub {
+    background: var(--primary-blue);
+    color: white;
+    border: 2px solid var(--primary-blue);
+}
+
+.commentPicture .sub:hover {
+    background: var(--secondary-blue);
+    border-color: var(--secondary-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.commentPicture .sub:disabled {
+    background: var(--neutral-300);
+    border-color: var(--neutral-300);
+    color: var(--neutral-500);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 리뷰 이미지 미리보기 스타일 */
+.review-images-preview {
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--neutral-50);
+    border-radius: 12px;
+    border: 2px solid var(--neutral-200);
+}
+
+.review-images-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.review-images-count {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+.review-images-count span {
+    color: var(--accent-blue);
+}
+
+.remove-all-images {
+    background: none;
+    border: 1px solid var(--neutral-300);
+    color: var(--neutral-600);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.remove-all-images:hover {
+    background: var(--neutral-100);
+    border-color: var(--neutral-400);
+    color: var(--neutral-800);
+}
+
+.review-images-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.review-image-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--neutral-200);
+    transition: all 0.3s ease;
+}
+
+.review-image-item:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.review-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.review-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 28px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.remove-image-btn:hover {
+    background: rgba(239, 68, 68, 0.9);
+    transform: scale(1.1);
+}
+
+.remove-image-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* No Reviews Message */
+.no-reviews {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.no-reviews p {
+    font-size: 1.2rem;
+    color: var(--neutral-500);
+    margin: 0;
+}
+
+/* User photo section */
+.userPhotoCo {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 60px;
+}
+
+.userPhotoCo .up {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.userPhotoCo .up h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin: 0;
+}
+
+.userPhotoCo .up p {
+    color: var(--accent-blue);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.userPhotoCo .up p:hover {
+    color: var(--primary-blue);
+    text-decoration: underline;
+}
+
+.userPhotoCo .userPhoto {
+    padding: 60px 0;
+    border-bottom: 2px solid var(--neutral-200);
+    text-align: center;
+    color: var(--neutral-500);
+    font-size: 1.1rem;
+}
+
+/* 포토리뷰 관련 스타일 */
+.view-toggle {
+    color: var(--accent-blue);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    user-select: none;
+}
+
+.view-toggle:hover {
+    color: var(--primary-blue);
+    text-decoration: underline;
+}
+
+.photo-reviews-list {
+    display: block;
+    margin-top: 20px;
+}
+
+.photo-review-list-item {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: var(--neutral-50);
+    border-radius: 12px;
+    border: 1px solid var(--neutral-200);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.photo-review-list-item:hover {
+    background: white;
+    border-color: var(--accent-blue);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.photo-review-list-image {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.photo-review-list-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-review-list-image .image-count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.photo-review-list-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.photo-review-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.photo-review-user {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--neutral-800);
+    margin: 0;
+}
+
+.photo-review-date {
+    font-size: 0.9rem;
+    color: var(--neutral-500);
+    margin: 0;
+}
+
+.photo-review-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin: 0;
+}
+
+.photo-review-rating {
+    font-size: 1rem;
+    color: #ffd700;
+    margin: 0;
+}
+
+.photo-reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.photo-review-grid-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid var(--neutral-200);
+}
+
+.photo-review-grid-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-blue);
+}
+
+.photo-review-grid-image {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.photo-review-grid-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-review-grid-image .image-count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.no-photo-reviews {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--neutral-500);
+}
+
+.no-photo-reviews p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* 포토리뷰 모달 스타일 */
+
+.modal-content.photo-review-modal-content {
+    max-width: 1000px !important;
+    width: 90% !important;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.photo-review-modal-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.photo-review-modal-user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.photo-review-modal-user {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--neutral-800);
+    margin: 0;
+}
+
+.photo-review-modal-date {
+    font-size: 0.95rem;
+    color: var(--neutral-500);
+    margin: 0;
+}
+
+.photo-review-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+}
+
+.photo-review-modal-rating {
+    font-size: 1.2rem;
+    color: #ffd700;
+    margin-bottom: 20px;
+}
+
+.photo-review-modal-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--neutral-700);
+    margin-bottom: 30px;
+}
+
+.photo-review-modal-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.photo-review-modal-image-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--neutral-200);
+}
+
+.photo-review-modal-image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.photo-review-modal-image-item img:hover {
+    transform: scale(1.05);
+}
+
+/* 포토리뷰 모달 내부의 리뷰 액션 스타일 (일반 리뷰와 동일) */
+.photo-review-modal-content .reviewActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--neutral-200);
+}
+
+.photo-review-modal-content .reviewInteractions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.photo-review-modal-content .reviewLike,
+.photo-review-modal-content .reviewRe {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.photo-review-modal-content .reviewLike:hover,
+.photo-review-modal-content .reviewRe:hover {
+    background-color: var(--neutral-100);
+}
+
+.photo-review-modal-content .reviewLikeBtn {
+    width: 24px;
+    height: 24px;
+    background: url(../images/icon_like_detailPage.png) no-repeat center;
+    background-size: contain;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.photo-review-modal-content .reviewLikeBtn:hover {
+    transform: scale(1.1);
+}
+
+.photo-review-modal-content .reviewLikeBtn.active {
+    background: url(../images/icon_like_active_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.photo-review-modal-content .reviewLikeCount,
+.photo-review-modal-content .reviewReCount {
+    color: var(--neutral-500);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.photo-review-modal-content .reviewRe button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.3s ease;
+    border-radius: 4px;
+}
+
+.photo-review-modal-content .reviewRe button:hover {
+    transform: scale(1.1);
+    background-color: var(--neutral-100);
+}
+
+.photo-review-modal-content .reportBtn {
+    margin-left: auto;
+}
+
+.photo-review-modal-content .reportBtn button {
+    background: none;
+    border: 1px solid var(--neutral-300);
+    color: var(--neutral-500);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.photo-review-modal-content .reportBtn button:hover {
+    background-color: var(--neutral-100);
+    border-color: var(--neutral-400);
+    color: var(--neutral-600);
+}
+
+/* 포토리뷰 모달 내부의 댓글 스타일 */
+.photo-review-modal-content .review-comments-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--neutral-200);
+}
+
+/* 정렬 버튼 스타일 */
+.usercheck .sort-btn {
+    background: none;
+    border: none;
+    color: var(--neutral-600);
+    font-size: 1rem;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.usercheck .sort-btn:hover {
+    background-color: var(--neutral-100);
+    color: var(--primary-blue);
+}
+
+.usercheck .sort-btn.active {
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 600;
+}
+
+.userPhotoCo .usercheck {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.userPhotoCo .usercheck button {
+    padding: 10px 20px;
+    background: var(--gradient-blue);
+    color: var(--primary-blue);
+    border: 2px solid var(--accent-blue);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.userPhotoCo .usercheck button:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.userPhotoCo .usercheck ul {
+    display: flex;
+    gap: 20px;
+}
+
+.userPhotoCo .usercheck li {
+    position: relative;
+}
+
+.userPhotoCo .usercheck li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 20px;
+    background-color: var(--neutral-400);
+}
+
+.userPhotoCo .usercheck li button {
+    background: none;
+    border: none;
+    color: var(--neutral-600);
+    font-size: 1rem;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.userPhotoCo .usercheck li button:hover {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+/* User review */
+.userReview {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 40px;
+    border-left: 4px solid var(--accent-blue);
+}
+
+.userReview .userReviewTop {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.userReview .userReviewTop .userImage {
+    width: 50px;
+    height: 50px;
+    background-image: url(../images/ico_user_profile_detailPage.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.userReview .userReviewTop .userInfo {
+    flex: 1;
+}
+
+.userReview .userReviewTop .userId {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--neutral-800);
+    margin-bottom: 5px;
+}
+
+.userReview .userReviewTop .reviewRating {
+    font-size: 1rem;
+    color: #ffd700;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.userReview .userReviewTop .reviewTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin: 0;
+}
+
+.userReview .userReviewTop .reviewDate {
+    color: var(--neutral-500);
+    font-size: 0.9rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.userReview .reviewContent {
+    margin-bottom: 20px;
+}
+
+.userReview .reviewContent p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--neutral-700);
+    margin: 0;
+}
+
+.userReview .reviewActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.userReview .reviewInteractions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.reviewLike,
+.reviewRe {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.reviewLike:hover,
+.reviewRe:hover {
+    background-color: var(--neutral-100);
+}
+
+.reviewLikeBtn {
+    width: 24px;
+    height: 24px;
+    background: url(../images/icon_like_detailPage.png) no-repeat center;
+    background-size: contain;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.reviewLikeBtn:hover {
+    transform: scale(1.1);
+}
+
+.reviewLikeBtn.active {
+    background: url(../images/icon_like_active_detailPage.png) no-repeat center;
+    background-size: contain;
+}
+
+.reviewLikeCount,
+.reviewReCount {
+    color: var(--neutral-500);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.reviewRe button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.3s ease;
+    border-radius: 4px;
+}
+
+.reviewRe button:hover {
+    transform: scale(1.1);
+    background-color: var(--neutral-100);
+}
+
+.reportBtn {
+    margin-left: auto;
+}
+
+.reportBtn button {
+    background: none;
+    border: 1px solid var(--neutral-300);
+    color: var(--neutral-500);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.reportBtn button:hover {
+    background-color: var(--neutral-100);
+    border-color: var(--neutral-400);
+    color: var(--neutral-600);
+}
+
+/* 본인 리뷰 스타일 */
+.userReview.my-review {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+}
+
+.userReview.my-review::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 12px 12px 0 0;
+}
+
+.userReview.my-review .userReviewTop .userInfo .userId {
+    color: #1e40af;
+    font-weight: 700;
+}
+
+.userReview.my-review .my-review-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.userReview.my-review .reviewContent {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+}
+
+.userReview.my-review .reviewTitle {
+    color: #1e40af !important;
+}
+
+/* 본인 포토리뷰 스타일 - 리스트 형태 */
+.photo-review-list-item.my-photo-review {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #3b82f6;
+    position: relative;
+}
+
+.photo-review-list-item.my-photo-review::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 12px 12px 0 0;
+}
+
+.photo-review-list-item.my-photo-review:hover {
+    background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+    border-color: #2563eb;
+}
+
+.photo-review-list-item.my-photo-review .photo-review-user {
+    color: #1e40af;
+    font-weight: 700;
+}
+
+.photo-review-list-item.my-photo-review .photo-review-title {
+    color: #1e40af;
+}
+
+.my-photo-review-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 6px;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+/* 본인 포토리뷰 스타일 - 그리드 형태 */
+.photo-review-grid-item.my-photo-review {
+    border: 3px solid #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.photo-review-grid-item.my-photo-review:hover {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), var(--shadow-lg);
+}
+
+.my-photo-review-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+/* 댓글 관련 스타일 */
+.review-comments-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--neutral-200);
+}
+
+.comments-loading,
+.comments-empty,
+.comments-error {
+    padding: 20px;
+    text-align: center;
+    color: var(--neutral-500);
+    font-size: 0.9rem;
+}
+
+.comments-list {
+    margin-bottom: 20px;
+}
+
+.comment-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    background: var(--neutral-50);
+    border-radius: 8px;
+    border-left: 3px solid var(--neutral-300);
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+    background: var(--neutral-100);
+    border-left-color: var(--accent-blue);
+}
+
+.comment-item.my-comment {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left-color: #f59e0b;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.comment-user-image {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--neutral-200);
+}
+
+.comment-user-info {
+    flex: 1;
+}
+
+.comment-user-name {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--neutral-800);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.comment-user-name strong {
+    font-weight: 600;
+}
+
+.my-comment-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    vertical-align: middle;
+}
+
+.comment-date {
+    margin: 4px 0 0 0;
+    font-size: 0.8rem;
+    color: var(--neutral-500);
+}
+
+.comment-content {
+    margin-top: 8px;
+}
+
+.comment-content p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--neutral-700);
+}
+
+/* 댓글 액션 버튼 (수정/삭제) */
+.comment-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.comment-actions button {
+    background: none;
+    border: 1px solid var(--neutral-300);
+    color: var(--neutral-600);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.comment-actions .edit-comment-btn:hover {
+    background-color: var(--primary-50);
+    border-color: var(--primary-300);
+    color: var(--primary-600);
+}
+
+.comment-actions .delete-comment-btn:hover {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+/* 댓글 수정 폼 */
+.comment-edit-form {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: var(--neutral-50);
+    border-radius: 8px;
+    border: 1px solid var(--neutral-200);
+}
+
+.comment-edit-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid var(--neutral-300);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+    margin-bottom: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.comment-edit-input:focus {
+    outline: none;
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.comment-edit-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment-edit-char-count {
+    font-size: 0.85rem;
+    color: var(--neutral-500);
+}
+
+.comment-edit-actions > div {
+    display: flex;
+    gap: 8px;
+}
+
+.comment-cancel-btn,
+.comment-save-btn {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid;
+}
+
+.comment-cancel-btn {
+    background-color: white;
+    border-color: var(--neutral-300);
+    color: var(--neutral-600);
+}
+
+.comment-cancel-btn:hover {
+    background-color: var(--neutral-50);
+    border-color: var(--neutral-400);
+}
+
+.comment-save-btn {
+    background-color: #22c55e;
+    border-color: #22c55e;
+    color: white;
+    opacity: 1;
+}
+
+.comment-save-btn:hover {
+    background-color: #16a34a;
+    border-color: #16a34a;
+}
+
+.comment-save-btn:disabled {
+    background-color: #9ca3af;
+    border-color: #9ca3af;
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.comment-form-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--neutral-200);
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.comment-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--neutral-300);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.3s ease;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.comment-form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment-char-count {
+    font-size: 0.85rem;
+    color: var(--neutral-500);
+}
+
+.comment-submit-btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.comment-submit-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+.comment-submit-btn:disabled {
+    background: var(--neutral-300);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* 댓글 신고 버튼 */
+.comment-report-btn {
+    margin-left: auto;
+}
+
+.comment-report-btn button {
+    background: none;
+    border: 1px solid var(--neutral-300);
+    color: var(--neutral-500);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.comment-report-btn button:hover {
+    background-color: var(--neutral-100);
+    border-color: var(--neutral-400);
+    color: var(--neutral-600);
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .inner {
+        padding: 0 15px 60px;
+    }
+
+    .title h2 {
+        font-size: 2rem;
+    }
+
+    .title .descript {
+        font-size: 1.25rem;
+        padding: 15px 20px;
+    }
+
+    .middleButtons {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .middleButtons .left,
+    .middleButtons .right {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    #subTitle {
+        flex-direction: column;
+    }
+
+    #subTitle li {
+        border-right: none;
+        border-bottom: 1px solid var(--neutral-200);
+    }
+
+    #subTitle li:last-child {
+        border-bottom: none;
+    }
+
+    .detail {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .goodBad {
+        flex-direction: column;
+        gap: 30px;
+        text-align: center;
+    }
+
+    .goodBad .right {
+        justify-content: center;
+    }
+
+    .aboutAhop ul {
+        grid-template-columns: 1fr;
+    }
+
+    .aboutAhop li {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .aboutAhop p {
+        min-width: auto;
+        margin-right: 0;
+    }
+
+    .reviewWriteForm {
+        padding: 20px;
+    }
+
+    .reviewFormTop {
+        gap: 15px;
+    }
+
+    .rating-input {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .stars {
+        gap: 3px;
+    }
+
+    .star {
+        font-size: 1.5rem;
+        padding: 3px;
+    }
+
+    .reviewFormBottom {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .commentPicture {
+        justify-content: center;
+    }
+
+    .review-images-container {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+    }
+
+    .review-images-preview {
+        padding: 15px;
+    }
+
+    .userReview {
+        padding: 25px;
+    }
+
+    .userReview .userReviewTop {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .userReview .userReviewTop .reviewDate {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+
+    .userReview .reviewActions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .userReview .reviewInteractions {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .reportBtn {
+        margin-left: 0;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .back-button-container {
+        padding: 15px;
+    }
+
+    .title {
+        padding: 40px 0 30px;
+    }
+
+    .title h2 {
+        font-size: 1.75rem;
+    }
+
+    .title .descript {
+        font-size: 1.125rem;
+        padding: 12px 16px;
+    }
+
+    .photo {
+        height: 400px;
+    }
+
+    .tag {
+        padding: 20px;
+    }
+
+    .tag button {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+
+    .goodBad .right {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .goodBad .right button {
+        width: 100%;
+    }
+}
+
+/* 사진 등록 신청 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #e74c3c;
+}
+
+.modal h2 {
+    margin-bottom: 25px;
+    color: #2c3e50;
+    font-weight: 600;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1rem;
+}
+
+.form-group label .required {
+    color: #e74c3c;
+    margin-left: 3px;
+}
+
+.form-group .form-hint {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+}
+
+.form-group input[type='file'] {
+    padding: 8px;
+    border: 2px dashed #e9ecef;
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.form-group input[type='file']:hover {
+    border-color: #3498db;
+    background-color: #e8f4f8;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.image-preview-container {
+    margin-top: 15px;
+    padding: 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.image-preview-container img {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.char-count {
+    display: block;
+    text-align: right;
+    margin-top: 5px;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(45deg, #27ae60, #2ecc71);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(39, 174, 96, 0.3);
+}
+
+/* 모달 스크롤바 스타일 */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #2980b9, #1f5f8b);
+}
+
+.modal-content {
+    scrollbar-width: thin;
+    scrollbar-color: #3498db #f1f1f1;
+}
+
+/* 신고 모달 스타일 */
+.report-modal-content {
+    max-width: 500px;
+}
+
+.report-reason-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.report-reason-option {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border: 2px solid var(--neutral-200);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--neutral-50);
+}
+
+.report-reason-option:hover {
+    background: var(--neutral-100);
+    border-color: var(--accent-blue);
+}
+
+.report-reason-option input[type='radio'] {
+    margin-right: 12px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--accent-blue);
+}
+
+.report-reason-option input[type='radio']:checked + span {
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+.report-reason-option:has(input[type='radio']:checked) {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-color: var(--accent-blue);
+}
+
+.report-reason-option span {
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--neutral-700);
+    transition: color 0.3s ease;
+}
+
+#report-other-reason-group {
+    margin-top: 15px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#report-other-reason {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--neutral-300);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.3s ease;
+}
+
+#report-other-reason:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.report-notice {
+    padding: 12px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #856404;
+    margin: 0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+    justify-content: flex-end;
+}
+
+.cancel-btn {
+    padding: 12px 24px;
+    background: var(--neutral-200);
+    color: var(--neutral-700);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.cancel-btn:hover {
+    background: var(--neutral-300);
+    transform: translateY(-1px);
+}
+
+.required {
+    color: #ef4444;
+    margin-left: 4px;
+}
+
+/* ========== 비슷한 관광지 추천 섹션 ========== */
+.similar-spots-section {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 16px;
+    border: 1px solid var(--accent-blue);
+    animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.similar-spots-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.similar-spots-header h3 {
+    font-size: 1.4rem;
+    color: var(--primary-blue);
+    margin: 0 0 8px 0;
+    font-weight: 700;
+}
+
+.similar-spots-desc {
+    font-size: 0.95rem;
+    color: var(--neutral-500);
+    margin: 0;
+}
+
+.similar-spots-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    max-height: 450px;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.similar-spot-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.similar-spot-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.similar-spot-card .spot-image {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    background: var(--neutral-200);
+}
+
+.similar-spot-card .spot-info {
+    padding: 12px;
+}
+
+.similar-spot-card .spot-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--neutral-800);
+    margin: 0 0 6px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+}
+
+.similar-spot-card .spot-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.similar-spot-card .spot-tag {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    background: var(--gradient-blue);
+    color: var(--primary-blue);
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.similar-spot-card .spot-tag.matched {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.similar-spots-loading {
+    text-align: center;
+    padding: 30px;
+    color: var(--neutral-500);
+}
+
+.similar-spots-loading .spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--neutral-200);
+    border-top-color: var(--primary-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.no-similar-spots {
+    text-align: center;
+    padding: 30px;
+    color: var(--neutral-500);
+}
+
+.no-similar-spots p {
+    margin: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .similar-spots-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .similar-spot-card .spot-image {
+        height: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .similar-spots-section {
+        padding: 15px;
+    }
+
+    .similar-spots-header h3 {
+        font-size: 1.2rem;
+    }
+
+    /* 포토리뷰 반응형 */
+    .photo-review-list-item {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .photo-review-list-image {
+        width: 100%;
+        height: 200px;
+    }
+
+    .photo-reviews-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .photo-review-modal-images {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .photo-reviews-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+
+    .modal-content.photo-review-modal-content {
+        max-width: 95% !important;
+        width: 95% !important;
+        padding: 20px;
+    }
+
+    .photo-review-modal-images {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}

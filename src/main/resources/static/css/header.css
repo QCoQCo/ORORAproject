@@ -1,0 +1,535 @@
+#header-container {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    width: 100%;
+}
+
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100px;
+    padding: 0 100px;
+    background: linear-gradient(to right, #fff 0%, #dbf6ff 25%, #96daff 100%);
+    position: relative;
+    z-index: 999;
+    /* background: linear-gradient(to right, #fff 0%, rgb(206, 220, 255) 25%, khaki 100%); */
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    /* background-color: #fff; */
+}
+
+.logo .logo-text {
+    width: 100px;
+    height: 100px;
+}
+
+.logo .logo-text a {
+    display: block;
+    background-image: url('../images/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    color: #000;
+    text-indent: -9999px;
+}
+
+#nav .d1 {
+    display: flex;
+    gap: 40px;
+    /* flex: 1; */
+    /* justify-content: space-between; */
+}
+
+#nav .d1 > li {
+    position: relative;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+#nav .d1 li a {
+    color: #000;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+#nav .d1 li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, #a8dcff, #0175c1);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+#nav .d1 li a:hover {
+    color: #0175c1;
+    transform: translateY(-2px);
+}
+
+#nav .d1 li a:hover::after {
+    width: 100%;
+}
+
+#nav .sub {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    min-width: 150px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+#nav .d1 li:hover .sub {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#nav .sub .d2 li {
+    transition: background-color 0.2s ease;
+}
+
+#nav .sub .d2 li:hover {
+    background-color: #e4f4ff;
+}
+
+#nav .sub .d2 li a {
+    color: #333;
+    font-size: 14px;
+    padding: 8px 28px;
+    line-height: 28px;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#nav .sub .d2 li a:hover {
+    color: #0175c1;
+    transform: none;
+}
+
+#nav .sub .d2 li a::after {
+    display: none;
+}
+
+#header .btns {
+    display: flex;
+    gap: 50px;
+    align-items: center;
+}
+
+#header .btns .btn1 a {
+    padding: 10px 20px;
+    color: #000;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#header .btns .btn2,
+#header .btns .btn1 {
+    border: none;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#header .btns .btn2 {
+    padding: 10px 20px;
+}
+
+#header .btns .btn2:hover,
+#header .btns .btn1:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+#header .btns select {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #fff;
+    min-height: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#header .btns select:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+/* 검색 박스 스타일 */
+.search-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to right, #fff 0%, #dbf6ff 25%, #96daff 100%);
+    padding: 20px 100px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: all 0.3s ease;
+    z-index: 998;
+    pointer-events: none;
+}
+
+.search-box.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.search-box input:focus {
+    border-color: #0175c1;
+}
+
+.search-box button {
+    padding: 12px 25px;
+    background: linear-gradient(to right, #0175c1, #a8dcff);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-box button:hover {
+    background: linear-gradient(to right, #015a9c, #87cefc);
+    transform: translateY(-2px);
+}
+
+/* 사용자 드롭다운 메뉴 스타일 */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown-btn {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c3e50;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    min-height: 40px;
+    justify-content: center;
+}
+
+.user-dropdown-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.98), transparent);
+    transition: left 0.6s ease;
+}
+
+.user-dropdown-btn:hover {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border-color: #0175c1;
+}
+
+.user-dropdown-btn:hover::before {
+    left: 100%;
+}
+
+.username {
+    font-weight: 600;
+    color: #2c3e50;
+    position: relative;
+    z-index: 1;
+}
+
+.dropdown-arrow {
+    font-size: 10px;
+    color: #6c757d;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.user-dropdown-btn:hover .dropdown-arrow {
+    transform: rotate(180deg);
+    color: #0175c1;
+}
+
+.user-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 8px 0;
+    min-width: 180px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.user-dropdown-menu.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: #2c3e50;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.dropdown-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(1, 117, 193, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.dropdown-item:hover {
+    background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+    color: #0175c1;
+    transform: translateX(5px);
+}
+
+.dropdown-item:hover::before {
+    left: 100%;
+}
+
+.dropdown-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.logout-item {
+    color: #dc3545;
+    border-top: 1px solid #e9ecef;
+    margin-top: 4px;
+}
+
+.logout-item:hover {
+    background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+    color: #c82333;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .user-dropdown-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .username {
+        font-size: 13px;
+    }
+
+    .dropdown-arrow {
+        font-size: 9px;
+    }
+
+    .user-dropdown-menu {
+        min-width: 160px;
+        right: -10px;
+    }
+
+    .dropdown-item {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .dropdown-icon {
+        font-size: 14px;
+        width: 18px;
+    }
+}
+
+/* 관리자 메뉴 숨김/표시 */
+.admin-menu-hidden {
+    display: none !important;
+}
+
+/* 햄버거 메뉴 버튼 (기본적으로 숨김) */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background-color: #000;
+    margin: 3px 0;
+    transition: 0.3s;
+}
+
+/* 모바일에서 햄버거 메뉴 표시 */
+
+@media (max-width: 1320px) {
+    #nav .d1 {
+        gap: 20px;
+    }
+
+    #header .btns {
+        gap: 20px;
+    }
+}
+
+@media (max-width: 1176px) {
+    #header .btns {
+        gap: 5px;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    #nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    #nav.active {
+        display: block;
+    }
+
+    #nav .d1 {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    #nav .d1 li {
+        border-bottom: 1px solid #eee;
+    }
+
+    #nav .d1 li a {
+        display: block;
+        padding: 15px 20px;
+        border-bottom: none;
+    }
+
+    #nav .sub {
+        position: static;
+        display: none;
+        background-color: #f5f5f5;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+    }
+
+    #nav .sub.active {
+        display: block;
+    }
+
+    #nav .sub .d2 li a {
+        padding: 10px 40px;
+        font-size: 14px;
+    }
+
+    /* 모바일에서 검색 박스 스타일 */
+    .search-box {
+        padding: 20px;
+    }
+
+    .search-box input {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+
+    .search-box button {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+}
