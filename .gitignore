@@ -38,3 +38,4 @@ out/
 .env
 
 ### Upload Files ###
+.DS_Store
