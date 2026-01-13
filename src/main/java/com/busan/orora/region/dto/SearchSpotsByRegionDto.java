@@ -8,10 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchSpotsByRegionDto {
-    
-    // region
-    // private Long regionId;
-    // private String regionName;
 
     // tourist spot
     private Long id;
