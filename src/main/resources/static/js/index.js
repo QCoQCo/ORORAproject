@@ -334,7 +334,9 @@ function animateStatNumber(element) {
 // Loading animation for images
 function initImageLoading() {
     // Exclude transport, app, and footer logo images from loading animation
-    const images = document.querySelectorAll('img:not(.transport-image):not(.app-icon):not(.footer-logo-image)');
+    const images = document.querySelectorAll(
+        'img:not(.transport-image):not(.app-icon):not(.footer-logo-image)'
+    );
 
     images.forEach((img) => {
         // Check if image is already loaded
@@ -366,7 +368,9 @@ function initImageLoading() {
     });
 
     // Ensure transport, app, and footer logo images are always visible
-    const excludedImages = document.querySelectorAll('.transport-image, .app-icon, .footer-logo-image');
+    const excludedImages = document.querySelectorAll(
+        '.transport-image, .app-icon, .footer-logo-image'
+    );
     excludedImages.forEach((img) => {
         img.style.opacity = '1';
         img.style.transform = 'scale(1)';
@@ -543,30 +547,6 @@ function initTransportationEffects() {
 
     // Parallax effect for transport apps section
 }
-
-//detail/id
-const urlParams = new URLSearchParams(window.location.search);
-const spotId = urlParams.get('id'); 
-
-async function fetchDetailId() {
-    if (!spotId) {
-        console.error("ID가 주소창에 없습니다.");
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/places/${spotId}`);
-         const data = await response.json();
-        
-        if (document.getElementById('placeName')) {
-            document.getElementById('placeName').innerText = data.name;
-        }
-    } catch (error) {
-        console.error("데이터를 불러오지 못했습니다:", error);
-    }
-}
-
-fetchDetailId();
 
 // Add CSS animation keyframes for bounce and ripple effects
 const style = document.createElement('style');
