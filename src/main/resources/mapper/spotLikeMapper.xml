@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.busan.orora.like.mapper.SpotLikeMapper">
-    <!-- TODO: 관광지 좋아요 관련 SQL 쿼리 구현 -->
-
     <!-- 관광지 좋아요 추가 -->
     <insert id="addSpotLike" parameterType="com.busan.orora.like.dto.SpotLikeDto">
         INSERT INTO tourist_spot_likes (user_id, tourist_spot_id)
