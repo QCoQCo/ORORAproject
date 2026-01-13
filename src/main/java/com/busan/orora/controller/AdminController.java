@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+    
     @Autowired
     private SpotService spotService;
 
@@ -682,7 +686,7 @@ public class AdminController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "승인에 실패했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
         }
         return response;
     }
@@ -914,7 +918,7 @@ public class AdminController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "신고 목록을 불러오는데 실패했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
         }
         return response;
     }
@@ -992,7 +996,7 @@ public class AdminController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "신고 처리에 실패했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
         }
         return response;
     }
@@ -1023,7 +1027,7 @@ public class AdminController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "신고 삭제에 실패했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
         }
         return response;
     }

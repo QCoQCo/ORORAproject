@@ -61,9 +61,6 @@ loginBtn.addEventListener('click', async function () {
             // 로그인 성공 시 사용자 정보를 세션 스토리지에 저장
             sessionStorage.setItem('loggedInUser', JSON.stringify(data.user));
 
-            console.log('로그인 성공, 사용자 정보:', data.user);
-            console.log('sessionStorage 저장 확인:', sessionStorage.getItem('loggedInUser'));
-
             // 헤더 업데이트 (auth.js의 함수 호출)
             if (typeof updateHeaderAfterLogin === 'function') {
                 updateHeaderAfterLogin();

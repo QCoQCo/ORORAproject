@@ -14,12 +14,16 @@ import com.busan.orora.common.service.FileService;
 import com.busan.orora.commoncode.service.CommonCodeService;
 import com.busan.orora.commoncode.dto.CommonCodeDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    
     @Autowired
     private UserMapper userMapper;
 
@@ -77,8 +81,7 @@ public class UserService {
             } catch (Exception e) {
                 // 프로필 이미지 저장 실패 시에도 회원가입은 성공하도록 처리
                 // (선택사항이므로 예외를 로그만 남기고 계속 진행)
-                System.err.println("프로필 이미지 저장 중 오류 발생: " + e.getMessage());
-                e.printStackTrace();
+                logger.error("프로필 이미지 저장 중 오류 발생", e);
             }
         }
     }
