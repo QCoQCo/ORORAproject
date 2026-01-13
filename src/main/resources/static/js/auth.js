@@ -2,13 +2,20 @@
 
 // 로그인 상태 확인
 function isLoggedIn() {
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    // localStorage와 sessionStorage 모두 확인
+    const loggedInUser = localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser');
     return loggedInUser !== null;
 }
 
 // 현재 로그인한 사용자 정보 가져오기
 function getCurrentUser() {
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    // localStorage를 먼저 확인 (로그인 상태 유지 시)
+    let loggedInUser = localStorage.getItem('loggedInUser');
+    // localStorage에 없으면 sessionStorage 확인
+    if (!loggedInUser) {
+        loggedInUser = sessionStorage.getItem('loggedInUser');
+    }
+    
     if (loggedInUser) {
         try {
             return JSON.parse(loggedInUser);
@@ -45,6 +52,8 @@ async function logout() {
         console.error('로그아웃 API 호출 오류:', error);
     }
 
+    // localStorage와 sessionStorage 모두에서 사용자 정보 삭제
+    localStorage.removeItem('loggedInUser');
     sessionStorage.removeItem('loggedInUser');
     // 모든 페이지에서 로그아웃 후 메인 페이지로 이동
     window.location.href = '/';
