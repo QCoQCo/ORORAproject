@@ -86,7 +86,6 @@ function loadHeaderScript() {
 
     // 이미 로드된 스크립트인지 확인
     if (document.querySelector(`script[src="${scriptPath}"]`)) {
-        // console.log('header.js가 이미 로드되어 있습니다.');
         if (typeof initSearchBox === 'function') {
             initSearchBox();
         }
@@ -97,7 +96,6 @@ function loadHeaderScript() {
     const script = document.createElement('script');
     script.src = scriptPath;
     script.onload = function () {
-        // console.log('header.js 로드 완료');
         // 검색 기능 초기화
         if (typeof initSearchBox === 'function') {
             setTimeout(initSearchBox, 100);

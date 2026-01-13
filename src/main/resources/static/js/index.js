@@ -561,8 +561,6 @@ async function fetchDetailId() {
         if (document.getElementById('placeName')) {
             document.getElementById('placeName').innerText = data.name;
         }
-        
-        console.log("불러온 데이터:", data);
     } catch (error) {
         console.error("데이터를 불러오지 못했습니다:", error);
     }

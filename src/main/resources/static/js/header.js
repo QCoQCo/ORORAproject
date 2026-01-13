@@ -90,11 +90,8 @@ let searchBoxInitialized = false;
 
 // 검색 기능
 function initSearchBox() {
-    // console.log('initSearchBox 함수 실행됨');
-
     // 이미 초기화되었다면 종료
     if (searchBoxInitialized) {
-        // console.log('검색 기능이 이미 초기화되었습니다.');
         return;
     }
 
@@ -103,20 +100,12 @@ function initSearchBox() {
         const searchBtn = document.querySelector('#header .btns .btn2');
         const searchBox = document.querySelector('.search-box');
 
-        // console.log('검색 버튼:', searchBtn);
-        // console.log('검색 박스:', searchBox);
-        // console.log('헤더 요소:', document.querySelector('#header'));
-
         if (searchBtn && searchBox) {
             const searchInput = searchBox.querySelector('input');
             const searchSubmitBtn = searchBox.querySelector('button');
 
-            // console.log('검색 입력창:', searchInput);
-            // console.log('검색 실행 버튼:', searchSubmitBtn);
-
             // 초기화 성공 플래그 설정
             searchBoxInitialized = true;
-            // console.log('검색 기능 초기화 완료!');
 
             // 검색 버튼 클릭 시 검색 박스 토글
             searchBtn.addEventListener('click', (e) => {
@@ -158,8 +147,6 @@ function initSearchBox() {
             });
         } else {
             console.error('검색 버튼 또는 검색 박스를 찾을 수 없습니다.');
-            // console.log('사용 가능한 버튼들:', document.querySelectorAll('button'));
-            // console.log('사용 가능한 .search-box:', document.querySelectorAll('.search-box'));
         }
     }, 100); // setTimeout 종료
 }
