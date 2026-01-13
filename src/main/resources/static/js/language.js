@@ -27,31 +27,25 @@ class LanguageManager {
         try {
             // 현재 페이지 위치에 따른 데이터 경로 결정
             const dataPath = this.getDataPath();
-            console.log('번역 데이터 경로:', dataPath);
 
             // 영어 번역 데이터 로드
             const enUrl = `${dataPath}translations-en.json`;
-            console.log('영어 번역 파일 로드 시도:', enUrl);
             const enResponse = await fetch(enUrl);
             if (!enResponse.ok) {
                 throw new Error(`영어 번역 파일 로드 실패: ${enResponse.status} ${enResponse.statusText}`);
             }
             this.translations.en = await enResponse.json();
-            console.log('영어 번역 데이터 로드 완료');
 
             // 일본어 번역 데이터 로드
             const jpUrl = `${dataPath}translations-jp.json`;
-            console.log('일본어 번역 파일 로드 시도:', jpUrl);
             const jpResponse = await fetch(jpUrl);
             if (!jpResponse.ok) {
                 throw new Error(`일본어 번역 파일 로드 실패: ${jpResponse.status} ${jpResponse.statusText}`);
             }
             this.translations.jp = await jpResponse.json();
-            console.log('일본어 번역 데이터 로드 완료');
 
             // 한국어는 기본값으로 사용
             this.translations.ko = this.getKoreanTexts();
-            console.log('모든 번역 데이터 로드 완료');
         } catch (error) {
             console.error('번역 데이터 로드 실패:', error);
             console.error('에러 상세:', error.message);
@@ -558,13 +552,8 @@ class LanguageManager {
     }
 
     async applyLanguage(language, skipAnimation = false) {
-        console.log(
-            `applyLanguage 호출: ${language}, skipAnimation: ${skipAnimation}, 현재 언어: ${this.currentLanguage}`
-        );
-
         // 현재 언어와 같고 애니메이션을 건너뛰지 않는 경우에만 리턴
         if (this.currentLanguage === language && !skipAnimation) {
-            console.log('언어가 같아서 리턴');
             return;
         }
 
@@ -577,7 +566,6 @@ class LanguageManager {
 
         this.currentLanguage = language;
         localStorage.setItem('selectedLanguage', language);
-        console.log(`언어 변경됨: ${language}`);
 
         // HTML lang 속성 변경
         document.documentElement.lang = language === 'ko' ? 'ko' : language === 'en' ? 'en' : 'ja';
@@ -595,9 +583,6 @@ class LanguageManager {
 
     updateElements() {
         const elements = document.querySelectorAll('[data-translate]');
-        console.log(
-            `번역 적용 중: ${this.currentLanguage} 언어로 ${elements.length}개 요소 업데이트`
-        );
         elements.forEach((element) => {
             const key = element.getAttribute('data-translate');
             const translation = this.getTranslation(key);
@@ -666,11 +651,9 @@ class LanguageManager {
             };
             languageSelector.addEventListener('change', this.handleLanguageChange);
 
-            console.log('언어 선택기 설정 완료:', this.currentLanguage);
         } else if (retryCount < 50) {
             // 최대 5초간 재시도 (50 * 100ms)
             // 언어 선택기를 찾지 못했으면 100ms 후 재시도
-            console.log(`언어 선택기를 찾지 못했습니다. 재시도 중... (${retryCount + 1}/50)`);
             setTimeout(() => {
                 this.setupLanguageSelectorWithRetry(retryCount + 1);
             }, 100);
@@ -686,10 +669,8 @@ class LanguageManager {
 
     // 로딩 애니메이션 표시
     showLoadingAnimation() {
-        console.log('로딩 애니메이션 시작');
         const loadingElement = document.getElementById('languageLoading');
         if (loadingElement) {
-            console.log('로딩 엘리먼트 찾음');
             loadingElement.classList.add('active');
 
             // 애니메이션을 다시 시작하기 위해 클래스 재설정

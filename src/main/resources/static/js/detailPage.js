@@ -184,7 +184,6 @@ async function loadTouristSpotDetail() {
         const spotId = urlParams.get('id');
         const userId = getCurrentUser()?.id;
         const userRole = getCurrentUser()?.roleCode || null;
-        console.log('로드할 관광지 ID:', spotId);
 
         // ID가 없으면 에러
         if (!spotId) {
@@ -1643,7 +1642,6 @@ async function toggleReviewReply(reviewId) {
         }
     }
 
-    console.log('commentsContainer:', commentsContainer, 'isExpanded:', isExpanded);
 
     if (isExpanded) {
         // 접기
@@ -1697,7 +1695,6 @@ async function toggleReviewReply(reviewId) {
         try {
             await loadReviewComments(reviewId, commentsContainer);
             commentsContainer.style.display = 'block';
-            console.log('댓글창이 열렸습니다:', reviewId);
         } catch (error) {
             console.error('댓글 로드 실패:', error);
         }

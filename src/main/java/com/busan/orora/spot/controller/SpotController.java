@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api")
 public class SpotController {
+    private static final Logger logger = LoggerFactory.getLogger(SpotController.class);
     
     @Autowired
     private SpotService spotService;
@@ -150,7 +153,7 @@ public class SpotController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("관광지 상세 정보 조회 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -217,7 +220,7 @@ public class SpotController {
             response.put("message", "사진 등록 신청이 완료되었습니다. 관리자 검토 후 반영됩니다.");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("신청 처리 중 오류 발생", e);
             response.put("success", false);
             response.put("message", "신청 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -323,7 +326,7 @@ public class SpotController {
             response.put("message", "관광지 추가 신청이 완료되었습니다. 관리자 검토 후 반영됩니다.");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("신청 처리 중 오류 발생", e);
             response.put("success", false);
             response.put("message", "신청 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -383,7 +386,7 @@ public class SpotController {
             response.put("message", "관광지 정보 수정요청이 완료되었습니다. 관리자 검토 후 반영됩니다.");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("신청 처리 중 오류 발생", e);
             response.put("success", false);
             response.put("message", "신청 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -432,7 +435,7 @@ public class SpotController {
             response.put("message", "신청이 취소되었습니다.");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("신청 취소 중 오류 발생", e);
             response.put("success", false);
             response.put("message", "신청 취소 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
