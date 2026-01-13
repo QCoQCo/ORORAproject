@@ -188,7 +188,6 @@ function loadMap() {
     }
 
     const mapPath = getMapPath();
-    console.log('지도 경로:', mapPath);
 
     fetch(mapPath)
         .then((res) => {
@@ -343,7 +342,6 @@ async function renderSpotList(spots) {
                 },
                 onLikeClick: (itemData, isLiked) => {
                     // 좋아요 기능 (필요시 구현)
-                    console.log(`${itemData.title} 좋아요: ${isLiked}`);
                 },
             });
 

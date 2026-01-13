@@ -55,7 +55,6 @@ async function loadTouristSpots() {
         }
         const data = await response.json();
         busanTouristSpots = data.regions || {};
-        console.log('관광지 데이터 로드 완료:', busanTouristSpots);
     } catch (error) {
         console.error('관광지 데이터 로드 실패:', error);
     }

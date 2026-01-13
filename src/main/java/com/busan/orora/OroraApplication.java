@@ -2,10 +2,13 @@ package com.busan.orora;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class OroraApplication {
+	private static final Logger logger = LoggerFactory.getLogger(OroraApplication.class);
 
 	public static void main(String[] args) {
 		try {
@@ -22,7 +25,7 @@ public class OroraApplication {
 			// 카카오맵 API 키 전달 (.env에 KAKAO_MAP_API_KEY가 없으면 빈 값)
 			System.setProperty("KAKAO_MAP_API_KEY", dotenv.get("KAKAO_MAP_API_KEY", ""));
 		} catch (Exception e) {
-			System.err.println(".env 파일 로드 실패: " + e.getMessage());
+			logger.warn(".env 파일 로드 실패: {}", e.getMessage());
 		}
 
 		SpringApplication.run(OroraApplication.class, args);
