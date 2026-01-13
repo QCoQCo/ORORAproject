@@ -36,14 +36,13 @@ public class RegionService {
         return enrichWithCategoryActiveStatus(spots);
     }
 
-    public List<SearchSpotsByRegionDto> searchSpotsByRegionIds(List<Integer> regionIds) {
+    public List<SearchSpotsByRegionDto> searchSpotsByRegionIds(List<Long> regionIds) {
         List<SearchSpotsByRegionDto> spots = regionMapper.searchSpotsByRegionIds(regionIds);
         return enrichWithCategoryActiveStatus(spots);
     }
 
-    /**
-     * 관광지 목록에 카테고리 활성화 상태를 추가
-     */
+    
+    // 관광지 목록에 카테고리 활성화 상태를 추가
     private List<SearchSpotsByRegionDto> enrichWithCategoryActiveStatus(List<SearchSpotsByRegionDto> spots) {
         // 카테고리 활성 상태 캐시 (SPOT_CATEGORY 코드 그룹에서)
         Map<String, Boolean> categoryActiveMap = new HashMap<>();

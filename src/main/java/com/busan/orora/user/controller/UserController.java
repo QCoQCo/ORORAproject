@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,14 +43,47 @@ public class UserController {
     // 로그인 API
     @PostMapping("/api/auth/login")
     @ResponseBody
-    public Map<String, Object> login(@RequestBody UserLoginForm loginForm) {
-        Map<String, Object> response = new HashMap<>();
+    public Map<String, Object> login(@RequestBody UserLoginForm loginForm,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response) {
+        Map<String, Object> responseMap = new HashMap<>();
 
         try {
             UserDto user = userService.login(loginForm.getLoginId(), loginForm.getPassword());
 
             if (user != null) {
-                response.put("success", true);
+                // 세션에 사용자 정보 저장
+                HttpSession session = request.getSession();
+                session.setAttribute("loggedInUser", user);
+                
+                // 로그인 상태 유지 설정
+                if (loginForm.getKeepLogin() != null && loginForm.getKeepLogin()) {
+                    // 로그인 상태 유지: 세션 타임아웃을 7일로 설정
+                    session.setMaxInactiveInterval(7 * 24 * 60 * 60); // 7일 (초 단위)
+                } else {
+                    // 기본 세션 타임아웃 (30분)
+                    session.setMaxInactiveInterval(30 * 60); // 30분
+                }
+
+                // 아이디 저장 쿠키 설정
+                if (loginForm.getSaveId() != null && loginForm.getSaveId()) {
+                    Cookie saveIdCookie = new Cookie("savedLoginId", user.getLoginId());
+                    saveIdCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
+                    saveIdCookie.setPath("/");
+                    saveIdCookie.setHttpOnly(false); // JavaScript에서 읽을 수 있도록 설정
+                    response.addCookie(saveIdCookie);
+                    logger.debug("아이디 저장 쿠키 설정: {}", user.getLoginId());
+                } else {
+                    // 아이디 저장 해제 시 쿠키 삭제
+                    Cookie saveIdCookie = new Cookie("savedLoginId", "");
+                    saveIdCookie.setMaxAge(0);
+                    saveIdCookie.setPath("/");
+                    saveIdCookie.setHttpOnly(false);
+                    response.addCookie(saveIdCookie);
+                    logger.debug("아이디 저장 쿠키 삭제");
+                }
+
+                responseMap.put("success", true);
                 Map<String, Object> userMap = new HashMap<>();
                 userMap.put("id", user.getId());
                 userMap.put("loginId", user.getLoginId());
@@ -59,18 +96,18 @@ public class UserController {
                 userMap.put("profile_image",
                         user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
                 userMap.put("join_date", user.getJoinDate() != null ? user.getJoinDate().toString() : null);
-                response.put("user", userMap);
-                response.put("message", "로그인 성공");
+                responseMap.put("user", userMap);
+                responseMap.put("message", "로그인 성공");
             } else {
-                response.put("success", false);
-                response.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
+                responseMap.put("success", false);
+                responseMap.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
             }
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "로그인 처리 중 오류가 발생했습니다: " + e.getMessage());
+            responseMap.put("success", false);
+            responseMap.put("message", "로그인 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
 
-        return response;
+        return responseMap;
     }
 
     // 회원가입 API

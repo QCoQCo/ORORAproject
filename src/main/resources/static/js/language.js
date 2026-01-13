@@ -32,7 +32,9 @@ class LanguageManager {
             const enUrl = `${dataPath}translations-en.json`;
             const enResponse = await fetch(enUrl);
             if (!enResponse.ok) {
-                throw new Error(`영어 번역 파일 로드 실패: ${enResponse.status} ${enResponse.statusText}`);
+                throw new Error(
+                    `영어 번역 파일 로드 실패: ${enResponse.status} ${enResponse.statusText}`
+                );
             }
             this.translations.en = await enResponse.json();
 
@@ -40,7 +42,9 @@ class LanguageManager {
             const jpUrl = `${dataPath}translations-jp.json`;
             const jpResponse = await fetch(jpUrl);
             if (!jpResponse.ok) {
-                throw new Error(`일본어 번역 파일 로드 실패: ${jpResponse.status} ${jpResponse.statusText}`);
+                throw new Error(
+                    `일본어 번역 파일 로드 실패: ${jpResponse.status} ${jpResponse.statusText}`
+                );
             }
             this.translations.jp = await jpResponse.json();
 
@@ -203,12 +207,15 @@ class LanguageManager {
             'about.tourism': '관광',
             'about.economy': '경제',
             'about.busan_name': '부산(釜山)',
-            'about.busan_name_desc': ': \'가마솥(釜)을 닮은 산(山)\'',
-            'about.busan_name_explanation': '부산의 지명은 지역의 산 모양이 가마솥을 닮았다는 특징에서 유래되었다. 펄펄 끓는 열기로 많은 재료를 끓여내고 섞어내는 가마솥처럼 많은 문화접변을 이루어내고 다이내믹한 \'섞임\'의 허브가 된 대한민국 최고의 융복합도시이다.',
+            'about.busan_name_desc': ": '가마솥(釜)을 닮은 산(山)'",
+            'about.busan_name_explanation':
+                "부산의 지명은 지역의 산 모양이 가마솥을 닮았다는 특징에서 유래되었다. 펄펄 끓는 열기로 많은 재료를 끓여내고 섞어내는 가마솥처럼 많은 문화접변을 이루어내고 다이내믹한 '섞임'의 허브가 된 대한민국 최고의 융복합도시이다.",
             'about.global_marine_city': '한반도 최남단 글로벌 해양도시',
-            'about.global_marine_city_desc': '해운대, 광안리 등 수많은 해변에는 젊음과 생동감이 넘쳐나고, 미래지향적인 마천루들이 속속 스카이라인을 바꾸고 있다. 항구와 부두에는 엄청난 양의 컨테이너와 수출입 무역 상품들이 즐비하며, 금융물류 중심의 글로벌허브도시로 성장해 나가고 있다.',
+            'about.global_marine_city_desc':
+                '해운대, 광안리 등 수많은 해변에는 젊음과 생동감이 넘쳐나고, 미래지향적인 마천루들이 속속 스카이라인을 바꾸고 있다. 항구와 부두에는 엄청난 양의 컨테이너와 수출입 무역 상품들이 즐비하며, 금융물류 중심의 글로벌허브도시로 성장해 나가고 있다.',
             'about.history_title': '대전환의 역사가 살아 숨 쉬는 부산',
-            'about.history_desc': '한국전쟁 당시 각 지역에서 온 피란민들은 낙동강을 보호막으로 한반도의 평화를 지켰고 경제 성장의 뿌리를 내렸다. 각지에서 흘러든 이질적인 문화들이 융합되어 문화 예술의 향기가 한껏 피어오르는 예술도시로 성장하였다. 거리와 공연장에는 문화와 예술의 향기가 가득하며, 국제영화제와 불꽃축제 등 낭만의 페스티벌들이 일년 내내 도시를 달군다.',
+            'about.history_desc':
+                '한국전쟁 당시 각 지역에서 온 피란민들은 낙동강을 보호막으로 한반도의 평화를 지켰고 경제 성장의 뿌리를 내렸다. 각지에서 흘러든 이질적인 문화들이 융합되어 문화 예술의 향기가 한껏 피어오르는 예술도시로 성장하였다. 거리와 공연장에는 문화와 예술의 향기가 가득하며, 국제영화제와 불꽃축제 등 낭만의 페스티벌들이 일년 내내 도시를 달군다.',
             'about.goals_title': '도시비전과 목표',
             'about.vision': '도시 비전',
             'about.goal': '도시 목표',
@@ -216,17 +223,21 @@ class LanguageManager {
             'about.camellia_flower': '동백꽃',
             'about.camellia_flower_city': '시화 - 동백꽃 1970. 3. 1. 지정',
             'about.camellia_tree_city': '시목 - 동백나무 1970. 7. 1. 지정',
-            'about.camellia_desc': '진녹색의 잎과 진홍색의 꽃의 조화는 푸른 바다와, 사랑이 많은 시민의 정신을 그려내고, 싱싱하고 빛이 나는 진녹색 활엽은 시민의 젊음과 의욕을 나타낸다.',
+            'about.camellia_desc':
+                '진녹색의 잎과 진홍색의 꽃의 조화는 푸른 바다와, 사랑이 많은 시민의 정신을 그려내고, 싱싱하고 빛이 나는 진녹색 활엽은 시민의 젊음과 의욕을 나타낸다.',
             'about.seagull': '갈매기',
             'about.seagull_city': '시조 - 갈매기 1978. 7. 1. 지정',
-            'about.seagull_desc': '새하얀 날개와 몸은 백의민족을 상징한다. 끈기있게 먼 뱃길을 따라 하늘을 나는 갈매기의 강인함은 부산 시민의 정신을 잘 나타내기 때문에 부산의 새로 선정되었다.',
+            'about.seagull_desc':
+                '새하얀 날개와 몸은 백의민족을 상징한다. 끈기있게 먼 뱃길을 따라 하늘을 나는 갈매기의 강인함은 부산 시민의 정신을 잘 나타내기 때문에 부산의 새로 선정되었다.',
             'about.mackerel': '고등어',
             'about.mackerel_city': '시어 - 고등어 2011. 7. 6. 지정',
-            'about.mackerel_desc': '\'Dynamic, Powerful, Speedy\' 태평양을 누비는 강한 힘으로 목표를 향해 끊임없이 도약하는 해양수산도시 부산을 상징한다.',
+            'about.mackerel_desc':
+                "'Dynamic, Powerful, Speedy' 태평양을 누비는 강한 힘으로 목표를 향해 끊임없이 도약하는 해양수산도시 부산을 상징한다.",
             'about.character_title': '캐릭터 소개',
             'about.basisinfo_title': '기본현황',
             'about.location': '위치',
-            'about.location_desc': '한반도의 남동단에 위치하며 남으로는 대한해협에 면해 있고, 남쪽을 제외하고는 경상남도와 접하고 있다.',
+            'about.location_desc':
+                '한반도의 남동단에 위치하며 남으로는 대한해협에 면해 있고, 남쪽을 제외하고는 경상남도와 접하고 있다.',
             'about.location_mathematical': '수리적 위치',
             'about.location_east': '동단: 동경 129°18′13″(장안읍 효암리)',
             'about.location_west': '서단: 동경 128°45′54″(가덕도동 미백도)',
@@ -235,51 +246,70 @@ class LanguageManager {
             'about.location_note1': '→ 북반구 중위도와 동반구 중경도에 해당한다.',
             'about.location_note2': '→ 위도는 일본의 도쿄, 경도는 일본의 나카사키와 비슷하다.',
             'about.location_climate': '기후대적 위치',
-            'about.location_climate_desc': '온대 계절풍 기후대와 대륙 동안 기후대에 속한다. 대한해협에 면해있기 때문에 해양의 영향을 크게 받아 해양성기후의 특징이 잘 나타난다.',
-            'about.location_climate_note': '→ 여름과 겨울의 기온차가 크지 않으며 4계절의 변화가 뚜렷하여 사람이 살기에 적합한 도시이다.',
+            'about.location_climate_desc':
+                '온대 계절풍 기후대와 대륙 동안 기후대에 속한다. 대한해협에 면해있기 때문에 해양의 영향을 크게 받아 해양성기후의 특징이 잘 나타난다.',
+            'about.location_climate_note':
+                '→ 여름과 겨울의 기온차가 크지 않으며 4계절의 변화가 뚜렷하여 사람이 살기에 적합한 도시이다.',
             'about.location_gateway': '관문적 위치',
-            'about.location_gateway_desc': '부산은 우리나라 제1의 국제무역항이자 국제공항을 갖고 있어 여러 나라와 연결하는 관문역할을 다하고 있다.',
-            'about.location_gateway_note': '→ 일본은 도쿄를 비롯하여 오사카 및 시모노세키·후쿠오카·나고야와 연결되어 있다.',
+            'about.location_gateway_desc':
+                '부산은 우리나라 제1의 국제무역항이자 국제공항을 갖고 있어 여러 나라와 연결하는 관문역할을 다하고 있다.',
+            'about.location_gateway_note':
+                '→ 일본은 도쿄를 비롯하여 오사카 및 시모노세키·후쿠오카·나고야와 연결되어 있다.',
             'about.climate': '기후',
             'about.climate_kma': '기상청 바로가기',
-            'about.climate_desc': '동아시아 계절풍이 탁월한 유라시아 대륙의 동쪽 한반도의 남동단에 위치하고 있기 때문에 4계절이 뚜렷한 온대기후를 나타낸다.',
+            'about.climate_desc':
+                '동아시아 계절풍이 탁월한 유라시아 대륙의 동쪽 한반도의 남동단에 위치하고 있기 때문에 4계절이 뚜렷한 온대기후를 나타낸다.',
             'about.spring': '봄',
             'about.spring_period': '시기: 3월 초순~6월 말',
             'about.spring_temp': '평균 기온: 14.9℃',
-            'about.spring_desc': '봄바람이 무척 강하기(평균 4.4m/s) 때문에 체감온도는 상당히 낮다. 봄에는 일교차가 매우 크고, 이상건조, 황사, 늦서리 같은 특수한 기상현상이 나타난다.',
+            'about.spring_desc':
+                '봄바람이 무척 강하기(평균 4.4m/s) 때문에 체감온도는 상당히 낮다. 봄에는 일교차가 매우 크고, 이상건조, 황사, 늦서리 같은 특수한 기상현상이 나타난다.',
             'about.spring_tip': 'Tip 꽃이 많이 피므로 화사한 톤의 옷을 추천!',
             'about.summer': '여름',
             'about.summer_period': '시기: 6월 말~9월 초순 / 장마기간: 6월 말~8월초',
             'about.summer_temp': '평균 기온: 7월 23.9℃ / 7월 하순~8월 중순 최고기온 32℃ 이상',
-            'about.summer_desc': '기온의 일교차가 5.3℃로서 아주 작은 편이지만 강수량이 가장 많은 계절로, 연 총 강수량 50 ∼ 60%가 내린다. 열대야: 밤에도 최저기온이 25℃이상이 되는 현상',
-            'about.summer_tip': 'Tip 최고기온 32℃ 이상인 무더운 날씨이므로 얇은 옷을 추천! 장마기간에 우산은 필수!',
+            'about.summer_desc':
+                '기온의 일교차가 5.3℃로서 아주 작은 편이지만 강수량이 가장 많은 계절로, 연 총 강수량 50 ∼ 60%가 내린다. 열대야: 밤에도 최저기온이 25℃이상이 되는 현상',
+            'about.summer_tip':
+                'Tip 최고기온 32℃ 이상인 무더운 날씨이므로 얇은 옷을 추천! 장마기간에 우산은 필수!',
             'about.fall': '가을',
             'about.fall_period': '시기: 9월 초순~11월 말',
             'about.fall_temp': '평균 기온: 9월 21.8℃, 10월 17℃, 11월부터 기온 급강하',
-            'about.fall_desc': '이동성 고기압의 영향으로 날씨가 주기적으로 변하여 9월에 들어서면 아침 저녁으로는 서늘해지기 시작한다.',
-            'about.fall_tip': 'Tip 아침 저녁으로는 서늘하기 때문에 입고 벗을 수 있는 겉옷을 챙기는 것을 추천!!',
+            'about.fall_desc':
+                '이동성 고기압의 영향으로 날씨가 주기적으로 변하여 9월에 들어서면 아침 저녁으로는 서늘해지기 시작한다.',
+            'about.fall_tip':
+                'Tip 아침 저녁으로는 서늘하기 때문에 입고 벗을 수 있는 겉옷을 챙기는 것을 추천!!',
             'about.winter': '겨울',
             'about.winter_period': '시기: 11월 말~이듬해 2월 말',
             'about.winter_temp': '평균기온: 3.8℃',
-            'about.winter_desc': '일 최저기온이 0℃ 이하인 일수가 부산은 53일로서 제주도를 제외하고 가장 적다. 삼한사온: 북서계절풍이 3 ∼ 4일을 주기로 강해지기도 하고 약해지기도 하는 현상',
+            'about.winter_desc':
+                '일 최저기온이 0℃ 이하인 일수가 부산은 53일로서 제주도를 제외하고 가장 적다. 삼한사온: 북서계절풍이 3 ∼ 4일을 주기로 강해지기도 하고 약해지기도 하는 현상',
             'about.winter_tip': 'Tip 일본에 비해 많이 춥기 때문에 따뜻하게 입는 것을 추천!',
             'about.coast': '해안',
-            'about.coast_desc': '부산의 해안은 해안선의 출입이 심한 리아스식 해안으로서 해안을 이루는 구성물질이 다양한 것도 하나의 특색이다. 해안을 구성하는 물질이 기반암으로만 되어 있는 암석 해안과 모래로 되어 있는 사질해안이 있다.',
+            'about.coast_desc':
+                '부산의 해안은 해안선의 출입이 심한 리아스식 해안으로서 해안을 이루는 구성물질이 다양한 것도 하나의 특색이다. 해안을 구성하는 물질이 기반암으로만 되어 있는 암석 해안과 모래로 되어 있는 사질해안이 있다.',
             'about.rocky_coast': '암석해안',
-            'about.rocky_coast_desc': '암석해안은 해안을 구성하는 물질이 기반암으로 되어 있고 자갈이나 모래, 실트 등과 같은 퇴적물을 찾아볼 수 없는 해안이다. 주로 외해(外海)에 면한 반도, 두각지 또는 여러 섬들의 선단에 잘 나타난다.',
-            'about.rocky_coast_example': '예) 해운대의 고두말, 동백섬, 우암반도, 오륙도, 영도, 장군반도, 두송 반도, 몰운반도 그리고 가덕도와 같은 대부분의 해안',
+            'about.rocky_coast_desc':
+                '암석해안은 해안을 구성하는 물질이 기반암으로 되어 있고 자갈이나 모래, 실트 등과 같은 퇴적물을 찾아볼 수 없는 해안이다. 주로 외해(外海)에 면한 반도, 두각지 또는 여러 섬들의 선단에 잘 나타난다.',
+            'about.rocky_coast_example':
+                '예) 해운대의 고두말, 동백섬, 우암반도, 오륙도, 영도, 장군반도, 두송 반도, 몰운반도 그리고 가덕도와 같은 대부분의 해안',
             'about.sandy_coast': '사질해안',
-            'about.sandy_coast_desc': '사질해안은 암석해안과는 달리 대체로 수려한 모래로 구성된 해안이다.',
-            'about.sandy_coast_example': '예) 송정만, 수영만, 부산만, 감천만, 다대만 등의 내만(內灣), 낙동강의 하구 해안',
+            'about.sandy_coast_desc':
+                '사질해안은 암석해안과는 달리 대체로 수려한 모래로 구성된 해안이다.',
+            'about.sandy_coast_example':
+                '예) 송정만, 수영만, 부산만, 감천만, 다대만 등의 내만(內灣), 낙동강의 하구 해안',
             'about.coast_detail': '자세히 보기',
             'about.sand_beach': '사빈 - 순수한 모래로 된 해안',
             'about.sand_beach_desc': '현재 해수욕장으로 이용되고 있음',
             'about.sand_beach_example': '예) 해운대 해수욕장, 송정 해수욕장, 광안리 해수욕장 등',
             'about.gravel_beach': '역빈 - 자갈로 된 해안',
-            'about.gravel_beach_desc': '사빈에 비해 규모는 크지 않으나 모양새가 좋은 둥근 옥돌로 되어 있는 것이 특징',
-            'about.gravel_beach_example': '예) 영도의 동삼동 해안, 곤포의 집 해안, 우암반도의 승두말과 신선대 사이의 만입 등의 해안',
+            'about.gravel_beach_desc':
+                '사빈에 비해 규모는 크지 않으나 모양새가 좋은 둥근 옥돌로 되어 있는 것이 특징',
+            'about.gravel_beach_example':
+                '예) 영도의 동삼동 해안, 곤포의 집 해안, 우암반도의 승두말과 신선대 사이의 만입 등의 해안',
             'about.mud_beach': '이빈 - 뻘로 된 해안',
-            'about.mud_beach_desc': '낙동강이 운반해온 미세한 입자의 실트 내지는 실트질 점토가 퇴적되어 형성된 해안',
+            'about.mud_beach_desc':
+                '낙동강이 운반해온 미세한 입자의 실트 내지는 실트질 점토가 퇴적되어 형성된 해안',
             'about.mud_beach_example': '예) 낙동강 하구인 낙동강 삼각주의 말단',
             'about.busan_today': '부산의 오늘',
             'about.scroll_top': '클릭하시면 최상단으로 이동합니다',
@@ -398,7 +428,8 @@ class LanguageManager {
             'tip.visit_busan_pass_facilities': '부산 주요 유료 관광시설 42곳을 이용할 수 있습니다',
             'tip.visit_busan_pass_facilities_desc':
                 '주요 관광시설 : 송도해상케이블카, 해운대 블루라인파크 해변열차, 시티투어버스 이용권 등',
-            'tip.visit_busan_pass_transport': '교통카드 기능까지 연계되어 부산 여행의 편의를 제공합니다',
+            'tip.visit_busan_pass_transport':
+                '교통카드 기능까지 연계되어 부산 여행의 편의를 제공합니다',
             'tip.visit_busan_pass_types': '시간제한형 2종, 수량제한형 2종으로 나뉘어 있습니다',
             'tip.time_limited': '시간제한형',
             'tip.time_limited_desc':
@@ -455,7 +486,8 @@ class LanguageManager {
             'tip.baemin_feature':
                 '비회원 해외카드 결제가 가능하여 외국인들도 서비스를 이용할 수 있습니다',
             'tip.shuttle_delivery': '셔틀딜리버리',
-            'tip.shuttle_delivery_desc': '한국 전화번호 없이 가입이 가능하고 PayPal 사용이 가능합니다',
+            'tip.shuttle_delivery_desc':
+                '한국 전화번호 없이 가입이 가능하고 PayPal 사용이 가능합니다',
 
             'tip.photobooth': '포토부스',
             'tip.photobooth_title': '포토부스',
@@ -544,10 +576,11 @@ class LanguageManager {
             'footer.project_info': '프로젝트 정보',
             'footer.orora_team': '오로라 팀 소개',
             'footer.travel_tips': '여행 팁',
-            'footer.development_period': '개발 기간: 2025년 7월',
+            'footer.development_period': '개발 기간: 2025년 7월 ~ 2026년 1월',
             'footer.platform_info': '부산 관광 정보 플랫폼',
             'footer.copyright': '© 2025 arataBUSAN by Team ORORA. All rights reserved.',
-            'footer.disclaimer': '본 사이트는 교육 목적으로 제작되었습니다. 관광 정보는 참고용이며, 실제 여행 계획 시 공식 기관 정보를 확인해주세요.',
+            'footer.disclaimer':
+                '본 사이트는 교육 목적으로 제작되었습니다. 관광 정보는 참고용이며, 실제 여행 계획 시 공식 기관 정보를 확인해주세요.',
         };
     }
 
@@ -594,7 +627,7 @@ class LanguageManager {
                 }
             }
         });
-        
+
         // alt 속성 번역 처리
         const altElements = document.querySelectorAll('[data-translate-alt]');
         altElements.forEach((element) => {
@@ -604,7 +637,7 @@ class LanguageManager {
                 element.setAttribute('alt', translation);
             }
         });
-        
+
         // title 속성 번역 처리
         const titleElements = document.querySelectorAll('[data-translate-title]');
         titleElements.forEach((element) => {
@@ -614,7 +647,6 @@ class LanguageManager {
                 element.setAttribute('title', translation);
             }
         });
-        
     }
 
     getTranslation(key) {
@@ -649,7 +681,6 @@ class LanguageManager {
                 this.applyLanguage(e.target.value);
             };
             languageSelector.addEventListener('change', this.handleLanguageChange);
-
         } else if (retryCount < 50) {
             // 최대 5초간 재시도 (50 * 100ms)
             // 언어 선택기를 찾지 못했으면 100ms 후 재시도
