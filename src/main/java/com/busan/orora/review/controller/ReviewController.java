@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class ReviewController {
+    private static final Logger logger = LoggerFactory.getLogger(ReviewController.class);
 
     @Autowired
     private ReviewService reviewService;
@@ -57,7 +60,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -198,7 +201,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "리뷰 작성 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -272,7 +275,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "리뷰 수정 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -297,7 +300,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "리뷰 삭제 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -322,7 +325,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -347,7 +350,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "좋아요 누른 리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -372,7 +375,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "댓글을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -396,7 +399,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "댓글을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -446,7 +449,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "댓글 작성 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -496,7 +499,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "댓글 수정 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -539,7 +542,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "댓글 삭제 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -589,7 +592,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "신고 처리 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }
@@ -639,7 +642,7 @@ public class ReviewController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "신고 처리 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
             return response;
         }
     }

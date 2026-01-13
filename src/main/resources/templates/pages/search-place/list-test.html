@@ -48,11 +48,9 @@
                     dataUrl: '../list-example/data.json',
                     fallbackImage: '../list-example/logo.png',
                     onItemClick: (itemData, event) => {
-                        console.log('아이템 클릭:', itemData);
                         // 상세 페이지로 이동하거나 모달 표시 등
                     },
                     onLikeClick: (itemData, isLiked) => {
-                        console.log('좋아요 상태 변경:', itemData.title, isLiked);
                         // 서버에 좋아요 상태 저장 등
                     },
                 });
