@@ -12,11 +12,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
 public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    
     @Autowired
     private UserService userService;
 
@@ -136,7 +140,7 @@ public class UserController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "회원가입 처리 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
         }
 
         return response;
@@ -204,7 +208,7 @@ public class UserController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "사용자 정보 조회 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
         }
 
         return response;
@@ -282,7 +286,7 @@ public class UserController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "프로필 수정 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("오류 발생", e);
         }
 
         return response;

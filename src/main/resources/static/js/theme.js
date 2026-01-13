@@ -52,11 +52,6 @@ class ThemeCarousel {
             }
 
             const data = await response.json();
-            // console.log('로드된 데이터 구조:', {
-            //     hasRegions: !!data.regions,
-            //     regionsCount: data.regions ? Object.keys(data.regions).length : 0,
-            //     firstRegion: data.regions ? Object.keys(data.regions)[0] : null,
-            // });
 
             // 데이터 구조 확인
             if (!data || !data.regions) {
@@ -76,11 +71,8 @@ class ThemeCarousel {
                 }
             });
 
-            // console.log('전체 관광지 데이터:', allSpots.length, '개');
-
             // 오로라 추천 테마 (부산의 대표 관광지들 - 인기 있는 장소들)
             this.allData['aurora-carousel'] = this.getAuroraRecommendedSpots(allSpots);
-            // console.log('오로라 추천 테마 데이터:', this.allData['aurora-carousel'].length, '개');
 
             // 유저 추천 테마 데이터 준비
             this.allData['user-carousel'] = allSpots;
@@ -388,7 +380,6 @@ class ThemeCarousel {
             // 유저 추천 테마인 경우 테마별 필터링
             if (carouselId === 'user-carousel' && theme) {
                 data = this.filterByTheme(this.allData[carouselId] || [], theme);
-                // console.log(`${theme} 테마 필터링 결과:`, data.length, '개');
             }
 
             // 데이터가 없는 경우 처리
