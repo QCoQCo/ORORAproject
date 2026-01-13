@@ -615,7 +615,6 @@ class LanguageManager {
             }
         });
         
-        console.log('번역 적용 완료');
     }
 
     getTranslation(key) {
