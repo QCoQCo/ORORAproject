@@ -31,20 +31,24 @@ public class FileService {
     /**
      * 파일을 업로드하고 UUID 기반의 고유한 파일명을 반환합니다.
      * 
-     * @param uploadPath 업로드할 디렉토리 경로
+     * @param uploadPath       업로드할 디렉토리 경로
      * @param originalFileName 원본 파일명
-     * @param fileData 파일 바이트 데이터
+     * @param fileData         파일 바이트 데이터
      * @return 저장된 파일명 (UUID + 확장자)
      * @throws IOException 파일 저장 중 오류 발생 시
      */
     public String uploadFile(String uploadPath, String originalFileName, byte[] fileData) throws IOException {
         // 상대 경로를 절대 경로로 변환
         String absoluteUploadPath = getAbsolutePath(uploadPath);
-        
+
         // 1. 업로드 디렉토리 생성 (없으면)
         File uploadDir = new File(absoluteUploadPath);
         if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
+            boolean created = uploadDir.mkdirs();
+            if (!created && !uploadDir.exists()) {
+                throw new IOException("디렉토리 생성 실패: " + absoluteUploadPath +
+                        " (권한을 확인하거나 수동으로 디렉토리를 생성해주세요)");
+            }
         }
 
         // 2. UUID로 고유한 파일명 생성
@@ -64,7 +68,7 @@ public class FileService {
             fos.write(fileData);
         }
 
-        return savedFileName;  // 저장된 파일명만 반환
+        return savedFileName; // 저장된 파일명만 반환
     }
 
     /**

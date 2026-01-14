@@ -1,9 +1,10 @@
 // 마이페이지 JavaScript
 
 // 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function () {
-    // 로그인 상태 확인
-    if (!isLoggedIn()) {
+document.addEventListener('DOMContentLoaded', async function () {
+    // 서버에서 로그인 상태 확인
+    const isLoggedInStatus = await isLoggedInAsync();
+    if (!isLoggedInStatus) {
         alert('로그인이 필요합니다.');
         window.location.href = '/pages/login/login';
         return;
@@ -51,8 +52,14 @@ async function displayUserInfo() {
                 userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
             document.getElementById('profile-image').src = profileImageUrl;
 
-            // sessionStorage 업데이트 (최신 정보로)
-            sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+            // 사용자 정보 업데이트 (localStorage 또는 sessionStorage에 저장)
+            // 현재 로그인 상태 유지 여부 확인 (localStorage에 있으면 유지, 없으면 sessionStorage)
+            const hasLocalStorage = localStorage.getItem('loggedInUser') !== null;
+            if (hasLocalStorage) {
+                localStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+            } else {
+                sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+            }
         } else {
             // API 호출 실패 시 sessionStorage의 정보 사용
             document.getElementById('user-name').textContent = user.username;
