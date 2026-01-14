@@ -201,13 +201,70 @@ public class UserController {
         return response;
     }
 
+    // 로그인 상태 확인 API
+    @GetMapping("/api/auth/check")
+    @ResponseBody
+    public Map<String, Object> checkLoginStatus(HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                UserDto user = (UserDto) session.getAttribute("loggedInUser");
+                if (user != null) {
+                    response.put("success", true);
+                    response.put("loggedIn", true);
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("loginId", user.getLoginId());
+                    userMap.put("username", user.getUsername());
+                    userMap.put("email", user.getEmail());
+                    userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+                    userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+                    userMap.put("profileImage",
+                            user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+                    userMap.put("profile_image",
+                            user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+                    userMap.put("join_date", user.getJoinDate() != null ? user.getJoinDate().toString() : null);
+                    response.put("user", userMap);
+                    return response;
+                }
+            }
+            
+            response.put("success", true);
+            response.put("loggedIn", false);
+            response.put("message", "로그인되지 않았습니다.");
+        } catch (Exception e) {
+            logger.error("로그인 상태 확인 중 오류 발생", e);
+            response.put("success", false);
+            response.put("loggedIn", false);
+            response.put("message", "로그인 상태 확인 중 오류가 발생했습니다.");
+        }
+        
+        return response;
+    }
+
     // 로그아웃 API
     @PostMapping("/api/auth/logout")
     @ResponseBody
-    public Map<String, Object> logout() {
+    public Map<String, Object> logout(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "로그아웃되었습니다.");
+        
+        try {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+                logger.debug("세션 무효화 완료");
+            }
+            
+            response.put("success", true);
+            response.put("message", "로그아웃되었습니다.");
+        } catch (Exception e) {
+            logger.error("로그아웃 처리 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "로그아웃 처리 중 오류가 발생했습니다.");
+        }
+        
         return response;
     }
 
