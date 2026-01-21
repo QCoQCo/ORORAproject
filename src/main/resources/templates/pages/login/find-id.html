@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}" lang="ko">
     <head>
-        <title layout:fragment="title">login</title>
+        <title layout:fragment="title">아이디 찾기</title>
         <th:block layout:fragment="css">
             <link rel="stylesheet" th:href="@{/css/login.css}" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -15,43 +15,37 @@
                 <button class="back-button" onclick="history.back()">
                     <i class="fa-solid fa-arrow-left"></i>
                 </button>
-                <h2>회원 로그인</h2>
+                <h2>아이디 찾기</h2>
                 <div>
                     <div>
-                        <p class="id">아이디</p>
+                        <p class="id">이름</p>
                         <label
-                            ><input type="text" placeholder="아이디를 입력해 주세요." id="putId"
+                            ><input type="text" placeholder="이름을 입력해 주세요." id="userName"
                         /></label>
                     </div>
                     <div>
-                        <p class="psw">비밀번호</p>
+                        <p class="psw">이메일</p>
                         <label
                             ><input
-                                type="password"
-                                placeholder="비밀번호를 입력하세요."
-                                id="putPsw"
+                                type="email"
+                                placeholder="이메일을 입력해 주세요."
+                                id="userEmail"
                         /></label>
                     </div>
-                    <div class="check">
-                        <div>
-                            <label><input type="checkbox" id="checkId" name="" />아이디 저장</label>
-                            <label
-                                ><input type="checkbox" id="checkLogin" name="" />로그인 상태
-                                유지</label
-                            >
-                        </div>
-                    </div>
-                    <button id="loginBtn">로그인</button>
+                    <div id="errorMessage"></div>
+                    <div id="successMessage"></div>
+                    <button id="findIdBtn">아이디 찾기</button>
                     <div class="aboutLogin">
+                        <a href="./login"><p>로그인</p></a>
                         <a href="./signup"><p>회원가입</p></a>
-                        <a href="./find-id"><p>아이디 찾기</p></a>
                         <a href="./reset-password"><p class="newPsw">비밀번호 재설정</p></a>
                     </div>
                 </div>
             </div>
         </div>
         <th:block layout:fragment="script">
-            <script th:src="@{/js/login.js}"></script>
+            <script th:src="@{/js/utils/notification.js}"></script>
+            <script th:src="@{/js/find-id.js}"></script>
         </th:block>
     </body>
 </html>

@@ -40,6 +40,18 @@ public class UserController {
         return "pages/login/signup";
     }
 
+    // 아이디 찾기 페이지
+    @GetMapping("/pages/login/find-id")
+    public String findIdPage() {
+        return "pages/login/find-id";
+    }
+
+    // 비밀번호 재설정 페이지
+    @GetMapping("/pages/login/reset-password")
+    public String resetPasswordPage() {
+        return "pages/login/reset-password";
+    }
+
     // 로그인 API
     @PostMapping("/api/auth/login")
     @ResponseBody
@@ -381,6 +393,88 @@ public class UserController {
             response.put("success", false);
             response.put("message", "프로필 수정 중 오류가 발생했습니다: " + e.getMessage());
             logger.error("오류 발생", e);
+        }
+
+        return response;
+    }
+
+    // 아이디 찾기 API
+    @PostMapping("/api/auth/find-id")
+    @ResponseBody
+    public Map<String, Object> findId(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String username = request.get("username");
+            String email = request.get("email");
+
+            if ((username == null || username.trim().isEmpty()) && 
+                (email == null || email.trim().isEmpty())) {
+                response.put("success", false);
+                response.put("message", "이름 또는 이메일을 입력해주세요.");
+                return response;
+            }
+
+            UserDto user = userService.findUserByUsernameOrEmail(username, email);
+
+            if (user != null) {
+                response.put("success", true);
+                response.put("loginId", user.getLoginId());
+                response.put("message", "아이디를 찾았습니다.");
+            } else {
+                response.put("success", false);
+                response.put("message", "일치하는 사용자 정보를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "아이디 찾기 중 오류가 발생했습니다: " + e.getMessage());
+            logger.error("아이디 찾기 오류 발생", e);
+        }
+
+        return response;
+    }
+
+    // 비밀번호 재설정 API
+    @PostMapping("/api/auth/reset-password")
+    @ResponseBody
+    public Map<String, Object> resetPassword(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String loginId = request.get("loginId");
+            String newPassword = request.get("newPassword");
+
+            if (loginId == null || loginId.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "아이디를 입력해주세요.");
+                return response;
+            }
+
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "새 비밀번호를 입력해주세요.");
+                return response;
+            }
+
+            if (newPassword.length() < 6 || newPassword.length() > 15) {
+                response.put("success", false);
+                response.put("message", "비밀번호는 6자 이상 15자 이하로 입력해주세요.");
+                return response;
+            }
+
+            boolean success = userService.resetPassword(loginId, newPassword);
+
+            if (success) {
+                response.put("success", true);
+                response.put("message", "비밀번호가 성공적으로 재설정되었습니다.");
+            } else {
+                response.put("success", false);
+                response.put("message", "일치하는 사용자를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "비밀번호 재설정 중 오류가 발생했습니다: " + e.getMessage());
+            logger.error("비밀번호 재설정 오류 발생", e);
         }
 
         return response;
