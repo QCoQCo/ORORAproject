@@ -8,6 +8,7 @@ import java.util.Map;
 
 @Mapper
 public interface ReviewMapper {
+
     List<Map<String, Object>> findReviewsBySpotId(@Param("spotId") Long spotId);
 
     List<ReviewDto> findReviewsByUserId(@Param("userId") Long userId);
@@ -42,10 +43,12 @@ public interface ReviewMapper {
     List<Map<String, Object>> findCommentsByReviewId(@Param("reviewId") Long reviewId);
 
     // 댓글 작성
-    void insertComment(@Param("reviewId") Long reviewId, @Param("userId") Long userId, @Param("content") String content);
+    void insertComment(@Param("reviewId") Long reviewId, @Param("userId") Long userId,
+            @Param("content") String content);
 
     // 댓글 수정
-    void updateComment(@Param("commentId") Long commentId, @Param("userId") Long userId, @Param("content") String content);
+    void updateComment(@Param("commentId") Long commentId, @Param("userId") Long userId,
+            @Param("content") String content);
 
     // 댓글 삭제
     void deleteComment(@Param("commentId") Long commentId, @Param("userId") Long userId);
@@ -54,10 +57,12 @@ public interface ReviewMapper {
     Long findCommentUserId(@Param("commentId") Long commentId);
 
     // 댓글 신고
-    void insertCommentReport(@Param("commentId") Long commentId, @Param("userId") Long userId, @Param("reason") String reason);
+    void insertCommentReport(@Param("commentId") Long commentId, @Param("userId") Long userId,
+            @Param("reason") String reason);
 
     // 리뷰 신고
-    void insertReviewReport(@Param("reviewId") Long reviewId, @Param("userId") Long userId, @Param("reason") String reason);
+    void insertReviewReport(@Param("reviewId") Long reviewId, @Param("userId") Long userId,
+            @Param("reason") String reason);
 
     // 리뷰 신고 상태 업데이트
     void updateReviewReportStatus(@Param("reportId") Long reportId, @Param("statusCode") String statusCode);
@@ -72,8 +77,8 @@ public interface ReviewMapper {
     void deleteCommentReport(@Param("reportId") Long reportId);
 
     // 리뷰 이미지 저장
-    void insertReviewImage(@Param("reviewId") Long reviewId, @Param("imageUrl") String imageUrl, 
-                          @Param("imageOrder") Integer imageOrder, @Param("altText") String altText);
+    void insertReviewImage(@Param("reviewId") Long reviewId, @Param("imageUrl") String imageUrl,
+            @Param("imageOrder") Integer imageOrder, @Param("altText") String altText);
 
     // 리뷰 이미지 조회
     List<Map<String, Object>> findReviewImagesByReviewId(@Param("reviewId") Long reviewId);

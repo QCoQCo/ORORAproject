@@ -519,8 +519,8 @@ function updateSpotInfo(spot, regionName) {
                     spot.hashtags && spot.hashtags.includes('무료')
                         ? '무료'
                         : spot.hashtags && spot.hashtags.includes('유료')
-                        ? '유료 (현장 문의)'
-                        : '현장 문의'
+                          ? '유료 (현장 문의)'
+                          : '현장 문의'
                 }</p>
             </li>
             <li>
@@ -550,7 +550,7 @@ function getCategoryFromHashtags(hashtags) {
     if (hashtags.some((tag) => tag.includes('산') || tag.includes('공원'))) return '산/공원';
     if (
         hashtags.some(
-            (tag) => tag.includes('문화') || tag.includes('사찰') || tag.includes('박물관')
+            (tag) => tag.includes('문화') || tag.includes('사찰') || tag.includes('박물관'),
         )
     )
         return '문화/역사';
@@ -938,8 +938,8 @@ function createReviewElement(review) {
             ${userImageHTML}
             <div class="userInfo">
                 <p class="userId"><strong>${userName}</strong>${
-        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
-    }</p>
+                    isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
+                }</p>
                 <div class="reviewRating">${stars} (${review.rating || 0}/5)</div>
                 <p class="reviewTitle">${review.title || ''}</p>
             </div>
@@ -1479,7 +1479,7 @@ async function toggleReviewLike(reviewId) {
 
             // 포토리뷰 모달에서도 업데이트
             const modalReviewElement = document.querySelector(
-                `#photo-review-modal [data-review-id="${reviewId}"]`
+                `#photo-review-modal [data-review-id="${reviewId}"]`,
             );
             if (modalReviewElement) {
                 const modalLikeBtn = modalReviewElement.querySelector('.reviewLikeBtn');
@@ -1577,7 +1577,7 @@ async function toggleReviewReply(reviewId) {
             } else {
                 // 일반 리뷰
                 const reviewElement = document.querySelector(
-                    `.userReview[data-review-id="${reviewId}"]`
+                    `.userReview[data-review-id="${reviewId}"]`,
                 );
                 if (reviewElement) {
                     commentsContainer.id = `review-comments-${reviewId}`;
@@ -1651,7 +1651,7 @@ function createCommentHTML(comment) {
     const userName = comment.userName || comment.userLoginId || '익명';
     const createdAt = formatDate(
         comment.createdAt || comment.created_at || new Date().toISOString(),
-        'dot'
+        'dot',
     );
     const userProfileImage = comment.userProfileImage || '/images/defaultProfile.png';
 
@@ -1666,8 +1666,8 @@ function createCommentHTML(comment) {
     const actionButtonsHTML = isMyComment
         ? `<div class="comment-actions">
             <button class="edit-comment-btn" onclick="editComment(${comment.id}, '${(
-              comment.content || ''
-          ).replace(/'/g, "\\'")}')">수정</button>
+                comment.content || ''
+            ).replace(/'/g, "\\'")}')">수정</button>
             <button class="delete-comment-btn" onclick="deleteComment(${comment.id})">삭제</button>
         </div>`
         : `<div class="comment-report-btn">
@@ -1676,8 +1676,8 @@ function createCommentHTML(comment) {
 
     return `
         <div class="comment-item ${isMyComment ? 'my-comment' : ''}" data-comment-id="${
-        comment.id
-    }">
+            comment.id
+        }">
             <div class="comment-header">
                 <img src="${userProfileImage}" alt="${userName}" class="comment-user-image" />
                 <div class="comment-user-info">
@@ -2031,14 +2031,14 @@ async function saveComment(commentId) {
 
                 if (reviewId) {
                     let commentsContainer = document.getElementById(
-                        `photo-review-comments-${reviewId}`
+                        `photo-review-comments-${reviewId}`,
                     );
                     if (!commentsContainer) {
                         commentsContainer = document.getElementById(`review-comments-${reviewId}`);
                     }
                     if (!commentsContainer && reviewElement) {
                         commentsContainer = reviewElement.querySelector(
-                            '.review-comments-container'
+                            '.review-comments-container',
                         );
                     }
 
@@ -2107,7 +2107,7 @@ async function deleteComment(commentId) {
 
                 // 댓글창이 열려있는지 확인
                 let commentsContainer = document.getElementById(
-                    `photo-review-comments-${reviewId}`
+                    `photo-review-comments-${reviewId}`,
                 );
                 const isPhotoReviewModal = !!commentsContainer;
 
@@ -2998,7 +2998,10 @@ function createPhotoReviewListItem(review) {
     const title = review.title || '';
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-    const createdAt = formatDate(review.createdAt || review.created_at || new Date().toISOString(), 'dot');
+    const createdAt = formatDate(
+        review.createdAt || review.created_at || new Date().toISOString(),
+        'dot',
+    );
     const imageCount = review.images ? review.images.length : 0;
 
     item.innerHTML = `
@@ -3009,8 +3012,8 @@ function createPhotoReviewListItem(review) {
         <div class="photo-review-list-info">
             <div class="photo-review-list-header">
                 <p class="photo-review-user">${userName}${
-        isMyReview ? ' <span class="my-photo-review-badge">내 리뷰</span>' : ''
-    }</p>
+                    isMyReview ? ' <span class="my-photo-review-badge">내 리뷰</span>' : ''
+                }</p>
                 <p class="photo-review-date">${createdAt}</p>
             </div>
             <p class="photo-review-title">${title}</p>
@@ -3126,8 +3129,8 @@ function openPhotoReviewModal(review) {
                         return `
                         <div class="photo-review-modal-image-item">
                             <img src="${imageUrl}" alt="리뷰 이미지 ${
-                            index + 1
-                        }" onerror="this.src='/images/logo.png'" />
+                                index + 1
+                            }" onerror="this.src='/images/logo.png'" />
                         </div>
                     `;
                     })
@@ -3147,8 +3150,8 @@ function openPhotoReviewModal(review) {
             <div class="photo-review-modal-user-info">
                 <p class="photo-review-modal-user">
                     <strong>${userName}</strong>${
-        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
-    }
+                        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
+                    }
                 </p>
                 <div class="photo-review-modal-date-container">
                     ${modalDateHTML}
@@ -3687,7 +3690,7 @@ function handleEditImageSelect(files) {
         alert(
             `최대 5장까지만 업로드할 수 있습니다.\n현재: ${
                 activeExistingCount + editNewImages.length
-            }장, 추가 가능: ${5 - activeExistingCount - editNewImages.length}장`
+            }장, 추가 가능: ${5 - activeExistingCount - editNewImages.length}장`,
         );
         return;
     }
@@ -3746,7 +3749,7 @@ function updateEditNewImagesPreview() {
                 </svg>
             </button>
         </div>
-    `
+    `,
         )
         .join('');
 }

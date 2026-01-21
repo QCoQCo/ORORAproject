@@ -17,6 +17,7 @@ CREATE TABLE hashtags (
 @NoArgsConstructor
 @AllArgsConstructor
 public class HashtagDto {
+
     private Long id;
     private String name;
     private LocalDateTime createdAt;

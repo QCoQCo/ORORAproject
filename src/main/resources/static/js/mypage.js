@@ -40,9 +40,7 @@ async function displayUserInfo() {
             // 가입일 표시
             if (userInfo.join_date) {
                 const joinDateStr = formatJoinDate(userInfo.join_date);
-                document.getElementById(
-                    'join-date'
-                ).textContent = `가입일: ${joinDateStr}`;
+                document.getElementById('join-date').textContent = `가입일: ${joinDateStr}`;
             } else {
                 document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
             }
@@ -133,7 +131,7 @@ async function loadUserData() {
     try {
         // 리뷰 데이터 로드
         await loadUserReviews(user.id);
-        
+
         // 좋아요 누른 리뷰 데이터 로드
         await loadLikedReviews(user.id);
 
@@ -332,12 +330,16 @@ async function loadUserComments(userId) {
                 review_id: comment.reviewId || comment.review_id,
                 review_title: comment.reviewTitle || comment.review_title || '제목 없음',
                 tourist_spot_id: comment.touristSpotId || comment.tourist_spot_id,
-                tourist_spot_name: comment.touristSpotName || comment.tourist_spot_name || '알 수 없는 관광지',
-                review_author_name: comment.reviewAuthorName || comment.review_author_name || '익명',
+                tourist_spot_name:
+                    comment.touristSpotName || comment.tourist_spot_name || '알 수 없는 관광지',
+                review_author_name:
+                    comment.reviewAuthorName || comment.review_author_name || '익명',
                 created_at: comment.createdAt || comment.created_at,
             }));
 
-            commentsList.innerHTML = formattedComments.map((comment) => createCommentHTML(comment)).join('');
+            commentsList.innerHTML = formattedComments
+                .map((comment) => createCommentHTML(comment))
+                .join('');
         }
 
         commentsCount.textContent = `${comments.length}개`;
@@ -405,7 +407,7 @@ function createReviewHTML(review) {
                       (img) =>
                           `<img src="${img.image_url}" alt="${
                               img.alt_text || '리뷰 이미지'
-                          }" class="review-image" onclick="openImageModal('${img.image_url}')">`
+                          }" class="review-image" onclick="openImageModal('${img.image_url}')">`,
                   )
                   .join('')}</div>`
             : '';
@@ -435,7 +437,9 @@ function createReviewHTML(review) {
 
 // 댓글 HTML 생성
 function createCommentHTML(comment) {
-    const reviewAuthor = comment.review_author_name ? `<span class="review-author">리뷰 작성자: ${comment.review_author_name}</span>` : '';
+    const reviewAuthor = comment.review_author_name
+        ? `<span class="review-author">리뷰 작성자: ${comment.review_author_name}</span>`
+        : '';
     return `
         <div class="comment-item" onclick="window.location.href='/pages/detailed/detailed?id=${comment.tourist_spot_id}'">
             <div class="item-header">
@@ -563,7 +567,7 @@ async function loadUserRequests(userId) {
         if (data.success && data.requests) {
             // 현재 사용자의 신청만 필터링
             const userRequests = data.requests.filter(
-                (req) => req.userId === userId || req.userId === String(userId)
+                (req) => req.userId === userId || req.userId === String(userId),
             );
 
             if (userRequests.length === 0) {
@@ -602,23 +606,23 @@ function createRequestHTML(request) {
     const statusBadge = getRequestStatusBadge(request.status);
     const createdAt = formatRequestDate(request.createdAt);
     const description = request.description || '-';
-    
+
     // 이미지 미리보기 생성 (모든 신청 유형에서 이미지가 있으면 표시)
     let imagePreview = '';
     if (request.imageUrl) {
         // 쉼표로 구분된 여러 이미지 URL 처리
         const imageUrls = request.imageUrl.split(',').filter((url) => url.trim());
-        
+
         if (imageUrls.length > 0) {
             const firstImageUrl = imageUrls[0];
             const imageCount = imageUrls.length;
-            
+
             // 여러 이미지가 있으면 개수 배지 표시
             const countBadge =
                 imageCount > 1
                     ? `<span style="position: absolute; top: 5px; right: 5px; background: #007bff; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;">${imageCount}</span>`
                     : '';
-            
+
             // 여러 이미지가 있으면 모두 표시, 하나면 단일 이미지만 표시
             if (imageCount > 1) {
                 const imagesHtml = imageUrls
@@ -630,10 +634,10 @@ function createRequestHTML(request) {
                              onclick="openImageModal('${url.trim()}')" />
                         ${index === 0 ? '<span style="position: absolute; top: 2px; left: 2px; background: #28a745; color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.65rem;">대표</span>' : ''}
                     </div>
-                `
+                `,
                     )
                     .join('');
-                
+
                 imagePreview = `
                     <div style="margin-top: 10px;">
                         <p style="margin-bottom: 5px; font-size: 0.85rem; color: #666;"><strong>신청 이미지 (${imageCount}개):</strong></p>
@@ -750,7 +754,9 @@ let spotAddFormInitialized = false;
 
 // 카카오맵 API 키 가져오기
 function getKakaoMapApiKey() {
-    const wrapper = document.querySelector('[layout\\:fragment="content"]') || document.querySelector('[data-kakao-api-key]');
+    const wrapper =
+        document.querySelector('[layout\\:fragment="content"]') ||
+        document.querySelector('[data-kakao-api-key]');
     if (wrapper) {
         return wrapper.dataset.kakaoApiKey;
     }
@@ -805,9 +811,9 @@ function loadKakaoMapScript() {
 async function searchSpotLocation() {
     const searchInput = document.getElementById('spot-location-search');
     const resultsContainer = document.getElementById('spot-location-results');
-    
+
     if (!searchInput || !resultsContainer) return;
-    
+
     const query = searchInput.value.trim();
     if (!query) {
         alert('검색어를 입력해주세요.');
@@ -816,7 +822,7 @@ async function searchSpotLocation() {
 
     try {
         await loadKakaoMapScript();
-        
+
         const places = new kakao.maps.services.Places();
         places.keywordSearch(query, (data, status) => {
             if (status === kakao.maps.services.Status.OK) {
@@ -826,21 +832,23 @@ async function searchSpotLocation() {
                 const geocoder = new kakao.maps.services.Geocoder();
                 geocoder.addressSearch(query, (addressData, addressStatus) => {
                     if (addressStatus === kakao.maps.services.Status.OK) {
-                        const formattedResults = addressData.map(item => ({
+                        const formattedResults = addressData.map((item) => ({
                             place_name: item.address_name,
                             address_name: item.address_name,
                             road_address_name: item.road_address?.address_name || '',
                             y: item.y,
-                            x: item.x
+                            x: item.x,
                         }));
                         displayLocationResults(formattedResults);
                     } else {
-                        resultsContainer.innerHTML = '<div class="location-no-results">검색 결과가 없습니다.</div>';
+                        resultsContainer.innerHTML =
+                            '<div class="location-no-results">검색 결과가 없습니다.</div>';
                         resultsContainer.style.display = 'block';
                     }
                 });
             } else {
-                resultsContainer.innerHTML = '<div class="location-no-results">검색 중 오류가 발생했습니다.</div>';
+                resultsContainer.innerHTML =
+                    '<div class="location-no-results">검색 중 오류가 발생했습니다.</div>';
                 resultsContainer.style.display = 'block';
             }
         });
@@ -861,7 +869,9 @@ function displayLocationResults(results) {
         return;
     }
 
-    resultsContainer.innerHTML = results.map((place, index) => `
+    resultsContainer.innerHTML = results
+        .map(
+            (place, index) => `
         <div class="location-result-item" data-index="${index}" 
              data-lat="${place.y}" data-lng="${place.x}" 
              data-name="${place.place_name}" 
@@ -869,16 +879,18 @@ function displayLocationResults(results) {
             <div class="place-name">${place.place_name}</div>
             <div class="place-address">${place.road_address_name || place.address_name}</div>
         </div>
-    `).join('');
+    `,
+        )
+        .join('');
 
     // 결과 클릭 이벤트 추가
-    resultsContainer.querySelectorAll('.location-result-item').forEach(item => {
+    resultsContainer.querySelectorAll('.location-result-item').forEach((item) => {
         item.addEventListener('click', () => {
             selectLocation(
                 parseFloat(item.dataset.lat),
                 parseFloat(item.dataset.lng),
                 item.dataset.name,
-                item.dataset.address
+                item.dataset.address,
             );
         });
     });
@@ -934,15 +946,19 @@ function updateImagePreview() {
         return;
     }
 
-    previewContainer.innerHTML = selectedFiles.map((file, index) => `
+    previewContainer.innerHTML = selectedFiles
+        .map(
+            (file, index) => `
         <div class="selected-file-item" data-index="${index}">
             <img src="${URL.createObjectURL(file)}" alt="${file.name}">
             <button type="button" class="remove-file" data-index="${index}">&times;</button>
         </div>
-    `).join('');
+    `,
+        )
+        .join('');
 
     // 삭제 버튼 이벤트 추가
-    previewContainer.querySelectorAll('.remove-file').forEach(btn => {
+    previewContainer.querySelectorAll('.remove-file').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const index = parseInt(e.target.dataset.index);
             selectedFiles.splice(index, 1);
@@ -957,7 +973,7 @@ async function initSpotAddForm() {
     if (spotAddFormInitialized) {
         return;
     }
-    
+
     const form = document.getElementById('spot-add-form');
     const regionSelect = document.getElementById('spot-region');
     const descriptionTextarea = document.getElementById('spot-description');
@@ -971,7 +987,7 @@ async function initSpotAddForm() {
     if (imageInput) {
         imageInput.addEventListener('change', function (e) {
             const files = Array.from(e.target.files);
-            
+
             // 최대 10장 제한
             if (selectedFiles.length + files.length > 10) {
                 alert('이미지는 최대 10장까지 추가할 수 있습니다.');
@@ -979,14 +995,14 @@ async function initSpotAddForm() {
             }
 
             // 파일 추가
-            files.forEach(file => {
+            files.forEach((file) => {
                 if (file.type.startsWith('image/')) {
                     selectedFiles.push(file);
                 }
             });
 
             updateImagePreview();
-            
+
             // input 초기화 (같은 파일 다시 선택 가능하도록)
             imageInput.value = '';
         });
@@ -1091,12 +1107,12 @@ async function initSpotAddForm() {
             formData.append('linkUrl', document.getElementById('spot-link').value);
             formData.append('hashtags', document.getElementById('spot-hashtags').value);
             formData.append('description', document.getElementById('spot-description').value);
-            
+
             // 위치 정보 추가
             const latitude = document.getElementById('spot-latitude').value;
             const longitude = document.getElementById('spot-longitude').value;
             const address = document.getElementById('spot-address').value;
-            
+
             if (latitude) formData.append('latitude', latitude);
             if (longitude) formData.append('longitude', longitude);
             if (address) formData.append('address', address);
@@ -1134,7 +1150,7 @@ async function initSpotAddForm() {
             }
         });
     }
-    
+
     // 초기화 완료 플래그 설정
     spotAddFormInitialized = true;
 }

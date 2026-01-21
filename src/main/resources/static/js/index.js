@@ -41,7 +41,7 @@ function initScrollAnimations() {
 
     // Observe Japanese introduction elements
     const introElements = document.querySelectorAll(
-        '.highlight-item, .distance-card, .travel-tips, .stat-item'
+        '.highlight-item, .distance-card, .travel-tips, .stat-item',
     );
     introElements.forEach((element) => {
         observer.observe(element);
@@ -335,7 +335,7 @@ function animateStatNumber(element) {
 function initImageLoading() {
     // Exclude transport, app, and footer logo images from loading animation
     const images = document.querySelectorAll(
-        'img:not(.transport-image):not(.app-icon):not(.footer-logo-image)'
+        'img:not(.transport-image):not(.app-icon):not(.footer-logo-image)',
     );
 
     images.forEach((img) => {
@@ -369,7 +369,7 @@ function initImageLoading() {
 
     // Ensure transport, app, and footer logo images are always visible
     const excludedImages = document.querySelectorAll(
-        '.transport-image, .app-icon, .footer-logo-image'
+        '.transport-image, .app-icon, .footer-logo-image',
     );
     excludedImages.forEach((img) => {
         img.style.opacity = '1';
