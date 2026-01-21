@@ -144,7 +144,7 @@ async function loadUserData() {
         await loadUserLikes(user.id);
     } catch (error) {
         console.error('데이터 로드 오류:', error);
-        showError('데이터를 불러오는 중 오류가 발생했습니다.');
+        showNotification('데이터를 불러오는 중 오류가 발생했습니다.', 'error');
     }
 }
 
@@ -277,7 +277,7 @@ async function loadLikedReviews(userId) {
 function createLikedReviewHTML(review) {
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-    const date = formatDate(review.created_at);
+    const date = formatDate(review.created_at, 'korean');
     const authorName = review.author_name || '익명';
 
     return `
@@ -414,7 +414,7 @@ function createReviewHTML(review) {
         <div class="review-item">
             <div class="item-header">
                 <h3 class="item-title">${review.title}</h3>
-                <span class="item-date">${formatDate(review.created_at)}</span>
+                <span class="item-date">${formatDate(review.created_at, 'korean')}</span>
             </div>
             <div class="item-content">${review.content}</div>
             <div class="item-meta">
@@ -459,7 +459,7 @@ function createLikeHTML(like) {
         <div class="like-item">
             <div class="item-header">
                 <h3 class="item-title">${like.title}</h3>
-                <span class="item-date">${formatDate(like.likedAt)}</span>
+                <span class="item-date">${formatDate(like.likedAt, 'korean')}</span>
             </div>
             <div class="item-content">${like.description || '좋아요한 관광지입니다.'}</div>
             <div class="item-meta">
@@ -471,112 +471,12 @@ function createLikeHTML(like) {
     `;
 }
 
-// 날짜 포맷팅 (한국 시간 기준, 시간대 변환 방지)
-function formatDate(dateString) {
-    if (!dateString) return '';
-    
-    const dateStr = dateString.toString();
-    
-    // 날짜 문자열에서 직접 년/월/일 추출 (시간대 변환 없이)
-    // 지원 형식: "2026-01-12", "2026-01-12 15:26:20", "2026-01-12T15:26:20"
-    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (match) {
-        const year = parseInt(match[1]);
-        const month = parseInt(match[2]);
-        const day = parseInt(match[3]);
-        return `${year}년 ${month}월 ${day}일`;
-    }
-    
-    // 다른 형식의 날짜인 경우
-    try {
-        const date = new Date(dateString);
-        if (!isNaN(date.getTime())) {
-            // 한국 시간대(UTC+9)로 변환하여 표시
-            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
-            const year = koreaTime.getUTCFullYear();
-            const month = koreaTime.getUTCMonth() + 1;
-            const day = koreaTime.getUTCDate();
-            return `${year}년 ${month}월 ${day}일`;
-        }
-    } catch (e) {
-        console.error('날짜 파싱 오류:', e);
-    }
-    
-    return '';
-}
+// formatDate 함수는 utils/date.js에서 가져옴 (korean 포맷 사용)
 
-// 가입일 포맷팅 (한국 시간 기준)
-function formatJoinDate(dateString) {
-    if (!dateString) return '정보 없음';
-    
-    const dateStr = dateString.toString();
-    
-    // 날짜 문자열에서 직접 년/월/일 추출
-    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (match) {
-        const year = parseInt(match[1]);
-        const month = parseInt(match[2]);
-        const day = parseInt(match[3]);
-        return `${year}. ${month}. ${day}.`;
-    }
-    
-    // 다른 형식의 날짜인 경우
-    try {
-        const date = new Date(dateString);
-        if (!isNaN(date.getTime())) {
-            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
-            const year = koreaTime.getUTCFullYear();
-            const month = koreaTime.getUTCMonth() + 1;
-            const day = koreaTime.getUTCDate();
-            return `${year}. ${month}. ${day}.`;
-        }
-    } catch (e) {
-        console.error('날짜 파싱 오류:', e);
-    }
-    
-    return '정보 없음';
-}
+// formatJoinDate 함수는 utils/date.js에서 가져옴
 
-// 이미지 모달 열기
-function openImageModal(imageUrl) {
-    // 간단한 이미지 모달 구현
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        cursor: pointer;
-    `;
-
-    const img = document.createElement('img');
-    img.src = imageUrl;
-    img.style.cssText = `
-        max-width: 90%;
-        max-height: 90%;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    `;
-
-    modal.appendChild(img);
-    document.body.appendChild(modal);
-
-    modal.addEventListener('click', () => {
-        document.body.removeChild(modal);
-    });
-}
-
-// 에러 표시
-function showError(message) {
-    console.error(message);
-    // 필요시 사용자에게 에러 메시지 표시
-}
+// openImageModal 함수는 utils/modal.js에서 가져옴
+// showError 함수는 utils/notification.js에서 가져옴
 
 // 샘플 데이터 함수들 (실제 API 연동 시 교체 필요)
 async function getSampleUserReviews(userId) {

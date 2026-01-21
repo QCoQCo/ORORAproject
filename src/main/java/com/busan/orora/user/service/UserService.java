@@ -305,4 +305,38 @@ public class UserService {
     public void deleteUser(Long userId) {
         userMapper.deleteUser(userId);
     }
+
+    /**
+     * 이름 또는 이메일로 사용자 아이디를 찾습니다.
+     * 
+     * @param username 사용자 이름
+     * @param email 사용자 이메일
+     * @return 사용자 DTO (아이디 찾기 성공 시), null (찾지 못한 경우)
+     */
+    public UserDto findUserByUsernameOrEmail(String username, String email) {
+        if ((username == null || username.trim().isEmpty()) && 
+            (email == null || email.trim().isEmpty())) {
+            return null;
+        }
+        return userMapper.findByUsernameOrEmail(username, email);
+    }
+
+    /**
+     * 아이디로 비밀번호를 재설정합니다.
+     * 
+     * @param loginId 사용자 로그인 ID
+     * @param newPassword 새로운 비밀번호
+     * @return 성공 여부
+     */
+    @Transactional
+    public boolean resetPassword(String loginId, String newPassword) {
+        UserDto user = userMapper.findByLoginId(loginId);
+        if (user == null) {
+            return false;
+        }
+        
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        userMapper.updatePassword(loginId, encodedPassword);
+        return true;
+    }
 }
