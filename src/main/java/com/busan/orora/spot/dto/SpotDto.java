@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpotDto {
+
     private Long id;
     private Long regionId;
     private String title;

@@ -271,7 +271,7 @@ async function fetchRegionSpots(regionIds) {
         const res = await fetch(`/api/regions/spots?regionIds=${query}`);
         if (!res.ok) throw new Error('API 요청 실패');
 
-        const spots = await res.json();;
+        const spots = await res.json();
 
         await renderSpotList(spots);
     } catch (e) {
@@ -373,7 +373,7 @@ async function renderSpotList(spots) {
 function updateSelectionInfo() {
     const info = document.getElementById('selection-info');
     if (!info) return;
-    
+
     const regionName = new Set();
     selectedRegionIds.forEach((id) => {
         const regionElement = document.querySelector(`.c-click[sigungu-code="${id}"]`);
