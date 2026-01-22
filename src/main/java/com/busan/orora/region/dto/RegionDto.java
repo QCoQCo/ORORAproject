@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegionDto {
+
     private Long id;
     private Integer areaCode;
     private String name;

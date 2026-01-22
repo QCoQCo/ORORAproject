@@ -274,9 +274,8 @@ class SearchSystem {
     }
 
     formatDate(dateString) {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('ko-KR');
+        // 전역 formatDate 함수 사용 (utils/date.js에서 가져옴, locale 포맷)
+        return window.formatDate ? window.formatDate(dateString, 'locale') : new Date(dateString).toLocaleDateString('ko-KR');
     }
 
     updateKeywordDisplay(keyword, totalCount) {

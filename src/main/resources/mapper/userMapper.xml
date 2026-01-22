@@ -121,4 +121,30 @@
         DELETE FROM users
         WHERE id = #{id}
     </delete>
+
+    <select id="findByUsernameOrEmail" resultMap="UserResultMap">
+        SELECT 
+            u.id, u.login_id, u.username, u.email, u.password_hash, u.role_code, u.status_code, 
+            u.phone_number, u.address, u.birth_date, u.gender_code, u.join_date, u.last_login, 
+            u.created_at, u.updated_at,
+            COALESCE(
+                (SELECT image_url FROM user_profile_images WHERE user_id = u.id ORDER BY reg_time DESC LIMIT 1),
+                '/images/defaultProfile.png'
+            ) as profile_image
+        FROM users u
+        WHERE u.status_code = 'ACTIVE'
+        AND (
+            (#{username} IS NOT NULL AND #{username} != '' AND u.username = #{username})
+            OR
+            (#{email} IS NOT NULL AND #{email} != '' AND u.email = #{email})
+        )
+        LIMIT 1
+    </select>
+
+    <update id="updatePassword">
+        UPDATE users
+        SET password_hash = #{passwordHash},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE login_id = #{loginId}
+    </update>
 </mapper>       
