@@ -22,6 +22,7 @@ CREATE TABLE reviews (
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewDto {
+
     private Long id;
     private Long userId;
     private Long touristSpotId;
