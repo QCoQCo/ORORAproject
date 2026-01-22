@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    
+
     @Autowired
     private UserMapper userMapper;
 
@@ -95,7 +95,7 @@ public class UserService {
                 // 역할이 비활성화된 경우 로그인 불가
                 return null;
             }
-            
+
             // 마지막 로그인 시간 업데이트
             user.setLastLogin(LocalDateTime.now());
             userMapper.updateLastLogin(user.getId(), user.getLastLogin());
@@ -104,7 +104,7 @@ public class UserService {
 
         return null;
     }
-    
+
     /**
      * 역할 코드가 활성화되어 있는지 확인
      */
@@ -304,5 +304,39 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId) {
         userMapper.deleteUser(userId);
+    }
+
+    /**
+     * 이름 또는 이메일로 사용자 아이디를 찾습니다.
+     * 
+     * @param username 사용자 이름
+     * @param email    사용자 이메일
+     * @return 사용자 DTO (아이디 찾기 성공 시), null (찾지 못한 경우)
+     */
+    public UserDto findUserByUsernameOrEmail(String username, String email) {
+        if ((username == null || username.trim().isEmpty()) &&
+                (email == null || email.trim().isEmpty())) {
+            return null;
+        }
+        return userMapper.findByUsernameOrEmail(username, email);
+    }
+
+    /**
+     * 아이디로 비밀번호를 재설정합니다.
+     * 
+     * @param loginId     사용자 로그인 ID
+     * @param newPassword 새로운 비밀번호
+     * @return 성공 여부
+     */
+    @Transactional
+    public boolean resetPassword(String loginId, String newPassword) {
+        UserDto user = userMapper.findByLoginId(loginId);
+        if (user == null) {
+            return false;
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        userMapper.updatePassword(loginId, encodedPassword);
+        return true;
     }
 }

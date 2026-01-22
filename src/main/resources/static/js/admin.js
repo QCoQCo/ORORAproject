@@ -543,13 +543,7 @@ function filterTouristSpots() {
 
 // 추가 모달 열기 (수정 모달 재활용)
 function openAddSpotModal() {
-    const tryOpenModal = () => {
-        const editModal = document.getElementById('edit-modal');
-        if (!editModal) {
-            setTimeout(tryOpenModal, 100);
-            return;
-        }
-
+    tryOpenModal('edit-modal', (editModal) => {
         // 추가 모드로 설정
         isAddMode = true;
         currentEditRegion = null;
@@ -593,12 +587,7 @@ function openAddSpotModal() {
 
         // 위치 검색 초기화
         initLocationSearch();
-
-        // 모달 표시
-        editModal.style.display = 'block';
-    };
-
-    tryOpenModal();
+    });
 }
 
 // 전역 스코프에 함수 바인딩
@@ -606,15 +595,7 @@ window.openAddSpotModal = openAddSpotModal;
 
 // 수정 모달 열기
 function openEditModal(regionKey, spotId) {
-    // DOM이 완전히 로드될 때까지 기다림
-    const tryOpenModal = () => {
-        const editModal = document.getElementById('edit-modal');
-        if (!editModal) {
-            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
-            setTimeout(tryOpenModal, 100);
-            return;
-        }
-
+    tryOpenModal('edit-modal', (editModal) => {
         // spotId로 관광지 찾기
         let spot = null;
         let foundIndex = -1;
@@ -627,6 +608,7 @@ function openEditModal(regionKey, spotId) {
 
         if (!spot) {
             showNotification('관광지를 찾을 수 없습니다.', 'error');
+            closeModal('edit-modal');
             return;
         }
 
@@ -685,12 +667,7 @@ function openEditModal(regionKey, spotId) {
 
         // 이미지 로드
         loadSpotImages(spotId);
-
-        // 모달 표시
-        editModal.style.display = 'block';
-    };
-
-    tryOpenModal();
+    });
 }
 
 // 전역 스코프에 함수 바인딩 (인라인 onclick 핸들러에서 접근 가능하도록)
@@ -1173,54 +1150,7 @@ function updateCategoryChart(categoryCounts) {
 }
 
 // 알림 표시
-function showNotification(message, type = 'info') {
-    // 기존 알림 제거
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-
-    // 새 알림 생성
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-
-    // 스타일 적용
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 10px;
-        color: white;
-        font-weight: 500;
-        z-index: 2000;
-        animation: slideIn 0.3s ease;
-        max-width: 300px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    `;
-
-    // 타입별 색상
-    const colors = {
-        success: 'linear-gradient(45deg, #27ae60, #2ecc71)',
-        error: 'linear-gradient(45deg, #e74c3c, #c0392b)',
-        info: 'linear-gradient(45deg, #3498db, #2980b9)',
-    };
-
-    notification.style.background = colors[type] || colors.info;
-
-    document.body.appendChild(notification);
-
-    // 3초 후 자동 제거
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 300);
-    }, 3000);
-}
+// showNotification 함수는 utils/notification.js에서 가져옴
 
 // 애니메이션 CSS 추가
 const style = document.createElement('style');
@@ -1379,8 +1309,8 @@ function createUserRow(user) {
         <td>${user.email}</td>
         <td><span class="user-role-badge ${user.role}">${getRoleText(user.role)}</span></td>
         <td><span class="user-status-badge ${user.status}">${getStatusText(user.status)}</span></td>
-        <td>${formatDate(user.joinDate)}</td>
-        <td>${formatDate(user.lastLogin)}</td>
+        <td>${formatDate(user.joinDate, 'locale')}</td>
+        <td>${formatDate(user.lastLogin, 'locale')}</td>
         <td>
             <div class="user-actions">
                 <button class="user-edit-btn" onclick="openEditUserModal(${user.id})">수정</button>
@@ -1416,9 +1346,7 @@ function getStatusText(status) {
 }
 
 // 날짜 포맷팅
-function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('ko-KR');
-}
+// formatDate 함수는 utils/date.js에서 가져옴 (locale 포맷 사용)
 
 // 사용자 필터링
 function filterUsers() {
@@ -1442,17 +1370,11 @@ function filterUsers() {
 
 // 사용자 수정 모달 열기
 function openEditUserModal(userId) {
-    const tryOpenModal = () => {
-        const editUserModal = document.getElementById('edit-user-modal');
-        if (!editUserModal) {
-            // 모달이 아직 로드되지 않았다면 잠시 후 다시 시도
-            setTimeout(tryOpenModal, 100);
-            return;
-        }
-
+    tryOpenModal('edit-user-modal', (editUserModal) => {
         const user = users.find((u) => u.id === userId);
         if (!user) {
             console.error('사용자를 찾을 수 없습니다:', userId);
+            closeModal('edit-user-modal');
             return;
         }
 
@@ -1467,10 +1389,7 @@ function openEditUserModal(userId) {
         if (emailInput) emailInput.value = user.email;
         if (roleSelect) roleSelect.value = user.role;
         if (statusSelect) statusSelect.value = user.status;
-
-        editUserModal.style.display = 'block';
-    };
-    tryOpenModal();
+    });
 }
 
 // 전역 스코프에 함수 바인딩
@@ -2333,7 +2252,7 @@ function displaySpotRequests() {
             } else if (request.type === 'edit') {
                 typeLabel = '정보 수정';
             }
-            const createdAt = formatDate(request.createdAt);
+            const createdAt = formatDate(request.createdAt, 'locale-full');
             const description = request.description || '-';
 
             // 여러 이미지가 쉼표로 구분되어 있을 수 있음 - 첫 번째 이미지만 미리보기로 표시
@@ -2413,18 +2332,7 @@ function getStatusBadge(status) {
     return badges[status] || badges.pending;
 }
 
-// 날짜 포맷팅
-function formatDate(dateString) {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-}
+// formatDate 함수는 utils/date.js에서 가져옴 (locale-full 포맷 사용)
 
 // 사진 추가 신청 필터링
 function filterSpotRequests() {
@@ -2569,24 +2477,7 @@ async function rejectSpotRequest(requestId) {
     }
 }
 
-// 이미지 모달 열기
-function openImageModal(imageUrl) {
-    const modal = document.createElement('div');
-    modal.style.cssText =
-        'position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center;';
-    modal.innerHTML = `
-        <div style="position: relative; max-width: 90%; max-height: 90%;">
-            <span onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: -40px; right: 0; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
-            <img src="${imageUrl}" style="max-width: 100%; max-height: 90vh; border-radius: 8px;">
-        </div>
-    `;
-    document.body.appendChild(modal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    });
-}
+// openImageModal 함수는 utils/modal.js에서 가져옴
 
 // ========== 사진 추가 신청 상세 모달 기능 ==========
 
@@ -2608,7 +2499,7 @@ function openPhotoRequestDetailModal(requestId) {
     document.getElementById('photo-request-spot-name').textContent = request.spotName || '-';
     document.getElementById('photo-request-applicant').textContent =
         request.applicantName || request.applicantId || '-';
-    document.getElementById('photo-request-date').textContent = formatDate(request.createdAt);
+    document.getElementById('photo-request-date').textContent = formatDate(request.createdAt, 'locale-full');
     document.getElementById('photo-request-description').textContent =
         request.description || '설명 없음';
 
@@ -2696,12 +2587,7 @@ function openSpotRequestApprovalModal(requestId) {
     // 현재 처리 중인 신청 ID 저장
     currentSpotRequestId = requestId;
 
-    const tryOpenModal = () => {
-        const editModal = document.getElementById('edit-modal');
-        if (!editModal) {
-            setTimeout(tryOpenModal, 100);
-            return;
-        }
+    tryOpenModal('edit-modal', (editModal) => {
 
         // 추가 모드로 설정
         isAddMode = true;
@@ -2827,12 +2713,7 @@ function openSpotRequestApprovalModal(requestId) {
 
         // 위치 검색 초기화
         initLocationSearch();
-
-        // 모달 표시
-        editModal.style.display = 'block';
-    };
-
-    tryOpenModal();
+    });
 }
 
 // 관광지 신청 삭제
