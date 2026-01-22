@@ -116,6 +116,45 @@
 }
 ```
 
+### 6. 아이디 찾기
+- **엔드포인트**: `POST /api/auth/find-id`
+- **설명**: 사용자명 또는 이메일로 아이디 찾기
+- **요청 형식**: `application/json`
+- **요청 본문**:
+```json
+{
+  "username": "string",
+  "email": "string"
+}
+```
+- **응답 형식**:
+```json
+{
+  "success": true,
+  "loginId": "user123",
+  "message": "아이디를 찾았습니다."
+}
+```
+
+### 7. 비밀번호 재설정
+- **엔드포인트**: `POST /api/auth/reset-password`
+- **설명**: 아이디를 기반으로 비밀번호 재설정
+- **요청 형식**: `application/json`
+- **요청 본문**:
+```json
+{
+  "loginId": "string",
+  "newPassword": "string"
+}
+```
+- **응답 형식**:
+```json
+{
+  "success": true,
+  "message": "비밀번호가 성공적으로 재설정되었습니다."
+}
+```
+
 ---
 
 ## 사용자 API
