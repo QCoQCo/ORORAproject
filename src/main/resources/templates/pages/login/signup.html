@@ -21,6 +21,7 @@
                         ><input type="text" placeholder=" 아이디를 입력해 주세요." id="putId"
                     /></label>
                     <div id="needId">필수입력 사항입니다.</div>
+                    <div id="duplicateCheckResult" style="display: none;"></div>
                     <button id="overlap">중복체크</button>
                 </div>
                 <div>
@@ -48,24 +49,24 @@
                     /></label>
                 </div>
                 <div>
-                    <p class="">생년월일</p>
+                    <p>생년월일</p>
                     <label><input type="text" placeholder=" 0000-00-00" id="userBirth" /></label>
                 </div>
                 <div>
-                    <p class="">전화번호</p>
+                    <p>전화번호</p>
                     <label
                         ><input type="tel" placeholder=" -을 빼고 입력해주세요" id="userPhone"
                     /></label>
                 </div>
                 <div>
-                    <p class="">이메일</p>
+                    <p>이메일</p>
                     <label>
                         <input type="email" placeholder=" 예 : orora@orora.com" id="userEmail" />
                     </label>
                     <div id="needEmail">필수입력 사항입니다.</div>
                 </div>
                 <div>
-                    <p class="">주소</p>
+                    <p>주소</p>
                     <label>
                         <input
                             type="text"
@@ -75,7 +76,7 @@
                     </label>
                 </div>
                 <div>
-                    <p class="">성별</p>
+                    <p>성별</p>
                     <label>
                         <select id="userGender">
                             <option value="">선택해주세요 (선택사항)</option>
@@ -86,28 +87,21 @@
                     </label>
                 </div>
                 <div>
-                    <p class="">프로필 사진</p>
+                    <p>프로필 사진</p>
                     <label>
                         <input
                             type="file"
                             accept="image/*"
                             id="profileImage"
-                            style="border: none; padding: 5px 0"
                         />
-                        <div style="font-size: 12px; color: #666; margin-top: 5px">
+                        <div class="file-input-hint">
                             선택사항입니다.
                         </div>
-                        <div id="profileImagePreview" style="margin-top: 10px; display: none">
+                        <div id="profileImagePreview">
                             <img
                                 id="previewImg"
                                 src=""
                                 alt="프로필 미리보기"
-                                style="
-                                    max-width: 150px;
-                                    max-height: 150px;
-                                    border-radius: 50%;
-                                    object-fit: cover;
-                                "
                             />
                         </div>
                     </label>
