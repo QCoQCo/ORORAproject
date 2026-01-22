@@ -227,7 +227,15 @@ function initUserDropdown() {
     }
 
     // 드롭다운 버튼 클릭 이벤트
-    btn.addEventListener('click', toggleDropdown);
+    btn.addEventListener('click', function(e) {
+        // 검색창이 열려있으면 닫기
+        const searchBox = document.querySelector('.search-box');
+        if (searchBox && searchBox.classList.contains('active')) {
+            searchBox.classList.remove('active');
+        }
+        // 드롭다운 토글
+        toggleDropdown(e);
+    });
 
     // 외부 클릭 시 드롭다운 닫기 (한 번만 등록)
     if (!window.userDropdownClickHandler) {

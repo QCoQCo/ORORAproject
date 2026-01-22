@@ -16,6 +16,7 @@ import java.util.Map;
 
 @Service
 public class ReviewService {
+
     @Autowired
     private ReviewMapper reviewMapper;
 
@@ -115,23 +116,24 @@ public class ReviewService {
      * @throws Exception 리뷰를 찾을 수 없거나 본인 리뷰가 아닌 경우
      */
     @Transactional(rollbackFor = Exception.class)
-    public void updateReview(Long reviewId, Long userId, String title, String content, Integer rating) throws Exception {
+    public void updateReview(Long reviewId, Long userId, String title, String content, Integer rating)
+            throws Exception {
         // 리뷰 조회
         ReviewDto review = reviewMapper.findReviewById(reviewId);
         if (review == null) {
             throw new Exception("리뷰를 찾을 수 없습니다.");
         }
-        
+
         // 작성자 확인
         if (!review.getUserId().equals(userId)) {
             throw new Exception("본인이 작성한 리뷰만 수정할 수 있습니다.");
         }
-        
+
         // 수정할 데이터 설정
         review.setTitle(title);
         review.setContent(content);
         review.setRating(rating);
-        
+
         reviewMapper.updateReview(review);
     }
 
@@ -145,22 +147,22 @@ public class ReviewService {
      * @param rating         수정할 평점
      * @param deleteImageIds 삭제할 이미지 ID 목록
      * @param newImages      새로 추가할 이미지 파일 배열
-     * @throws Exception     리뷰를 찾을 수 없거나 본인 리뷰가 아닌 경우
+     * @throws Exception 리뷰를 찾을 수 없거나 본인 리뷰가 아닌 경우
      */
     @Transactional(rollbackFor = Exception.class)
-    public void updateReviewWithImages(Long reviewId, Long userId, String title, String content, 
+    public void updateReviewWithImages(Long reviewId, Long userId, String title, String content,
             Integer rating, List<Long> deleteImageIds, MultipartFile[] newImages) throws Exception {
         // 리뷰 조회
         ReviewDto review = reviewMapper.findReviewById(reviewId);
         if (review == null) {
             throw new Exception("리뷰를 찾을 수 없습니다.");
         }
-        
+
         // 작성자 확인
         if (!review.getUserId().equals(userId)) {
             throw new Exception("본인이 작성한 리뷰만 수정할 수 있습니다.");
         }
-        
+
         // 1. 리뷰 기본 정보 수정
         review.setTitle(title);
         review.setContent(content);
@@ -224,12 +226,12 @@ public class ReviewService {
         if (review == null) {
             throw new Exception("리뷰를 찾을 수 없습니다.");
         }
-        
+
         // 작성자 확인
         if (!review.getUserId().equals(userId)) {
             throw new Exception("본인이 작성한 리뷰만 삭제할 수 있습니다.");
         }
-        
+
         // 리뷰 삭제 (관련 좋아요, 댓글, 이미지는 CASCADE 또는 별도 처리 필요)
         reviewMapper.deleteReview(reviewId);
     }

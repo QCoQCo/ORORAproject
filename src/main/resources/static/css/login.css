@@ -1,116 +1,277 @@
 @charset "utf-8";
 
+/* CSS Variables for consistent theming */
+:root {
+    --primary-blue: #1e5a8b;
+    --secondary-blue: #3b82c4;
+    --accent-blue: #60a5fa;
+    --gradient-blue: linear-gradient(135deg, #dbf6ff 0%, #96daff 100%);
+    --neutral-50: #f8fafc;
+    --neutral-100: #f1f5f9;
+    --neutral-200: #e2e8f0;
+    --neutral-300: #cbd5e1;
+    --neutral-400: #94a3b8;
+    --neutral-500: #64748b;
+    --neutral-600: #475569;
+    --neutral-700: #334155;
+    --neutral-800: #1e293b;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Base Styles */
+body {
+    font-family: 'Pretendard Variable', Pretendard, sans-serif;
+    background-color: var(--neutral-50);
+    color: var(--neutral-700);
+}
+
 a {
-    color: black;
+    color: var(--neutral-700);
     text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--primary-blue);
 }
 
 #wrapper {
     width: 100%;
+    min-height: 100vh;
+    background-color: var(--neutral-50);
 }
+
 .container {
-    width: 530px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 50px;
+    max-width: 500px;
+    margin: 60px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--neutral-200);
     position: relative;
 }
 
+@media (max-width: 640px) {
+    .container {
+        margin: 40px 20px;
+        padding: 30px 24px;
+    }
+}
+
 .container .back-button {
-    display: block;
-    width: 30px;
-    height: 30px;
-    position: absolute;
-    top: -5px;
-    left: 0;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-    padding: 5px 10px;
-    border-radius: 5px;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: var(--neutral-100);
+    border: 2px solid var(--neutral-200);
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--neutral-700);
+    transition: all 0.3s ease;
+}
+
+.container .back-button:hover {
+    background: var(--gradient-blue);
+    border-color: var(--accent-blue);
+    color: var(--primary-blue);
+    transform: translateX(-2px);
 }
 
 .container h2 {
     text-align: center;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-top: 10px;
 }
 
 .container .id,
 .container .psw {
-    font-size: 16px;
-    line-height: 14px;
-    font-weight: bold;
-    margin-bottom: 10px;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--neutral-700);
 }
 
 .container #putId,
-.container #putPsw {
+.container #putPsw,
+.container #userName,
+.container #userEmail,
+.container #loginId,
+.container #newPassword,
+.container #confirmPassword {
     width: 100%;
-    border-width: 0 0 1px;
-    padding: 11px 0;
+    border: 2px solid var(--neutral-200);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-family: 'Pretendard Variable', Pretendard, sans-serif;
+    color: var(--neutral-800);
+    background-color: white;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
-.container #putId,
-.container #putPsw:focus {
+.container #putId:focus,
+.container #putPsw:focus,
+.container #userName:focus,
+.container #userEmail:focus,
+.container #loginId:focus,
+.container #newPassword:focus,
+.container #confirmPassword:focus {
     outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.container #putId::placeholder,
+.container #putPsw::placeholder,
+.container #userName::placeholder,
+.container #userEmail::placeholder,
+.container #loginId::placeholder,
+.container #newPassword::placeholder,
+.container #confirmPassword::placeholder {
+    color: var(--neutral-400);
 }
 
 .container #putId {
-    margin-bottom: 35px;
+    margin-bottom: 24px;
 }
 
 .container #putPsw {
-    margin-bottom: 10px;
+    margin-bottom: 16px;
+}
+
+.container > div > div {
+    margin-bottom: 24px;
+}
+
+.container > div > div:last-of-type {
+    margin-bottom: 0;
 }
 
 .container .check {
     font-size: 14px;
-    margin-bottom: 35px;
+    margin-bottom: 32px;
+    color: var(--neutral-600);
 }
 
-.container .check > div > label > input {
+.container .check > div {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.container .check > div > label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     cursor: pointer;
-    margin-top: 4px;
-    margin-right: 2px;
+    user-select: none;
+}
+
+.container .check > div > label > input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary-blue);
 }
 
 .container button {
     width: 100%;
-    height: 47px;
+    height: 52px;
     border: none;
-    background-color: rgb(0, 0, 0);
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
     color: white;
-    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Pretendard Variable', Pretendard, sans-serif;
+    margin-bottom: 24px;
     cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.container button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--accent-blue) 100%);
+}
+
+.container button:active {
+    transform: translateY(0);
 }
 
 .container .aboutLogin {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: center;
-    font-size: 12px;
-    margin-bottom: 17px;
+    font-size: 14px;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+}
+
+.container .aboutLogin a {
+    color: var(--neutral-500);
+    transition: color 0.2s ease;
+}
+
+.container .aboutLogin a:hover {
+    color: var(--primary-blue);
 }
 
 .container .aboutLogin a p {
     display: block;
-    color: #9d9da0;
-    line-height: 14px;
-    height: 14px;
+    line-height: 1.5;
     text-align: center;
+    margin: 0;
 }
+
 .container .aboutLogin a p::after {
     content: '';
     display: inline-block;
     width: 1px;
-    height: 11px;
-    margin-left: 10px;
-    background-color: #9d9da0;
+    height: 12px;
+    margin-left: 12px;
+    background-color: var(--neutral-300);
+    vertical-align: middle;
 }
 
 .container .aboutLogin .newPsw::after {
     content: none;
+}
+
+/* Error and Success Messages */
+#errorMessage {
+    color: #dc2626;
+    font-size: 14px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    display: none;
+}
+
+#successMessage {
+    color: #059669;
+    font-size: 14px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    display: none;
 }

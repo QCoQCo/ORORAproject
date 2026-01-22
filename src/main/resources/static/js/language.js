@@ -33,7 +33,7 @@ class LanguageManager {
             const enResponse = await fetch(enUrl);
             if (!enResponse.ok) {
                 throw new Error(
-                    `영어 번역 파일 로드 실패: ${enResponse.status} ${enResponse.statusText}`
+                    `영어 번역 파일 로드 실패: ${enResponse.status} ${enResponse.statusText}`,
                 );
             }
             this.translations.en = await enResponse.json();
@@ -43,7 +43,7 @@ class LanguageManager {
             const jpResponse = await fetch(jpUrl);
             if (!jpResponse.ok) {
                 throw new Error(
-                    `일본어 번역 파일 로드 실패: ${jpResponse.status} ${jpResponse.statusText}`
+                    `일본어 번역 파일 로드 실패: ${jpResponse.status} ${jpResponse.statusText}`,
                 );
             }
             this.translations.jp = await jpResponse.json();

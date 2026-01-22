@@ -1,4 +1,31 @@
-@charset "utc-8";
+@charset "utf-8";
+
+/* CSS Variables for consistent theming */
+:root {
+    --primary-blue: #1e5a8b;
+    --secondary-blue: #3b82c4;
+    --accent-blue: #60a5fa;
+    --gradient-blue: linear-gradient(135deg, #dbf6ff 0%, #96daff 100%);
+    --neutral-50: #f8fafc;
+    --neutral-100: #f1f5f9;
+    --neutral-200: #e2e8f0;
+    --neutral-300: #cbd5e1;
+    --neutral-400: #94a3b8;
+    --neutral-500: #64748b;
+    --neutral-600: #475569;
+    --neutral-700: #334155;
+    --neutral-800: #1e293b;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Base Styles */
+body {
+    font-family: 'Pretendard Variable', Pretendard, sans-serif;
+    background-color: var(--neutral-50);
+    color: var(--neutral-700);
+}
 
 p {
     margin: 0;
@@ -7,98 +34,214 @@ p {
 
 input {
     padding: 0;
+    font-family: 'Pretendard Variable', Pretendard, sans-serif;
 }
+
 #wrapper {
     width: 100%;
+    min-height: 100vh;
+    background-color: var(--neutral-50);
 }
 
 .container {
-    width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 80px;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 50px 40px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--neutral-200);
     position: relative;
 }
 
-#wrapper h2 {
+@media (max-width: 768px) {
+    .container {
+        margin: 30px 20px;
+        padding: 40px 24px;
+    }
+}
+
+.container h2 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
 }
 
-#wrapper div > div {
-    margin-bottom: 30px;
+.container > div > div {
+    margin-bottom: 28px;
 }
 
-#wrapper > div > div > p {
-    font-size: 16px;
-    color: #1d1d1f;
-    margin-bottom: 10px;
-    font-weight: bold;
+.container > div > div > p {
+    font-size: 15px;
+    color: var(--neutral-700);
+    margin-bottom: 8px;
+    font-weight: 600;
 }
 
-#wrapper > div > div > label > input,
-#wrapper > div > div > label > select {
-    width: 496px;
-    font-size: 16px;
-    height: 38px;
-    border: 1px solid #ccc;
-    padding: 0 10px;
+.container > div > div > label > input,
+.container > div > div > label > select {
+    width: 100%;
+    font-size: 15px;
+    height: 48px;
+    border: 2px solid var(--neutral-200);
+    border-radius: 10px;
+    padding: 0 16px;
     box-sizing: border-box;
-}
-
-#wrapper > div > div > label > select {
     background-color: white;
+    color: var(--neutral-800);
+    transition: all 0.2s ease;
+}
+
+.container > div > div > label > input:focus,
+.container > div > div > label > select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.container > div > div > label > input::placeholder {
+    color: var(--neutral-400);
+}
+
+.container > div > div > label > select {
     cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
 }
 
-#wrapper #needId,
-#wrapper #needPsw,
-#wrapper #needRePsw,
-#wrapper #needEmail {
-    color: rgb(219, 24, 24);
+.container > div > div > label > select:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231e5a8b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
 }
 
-#wrapper #needId {
-    margin: 0;
+#needId,
+#needPsw,
+#needRePsw,
+#needEmail {
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none; /* 기본적으로 숨김, 사용자가 입력 시작 시에만 표시 */
 }
 
-#wrapper #overlap {
-    margin-top: 7px;
-    background-color: black;
+#needId {
+    margin: 6px 0 0 0;
+}
+
+#overlap {
+    margin-top: 8px;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
     color: white;
     border: none;
     cursor: pointer;
-    padding: 3px;
-    border-radius: 5px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
 }
 
-#wrapper .repsw {
-    margin-bottom: 5px;
+#overlap:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--accent-blue) 100%);
 }
 
-#wrapper #same {
+#overlap:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.repsw {
+    margin-bottom: 8px;
+}
+
+#same {
     display: none;
     height: 20px;
     font-size: 14px;
     margin-left: 5px;
+    color: #059669;
+    margin-top: 6px;
 }
 
-#wrapper .userName {
-    margin-top: 30px;
+.userName {
+    margin-top: 32px;
 }
 
-#wrapper #submit {
+#submit {
     width: 100%;
-    height: 47px;
-    border: 1px solid black;
-    background-color: rgb(0, 0, 0);
+    height: 52px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
     color: white;
-    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Pretendard Variable', Pretendard, sans-serif;
+    margin-bottom: 20px;
     cursor: pointer;
-    transition: opacity 0.3s ease;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
 }
 
-#wrapper #submit:disabled {
+#submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--accent-blue) 100%);
+}
+
+#submit:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+#submit:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.6;
+    background: var(--neutral-300);
+}
+
+/* File input styling */
+input[type="file"] {
+    border: 2px dashed var(--neutral-200);
+    border-radius: 10px;
+    padding: 12px;
+    background-color: var(--neutral-50);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="file"]:hover {
+    border-color: var(--accent-blue);
+    background-color: var(--neutral-100);
+}
+
+.file-input-hint {
+    font-size: 13px;
+    color: var(--neutral-500);
+    margin-top: 8px;
+}
+
+/* Profile image preview */
+#profileImagePreview {
+    margin-top: 16px;
+    text-align: center;
+    display: none;
+}
+
+#profileImagePreview img {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--neutral-200);
+    box-shadow: var(--shadow-md);
 }

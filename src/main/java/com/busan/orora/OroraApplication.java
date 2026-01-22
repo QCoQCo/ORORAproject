@@ -8,6 +8,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class OroraApplication {
+
 	private static final Logger logger = LoggerFactory.getLogger(OroraApplication.class);
 
 	public static void main(String[] args) {

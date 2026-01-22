@@ -18,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class ReviewController {
+
     private static final Logger logger = LoggerFactory.getLogger(ReviewController.class);
 
     @Autowired
@@ -72,8 +73,10 @@ public class ReviewController {
      * 리뷰 작성
      * POST /api/reviews
      * multipart/form-data 또는 application/json 지원
-     * multipart/form-data: touristSpotId, title, content, rating, userId, images (MultipartFile[])
-     * application/json: { "touristSpotId": 1, "title": "제목", "content": "내용", "rating": 5, "userId": 1 }
+     * multipart/form-data: touristSpotId, title, content, rating, userId, images
+     * (MultipartFile[])
+     * application/json: { "touristSpotId": 1, "title": "제목", "content": "내용",
+     * "rating": 5, "userId": 1 }
      */
     @PostMapping("/reviews")
     @ResponseBody
@@ -115,7 +118,8 @@ public class ReviewController {
                 // JSON으로 받은 경우
                 try {
                     @SuppressWarnings("unchecked")
-                    Map<String, Object> requestBody = (Map<String, Object>) objectMapper.readValue(request.getInputStream(), Map.class);
+                    Map<String, Object> requestBody = (Map<String, Object>) objectMapper
+                            .readValue(request.getInputStream(), Map.class);
                     if (requestBody.containsKey("userId")) {
                         Object userIdObj = requestBody.get("userId");
                         if (userIdObj instanceof Number) {
@@ -266,7 +270,8 @@ public class ReviewController {
             }
 
             // 리뷰 수정 (이미지 삭제 및 추가 포함)
-            reviewService.updateReviewWithImages(id, userId, title.trim(), content.trim(), rating, deleteImageIds, images);
+            reviewService.updateReviewWithImages(id, userId, title.trim(), content.trim(), rating, deleteImageIds,
+                    images);
 
             response.put("success", true);
             response.put("message", "리뷰가 성공적으로 수정되었습니다.");
@@ -410,7 +415,8 @@ public class ReviewController {
      */
     @PostMapping("/reviews/{reviewId}/comments")
     @ResponseBody
-    public Map<String, Object> createComment(@PathVariable Long reviewId, @RequestBody Map<String, Object> requestBody) {
+    public Map<String, Object> createComment(@PathVariable Long reviewId,
+            @RequestBody Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -460,7 +466,8 @@ public class ReviewController {
      */
     @PutMapping("/comments/{commentId}")
     @ResponseBody
-    public Map<String, Object> updateComment(@PathVariable Long commentId, @RequestBody Map<String, Object> requestBody) {
+    public Map<String, Object> updateComment(@PathVariable Long commentId,
+            @RequestBody Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -510,7 +517,8 @@ public class ReviewController {
      */
     @DeleteMapping("/comments/{commentId}")
     @ResponseBody
-    public Map<String, Object> deleteComment(@PathVariable Long commentId, @RequestBody Map<String, Object> requestBody) {
+    public Map<String, Object> deleteComment(@PathVariable Long commentId,
+            @RequestBody Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -553,7 +561,8 @@ public class ReviewController {
      */
     @PostMapping("/comments/{commentId}/report")
     @ResponseBody
-    public Map<String, Object> reportComment(@PathVariable Long commentId, @RequestBody Map<String, Object> requestBody) {
+    public Map<String, Object> reportComment(@PathVariable Long commentId,
+            @RequestBody Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
 
         try {
