@@ -1,10 +1,76 @@
 // 인증 관련 공통 함수들
 
+// 서버에서 로그인 상태 확인
+let serverLoginStatusChecked = false;
+let serverLoginStatus = null;
+
+async function checkServerLoginStatus() {
+    if (serverLoginStatusChecked && serverLoginStatus !== null) {
+        return serverLoginStatus;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/check', {
+            method: 'GET',
+            credentials: 'include', // 쿠키를 포함하여 요청
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            serverLoginStatus = data.loggedIn === true;
+            serverLoginStatusChecked = true;
+            
+            // 서버에서 로그인 상태가 확인되면 클라이언트 스토리지 동기화
+            if (data.loggedIn && data.user) {
+                // 로그인 상태 유지 여부 확인 (localStorage에 있으면 유지, 없으면 sessionStorage)
+                const hasLocalStorage = localStorage.getItem('loggedInUser') !== null;
+                if (hasLocalStorage) {
+                    localStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                } else {
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                }
+            } else {
+                // 서버에서 로그인되지 않았으면 클라이언트 스토리지도 삭제
+                localStorage.removeItem('loggedInUser');
+                sessionStorage.removeItem('loggedInUser');
+            }
+            
+            return serverLoginStatus;
+        } else {
+            // 서버 응답 실패 시 클라이언트 스토리지만 확인
+            serverLoginStatus = false;
+            serverLoginStatusChecked = true;
+            return false;
+        }
+    } catch (error) {
+        console.error('서버 로그인 상태 확인 오류:', error);
+        // 오류 발생 시 클라이언트 스토리지만 확인
+        serverLoginStatus = false;
+        serverLoginStatusChecked = true;
+        return false;
+    }
+}
+
 // 로그인 상태 확인
 function isLoggedIn() {
-    // localStorage와 sessionStorage 모두 확인
+    // 먼저 클라이언트 스토리지 확인 (빠른 응답)
     const loggedInUser = localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser');
     return loggedInUser !== null;
+}
+
+// 비동기 로그인 상태 확인 (서버 확인 포함)
+async function isLoggedInAsync() {
+    // 클라이언트 스토리지 먼저 확인
+    const hasClientStorage = isLoggedIn();
+    
+    // 서버 상태 확인
+    const serverStatus = await checkServerLoginStatus();
+    
+    // 서버 상태가 우선 (서버가 false면 클라이언트 스토리지 삭제)
+    return serverStatus;
 }
 
 // 현재 로그인한 사용자 정보 가져오기
@@ -38,6 +104,7 @@ async function logout() {
     try {
         const response = await fetch('/api/auth/logout', {
             method: 'POST',
+            credentials: 'include', // 쿠키를 포함하여 요청
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -52,9 +119,14 @@ async function logout() {
         console.error('로그아웃 API 호출 오류:', error);
     }
 
+    // 서버 상태 확인 플래그 리셋
+    serverLoginStatusChecked = false;
+    serverLoginStatus = null;
+    
     // localStorage와 sessionStorage 모두에서 사용자 정보 삭제
     localStorage.removeItem('loggedInUser');
     sessionStorage.removeItem('loggedInUser');
+    
     // 모든 페이지에서 로그아웃 후 메인 페이지로 이동
     window.location.href = '/';
 }
@@ -155,7 +227,15 @@ function initUserDropdown() {
     }
 
     // 드롭다운 버튼 클릭 이벤트
-    btn.addEventListener('click', toggleDropdown);
+    btn.addEventListener('click', function(e) {
+        // 검색창이 열려있으면 닫기
+        const searchBox = document.querySelector('.search-box');
+        if (searchBox && searchBox.classList.contains('active')) {
+            searchBox.classList.remove('active');
+        }
+        // 드롭다운 토글
+        toggleDropdown(e);
+    });
 
     // 외부 클릭 시 드롭다운 닫기 (한 번만 등록)
     if (!window.userDropdownClickHandler) {
@@ -212,7 +292,10 @@ function tryUpdateHeader() {
 }
 
 // 페이지 로드 시 한 번만 헤더 업데이트
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+    // 서버에서 로그인 상태 확인 후 헤더 업데이트
+    await checkServerLoginStatus();
+    
     // 헤더가 로드된 후 업데이트 (최대 5번 시도)
     let attempts = 0;
     const maxAttempts = 5;
