@@ -39,3 +39,6 @@ out/
 
 ### Upload Files ###
 .DS_Store
+
+### Markdown Files ###
+*.md
