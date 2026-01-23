@@ -50,6 +50,9 @@ public class UserService {
         userDto.setPasswordHash(passwordEncoder.encode(rawPassword));
 
         // 기본값 설정
+        if (userDto.getLoginTypeCode() == null || userDto.getLoginTypeCode().isEmpty()) {
+            userDto.setLoginTypeCode("NOR");
+        }
         if (userDto.getRoleCode() == null || userDto.getRoleCode().isEmpty()) {
             userDto.setRoleCode("MEMBER");
         }
@@ -338,5 +341,60 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(newPassword);
         userMapper.updatePassword(loginId, encodedPassword);
         return true;
+    }
+
+    /**
+     * 이메일로 사용자를 조회합니다 (소셜 로그인용).
+     * 
+     * @param email 사용자 이메일
+     * @return 사용자 DTO
+     */
+    public UserDto findByEmail(String email) {
+        return userMapper.findByEmail(email);
+    }
+
+    /**
+     * 소셜 로그인 사용자를 생성하거나 업데이트합니다.
+     * 
+     * @param email        이메일
+     * @param username     사용자명
+     * @param loginTypeCode 로그인 타입 코드 (KAK, GOO)
+     * @return 사용자 DTO
+     */
+    @Transactional
+    public UserDto createOrUpdateSocialUser(String email, String username, String loginTypeCode) {
+        // 이메일이 null이거나 비어있으면 에러 발생 가능하므로 처리
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("소셜 로그인 시 이메일 정보가 필요합니다. (로그인 타입: " + loginTypeCode + ")");
+        }
+        
+        UserDto existingUser = userMapper.findByEmail(email);
+        
+        if (existingUser != null) {
+            // 기존 사용자가 있는 경우, 로그인 타입만 업데이트 (이미 다른 방식으로 가입한 경우)
+            if (existingUser.getLoginTypeCode() == null || !existingUser.getLoginTypeCode().equals(loginTypeCode)) {
+                existingUser.setLoginTypeCode(loginTypeCode);
+                userMapper.updateUser(existingUser);
+            }
+            // 마지막 로그인 시간 업데이트
+            existingUser.setLastLogin(LocalDateTime.now());
+            userMapper.updateLastLogin(existingUser.getId(), existingUser.getLastLogin());
+            return existingUser;
+        } else {
+            // 새 사용자 생성
+            UserDto newUser = new UserDto();
+            newUser.setEmail(email);
+            newUser.setUsername(username);
+            newUser.setLoginId("SOCIAL_" + loginTypeCode + "_" + System.currentTimeMillis()); // 임시 로그인 ID
+            newUser.setPasswordHash(""); // 소셜 로그인은 비밀번호 없음
+            newUser.setLoginTypeCode(loginTypeCode);
+            newUser.setRoleCode("MEMBER");
+            newUser.setStatusCode("ACTIVE");
+            newUser.setJoinDate(LocalDateTime.now());
+            newUser.setLastLogin(LocalDateTime.now());
+            
+            userMapper.insertUser(newUser);
+            return newUser;
+        }
     }
 }
