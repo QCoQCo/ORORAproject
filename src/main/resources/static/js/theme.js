@@ -91,7 +91,7 @@ class ThemeCarousel {
             if (!spot.hashtags || spot.hashtags.length === 0) {
                 return false;
             }
-            
+
             // 대표 관광지, 포토스팟, 인기 장소들을 우선 선택
             const hasRecommendedTag = spot.hashtags.some(
                 (tag) =>
@@ -105,36 +105,35 @@ class ThemeCarousel {
                     tag.includes('대표') ||
                     tag.includes('해수욕장') ||
                     tag.includes('문화') ||
-                    tag.includes('역사')
+                    tag.includes('역사'),
             );
-            
+
             // 특정 유명 장소들
-            const hasFamousTitle = spot.title && (
-                spot.title.includes('해운대') ||
-                spot.title.includes('광안리') ||
-                spot.title.includes('감천문화마을') ||
-                spot.title.includes('태종대') ||
-                spot.title.includes('부산타워') ||
-                spot.title.includes('자갈치시장') ||
-                spot.title.includes('BIFF') ||
-                spot.title.includes('센텀시티') ||
-                spot.title.includes('범어사') ||
-                spot.title.includes('해동용궁사') ||
-                spot.title.includes('오륙도') ||
-                spot.title.includes('UN기념공원') ||
-                spot.title.includes('국제시장') ||
-                spot.title.includes('부평깡통시장') ||
-                spot.title.includes('서면') ||
-                spot.title.includes('송도') ||
-                spot.title.includes('용두산공원')
-            );
-            
+            const hasFamousTitle =
+                spot.title &&
+                (spot.title.includes('해운대') ||
+                    spot.title.includes('광안리') ||
+                    spot.title.includes('감천문화마을') ||
+                    spot.title.includes('태종대') ||
+                    spot.title.includes('부산타워') ||
+                    spot.title.includes('자갈치시장') ||
+                    spot.title.includes('BIFF') ||
+                    spot.title.includes('센텀시티') ||
+                    spot.title.includes('범어사') ||
+                    spot.title.includes('해동용궁사') ||
+                    spot.title.includes('오륙도') ||
+                    spot.title.includes('UN기념공원') ||
+                    spot.title.includes('국제시장') ||
+                    spot.title.includes('부평깡통시장') ||
+                    spot.title.includes('서면') ||
+                    spot.title.includes('송도') ||
+                    spot.title.includes('용두산공원'));
+
             return hasRecommendedTag || hasFamousTitle;
         });
 
         // 필터링된 결과가 5개 미만이면 전체 데이터에서 랜덤하게 선택
         if (recommendedSpots.length < 5) {
-            console.warn('오로라 추천 데이터가 부족합니다. 전체 데이터에서 선택합니다.');
             return this.shuffleArray(allSpots).slice(0, Math.min(20, allSpots.length));
         }
 
@@ -151,7 +150,6 @@ class ThemeCarousel {
         return shuffled;
     }
 
-
     filterByTheme(spots, theme) {
         let filteredSpots = [];
 
@@ -159,174 +157,179 @@ class ThemeCarousel {
             case 'kpop':
                 // K-POP 여행: 영화, 문화, 젊은이들이 좋아할 만한 장소들
                 filteredSpots = spots.filter((spot) => {
-                    const hasMatchingTag = spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
-                        ? spot.hashtags.some(
-                            (tag) =>
-                                tag.includes('영화') ||
-                                tag.includes('문화') ||
-                                tag.includes('BIFF') ||
-                                tag.includes('핫플레이스') ||
-                                tag.includes('젊은이') ||
-                                tag.includes('트렌디') ||
-                                tag.includes('데이트') ||
-                                tag.includes('인스타그램') ||
-                                tag.includes('포토스팟') ||
-                                tag.includes('카페거리') ||
-                                tag.includes('로맨틱') ||
-                                tag.includes('야경') ||
-                                tag.includes('광안대교') ||
-                                tag.includes('해운대') ||
-                                tag.includes('광안리')
-                        )
-                        : false;
-                    const hasMatchingTitle = spot.title && (
-                        spot.title.includes('BIFF') ||
-                        spot.title.includes('해운대') ||
-                        spot.title.includes('광안리') ||
-                        spot.title.includes('감천문화마을') ||
-                        spot.title.includes('전포카페거리')
-                    );
+                    const hasMatchingTag =
+                        spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
+                            ? spot.hashtags.some(
+                                  (tag) =>
+                                      tag.includes('영화') ||
+                                      tag.includes('문화') ||
+                                      tag.includes('BIFF') ||
+                                      tag.includes('핫플레이스') ||
+                                      tag.includes('젊은이') ||
+                                      tag.includes('트렌디') ||
+                                      tag.includes('데이트') ||
+                                      tag.includes('인스타그램') ||
+                                      tag.includes('포토스팟') ||
+                                      tag.includes('카페거리') ||
+                                      tag.includes('로맨틱') ||
+                                      tag.includes('야경') ||
+                                      tag.includes('광안대교') ||
+                                      tag.includes('해운대') ||
+                                      tag.includes('광안리'),
+                              )
+                            : false;
+                    const hasMatchingTitle =
+                        spot.title &&
+                        (spot.title.includes('BIFF') ||
+                            spot.title.includes('해운대') ||
+                            spot.title.includes('광안리') ||
+                            spot.title.includes('감천문화마을') ||
+                            spot.title.includes('전포카페거리'));
                     return hasMatchingTag || hasMatchingTitle;
                 });
                 break;
             case 'culture':
                 // 문화 여행: 역사, 전통, 예술, 교육 관련 장소들
                 filteredSpots = spots.filter((spot) => {
-                    const hasMatchingTag = spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
-                        ? spot.hashtags.some(
-                            (tag) =>
-                                tag.includes('문화') ||
-                                tag.includes('역사') ||
-                                tag.includes('사찰') ||
-                                tag.includes('전통') ||
-                                tag.includes('예술') ||
-                                tag.includes('교육') ||
-                                tag.includes('박물관') ||
-                                tag.includes('문화재') ||
-                                tag.includes('전시') ||
-                                tag.includes('공연') ||
-                                tag.includes('불교문화') ||
-                                tag.includes('천년고찰') ||
-                                tag.includes('조선시대')
-                        )
-                        : false;
-                    const hasMatchingTitle = spot.title && (
-                        spot.title.includes('범어사') ||
-                        spot.title.includes('해동용궁사') ||
-                        spot.title.includes('동래읍성') ||
-                        spot.title.includes('UN기념공원') ||
-                        spot.title.includes('국립해양박물관') ||
-                        spot.title.includes('감천문화마을') ||
-                        spot.title.includes('흰여울문화마을')
-                    );
+                    const hasMatchingTag =
+                        spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
+                            ? spot.hashtags.some(
+                                  (tag) =>
+                                      tag.includes('문화') ||
+                                      tag.includes('역사') ||
+                                      tag.includes('사찰') ||
+                                      tag.includes('전통') ||
+                                      tag.includes('예술') ||
+                                      tag.includes('교육') ||
+                                      tag.includes('박물관') ||
+                                      tag.includes('문화재') ||
+                                      tag.includes('전시') ||
+                                      tag.includes('공연') ||
+                                      tag.includes('불교문화') ||
+                                      tag.includes('천년고찰') ||
+                                      tag.includes('조선시대'),
+                              )
+                            : false;
+                    const hasMatchingTitle =
+                        spot.title &&
+                        (spot.title.includes('범어사') ||
+                            spot.title.includes('해동용궁사') ||
+                            spot.title.includes('동래읍성') ||
+                            spot.title.includes('UN기념공원') ||
+                            spot.title.includes('국립해양박물관') ||
+                            spot.title.includes('감천문화마을') ||
+                            spot.title.includes('흰여울문화마을'));
                     return hasMatchingTag || hasMatchingTitle;
                 });
                 break;
             case 'nature':
                 // 자연 여행: 산, 바다, 공원, 생태 관련 장소들
                 filteredSpots = spots.filter((spot) => {
-                    const hasMatchingTag = spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
-                        ? spot.hashtags.some(
-                            (tag) =>
-                                tag.includes('자연') ||
-                                tag.includes('산') ||
-                                tag.includes('공원') ||
-                                tag.includes('해안') ||
-                                tag.includes('생태') ||
-                                tag.includes('바다') ||
-                                tag.includes('해수욕장') ||
-                                tag.includes('등산') ||
-                                tag.includes('산책') ||
-                                tag.includes('절경') ||
-                                tag.includes('일출') ||
-                                tag.includes('일몰') ||
-                                tag.includes('해안절벽') ||
-                                tag.includes('바다뷰') ||
-                                tag.includes('모래사장')
-                        )
-                        : false;
-                    const hasMatchingTitle = spot.title && (
-                        spot.title.includes('해운대') ||
-                        spot.title.includes('광안리') ||
-                        spot.title.includes('송정해수욕장') ||
-                        spot.title.includes('송도해수욕장') ||
-                        spot.title.includes('다대포해수욕장') ||
-                        spot.title.includes('태종대') ||
-                        spot.title.includes('오륙도') ||
-                        spot.title.includes('이기대공원') ||
-                        spot.title.includes('금정산') ||
-                        spot.title.includes('몰운대') ||
-                        spot.title.includes('아홉산숲')
-                    );
+                    const hasMatchingTag =
+                        spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
+                            ? spot.hashtags.some(
+                                  (tag) =>
+                                      tag.includes('자연') ||
+                                      tag.includes('산') ||
+                                      tag.includes('공원') ||
+                                      tag.includes('해안') ||
+                                      tag.includes('생태') ||
+                                      tag.includes('바다') ||
+                                      tag.includes('해수욕장') ||
+                                      tag.includes('등산') ||
+                                      tag.includes('산책') ||
+                                      tag.includes('절경') ||
+                                      tag.includes('일출') ||
+                                      tag.includes('일몰') ||
+                                      tag.includes('해안절벽') ||
+                                      tag.includes('바다뷰') ||
+                                      tag.includes('모래사장'),
+                              )
+                            : false;
+                    const hasMatchingTitle =
+                        spot.title &&
+                        (spot.title.includes('해운대') ||
+                            spot.title.includes('광안리') ||
+                            spot.title.includes('송정해수욕장') ||
+                            spot.title.includes('송도해수욕장') ||
+                            spot.title.includes('다대포해수욕장') ||
+                            spot.title.includes('태종대') ||
+                            spot.title.includes('오륙도') ||
+                            spot.title.includes('이기대공원') ||
+                            spot.title.includes('금정산') ||
+                            spot.title.includes('몰운대') ||
+                            spot.title.includes('아홉산숲'));
                     return hasMatchingTag || hasMatchingTitle;
                 });
                 break;
             case 'food':
                 // 음식 여행: 시장, 맛집, 해산물, 카페 관련 장소들
                 filteredSpots = spots.filter((spot) => {
-                    const hasMatchingTag = spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
-                        ? spot.hashtags.some(
-                            (tag) =>
-                                tag.includes('시장') ||
-                                tag.includes('먹거리') ||
-                                tag.includes('맛집') ||
-                                tag.includes('해산물') ||
-                                tag.includes('카페') ||
-                                tag.includes('디저트') ||
-                                tag.includes('음식점') ||
-                                tag.includes('로컬푸드') ||
-                                tag.includes('전통시장') ||
-                                tag.includes('야시장') ||
-                                tag.includes('회') ||
-                                tag.includes('구이') ||
-                                tag.includes('찜') ||
-                                tag.includes('빙수') ||
-                                tag.includes('팥빙수')
-                        )
-                        : false;
-                    const hasMatchingTitle = spot.title && (
-                        spot.title.includes('자갈치시장') ||
-                        spot.title.includes('국제시장') ||
-                        spot.title.includes('부평깡통시장') ||
-                        spot.title.includes('구포시장') ||
-                        spot.title.includes('연산동') ||
-                        spot.title.includes('카페') ||
-                        spot.title.includes('빙수') ||
-                        spot.title.includes('디저트')
-                    );
+                    const hasMatchingTag =
+                        spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
+                            ? spot.hashtags.some(
+                                  (tag) =>
+                                      tag.includes('시장') ||
+                                      tag.includes('먹거리') ||
+                                      tag.includes('맛집') ||
+                                      tag.includes('해산물') ||
+                                      tag.includes('카페') ||
+                                      tag.includes('디저트') ||
+                                      tag.includes('음식점') ||
+                                      tag.includes('로컬푸드') ||
+                                      tag.includes('전통시장') ||
+                                      tag.includes('야시장') ||
+                                      tag.includes('회') ||
+                                      tag.includes('구이') ||
+                                      tag.includes('찜') ||
+                                      tag.includes('빙수') ||
+                                      tag.includes('팥빙수'),
+                              )
+                            : false;
+                    const hasMatchingTitle =
+                        spot.title &&
+                        (spot.title.includes('자갈치시장') ||
+                            spot.title.includes('국제시장') ||
+                            spot.title.includes('부평깡통시장') ||
+                            spot.title.includes('구포시장') ||
+                            spot.title.includes('연산동') ||
+                            spot.title.includes('카페') ||
+                            spot.title.includes('빙수') ||
+                            spot.title.includes('디저트'));
                     return hasMatchingTag || hasMatchingTitle;
                 });
                 break;
             case 'shopping':
                 // 쇼핑 여행: 백화점, 상가, 소품샵 관련 장소들
                 filteredSpots = spots.filter((spot) => {
-                    const hasMatchingTag = spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
-                        ? spot.hashtags.some(
-                            (tag) =>
-                                tag.includes('쇼핑') ||
-                                tag.includes('백화점') ||
-                                tag.includes('상가') ||
-                                tag.includes('지하상가') ||
-                                tag.includes('소품샵') ||
-                                tag.includes('편집샵') ||
-                                tag.includes('패션') ||
-                                tag.includes('액세서리') ||
-                                tag.includes('브랜드') ||
-                                tag.includes('기네스북') ||
-                                tag.includes('쇼핑몰')
-                        )
-                        : false;
-                    const hasMatchingTitle = spot.title && (
-                        spot.title.includes('센텀시티') ||
-                        spot.title.includes('신세계') ||
-                        spot.title.includes('서면') ||
-                        spot.title.includes('지하상가') ||
-                        spot.title.includes('소품샵') ||
-                        spot.title.includes('편집샵') ||
-                        spot.title.includes('패치킹') ||
-                        spot.title.includes('파도블') ||
-                        spot.title.includes('이티비티샵')
-                    );
+                    const hasMatchingTag =
+                        spot.hashtags && Array.isArray(spot.hashtags) && spot.hashtags.length > 0
+                            ? spot.hashtags.some(
+                                  (tag) =>
+                                      tag.includes('쇼핑') ||
+                                      tag.includes('백화점') ||
+                                      tag.includes('상가') ||
+                                      tag.includes('지하상가') ||
+                                      tag.includes('소품샵') ||
+                                      tag.includes('편집샵') ||
+                                      tag.includes('패션') ||
+                                      tag.includes('액세서리') ||
+                                      tag.includes('브랜드') ||
+                                      tag.includes('기네스북') ||
+                                      tag.includes('쇼핑몰'),
+                              )
+                            : false;
+                    const hasMatchingTitle =
+                        spot.title &&
+                        (spot.title.includes('센텀시티') ||
+                            spot.title.includes('신세계') ||
+                            spot.title.includes('서면') ||
+                            spot.title.includes('지하상가') ||
+                            spot.title.includes('소품샵') ||
+                            spot.title.includes('편집샵') ||
+                            spot.title.includes('패치킹') ||
+                            spot.title.includes('파도블') ||
+                            spot.title.includes('이티비티샵'));
                     return hasMatchingTag || hasMatchingTitle;
                 });
                 break;
@@ -384,7 +387,6 @@ class ThemeCarousel {
 
             // 데이터가 없는 경우 처리
             if (!data || data.length === 0) {
-                console.warn(`${carouselId}에 표시할 데이터가 없습니다.`);
                 const grid = document.getElementById(carouselId);
                 if (grid) {
                     grid.innerHTML = '<div class="no-data">데이터를 불러오는 중입니다...</div>';
@@ -398,7 +400,7 @@ class ThemeCarousel {
             this.displayedData[carouselId] = data.slice(startIndex, endIndex);
 
             // listLoader용 데이터 포맷 변환
-            const listData = this.displayedData[carouselId].map(item => ({
+            const listData = this.displayedData[carouselId].map((item) => ({
                 id: item.id,
                 title: item.title || '제목 없음',
                 description: item.description || '',
@@ -410,18 +412,16 @@ class ThemeCarousel {
                 categoryActive: item.categoryActive !== false,
             }));
 
-
             const listLoader = new ListLoader({
-            containerSelector: `#${carouselId}`,
-            data: listData,
-            fallbackImage: '/images/common.jpg',
-            onItemClick: (itemData) => {
-                window.location.href = `/pages/detailed/detailed?id=${itemData.id}`;
-            },
-        });
+                containerSelector: `#${carouselId}`,
+                data: listData,
+                fallbackImage: '/images/common.jpg',
+                onItemClick: (itemData) => {
+                    window.location.href = `/pages/detailed/detailed?id=${itemData.id}`;
+                },
+            });
 
-        await listLoader.render();
-
+            await listLoader.render();
         } catch (error) {
             console.error('테마 그리드 렌더링 중 오류:', error);
             const grid = document.getElementById(carouselId);
@@ -434,9 +434,6 @@ class ThemeCarousel {
 
     async loadListTemplate() {
         const template = document.getElementById('list-item');
-        if (!template) {
-            console.warn('리스트 템플릿을 찾을 수 없습니다. Thymeleaf fragment가 포함되어 있는지 확인하세요.');
-        }
     }
 
     // 상세 페이지로 이동하는 함수

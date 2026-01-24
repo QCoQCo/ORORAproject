@@ -22,12 +22,11 @@ function restoreSavedId() {
         setTimeout(restoreSavedId, 100);
         return;
     }
-    
+
     const savedLoginId = getCookie('savedLoginId');
     if (savedLoginId) {
         putId.value = savedLoginId;
         checkId.checked = true;
-        console.log('저장된 아이디 복원:', savedLoginId);
     }
 }
 
@@ -96,7 +95,7 @@ loginBtn.addEventListener('click', async function () {
 
         if (data.success) {
             alert(`${data.user.username}님 환영합니다!`);
-            
+
             // 로그인 상태 유지에 따라 저장소 선택
             if (checkLogin.checked) {
                 // 로그인 상태 유지: localStorage 사용 (브라우저 종료 후에도 유지)

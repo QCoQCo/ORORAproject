@@ -52,7 +52,8 @@ async function loadUserInfo() {
             }
 
             // 프로필 이미지 설정
-            const profileImageUrl = userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
+            const profileImageUrl =
+                userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
             document.getElementById('current-profile-image').src = profileImageUrl;
         }
     } catch (error) {
