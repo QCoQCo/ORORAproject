@@ -28,6 +28,17 @@ async function displayUserInfo() {
     try {
         // 최신 사용자 정보를 API에서 가져오기
         const response = await fetch(`/api/users/${user.id}`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (data.success && data.user) {
@@ -74,7 +85,12 @@ async function displayUserInfo() {
             document.getElementById('profile-image').src = profileImageUrl;
         }
     } catch (error) {
-        console.error('사용자 정보 로드 오류:', error);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('사용자 정보 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('사용자 정보 로드 오류:', error);
+        }
         // 에러 발생 시 sessionStorage의 정보 사용
         document.getElementById('user-name').textContent = user.username;
         document.getElementById('user-email').textContent = user.email;
@@ -158,6 +174,17 @@ async function loadUserReviews(userId) {
     try {
         // 실제 API 호출
         const response = await fetch(`/api/users/${userId}/reviews`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) {
@@ -195,7 +222,12 @@ async function loadUserReviews(userId) {
 
         reviewsCount.textContent = `${reviews.length}개`;
     } catch (error) {
-        console.error('리뷰 로드 오류:', error);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('리뷰 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('리뷰 로드 오류:', error);
+        }
         reviewsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -220,6 +252,17 @@ async function loadLikedReviews(userId) {
     try {
         // API 호출
         const response = await fetch(`/api/users/${userId}/liked-reviews`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) {
@@ -260,7 +303,12 @@ async function loadLikedReviews(userId) {
             likedReviewsCount.textContent = `${reviews.length}개`;
         }
     } catch (error) {
-        console.error('좋아요 누른 리뷰 로드 오류:', error);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('좋아요 누른 리뷰 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('좋아요 누른 리뷰 로드 오류:', error);
+        }
         likedReviewsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -306,6 +354,17 @@ async function loadUserComments(userId) {
     try {
         // 실제 API 호출
         const response = await fetch(`/api/users/${userId}/comments`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) {
@@ -344,7 +403,12 @@ async function loadUserComments(userId) {
 
         commentsCount.textContent = `${comments.length}개`;
     } catch (error) {
-        console.error('댓글 로드 오류:', error);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('댓글 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('댓글 로드 오류:', error);
+        }
         commentsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -367,6 +431,17 @@ async function loadUserLikes(userId) {
     try {
         // 실제 API 호출
         const response = await fetch(`/api/users/${userId}/liked-spots`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) throw new Error();
@@ -387,6 +462,12 @@ async function loadUserLikes(userId) {
 
         likesCount.textContent = `${likes.length}개`;
     } catch (error) {
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('좋아요한 관광지 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('좋아요한 관광지 로드 오류:', error);
+        }
         likesList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -783,7 +864,6 @@ function loadKakaoMapScript() {
 
         const apiKey = getKakaoMapApiKey();
         if (!apiKey) {
-            console.warn('카카오맵 API 키를 찾을 수 없습니다.');
             reject(new Error('카카오맵 API 키를 찾을 수 없습니다.'));
             return;
         }

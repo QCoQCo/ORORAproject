@@ -92,7 +92,6 @@ function initSwiper() {
     const mainSwiper = document.querySelector('.mySwiper2');
 
     if (!thumbSwiper || !mainSwiper) {
-        console.log('Swiper 요소를 찾을 수 없습니다.');
         return;
     }
 
@@ -787,7 +786,6 @@ let reviewImages = []; // 리뷰에 첨부할 이미지 파일들
 // 리뷰 데이터 로드
 async function loadReviews() {
     if (!currentSpotId) {
-        console.warn('관광지 ID가 없어 리뷰를 불러올 수 없습니다.');
         showNoReviewsMessage();
         return;
     }
@@ -1511,8 +1509,6 @@ function reportReview(reviewId) {
 
 // 댓글 목록 토글 (펼치기/접기)
 async function toggleReviewReply(reviewId) {
-    console.log('toggleReviewReply called with reviewId:', reviewId);
-
     // 모든 가능한 댓글 컨테이너 찾기
     let commentsContainer = document.getElementById(`photo-review-comments-${reviewId}`);
 
@@ -1634,6 +1630,11 @@ async function loadReviewComments(reviewId, container) {
 
         // 댓글 수정 폼 이벤트 리스너 추가
         initCommentEditForms();
+
+        // 댓글 수 업데이트
+        updateCommentCount(reviewId, comments.length);
+
+        return comments.length;
     } catch (error) {
         console.error('댓글 로드 오류:', error);
         container.innerHTML = `
@@ -1643,6 +1644,28 @@ async function loadReviewComments(reviewId, container) {
             ${createCommentFormHTML(reviewId)}
         `;
         initCommentForm(reviewId);
+        return 0;
+    }
+}
+
+// 댓글 수 업데이트 함수
+function updateCommentCount(reviewId, count) {
+    // 포토리뷰 모달 내의 댓글 수 업데이트
+    const photoReviewModal = document.getElementById('photo-review-modal-content');
+    if (photoReviewModal && photoReviewModal.getAttribute('data-review-id') == reviewId) {
+        const reviewReCount = photoReviewModal.querySelector('.reviewReCount');
+        if (reviewReCount) {
+            reviewReCount.textContent = count;
+        }
+    }
+
+    // 일반 리뷰 목록 내의 댓글 수 업데이트
+    const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
+    if (reviewElement) {
+        const reviewReCount = reviewElement.querySelector('.reviewReCount');
+        if (reviewReCount) {
+            reviewReCount.textContent = count;
+        }
     }
 }
 
@@ -1856,8 +1879,10 @@ async function submitComment(reviewId) {
 
             if (isPhotoReviewModal && wasOpen) {
                 // 포토리뷰 모달이 열려있고 댓글창도 열려있으면 댓글 컨테이너만 직접 새로고침
-                await loadReviewComments(reviewId, commentsContainer);
+                const commentCount = await loadReviewComments(reviewId, commentsContainer);
                 commentsContainer.style.display = 'block';
+                // 댓글 수 업데이트
+                updateCommentCount(reviewId, commentCount);
 
                 // 폼 초기화
                 const newTextarea = document.getElementById(`comment-input-${reviewId}`);
@@ -2124,8 +2149,10 @@ async function deleteComment(commentId) {
 
                 if (isPhotoReviewModal && wasOpen) {
                     // 포토리뷰 모달이 열려있고 댓글창도 열려있으면 댓글 컨테이너만 직접 새로고침
-                    await loadReviewComments(reviewId, commentsContainer);
+                    const commentCount = await loadReviewComments(reviewId, commentsContainer);
                     commentsContainer.style.display = 'block';
+                    // 댓글 수 업데이트
+                    updateCommentCount(reviewId, commentCount);
                 } else {
                     // 일반 리뷰이거나 댓글창이 닫혀있으면 기존 로직 사용
                     // 리뷰 목록 새로고침 (댓글 수 업데이트)
@@ -2862,7 +2889,6 @@ function updatePhotoReviews(spotReviews) {
 // 포토리뷰 로드 (별도 API 호출)
 async function loadPhotoReviews() {
     if (!currentSpotId) {
-        console.warn('관광지 ID가 없어 포토리뷰를 불러올 수 없습니다.');
         return;
     }
 

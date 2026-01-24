@@ -60,14 +60,14 @@ function openImageModal(imageUrl, zIndex = 2000) {
  */
 function tryOpenModal(modalId, callback, maxAttempts = 50, interval = 100) {
     let attempts = 0;
-    
+
     const tryOpen = () => {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'block';
             // 배경 스크롤 방지
             document.body.style.overflow = 'hidden';
-            
+
             if (callback && typeof callback === 'function') {
                 callback(modal);
             }
@@ -80,7 +80,7 @@ function tryOpenModal(modalId, callback, maxAttempts = 50, interval = 100) {
             }
         }
     };
-    
+
     tryOpen();
 }
 
@@ -107,7 +107,7 @@ function initModalCloseEvents(modalId, closeButtonId = null) {
     if (!modal) return;
 
     // 닫기 버튼 찾기
-    const closeBtn = closeButtonId 
+    const closeBtn = closeButtonId
         ? document.getElementById(closeButtonId)
         : modal.querySelector('.close, [data-close-modal]');
 

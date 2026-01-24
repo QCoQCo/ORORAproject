@@ -110,7 +110,6 @@ function initSearchBox() {
             // 검색 버튼 클릭 시 검색 박스 토글
             searchBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                // console.log('검색 버튼 클릭됨');
                 searchBox.classList.toggle('active');
 
                 // 검색 박스가 활성화되면 입력창에 포커스
@@ -155,17 +154,15 @@ function initSearchBox() {
 function performSearch() {
     const searchInput = document.querySelector('.search-box input');
     const searchBox = document.querySelector('.search-box');
-    
+
     if (!searchInput || !searchBox) {
         console.error('검색 입력창 또는 검색 박스를 찾을 수 없습니다.');
         return;
     }
-    
+
     const searchTerm = searchInput.value.trim();
 
     if (searchTerm) {
-        console.log('검색어:', searchTerm);
-
         // 통합 검색 페이지로 이동
         window.location.href = `/pages/search-place/search?q=${encodeURIComponent(searchTerm)}`;
 

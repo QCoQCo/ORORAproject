@@ -22,4 +22,5 @@ public interface UserMapper {
     void deleteUser(@Param("id") Long id);
     UserDto findByUsernameOrEmail(@Param("username") String username, @Param("email") String email);
     void updatePassword(@Param("loginId") String loginId, @Param("passwordHash") String passwordHash);
+    UserDto findByEmail(@Param("email") String email);
 }
