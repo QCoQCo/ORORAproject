@@ -88,7 +88,11 @@ resetPasswordBtn.addEventListener('click', async function () {
                 window.location.href = './login';
             }, 2000);
         } else {
-            showError(data.message || '비밀번호 재설정에 실패했습니다.', errorMessage, successMessage);
+            showError(
+                data.message || '비밀번호 재설정에 실패했습니다.',
+                errorMessage,
+                successMessage,
+            );
         }
     } catch (error) {
         console.error('비밀번호 재설정 오류:', error);

@@ -687,8 +687,6 @@ class LanguageManager {
             setTimeout(() => {
                 this.setupLanguageSelectorWithRetry(retryCount + 1);
             }, 100);
-        } else {
-            console.warn('언어 선택기를 찾을 수 없습니다. 헤더가 로드되지 않았을 수 있습니다.');
         }
     }
 

@@ -15,7 +15,6 @@ class ListLoader {
         // 템플릿이 이미 DOM에 있으므로 확인만 수행
         const template = document.getElementById('list-item');
         if (!template) {
-            console.warn('리스트 템플릿을 찾을 수 없습니다. Thymeleaf fragment가 포함되어 있는지 확인하세요.');
             return false;
         }
         return true;
@@ -132,13 +131,13 @@ class ListLoader {
             likeBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // 비활성화된 카테고리의 관광지는 좋아요도 차단
                 if (isCategoryInactive) {
                     this.showInactiveNotification();
                     return;
                 }
-                
+
                 const itemEl = likeBtn.closest('.item');
                 const spotId = itemEl.dataset.spotId;
                 const userId = getCurrentUser()?.id;
@@ -147,11 +146,10 @@ class ListLoader {
                     alert('로그인이 필요합니다');
                     return;
                 }
-                
-                const res = await fetch(
-                    `/api/tourist-spots/${spotId}/like?userId=${userId}`,
-                    { method: 'POST' }
-                );
+
+                const res = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`, {
+                    method: 'POST',
+                });
 
                 const data = await res.json();
                 const liked = data.liked;
@@ -164,14 +162,14 @@ class ListLoader {
         const itemElement = itemFragment.querySelector('.item');
         if (itemElement) {
             itemElement.dataset.spotId = itemData.id;
-            
+
             // 카테고리 비활성화된 경우 시각적 스타일 적용
             if (isCategoryInactive) {
                 itemElement.classList.add('inactive-category');
                 itemElement.style.opacity = '0.6';
                 itemElement.style.cursor = 'not-allowed';
                 itemElement.style.position = 'relative';
-                
+
                 // 비활성화 배지 추가
                 const inactiveBadge = document.createElement('div');
                 inactiveBadge.className = 'inactive-badge';
@@ -194,7 +192,7 @@ class ListLoader {
             } else {
                 itemElement.style.cursor = 'pointer'; // 커서 모양 변경
             }
-            
+
             itemElement.addEventListener('click', (e) => {
                 if (!e.target.closest('.likeBtn')) {
                     // 카테고리가 비활성화된 경우 클릭 차단
@@ -297,28 +295,34 @@ class ListLoader {
     async applyLikedState() {
         const userId = getCurrentUser()?.id;
         if (!userId) return;
-        
+
         try {
             const res = await fetch(`/api/users/${userId}/liked-spots`);
             if (!res.ok) return;
 
+            // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('text/html')) {
+                return;
+            }
+
             const data = await res.json();
-            const likedSpotIds = new Set(
-                data.likes.map(l => String(l.spotId))
-            );
-            document.querySelectorAll('.item').forEach(item => {
+            const likedSpotIds = new Set(data.likes.map((l) => String(l.spotId)));
+            document.querySelectorAll('.item').forEach((item) => {
                 const spotId = item.dataset.spotId;
                 if (likedSpotIds.has(spotId)) {
-                    item.querySelector('.likeBtn')
-                        ?.classList.add('liked');
+                    item.querySelector('.likeBtn')?.classList.add('liked');
                 }
             });
         } catch (e) {
-            console.error('좋아요 상태 반영 실패:', e);
+            // JSON 파싱 에러인 경우 (HTML 응답)
+            if (e instanceof SyntaxError && e.message.includes('JSON')) {
+                // 인증이 필요합니다
+            } else {
+                console.error('좋아요 상태 반영 실패:', e);
+            }
         }
-        
     }
-
 }
 
 // 간편 사용을 위한 전역 함수
@@ -340,5 +344,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-
-

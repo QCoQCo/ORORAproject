@@ -43,20 +43,20 @@
                     </div>
                     <button id="loginBtn">로그인</button>
                     
-                    <!-- 소셜 로그인 구분선 -->
-                    <div class="social-divider">
+                    <!-- 소셜 로그인 구분선 (소셜 로그인이 하나라도 활성화되어 있을 때만 표시) -->
+                    <div class="social-divider" th:if="${isKakaoActive || isGoogleActive}">
                         <span>또는</span>
                     </div>
                     
                     <!-- 소셜 로그인 버튼 -->
-                    <div class="social-login">
-                        <a th:href="@{/oauth2/authorization/kakao}" class="social-btn kakao-btn">
+                    <div class="social-login" th:if="${isKakaoActive || isGoogleActive}">
+                        <a th:if="${isKakaoActive}" th:href="@{/oauth2/authorization/kakao}" class="social-btn kakao-btn">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M10 0C4.477 0 0 3.582 0 8c0 2.797 1.875 5.26 4.687 6.67L3.75 20l5.313-2.93C9.25 17.05 9.625 17.05 10 17.05c5.523 0 10-3.582 10-8S15.523 0 10 0z" fill="#3C1E1E"/>
                             </svg>
                             카카오 로그인
                         </a>
-                        <a th:href="@{/oauth2/authorization/google}" class="social-btn google-btn">
+                        <a th:if="${isGoogleActive}" th:href="@{/oauth2/authorization/google}" class="social-btn google-btn">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z" fill="#4285F4"/>
                                 <path d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.955-3.386.955-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0010 20z" fill="#34A853"/>
@@ -68,7 +68,7 @@
                     </div>
                     
                     <div class="aboutLogin">
-                        <a href="./signup"><p>회원가입</p></a>
+                        <a th:if="${isNormalActive}" href="./signup"><p>회원가입</p></a>
                         <a href="./find-id"><p>아이디 찾기</p></a>
                         <a href="./reset-password"><p class="newPsw">비밀번호 재설정</p></a>
                     </div>

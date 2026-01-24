@@ -195,7 +195,7 @@ function createMarker(spot) {
                         ? spot.hashtags
                               .map(
                                   (tag) =>
-                                      `<span style="display:inline-block; background:${categoryColor}; color:white; padding:2px 6px; border-radius:12px; font-size:12px; margin-right:4px; margin-bottom:2px;">${tag}</span>`
+                                      `<span style="display:inline-block; background:${categoryColor}; color:white; padding:2px 6px; border-radius:12px; font-size:12px; margin-right:4px; margin-bottom:2px;">${tag}</span>`,
                               )
                               .join('')
                         : ''
