@@ -7,7 +7,7 @@ class SearchSystem {
             spots: [],
             reviews: [],
             hashtags: [],
-            comments: []
+            comments: [],
         };
         this.init();
     }
@@ -16,7 +16,7 @@ class SearchSystem {
         // URL 파라미터에서 검색어 가져오기
         const urlParams = new URLSearchParams(window.location.search);
         const keyword = urlParams.get('q');
-        
+
         if (keyword) {
             this.currentKeyword = decodeURIComponent(keyword);
             document.getElementById('search-keyword').value = this.currentKeyword;
@@ -36,7 +36,7 @@ class SearchSystem {
         });
 
         // 탭 전환 이벤트
-        document.querySelectorAll('.tab-btn').forEach(btn => {
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
             btn.addEventListener('click', (e) => {
                 const tab = e.target.getAttribute('data-tab');
                 this.switchTab(tab);
@@ -48,7 +48,11 @@ class SearchSystem {
         const keyword = document.getElementById('search-keyword').value.trim();
         if (keyword) {
             // URL 업데이트
-            window.history.pushState({}, '', `/pages/search-place/search?q=${encodeURIComponent(keyword)}`);
+            window.history.pushState(
+                {},
+                '',
+                `/pages/search-place/search?q=${encodeURIComponent(keyword)}`,
+            );
             this.performSearch(keyword);
         } else {
             alert('검색어를 입력해주세요.');
@@ -57,24 +61,24 @@ class SearchSystem {
 
     async performSearch(keyword) {
         this.currentKeyword = keyword;
-        
+
         // 로딩 표시
         this.showLoading();
-        
+
         try {
             const response = await fetch(`/api/search?q=${encodeURIComponent(keyword)}`);
             if (!response.ok) {
                 throw new Error('검색 요청 실패');
             }
-            
+
             const data = await response.json();
             this.searchResults = {
                 spots: data.spots || [],
                 reviews: data.reviews || [],
                 hashtags: data.hashtags || [],
-                comments: data.comments || []
+                comments: data.comments || [],
             };
-            
+
             this.displayResults();
             this.updateKeywordDisplay(keyword, data.totalCount || 0);
         } catch (error) {
@@ -88,7 +92,7 @@ class SearchSystem {
     showLoading() {
         document.getElementById('loading-results').style.display = 'block';
         document.getElementById('no-results').style.display = 'none';
-        document.querySelectorAll('.result-category').forEach(el => {
+        document.querySelectorAll('.result-category').forEach((el) => {
             el.style.display = 'none';
         });
     }
@@ -99,18 +103,20 @@ class SearchSystem {
 
     showError() {
         document.getElementById('no-results').style.display = 'block';
-        document.getElementById('no-results').querySelector('p').textContent = '검색 중 오류가 발생했습니다.';
+        document.getElementById('no-results').querySelector('p').textContent =
+            '검색 중 오류가 발생했습니다.';
     }
 
     displayResults() {
-        const totalCount = this.searchResults.spots.length + 
-                         this.searchResults.reviews.length + 
-                         this.searchResults.hashtags.length + 
-                         this.searchResults.comments.length;
+        const totalCount =
+            this.searchResults.spots.length +
+            this.searchResults.reviews.length +
+            this.searchResults.hashtags.length +
+            this.searchResults.comments.length;
 
         if (totalCount === 0) {
             document.getElementById('no-results').style.display = 'block';
-            document.querySelectorAll('.result-category').forEach(el => {
+            document.querySelectorAll('.result-category').forEach((el) => {
                 el.style.display = 'none';
             });
             return;
@@ -132,15 +138,17 @@ class SearchSystem {
         const container = document.getElementById('spots-grid');
         const countEl = document.getElementById('spots-count');
         const results = this.searchResults.spots;
-        
+
         countEl.textContent = results.length;
-        
+
         if (results.length === 0) {
             container.innerHTML = '<p class="empty-message">관광지 검색 결과가 없습니다.</p>';
             return;
         }
 
-        container.innerHTML = results.map(spot => `
+        container.innerHTML = results
+            .map(
+                (spot) => `
             <div class="result-item spot-item" onclick="window.location.href='/pages/detailed/detailed?id=${spot.touristSpotId || spot.id}'">
                 <div class="item-content">
                     <h4 class="item-title">${this.highlightKeyword(spot.title, this.currentKeyword)}</h4>
@@ -148,22 +156,26 @@ class SearchSystem {
                     ${spot.linkUrl ? `<a href="${spot.linkUrl}" class="item-link" target="_blank">자세히 보기</a>` : ''}
                 </div>
             </div>
-        `).join('');
+        `,
+            )
+            .join('');
     }
 
     displayReviews() {
         const container = document.getElementById('reviews-list');
         const countEl = document.getElementById('reviews-count');
         const results = this.searchResults.reviews;
-        
+
         countEl.textContent = results.length;
-        
+
         if (results.length === 0) {
             container.innerHTML = '<p class="empty-message">리뷰 검색 결과가 없습니다.</p>';
             return;
         }
 
-        container.innerHTML = results.map(review => `
+        container.innerHTML = results
+            .map(
+                (review) => `
             <div class="result-item review-item" onclick="window.location.href='/pages/detailed/detailed?id=${review.touristSpotId}#review-${review.id}'">
                 <div class="item-header">
                     <h4 class="item-title">${this.highlightKeyword(review.title, this.currentKeyword)}</h4>
@@ -176,41 +188,49 @@ class SearchSystem {
                     <span class="meta-item">${this.formatDate(review.createdAt)}</span>
                 </div>
             </div>
-        `).join('');
+        `,
+            )
+            .join('');
     }
 
     displayHashtags() {
         const container = document.getElementById('hashtags-grid');
         const countEl = document.getElementById('hashtags-count');
         const results = this.searchResults.hashtags;
-        
+
         countEl.textContent = results.length;
-        
+
         if (results.length === 0) {
             container.innerHTML = '<p class="empty-message">태그 검색 결과가 없습니다.</p>';
             return;
         }
 
-        container.innerHTML = results.map(hashtag => `
+        container.innerHTML = results
+            .map(
+                (hashtag) => `
             <div class="tag-item" onclick="window.location.href='/pages/search-place/tag?search=${encodeURIComponent(hashtag.hashtagName || hashtag.title)}'">
                 #${this.highlightKeyword(hashtag.hashtagName || hashtag.title, this.currentKeyword)}
             </div>
-        `).join('');
+        `,
+            )
+            .join('');
     }
 
     displayComments() {
         const container = document.getElementById('comments-list');
         const countEl = document.getElementById('comments-count');
         const results = this.searchResults.comments;
-        
+
         countEl.textContent = results.length;
-        
+
         if (results.length === 0) {
             container.innerHTML = '<p class="empty-message">댓글 검색 결과가 없습니다.</p>';
             return;
         }
 
-        container.innerHTML = results.map(comment => `
+        container.innerHTML = results
+            .map(
+                (comment) => `
             <div class="result-item comment-item" onclick="window.location.href='/pages/detailed/detailed?id=${comment.touristSpotId}#review-${comment.reviewId}'">
                 <div class="item-header">
                     <h4 class="item-title">${comment.reviewTitle || '댓글'}</h4>
@@ -222,14 +242,16 @@ class SearchSystem {
                     <span class="meta-item">${this.formatDate(comment.createdAt)}</span>
                 </div>
             </div>
-        `).join('');
+        `,
+            )
+            .join('');
     }
 
     switchTab(tab) {
         this.currentTab = tab;
-        
+
         // 탭 버튼 활성화
-        document.querySelectorAll('.tab-btn').forEach(btn => {
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
             btn.classList.remove('active');
             if (btn.getAttribute('data-tab') === tab) {
                 btn.classList.add('active');
@@ -239,14 +261,14 @@ class SearchSystem {
         // 결과 카테고리 표시/숨김
         if (tab === 'all') {
             // 전체 탭: 결과가 있는 카테고리만 표시
-            document.querySelectorAll('.result-category').forEach(el => {
+            document.querySelectorAll('.result-category').forEach((el) => {
                 const category = el.id.replace('-results', '');
                 const count = this.getCategoryCount(category);
                 el.style.display = count > 0 ? 'block' : 'none';
             });
         } else {
             // 특정 탭: 해당 카테고리만 표시
-            document.querySelectorAll('.result-category').forEach(el => {
+            document.querySelectorAll('.result-category').forEach((el) => {
                 el.style.display = 'none';
             });
             const targetEl = document.getElementById(`${tab}-results`);
@@ -258,12 +280,17 @@ class SearchSystem {
     }
 
     getCategoryCount(category) {
-        switch(category) {
-            case 'spots': return this.searchResults.spots.length;
-            case 'reviews': return this.searchResults.reviews.length;
-            case 'hashtags': return this.searchResults.hashtags.length;
-            case 'comments': return this.searchResults.comments.length;
-            default: return 0;
+        switch (category) {
+            case 'spots':
+                return this.searchResults.spots.length;
+            case 'reviews':
+                return this.searchResults.reviews.length;
+            case 'hashtags':
+                return this.searchResults.hashtags.length;
+            case 'comments':
+                return this.searchResults.comments.length;
+            default:
+                return 0;
         }
     }
 
@@ -275,14 +302,16 @@ class SearchSystem {
 
     formatDate(dateString) {
         // 전역 formatDate 함수 사용 (utils/date.js에서 가져옴, locale 포맷)
-        return window.formatDate ? window.formatDate(dateString, 'locale') : new Date(dateString).toLocaleDateString('ko-KR');
+        return window.formatDate
+            ? window.formatDate(dateString, 'locale')
+            : new Date(dateString).toLocaleDateString('ko-KR');
     }
 
     updateKeywordDisplay(keyword, totalCount) {
         const displayEl = document.getElementById('keyword-display');
         const keywordEl = document.getElementById('keyword-value');
         const countEl = document.getElementById('result-count');
-        
+
         keywordEl.textContent = keyword;
         countEl.textContent = `(${totalCount}개 결과)`;
         displayEl.style.display = 'block';

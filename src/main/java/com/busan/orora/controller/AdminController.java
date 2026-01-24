@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -62,11 +64,39 @@ public class AdminController {
     @Autowired
     private ReviewService reviewService;
 
+    // 관리자 권한 확인 메서드 (Spring Security 인증 컨텍스트에서만 확인)
+    private boolean isAdmin(HttpServletRequest request) {
+        // Spring Security 인증 컨텍스트에서 권한 확인
+        try {
+            org.springframework.security.core.Authentication auth = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+                boolean hasAdminRole = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                if (hasAdminRole) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Spring Security 인증 컨텍스트 확인 실패: {}", e.getMessage());
+        }
+        
+        return false;
+    }
+
     // 관광지 목록 조회
     @GetMapping("/tourist-spots")
     @ResponseBody
-    public Map<String, Object> getTouristSpots() {
+    public Map<String, Object> getTouristSpots(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
+        
+        // 관리자 권한 확인
+        if (!isAdmin(request)) {
+            response.put("success", false);
+            response.put("message", "관리자 권한이 필요합니다.");
+            return response;
+        }
+        
         try {
             List<SpotDto> spots = spotService.getAllSpots();
 
@@ -123,8 +153,16 @@ public class AdminController {
     // 사용자 목록 조회
     @GetMapping("/users")
     @ResponseBody
-    public Map<String, Object> getUsers() {
+    public Map<String, Object> getUsers(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
+        
+        // 관리자 권한 확인
+        if (!isAdmin(request)) {
+            response.put("success", false);
+            response.put("message", "관리자 권한이 필요합니다.");
+            return response;
+        }
+        
         try {
             List<UserDto> users = userService.getAllUsers();
             response.put("success", true);
@@ -367,8 +405,16 @@ public class AdminController {
     // 코드 그룹 목록 조회
     @GetMapping("/common-code-groups")
     @ResponseBody
-    public Map<String, Object> getCommonCodeGroups() {
+    public Map<String, Object> getCommonCodeGroups(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
+        
+        // 관리자 권한 확인
+        if (!isAdmin(request)) {
+            response.put("success", false);
+            response.put("message", "관리자 권한이 필요합니다.");
+            return response;
+        }
+        
         try {
             List<CommonCodeGroupDto> groups = commonCodeGroupService.getAllGroups();
             response.put("success", true);
@@ -474,8 +520,16 @@ public class AdminController {
     // 코드 목록 조회 (그룹별)
     @GetMapping("/common-codes")
     @ResponseBody
-    public Map<String, Object> getCommonCodes(@RequestParam(required = false) String groupCode) {
+    public Map<String, Object> getCommonCodes(@RequestParam(required = false) String groupCode, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
+        
+        // 관리자 권한 확인
+        if (!isAdmin(request)) {
+            response.put("success", false);
+            response.put("message", "관리자 권한이 필요합니다.");
+            return response;
+        }
+        
         try {
             List<CommonCodeDto> codes;
             if (groupCode != null && !groupCode.isEmpty()) {

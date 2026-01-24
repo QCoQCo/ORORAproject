@@ -158,7 +158,30 @@ async function initializeAdmin() {
 async function loadTouristSpots() {
     try {
         const response = await fetch('/api/admin/tourist-spots');
-        const data = await response.json();
+
+        // HTTP 상태 코드 확인
+        if (response.status === 403 || response.status === 401) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        // 응답 본문을 텍스트로 먼저 읽어서 HTML인지 확인
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        // JSON으로 파싱
+        const data = JSON.parse(text);
 
         if (data.success && data.spots) {
             // 백엔드 데이터를 프론트엔드 형식으로 변환
@@ -200,8 +223,14 @@ async function loadTouristSpots() {
             throw new Error(data.message || '관광지 데이터를 불러오는데 실패했습니다.');
         }
     } catch (error) {
-        console.error('관광지 데이터 로드 실패:', error);
-        showNotification('데이터를 불러오는데 실패했습니다.', 'error');
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('관광지 데이터 로드 실패: 관리자 권한이 필요합니다.');
+            showNotification('관리자 권한이 필요합니다. 로그인해주세요.', 'error');
+        } else {
+            console.error('관광지 데이터 로드 실패:', error);
+            showNotification(error.message || '데이터를 불러오는데 실패했습니다.', 'error');
+        }
         touristSpots = {};
     }
 }
@@ -223,12 +252,12 @@ function getCategoryFromHashtags(hashtags) {
 
 // 탭별 설명 텍스트
 const tabDescriptions = {
-    'list': '부산 관광지 정보를 관리할 수 있습니다.',
-    'users': '사용자 정보와 권한을 관리할 수 있습니다.',
+    list: '부산 관광지 정보를 관리할 수 있습니다.',
+    users: '사용자 정보와 권한을 관리할 수 있습니다.',
     'user-reports': '사용자들이 신고한 내용을 확인하고 처리할 수 있습니다.',
     'spot-requests': '사용자들이 신청한 관광지 및 사진 추가 요청을 관리할 수 있습니다.',
     'common-codes': '공통코드 그룹과 코드를 관리할 수 있습니다.',
-    'stats': '관광지 및 사용자 통계를 확인할 수 있습니다.'
+    stats: '관광지 및 사용자 통계를 확인할 수 있습니다.',
 };
 
 // 탭 기능 초기화
@@ -294,7 +323,7 @@ function initializeEventListeners() {
     if (searchBtn) {
         searchBtn.addEventListener('click', filterTouristSpots);
     }
-    
+
     // Enter 키로 검색
     if (searchInput) {
         searchInput.addEventListener('keypress', (e) => {
@@ -366,8 +395,8 @@ function handleImagePreview(event) {
             previewItem.innerHTML = `
                 <img src="${e.target.result}" alt="미리보기" />
                 <span class="file-name" title="${file.name}">${file.name.substring(0, 15)}${
-                file.name.length > 15 ? '...' : ''
-            }</span>
+                    file.name.length > 15 ? '...' : ''
+                }</span>
             `;
             previewContainer.appendChild(previewItem);
         };
@@ -431,17 +460,17 @@ function isCategoryActive(categoryCode) {
     if (!categoryCode || !commonCodes || commonCodes.length === 0) {
         return true; // 기본적으로 활성으로 간주
     }
-    
+
     const category = commonCodes.find(
-        (code) => code.groupCode === 'SPOT_CATEGORY' && code.code === categoryCode.toUpperCase()
+        (code) => code.groupCode === 'SPOT_CATEGORY' && code.code === categoryCode.toUpperCase(),
     );
-    
-    return category ? (category.isActive !== false) : true;
+
+    return category ? category.isActive !== false : true;
 }
 
 function createTouristSpotCard(spot, regionKey, spotId, regionName) {
     const card = document.createElement('div');
-    
+
     // 카테고리 결정: categoryCode 우선, 없으면 해시태그로 추정
     const normalizedHashtags = normalizeHashtags(spot.hashtags);
     let category = 'CULTURE'; // 기본값
@@ -454,7 +483,7 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
 
     // 카테고리 활성 상태 확인
     const isActive = isCategoryActive(category);
-    
+
     if (!isActive) {
         // 비활성화된 카테고리인 경우 비활성화 스타일 적용
         card.className = 'tourist-spot-card inactive-category';
@@ -477,7 +506,9 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
             .join(' ');
     }
 
-    const inactiveBadge = !isActive ? '<span class="inactive-badge">비활성화된 카테고리</span>' : '';
+    const inactiveBadge = !isActive
+        ? '<span class="inactive-badge">비활성화된 카테고리</span>'
+        : '';
 
     card.innerHTML = `
         <h3>${spot.title} ${inactiveBadge}</h3>
@@ -526,7 +557,7 @@ function filterTouristSpots() {
                     spot.title.toLowerCase().includes(searchTerm) ||
                     spot.description.toLowerCase().includes(searchTerm) ||
                     (spot.hashtags &&
-                        spot.hashtags.some((tag) => tag.toLowerCase().includes(searchTerm)))
+                        spot.hashtags.some((tag) => tag.toLowerCase().includes(searchTerm))),
             );
 
             if (filtered.length > 0) {
@@ -696,8 +727,8 @@ async function loadSpotImages(spotId) {
                 .map(
                     (image) => `
                 <div class="image-item ${image.repImgYn === 'Y' ? 'is-rep' : ''}" data-image-id="${
-                        image.id
-                    }">
+                    image.id
+                }">
                     ${image.repImgYn === 'Y' ? '<span class="rep-badge">대표</span>' : ''}
                     <img src="${image.imageUrl}" alt="${
                         image.oriImgName || '이미지'
@@ -715,7 +746,7 @@ async function loadSpotImages(spotId) {
                         })">삭제</button>
                     </div>
                 </div>
-            `
+            `,
                 )
                 .join('');
         } else {
@@ -924,7 +955,7 @@ async function handleEditTouristSpot(event) {
             showNotification(
                 data.message ||
                     (isAddMode ? '관광지 추가에 실패했습니다.' : '관광지 수정에 실패했습니다.'),
-                'error'
+                'error',
             );
         }
     } catch (error) {
@@ -1241,7 +1272,30 @@ window.exportUsersData = exportUsersData;
 async function initializeUsers() {
     try {
         const response = await fetch('/api/admin/users');
-        const data = await response.json();
+
+        // HTTP 상태 코드 확인
+        if (response.status === 403 || response.status === 401) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        // 응답 본문을 텍스트로 먼저 읽어서 HTML인지 확인
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        // JSON으로 파싱
+        const data = JSON.parse(text);
 
         if (data.success && data.users) {
             // 백엔드 데이터를 프론트엔드 형식으로 변환
@@ -1271,8 +1325,14 @@ async function initializeUsers() {
             throw new Error(data.message || '사용자 데이터를 불러오는데 실패했습니다.');
         }
     } catch (error) {
-        console.error('사용자 데이터 로드 실패:', error);
-        showNotification('사용자 데이터를 불러오는데 실패했습니다.', 'error');
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('사용자 데이터 로드 실패: 관리자 권한이 필요합니다.');
+            showNotification('관리자 권한이 필요합니다. 로그인해주세요.', 'error');
+        } else {
+            console.error('사용자 데이터 로드 실패:', error);
+            showNotification(error.message || '사용자 데이터를 불러오는데 실패했습니다.', 'error');
+        }
 
         // 오류 발생 시 빈 배열로 초기화
         users = [];
@@ -1315,8 +1375,8 @@ function createUserRow(user) {
             <div class="user-actions">
                 <button class="user-edit-btn" onclick="openEditUserModal(${user.id})">수정</button>
                 <button class="user-toggle-btn" onclick="toggleUserStatus(${user.id})">${
-        user.status === 'active' ? '비활성화' : '활성화'
-    }</button>
+                    user.status === 'active' ? '비활성화' : '활성화'
+                }</button>
                 <button class="user-delete-btn" onclick="deleteUser(${user.id})">삭제</button>
             </div>
         </td>
@@ -1632,7 +1692,30 @@ let currentEditCodeId = null;
 async function loadCommonCodeGroups() {
     try {
         const response = await fetch('/api/admin/common-code-groups');
-        const data = await response.json();
+
+        // HTTP 상태 코드 확인
+        if (response.status === 403 || response.status === 401) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        // 응답 본문을 텍스트로 먼저 읽어서 HTML인지 확인
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        // JSON으로 파싱
+        const data = JSON.parse(text);
 
         if (data.success && data.groups) {
             commonCodeGroups = data.groups;
@@ -1643,8 +1726,14 @@ async function loadCommonCodeGroups() {
             throw new Error(data.message || '코드 그룹 목록을 불러오는데 실패했습니다.');
         }
     } catch (error) {
-        console.error('코드 그룹 데이터 로드 실패:', error);
-        showNotification('코드 그룹 목록을 불러오는데 실패했습니다.', 'error');
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('코드 그룹 데이터 로드 실패: 관리자 권한이 필요합니다.');
+            showNotification('관리자 권한이 필요합니다. 로그인해주세요.', 'error');
+        } else {
+            console.error('코드 그룹 데이터 로드 실패:', error);
+            showNotification(error.message || '코드 그룹 목록을 불러오는데 실패했습니다.', 'error');
+        }
         commonCodeGroups = [];
     }
 }
@@ -1656,7 +1745,30 @@ async function loadCommonCodes(groupCode = null) {
             ? `/api/admin/common-codes?groupCode=${encodeURIComponent(groupCode)}`
             : '/api/admin/common-codes';
         const response = await fetch(url);
-        const data = await response.json();
+
+        // HTTP 상태 코드 확인
+        if (response.status === 403 || response.status === 401) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        // 응답 본문을 텍스트로 먼저 읽어서 HTML인지 확인
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+            throw new Error('관리자 권한이 필요합니다. 로그인해주세요.');
+        }
+
+        // JSON으로 파싱
+        const data = JSON.parse(text);
 
         if (data.success && data.codes) {
             commonCodes = data.codes;
@@ -1665,8 +1777,14 @@ async function loadCommonCodes(groupCode = null) {
             throw new Error(data.message || '코드 목록을 불러오는데 실패했습니다.');
         }
     } catch (error) {
-        console.error('코드 데이터 로드 실패:', error);
-        showNotification('코드 목록을 불러오는데 실패했습니다.', 'error');
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('코드 데이터 로드 실패: 관리자 권한이 필요합니다.');
+            showNotification('관리자 권한이 필요합니다. 로그인해주세요.', 'error');
+        } else {
+            console.error('코드 데이터 로드 실패:', error);
+            showNotification(error.message || '코드 목록을 불러오는데 실패했습니다.', 'error');
+        }
         commonCodes = [];
     }
 }
@@ -1727,7 +1845,7 @@ function displayCodes() {
         const row = document.createElement('tr');
         const canDeactivate = !nonDeactivatableGroups.includes(code.groupCode);
         const isAdminRole = code.groupCode === 'USER_ROLE' && code.code === 'ADMIN';
-        
+
         // 비활성화 버튼 (삭제 버튼 대신)
         let actionButtons = '';
         if (canDeactivate && !isAdminRole) {
@@ -1881,7 +1999,7 @@ function openEditCodeModal(codeId) {
     document.getElementById('edit-code-name-jp').value = code.codeNameJp || '';
     document.getElementById('edit-code-description').value = code.description || '';
     document.getElementById('edit-code-sort-order').value = code.sortOrder || 0;
-    
+
     // 비활성화 불가능한 코드는 활성화 필드를 비활성화
     const activeSelect = document.getElementById('edit-code-active');
     activeSelect.value = code.isActive ? 'true' : 'false';
@@ -1890,7 +2008,7 @@ function openEditCodeModal(codeId) {
     } else {
         activeSelect.disabled = false;
     }
-    
+
     modal.style.display = 'block';
 }
 
@@ -2062,7 +2180,7 @@ async function toggleCodeActive(codeId, currentActive) {
 
     const newActive = !currentActive;
     const action = newActive ? '활성화' : '비활성화';
-    
+
     if (!confirm(`코드를 ${action}하시겠습니까?`)) {
         return;
     }
@@ -2085,13 +2203,13 @@ async function toggleCodeActive(codeId, currentActive) {
         if (data.success) {
             showNotification(`코드가 ${action}되었습니다.`, 'success');
             await loadCommonCodes();
-            
+
             // 사용자 역할이 비활성화된 경우 사용자 목록 갱신
             if (code.groupCode === 'USER_ROLE') {
                 await initializeUsers();
                 displayUsers();
             }
-            
+
             // 관광지 카테고리가 비활성화된 경우 관광지 목록 갱신
             if (code.groupCode === 'SPOT_CATEGORY') {
                 await loadTouristSpots();
@@ -2499,7 +2617,10 @@ function openPhotoRequestDetailModal(requestId) {
     document.getElementById('photo-request-spot-name').textContent = request.spotName || '-';
     document.getElementById('photo-request-applicant').textContent =
         request.applicantName || request.applicantId || '-';
-    document.getElementById('photo-request-date').textContent = formatDate(request.createdAt, 'locale-full');
+    document.getElementById('photo-request-date').textContent = formatDate(
+        request.createdAt,
+        'locale-full',
+    );
     document.getElementById('photo-request-description').textContent =
         request.description || '설명 없음';
 
@@ -2588,7 +2709,6 @@ function openSpotRequestApprovalModal(requestId) {
     currentSpotRequestId = requestId;
 
     tryOpenModal('edit-modal', (editModal) => {
-
         // 추가 모드로 설정
         isAddMode = true;
         currentEditRegion = null;
@@ -2659,7 +2779,7 @@ function openSpotRequestApprovalModal(requestId) {
                                 index === 0 ? '#28a745' : '#ddd'
                             };" onclick="openImageModal('${url.trim()}')" />
                         </div>
-                    `
+                    `,
                         )
                         .join('');
 
@@ -2694,14 +2814,15 @@ function openSpotRequestApprovalModal(requestId) {
             const selectedInfo = document.getElementById('edit-spot-location-selected');
             const selectedText = document.getElementById('edit-spot-location-selected-text');
             const resultsContainer = document.getElementById('edit-spot-location-results');
-            
+
             if (latitudeInput) latitudeInput.value = request.latitude;
             if (longitudeInput) longitudeInput.value = request.longitude;
             if (addressInput) addressInput.value = request.address || '';
-            
+
             // 선택된 위치 정보 표시
             if (selectedInfo && selectedText) {
-                const displayText = request.address || `위도: ${request.latitude}, 경도: ${request.longitude}`;
+                const displayText =
+                    request.address || `위도: ${request.latitude}, 경도: ${request.longitude}`;
                 selectedText.textContent = displayText;
                 selectedInfo.style.display = 'flex';
             }
@@ -2840,23 +2961,23 @@ function displayUserReports() {
                 // 대기중 상태: 처리 버튼, 반려 버튼
                 actionButtons = `
                     <button class="approve-btn" onclick="openPenaltyModal(${report.id}, '${
-                    report.reportType || 'review'
-                }', ${report.reportedUserId || 0}, '${(report.reportedUserName || '').replace(
-                    /'/g,
-                    "\\'"
-                )}', '${typeLabel}', '${(reason || '')
-                    .replace(/'/g, "\\'")
-                    .substring(0, 100)}')" style="margin-right: 5px;">처리</button>
+                        report.reportType || 'review'
+                    }', ${report.reportedUserId || 0}, '${(report.reportedUserName || '').replace(
+                        /'/g,
+                        "\\'",
+                    )}', '${typeLabel}', '${(reason || '')
+                        .replace(/'/g, "\\'")
+                        .substring(0, 100)}')" style="margin-right: 5px;">처리</button>
                     <button class="reject-btn" onclick="rejectReport(${report.id}, '${
-                    report.reportType || 'review'
-                }')">반려</button>
+                        report.reportType || 'review'
+                    }')">반려</button>
                 `;
             } else {
                 // 완료 또는 반려 상태: 삭제 버튼만
                 actionButtons = `
                     <button class="delete-btn" onclick="deleteReport(${report.id}, '${
-                    report.reportType || 'review'
-                }')">삭제</button>
+                        report.reportType || 'review'
+                    }')">삭제</button>
                 `;
             }
 
@@ -2878,8 +2999,8 @@ function displayUserReports() {
                                    </div>`
                                 : ''
                             : report.reviewTitle
-                            ? `<div style="margin-top: 5px; font-size: 0.875rem; color: #666;">리뷰: ${report.reviewTitle}</div>`
-                            : ''
+                              ? `<div style="margin-top: 5px; font-size: 0.875rem; color: #666;">리뷰: ${report.reviewTitle}</div>`
+                              : ''
                     }
                     ${
                         isCommentReport
@@ -2887,8 +3008,8 @@ function displayUserReports() {
                                 ? `<div style="margin-top: 3px; font-size: 0.8rem; color: #999;">관련 리뷰: ${report.reviewTitle}</div>`
                                 : ''
                             : reviewContent !== '-'
-                            ? `<div style="margin-top: 3px; font-size: 0.8rem; color: #999;">${reviewContent}</div>`
-                            : ''
+                              ? `<div style="margin-top: 3px; font-size: 0.8rem; color: #999;">${reviewContent}</div>`
+                              : ''
                     }
                 </td>
                 <td>${createdAt}</td>
@@ -2982,7 +3103,7 @@ function openPenaltyModal(
     reportedUserId,
     reportedUserName,
     violationType,
-    reason
+    reason,
 ) {
     const modal = document.getElementById('penalty-modal');
     if (!modal) return;
@@ -3088,7 +3209,7 @@ async function applyPenalty(event) {
 async function rejectReport(reportId, reportType = 'review') {
     if (
         !confirm(
-            '이 신고를 반려 처리하시겠습니까?\n반려 시 피신고자에게 별도의 조치가 취해지지 않습니다.'
+            '이 신고를 반려 처리하시겠습니까?\n반려 시 피신고자에게 별도의 조치가 취해지지 않습니다.',
         )
     ) {
         return;
@@ -3341,7 +3462,7 @@ async function searchLocation(query) {
                             latitude: parseFloat(item.y),
                             longitude: parseFloat(item.x),
                             type: 'place',
-                        }))
+                        })),
                     );
                 } else {
                     // 장소 검색 실패 시 주소 검색 시도
@@ -3355,7 +3476,7 @@ async function searchLocation(query) {
                                     latitude: parseFloat(item.y),
                                     longitude: parseFloat(item.x),
                                     type: 'address',
-                                }))
+                                })),
                             );
                         } else {
                             resolve([]);
@@ -3388,7 +3509,7 @@ function displayLocationResults(results) {
             <div class="location-result-name">${result.name}</div>
             <div class="location-result-address">${result.roadAddress || result.address}</div>
         </div>
-    `
+    `,
         )
         .join('');
 
@@ -3511,7 +3632,7 @@ async function loadLocationData(spot) {
                     const locationName = await searchLocationByName(
                         spot.title,
                         spot.latitude,
-                        spot.longitude
+                        spot.longitude,
                     );
                     if (locationName) {
                         selectedText.textContent = locationName;
@@ -3546,7 +3667,7 @@ async function searchLocationByName(spotTitle, latitude, longitude) {
                         latitude,
                         longitude,
                         parseFloat(data[0].y),
-                        parseFloat(data[0].x)
+                        parseFloat(data[0].x),
                     );
 
                     for (let i = 1; i < data.length; i++) {
@@ -3554,7 +3675,7 @@ async function searchLocationByName(spotTitle, latitude, longitude) {
                             latitude,
                             longitude,
                             parseFloat(data[i].y),
-                            parseFloat(data[i].x)
+                            parseFloat(data[i].x),
                         );
                         if (distance < minDistance) {
                             minDistance = distance;

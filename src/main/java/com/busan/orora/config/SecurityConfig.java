@@ -45,9 +45,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/tourist-spots/**").permitAll() // 관광지 조회 API
                         .requestMatchers("/api/reviews").permitAll() // 리뷰 조회 API (GET)
                         .requestMatchers("/api/search/**").permitAll() // 검색 API
-                        // 관리자 API는 인증 필요
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**", "/pages/admin/**").hasRole("ADMIN")
+                        // 관리자 API는 인증 필요 (권한 체크는 Controller에서 수행)
+                        .requestMatchers("/api/admin/**").authenticated()
+                        .requestMatchers("/admin/**", "/pages/admin/**").authenticated()
                         // 나머지 API는 인증 필요 (리뷰 작성, 좋아요 등)
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated());

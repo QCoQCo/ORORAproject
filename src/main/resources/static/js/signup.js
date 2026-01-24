@@ -187,7 +187,7 @@ class SignupValidator {
                     field.hasInteracted = true;
                     this.validateField(fieldName);
                     this.updateSubmitButton();
-                    
+
                     // 아이디 필드의 경우, 입력 시 중복체크 결과 초기화
                     if (fieldName === 'putId') {
                         field.duplicateChecked = false;
@@ -316,7 +316,7 @@ class SignupValidator {
 
     async checkIdDuplicate() {
         const userId = this.fields.putId.element.value.trim();
-        
+
         // 아이디 입력 검증
         if (!userId) {
             this.showDuplicateCheckResult('아이디를 입력해주세요.', false);
@@ -340,12 +340,15 @@ class SignupValidator {
         this.overlapButton.textContent = '확인 중...';
 
         try {
-            const response = await fetch(`/api/auth/check-id?userId=${encodeURIComponent(userId)}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
+            const response = await fetch(
+                `/api/auth/check-id?userId=${encodeURIComponent(userId)}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 },
-            });
+            );
 
             if (!response.ok) {
                 throw new Error('아이디 확인 요청 실패');
@@ -357,7 +360,10 @@ class SignupValidator {
                 this.showDuplicateCheckResult(data.message || '사용 가능한 아이디입니다.', true);
                 this.fields.putId.duplicateChecked = true;
             } else {
-                this.showDuplicateCheckResult(data.message || '이미 사용 중인 아이디입니다.', false);
+                this.showDuplicateCheckResult(
+                    data.message || '이미 사용 중인 아이디입니다.',
+                    false,
+                );
                 this.fields.putId.duplicateChecked = false;
             }
         } catch (error) {
@@ -382,7 +388,7 @@ class SignupValidator {
         this.duplicateCheckResult.style.fontSize = '13px';
         this.duplicateCheckResult.style.padding = '8px 12px';
         this.duplicateCheckResult.style.borderRadius = '6px';
-        
+
         if (isSuccess) {
             this.duplicateCheckResult.style.color = '#059669';
             this.duplicateCheckResult.style.backgroundColor = '#f0fdf4';
@@ -397,12 +403,10 @@ class SignupValidator {
     updateSubmitButton() {
         // 필수 필드만 체크 (putId, putPsw, putRePsw, userName, userEmail)
         const requiredFields = ['putId', 'putPsw', 'putRePsw', 'userName', 'userEmail'];
-        const requiredFieldsValid = requiredFields.every(
-            (fieldName) => {
-                const field = this.fields[fieldName];
-                return field && field.element && field.valid;
-            }
-        );
+        const requiredFieldsValid = requiredFields.every((fieldName) => {
+            const field = this.fields[fieldName];
+            return field && field.element && field.valid;
+        });
 
         // 아이디 중복 체크도 확인
         const idDuplicateChecked = this.fields.putId.duplicateChecked === true;
@@ -421,7 +425,7 @@ class SignupValidator {
 
         // 전체 필드 재검증
         const allValid = Object.keys(this.fields).every((fieldName) =>
-            this.validateField(fieldName)
+            this.validateField(fieldName),
         );
 
         if (!allValid) {
@@ -441,35 +445,35 @@ class SignupValidator {
     async processSignup() {
         // FormData 생성 (파일 업로드를 위해)
         const formData = new FormData();
-        
+
         // 텍스트 필드 추가
         formData.append('loginId', this.fields.putId.element.value.trim());
         formData.append('password', this.fields.putPsw.element.value);
         formData.append('username', this.fields.userName.element.value.trim());
-        
+
         const birthDate = this.fields.userBirth.element.value.trim();
         if (birthDate) {
             formData.append('birthDate', birthDate);
         }
-        
+
         const phoneNumber = this.fields.userPhone.element.value.trim();
         if (phoneNumber) {
             formData.append('phoneNumber', phoneNumber);
         }
-        
+
         const email = this.fields.userEmail.element.value.trim();
         formData.append('email', email);
-        
+
         const address = this.fields.userAddress.element.value.trim();
         if (address) {
             formData.append('address', address);
         }
-        
+
         const genderCode = this.fields.userGender.element.value;
         if (genderCode) {
             formData.append('genderCode', genderCode);
         }
-        
+
         // 프로필 이미지 파일 추가 (선택사항)
         const profileImageInput = document.getElementById('profileImage');
         if (profileImageInput && profileImageInput.files && profileImageInput.files[0]) {

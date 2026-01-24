@@ -20,6 +20,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import org.springframework.ui.Model;
 
 @Controller
 public class UserController {
@@ -29,15 +31,58 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.busan.orora.commoncode.service.CommonCodeService commonCodeService;
+
     // 로그인 페이지
     @GetMapping("/pages/login/login")
-    public String loginPage() {
+    public String loginPage(Model model) {
+        // LOGIN_TYPE 공통코드 조회
+        List<com.busan.orora.commoncode.dto.CommonCodeDto> loginTypes = 
+            commonCodeService.getCodesByGroupCode("LOGIN_TYPE");
+        
+        // 각 로그인 타입의 활성 상태를 모델에 추가
+        boolean isNormalActive = false;
+        boolean isKakaoActive = false;
+        boolean isGoogleActive = false;
+        
+        for (com.busan.orora.commoncode.dto.CommonCodeDto code : loginTypes) {
+            if ("NOR".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
+                isNormalActive = true;
+            } else if ("KAK".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
+                isKakaoActive = true;
+            } else if ("GOO".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
+                isGoogleActive = true;
+            }
+        }
+        
+        model.addAttribute("isNormalActive", isNormalActive);
+        model.addAttribute("isKakaoActive", isKakaoActive);
+        model.addAttribute("isGoogleActive", isGoogleActive);
+        
         return "pages/login/login";
     }
 
     // 회원가입 페이지
     @GetMapping("/pages/login/signup")
-    public String signupPage() {
+    public String signupPage(Model model) {
+        // 일반 회원가입(NOR) 활성 상태 확인
+        List<com.busan.orora.commoncode.dto.CommonCodeDto> loginTypes = 
+            commonCodeService.getCodesByGroupCode("LOGIN_TYPE");
+        
+        boolean isNormalActive = false;
+        for (com.busan.orora.commoncode.dto.CommonCodeDto code : loginTypes) {
+            if ("NOR".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
+                isNormalActive = true;
+                break;
+            }
+        }
+        
+        // 일반 회원가입이 비활성화되어 있으면 로그인 페이지로 리다이렉트
+        if (!isNormalActive) {
+            return "redirect:/pages/login/login";
+        }
+        
         return "pages/login/signup";
     }
 
@@ -68,6 +113,34 @@ public class UserController {
                 // 세션에 사용자 정보 저장
                 HttpSession session = request.getSession();
                 session.setAttribute("loggedInUser", user);
+
+                // Spring Security 인증 컨텍스트에 권한 설정
+                String roleCode = user.getRoleCode() != null ? user.getRoleCode() : "MEMBER";
+                org.springframework.security.core.authority.SimpleGrantedAuthority authority = 
+                    new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + roleCode);
+                
+                org.springframework.security.core.userdetails.UserDetails userDetails = 
+                    org.springframework.security.core.userdetails.User.builder()
+                        .username(user.getLoginId())
+                        .password("") // 비밀번호는 인증 후이므로 필요 없음
+                        .authorities(authority)
+                        .build();
+                
+                org.springframework.security.authentication.UsernamePasswordAuthenticationToken authentication = 
+                    new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                
+                // SecurityContext에 Authentication 설정
+                org.springframework.security.core.context.SecurityContext securityContext = 
+                    org.springframework.security.core.context.SecurityContextHolder.getContext();
+                securityContext.setAuthentication(authentication);
+                
+                // 세션에 SecurityContext 저장 (다음 요청에서도 유지되도록)
+                // Spring Security의 기본 세션 키 사용
+                session.setAttribute(
+                    org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    securityContext
+                );
 
                 // 로그인 상태 유지 설정
                 if (loginForm.getKeepLogin() != null && loginForm.getKeepLogin()) {
