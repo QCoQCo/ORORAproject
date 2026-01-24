@@ -2,6 +2,8 @@
 
 ## 목차
 1. [인증 API](#인증-api)
+   - 일반 로그인/회원가입
+   - 소셜 로그인 (OAuth2)
 2. [사용자 API](#사용자-api)
 3. [관광지 API](#관광지-api)
 4. [지역 API](#지역-api)
@@ -154,6 +156,48 @@
   "message": "비밀번호가 성공적으로 재설정되었습니다."
 }
 ```
+
+### 8. 소셜 로그인 (OAuth2)
+
+#### 8.1 카카오 로그인
+- **엔드포인트**: `GET /oauth2/authorization/kakao`
+- **설명**: 카카오 OAuth2 인증을 통한 소셜 로그인
+- **리다이렉트 URI**: `/login/oauth2/code/kakao`
+- **인증 흐름**:
+  1. 사용자가 카카오 로그인 버튼 클릭
+  2. 카카오 인증 서버로 리다이렉트
+  3. 사용자 인증 후 콜백 URI로 리다이렉트
+  4. 서버에서 사용자 정보 조회 및 자동 회원가입/로그인 처리
+  5. 세션에 사용자 정보 저장
+- **응답**: 로그인 성공 시 메인 페이지로 리다이렉트
+- **주의사항**:
+  - 환경 변수 `KAKAO_CLIENT_ID`, `KAKAO_CLIENT_SECRET` 설정 필요
+  - 카카오 개발자 콘솔에서 리다이렉트 URI 등록 필요
+
+#### 8.2 구글 로그인
+- **엔드포인트**: `GET /oauth2/authorization/google`
+- **설명**: 구글 OAuth2 인증을 통한 소셜 로그인
+- **리다이렉트 URI**: `/login/oauth2/code/google`
+- **인증 흐름**:
+  1. 사용자가 구글 로그인 버튼 클릭
+  2. 구글 인증 서버로 리다이렉트
+  3. 사용자 인증 후 콜백 URI로 리다이렉트
+  4. 서버에서 사용자 정보 조회 및 자동 회원가입/로그인 처리
+  5. 세션에 사용자 정보 저장
+- **응답**: 로그인 성공 시 메인 페이지로 리다이렉트
+- **주의사항**:
+  - 환경 변수 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` 설정 필요
+  - Google Cloud Console에서 리다이렉트 URI 등록 필요
+  - 요청 스코프: `email`, `profile`
+
+#### 8.3 소셜 로그인 특징
+- **자동 회원가입**: 소셜 로그인 시 이메일 기반으로 자동 회원가입 처리
+- **로그인 타입**: 사용자 테이블의 `login_type_code` 필드에 저장
+  - 카카오: `KAKAO`
+  - 구글: `GOOGLE`
+  - 일반 로그인: `NORMAL`
+- **세션 관리**: 일반 로그인과 동일하게 세션 기반 인증 사용
+- **사용자 정보**: 소셜 로그인 시 이메일과 이름을 자동으로 수집
 
 ---
 
@@ -1546,18 +1590,29 @@
 ## 참고 사항
 
 1. **인증**: 대부분의 API는 세션 기반 인증을 사용합니다. 로그인 후 세션에 사용자 정보가 저장됩니다.
+   - 일반 로그인: 아이디/비밀번호 기반
+   - 소셜 로그인: OAuth2 기반 (카카오, 구글)
 
-2. **파일 업로드**: 이미지 업로드가 필요한 API는 `multipart/form-data` 형식을 사용합니다.
+2. **소셜 로그인 (OAuth2)**:
+   - 카카오 로그인: `/oauth2/authorization/kakao`
+   - 구글 로그인: `/oauth2/authorization/google`
+   - 소셜 로그인 시 자동 회원가입 처리 (이메일 기반)
+   - 로그인 타입 코드: `KAKAO`, `GOOGLE`, `NORMAL`
+   - 환경 변수 설정 필요:
+     - 카카오: `KAKAO_CLIENT_ID`, `KAKAO_CLIENT_SECRET`, `KAKAO_REDIRECT_URI`
+     - 구글: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`
 
-3. **권한**: 관리자 API(`/api/admin/*`)는 관리자 권한이 필요합니다.
+3. **파일 업로드**: 이미지 업로드가 필요한 API는 `multipart/form-data` 형식을 사용합니다.
 
-4. **날짜 형식**: 날짜는 ISO 8601 형식(`YYYY-MM-DDTHH:mm:ss`)을 사용합니다.
+4. **권한**: 관리자 API(`/api/admin/*`)는 관리자 권한이 필요합니다.
 
-5. **지역 코드**: 지역 코드는 `area01`, `area02` 형식을 사용하며, 숫자 부분이 지역 ID와 매핑됩니다.
+5. **날짜 형식**: 날짜는 ISO 8601 형식(`YYYY-MM-DDTHH:mm:ss`)을 사용합니다.
 
-6. **카테고리 코드**: 관광지 카테고리는 공통코드의 `SPOT_CATEGORY` 그룹에서 관리됩니다.
+6. **지역 코드**: 지역 코드는 `area01`, `area02` 형식을 사용하며, 숫자 부분이 지역 ID와 매핑됩니다.
 
-7. **상태 코드**: 
+7. **카테고리 코드**: 관광지 카테고리는 공통코드의 `SPOT_CATEGORY` 그룹에서 관리됩니다.
+
+8. **상태 코드**: 
    - 사용자 상태: `ACTIVE`, `SUSPENDED`, `INACTIVE`
    - 신청 상태: `pending`, `approved`, `rejected`
    - 신고 상태: `pending`, `resolved`, `rejected`

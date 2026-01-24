@@ -62,7 +62,11 @@ findIdBtn.addEventListener('click', async function () {
         if (data.success) {
             showSuccess(`아이디를 찾았습니다: ${data.loginId}`, successMessage, errorMessage);
         } else {
-            showError(data.message || '일치하는 사용자 정보를 찾을 수 없습니다.', errorMessage, successMessage);
+            showError(
+                data.message || '일치하는 사용자 정보를 찾을 수 없습니다.',
+                errorMessage,
+                successMessage,
+            );
         }
     } catch (error) {
         console.error('아이디 찾기 오류:', error);

@@ -29,6 +29,8 @@ graph TD
     C --> C4[통합 검색 /pages/search-place/search]
     
     F --> F1[로그인 /pages/login/login]
+    F --> F1a[카카오 로그인 /oauth2/authorization/kakao]
+    F --> F1b[구글 로그인 /oauth2/authorization/google]
     F --> F2[회원가입 /pages/login/signup]
     F --> F3[아이디 찾기 /pages/login/find-id]
     F --> F4[비밀번호 재설정 /pages/login/reset-password]
@@ -92,7 +94,9 @@ ORORA (arataBUSAN)
 │
 ├── 👤 사용자 메뉴
 │   ├── 로그인
-│   │   └── /pages/login/login
+│   │   ├── /pages/login/login (일반 로그인)
+│   │   ├── /oauth2/authorization/kakao (카카오 로그인)
+│   │   └── /oauth2/authorization/google (구글 로그인)
 │   │
 │   ├── 회원가입
 │   │   └── /pages/login/signup
@@ -162,7 +166,17 @@ ORORA (arataBUSAN)
 ### 2. 사용자 인증 메뉴
 
 #### 2.1 로그인 관련
-- 로그인: `/pages/login/login`
+- **일반 로그인**: `/pages/login/login`
+  - 아이디/비밀번호 기반 로그인
+  - 로그인 상태 유지 옵션
+  - 아이디 저장 옵션
+- **소셜 로그인**:
+  - 카카오 로그인: `/oauth2/authorization/kakao`
+    - 카카오 계정으로 간편 로그인
+    - 자동 회원가입 지원
+  - 구글 로그인: `/oauth2/authorization/google`
+    - 구글 계정으로 간편 로그인
+    - 자동 회원가입 지원
 - 회원가입: `/pages/login/signup`
 - 아이디 찾기: `/pages/login/find-id`
 - 비밀번호 재설정: `/pages/login/reset-password`
@@ -192,6 +206,9 @@ ORORA (arataBUSAN)
 - ✅ 여행팁
 - ✅ 관광지 상세 페이지
 - ✅ 로그인/회원가입
+  - 일반 로그인
+  - 카카오 소셜 로그인
+  - 구글 소셜 로그인
 
 ### 로그인 필요 메뉴
 - 🔒 마이페이지
@@ -231,6 +248,13 @@ ORORA (arataBUSAN)
 - `GET /api/users/{userId}/liked-spots` - 좋아요한 관광지
 - `GET /api/users/{userId}/comments` - 작성한 댓글
 - `PUT /api/users/{userId}/profile` - 프로필 수정
+
+#### 로그인 페이지
+- `POST /api/auth/login` - 일반 로그인
+- `GET /api/auth/check` - 로그인 상태 확인
+- `GET /oauth2/authorization/kakao` - 카카오 소셜 로그인
+- `GET /oauth2/authorization/google` - 구글 소셜 로그인
+- `POST /api/auth/logout` - 로그아웃
 
 #### 관리자 페이지
 - `GET /api/admin/tourist-spots` - 관광지 관리
@@ -282,6 +306,13 @@ ORORA (arataBUSAN)
 /api/{리소스}/{액션}
 ```
 
+### OAuth2 소셜 로그인 엔드포인트
+```
+/oauth2/authorization/{provider}
+/login/oauth2/code/{provider}
+```
+- `{provider}`: `kakao` 또는 `google`
+
 ---
 
 ## 메뉴 아이콘 및 표기
@@ -317,3 +348,10 @@ ORORA (arataBUSAN)
 4. **언어 선택**
    - 헤더 우측 상단의 언어 선택 드롭다운
    - 선택한 언어에 따라 페이지 내용 번역
+
+5. **소셜 로그인**
+   - 로그인 페이지에서 카카오/구글 로그인 버튼 제공
+   - 소셜 로그인 시 자동 회원가입 처리
+   - 환경 변수 설정 필요:
+     - 카카오: `KAKAO_CLIENT_ID`, `KAKAO_CLIENT_SECRET`
+     - 구글: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`

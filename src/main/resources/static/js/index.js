@@ -353,7 +353,6 @@ function initImageLoading() {
 
             img.addEventListener('error', function () {
                 // If image fails to load, show it anyway with a fallback
-                console.warn('Image failed to load:', this.src);
                 this.style.opacity = '1';
                 this.style.transform = 'scale(1)';
                 // Optional: add a placeholder or error indicator
@@ -398,7 +397,6 @@ function initFeaturesImageLoading() {
 
         preloadImg.onerror = function () {
             // Image failed to load, show placeholder
-            console.warn('Feature image failed to load:', imageUrl);
             img.style.opacity = '1';
             img.style.transform = 'scale(1)';
             img.style.background = 'linear-gradient(135deg, #f1f5f9, #e2e8f0)';
