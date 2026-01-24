@@ -4,7 +4,7 @@
 -- 주의: 이 스키마는 공통코드 테이블(common_code_groups, common_codes)을 사용합니다.
 -- 공통코드 테이블 스키마는 common_code_schema.sql 파일을 참조하세요.
 -- ENUM 대신 VARCHAR로 코드값을 저장하며, 공통코드 테이블의 코드값을 참조합니다.
---
+-- 
 CREATE DATABASE arata_busan;
 USE arata_busan;
 

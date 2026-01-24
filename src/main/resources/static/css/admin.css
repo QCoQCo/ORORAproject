@@ -896,7 +896,7 @@
     text-align: left;
     font-weight: 600;
     font-size: 0.9rem;
-    min-width: 90px;
+    min-width: 30px;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -904,7 +904,7 @@
 }
 
 .reports-table td {
-    padding: 15px 12px;
+    padding: 15px 3px;
     text-align: left;
     border-bottom: 1px solid #e9ecef;
     color: #34495e;
@@ -953,6 +953,7 @@
     background: linear-gradient(45deg, #27ae60, #2ecc71) !important;
     color: white !important;
     padding: 6px 8px !important;
+    min-width: 65px !important;
     border-radius: 6px !important;
     font-size: 0.875rem !important;
     font-weight: 500 !important;
