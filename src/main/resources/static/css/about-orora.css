@@ -265,6 +265,23 @@
     border: 1px solid rgba(219, 246, 255, 0.8);
     height: auto;
     min-height: 180px;
+    transition: all 0.3s ease;
+}
+
+/* 팀장처럼 record 하나만 있는 경우 스타일 조정 */
+/* record-front가 없는 경우 (팀장) - record를 더 넓게 표시 */
+.team-introduce .team-introduce-list>li:not(:has(.record-front)) .record {
+    width: 60%;
+}
+
+.team-introduce .team-introduce-list>li:not(:has(.record-front)) .profile {
+    width: 35%;
+}
+
+/* record-front가 있는 경우 (다른 팀원들) - profile 너비 조정 */
+.team-introduce .team-introduce-list>li:has(.record-front) .profile {
+    width: 25%;
+    min-width: 180px;
 }
 
 .team-introduce .record>p {
@@ -285,6 +302,90 @@
     font-weight: bold;
 }
 
+.team-introduce .record:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(1, 117, 193, 0.12);
+    border-color: rgba(150, 218, 255, 0.8);
+}
+
+/* 프론트엔드/백엔드 개발 기록 스타일 */
+.team-introduce .record-front,
+.team-introduce .record-back {
+    width: 48%;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: left;
+    font-size: 15px;
+    line-height: 1.6;
+    box-shadow: inset 0 2px 8px rgba(1, 117, 193, 0.06);
+    border: 1px solid rgba(219, 246, 255, 0.8);
+    height: auto;
+    min-height: 180px;
+    transition: all 0.3s ease;
+}
+
+.team-introduce .record-front:hover,
+.team-introduce .record-back:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(1, 117, 193, 0.12);
+    border-color: rgba(150, 218, 255, 0.8);
+}
+
+.team-introduce .record-front h2,
+.team-introduce .record-back h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0175c1;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(1, 117, 193, 0.2);
+}
+
+.team-introduce .record-front>p,
+.team-introduce .record-back>p {
+    display: list-item;
+    margin-left: 1.5em;
+    margin-bottom: 10px;
+    list-style-type: none;
+    position: relative;
+    color: #495057;
+}
+
+.team-introduce .record-front>p::before,
+.team-introduce .record-back>p::before {
+    content: '•';
+    position: absolute;
+    left: -1.5em;
+    color: #0175c1;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* record-front와 record-back이 함께 있을 때 레이아웃 조정 */
+.team-introduce .team-introduce-list>li {
+    align-items: flex-start;
+}
+
+/* record-front/back이 있을 때 profile과 record 영역의 너비 조정 */
+.team-introduce .team-introduce-list>li .record-front,
+.team-introduce .team-introduce-list>li .record-back {
+    width: 35%;
+    min-width: 200px;
+}
+
+/* record-front나 record-back이 있는 경우 (다른 팀원들) - profile 너비 조정 */
+.team-introduce .team-introduce-list>li:has(.record-front) .profile,
+.team-introduce .team-introduce-list>li:has(.record-back) .profile {
+    width: 25%;
+    min-width: 180px;
+}
+
+/* record-front와 record-back이 둘 다 있을 때 */
+.team-introduce .team-introduce-list>li .record-front + .record-back {
+    margin-left: 0;
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .about-orora {
@@ -299,9 +400,25 @@
     }
     
     .team-introduce .profile,
-    .team-introduce .record {
+    .team-introduce .record,
+    .team-introduce .record-front,
+    .team-introduce .record-back {
         width: 100%;
         margin-bottom: 20px;
+    }
+    
+    .team-introduce .team-introduce-list>li {
+        flex-direction: column;
+    }
+    
+    .team-introduce .team-introduce-list>li .profile {
+        width: 100%;
+    }
+    
+    .team-introduce .team-introduce-list>li .record-front,
+    .team-introduce .team-introduce-list>li .record-back {
+        width: 100%;
+        margin-bottom: 15px;
     }
     
     .team-introduce .profile .pic img {
