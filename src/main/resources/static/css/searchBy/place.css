@@ -165,12 +165,15 @@
     stroke-width: 1;
 }
 
-.cls-16,
+/* .cls-16,
 .cls-19,
-.cls-20,
-.cls-25,
-.cls-28 {
-    fill: var(--neutral-700);
+.cls-20, */
+.cls-16,
+.cls-25 {
+    /* fill: var(--neutral-700);
+    stroke: var(--neutral-50); */
+    fill: var(--neutral-50);
+    stroke: var(--neutral-700);
     font-family: 'Pretendard Variable', sans-serif;
     font-size: 12px;
     font-weight: 600;
@@ -179,13 +182,15 @@
 
 .cls-20 {
     fill: transparent;
+    stroke: transparent;
 }
 
-.cls-25 {
+/* .cls-25 {
     stroke: #121212;
+    fill: #ffffff;
     font-size: 10px;
     font-weight: 400;
-}
+} */
 
 .cls-19 {
     font-size: 12px;
@@ -193,6 +198,8 @@
 
 .cls-28 {
     font-size: 13px;
+    fill: transparent;
+    stroke: transparent;
 }
 
 .cls-34 {
@@ -384,7 +391,9 @@
     z-index: 10;
     display: flex;
     align-items: stretch;
-    transition: transform 0.3s ease, top 0.15s ease-out;
+    transition:
+        transform 0.3s ease,
+        top 0.15s ease-out;
 }
 
 .list-section-sticky.hidden {

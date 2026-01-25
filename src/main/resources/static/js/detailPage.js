@@ -896,8 +896,13 @@ function createReviewElement(review) {
     const replies = review.replies || review.comments || review.commentCount || 0;
     const isLiked = review.isLiked || false;
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
+    // 클릭 가능한 프로필 요소 (본인 리뷰가 아닌 경우)
+    const profileClickable = !isMyReview && reviewUserId;
+    const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${reviewUserId})"` : '';
+    const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
+    
     const userImageHTML = review.userProfileImage
-        ? `<p class="userImage">
+        ? `<p class="userImage clickable-profile" ${profileClickHandler} ${profileCursorStyle}>
            <img src="${review.userProfileImage}"
                 alt="${userName}"
                 class="comment-user-image">
@@ -935,7 +940,7 @@ function createReviewElement(review) {
         <div class="userReviewTop">
             ${userImageHTML}
             <div class="userInfo">
-                <p class="userId"><strong>${userName}</strong>${
+                <p class="userId ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}><strong>${userName}</strong>${
                     isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
                 }</p>
                 <div class="reviewRating">${stars} (${review.rating || 0}/5)</div>
@@ -1684,6 +1689,11 @@ function createCommentHTML(comment) {
 
     const commentUserId = comment.userId || comment.user_id;
     const isMyComment = currentUserId && commentUserId && currentUserId == commentUserId;
+    
+    // 클릭 가능한 프로필 요소 (본인 댓글이 아닌 경우)
+    const profileClickable = !isMyComment && commentUserId;
+    const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${commentUserId})"` : '';
+    const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
 
     // 본인 댓글인 경우 신고 버튼 숨김, 삭제/수정 버튼 표시
     const actionButtonsHTML = isMyComment
@@ -1702,9 +1712,9 @@ function createCommentHTML(comment) {
             comment.id
         }">
             <div class="comment-header">
-                <img src="${userProfileImage}" alt="${userName}" class="comment-user-image" />
+                <img src="${userProfileImage}" alt="${userName}" class="comment-user-image ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle} />
                 <div class="comment-user-info">
-                    <p class="comment-user-name">
+                    <p class="comment-user-name ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}>
                         <strong>${userName}</strong>
                         ${isMyComment ? ' <span class="my-comment-badge">내 댓글</span>' : ''}
                     </p>
@@ -3144,6 +3154,11 @@ function openPhotoReviewModal(review) {
         : `<div class="reportBtn">
             <button onclick="reportReview(${review.id})">신고</button>
         </div>`;
+    
+    // 클릭 가능한 프로필 요소 (본인 리뷰가 아닌 경우)
+    const profileClickable = !isMyReview && reviewUserId;
+    const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${reviewUserId})"` : '';
+    const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
 
     let imagesHTML = '';
     if (images.length > 0) {
@@ -3174,7 +3189,7 @@ function openPhotoReviewModal(review) {
     content.innerHTML = `
         <div class="photo-review-modal-header">
             <div class="photo-review-modal-user-info">
-                <p class="photo-review-modal-user">
+                <p class="photo-review-modal-user ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}>
                     <strong>${userName}</strong>${
                         isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
                     }
@@ -3957,3 +3972,21 @@ async function deleteReview(reviewId) {
         alert('리뷰 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     }
 }
+
+// 유저 프로필 페이지로 이동
+function goToUserProfile(userId) {
+    if (!userId) return;
+    
+    // 현재 로그인한 사용자인지 확인
+    const currentUser = getCurrentUser();
+    if (currentUser && currentUser.id === userId) {
+        // 본인이면 마이페이지로 이동
+        window.location.href = '/pages/mypage/mypage';
+    } else {
+        // 다른 유저면 프로필 페이지로 이동
+        window.location.href = `/pages/profile/${userId}`;
+    }
+}
+
+// 전역 스코프에 goToUserProfile 함수 등록
+window.goToUserProfile = goToUserProfile;

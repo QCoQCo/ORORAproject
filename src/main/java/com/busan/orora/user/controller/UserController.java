@@ -38,14 +38,14 @@ public class UserController {
     @GetMapping("/pages/login/login")
     public String loginPage(Model model) {
         // LOGIN_TYPE 공통코드 조회
-        List<com.busan.orora.commoncode.dto.CommonCodeDto> loginTypes = 
-            commonCodeService.getCodesByGroupCode("LOGIN_TYPE");
-        
+        List<com.busan.orora.commoncode.dto.CommonCodeDto> loginTypes = commonCodeService
+                .getCodesByGroupCode("LOGIN_TYPE");
+
         // 각 로그인 타입의 활성 상태를 모델에 추가
         boolean isNormalActive = false;
         boolean isKakaoActive = false;
         boolean isGoogleActive = false;
-        
+
         for (com.busan.orora.commoncode.dto.CommonCodeDto code : loginTypes) {
             if ("NOR".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
                 isNormalActive = true;
@@ -55,11 +55,11 @@ public class UserController {
                 isGoogleActive = true;
             }
         }
-        
+
         model.addAttribute("isNormalActive", isNormalActive);
         model.addAttribute("isKakaoActive", isKakaoActive);
         model.addAttribute("isGoogleActive", isGoogleActive);
-        
+
         return "pages/login/login";
     }
 
@@ -67,9 +67,9 @@ public class UserController {
     @GetMapping("/pages/login/signup")
     public String signupPage(Model model) {
         // 일반 회원가입(NOR) 활성 상태 확인
-        List<com.busan.orora.commoncode.dto.CommonCodeDto> loginTypes = 
-            commonCodeService.getCodesByGroupCode("LOGIN_TYPE");
-        
+        List<com.busan.orora.commoncode.dto.CommonCodeDto> loginTypes = commonCodeService
+                .getCodesByGroupCode("LOGIN_TYPE");
+
         boolean isNormalActive = false;
         for (com.busan.orora.commoncode.dto.CommonCodeDto code : loginTypes) {
             if ("NOR".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
@@ -77,12 +77,12 @@ public class UserController {
                 break;
             }
         }
-        
+
         // 일반 회원가입이 비활성화되어 있으면 로그인 페이지로 리다이렉트
         if (!isNormalActive) {
             return "redirect:/pages/login/login";
         }
-        
+
         return "pages/login/signup";
     }
 
@@ -116,31 +116,29 @@ public class UserController {
 
                 // Spring Security 인증 컨텍스트에 권한 설정
                 String roleCode = user.getRoleCode() != null ? user.getRoleCode() : "MEMBER";
-                org.springframework.security.core.authority.SimpleGrantedAuthority authority = 
-                    new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + roleCode);
-                
-                org.springframework.security.core.userdetails.UserDetails userDetails = 
-                    org.springframework.security.core.userdetails.User.builder()
+                org.springframework.security.core.authority.SimpleGrantedAuthority authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                        "ROLE_" + roleCode);
+
+                org.springframework.security.core.userdetails.UserDetails userDetails = org.springframework.security.core.userdetails.User
+                        .builder()
                         .username(user.getLoginId())
                         .password("") // 비밀번호는 인증 후이므로 필요 없음
                         .authorities(authority)
                         .build();
-                
-                org.springframework.security.authentication.UsernamePasswordAuthenticationToken authentication = 
-                    new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+
+                org.springframework.security.authentication.UsernamePasswordAuthenticationToken authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
-                
+
                 // SecurityContext에 Authentication 설정
-                org.springframework.security.core.context.SecurityContext securityContext = 
-                    org.springframework.security.core.context.SecurityContextHolder.getContext();
+                org.springframework.security.core.context.SecurityContext securityContext = org.springframework.security.core.context.SecurityContextHolder
+                        .getContext();
                 securityContext.setAuthentication(authentication);
-                
+
                 // 세션에 SecurityContext 저장 (다음 요청에서도 유지되도록)
                 // Spring Security의 기본 세션 키 사용
                 session.setAttribute(
-                    org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                    securityContext
-                );
+                        org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                        securityContext);
 
                 // 로그인 상태 유지 설정
                 if (loginForm.getKeepLogin() != null && loginForm.getKeepLogin()) {
@@ -327,6 +325,96 @@ public class UserController {
             response.put("success", false);
             response.put("loggedIn", false);
             response.put("message", "로그인 상태 확인 중 오류가 발생했습니다.");
+        }
+
+        return response;
+    }
+
+    // 내 Role 변경 API (헤더 토글용)
+    @PostMapping("/api/users/me/role")
+    @ResponseBody
+    public Map<String, Object> updateMyRole(@RequestBody Map<String, String> requestBody, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            HttpSession session = request.getSession(false);
+            if (session == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            UserDto user = (UserDto) session.getAttribute("loggedInUser");
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            String roleCode = requestBody != null ? requestBody.get("roleCode") : null;
+            if (roleCode == null || roleCode.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "roleCode가 필요합니다.");
+                return response;
+            }
+
+            roleCode = roleCode.trim().toUpperCase();
+            // 요구사항: 일반유저 <-> ADMIN 토글
+            if (!"MEMBER".equals(roleCode) && !"ADMIN".equals(roleCode)) {
+                response.put("success", false);
+                response.put("message", "허용되지 않은 roleCode 입니다. (MEMBER 또는 ADMIN)");
+                return response;
+            }
+
+            // DB 업데이트
+            userService.updateUserRole(user.getId(), roleCode);
+
+            // 세션 사용자 정보 업데이트
+            user.setRoleCode(roleCode);
+            session.setAttribute("loggedInUser", user);
+
+            // Spring Security 인증 컨텍스트 권한 업데이트
+            org.springframework.security.core.authority.SimpleGrantedAuthority authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                    "ROLE_" + roleCode);
+
+            org.springframework.security.core.userdetails.UserDetails userDetails = org.springframework.security.core.userdetails.User
+                    .builder()
+                    .username(user.getLoginId())
+                    .password("")
+                    .authorities(authority)
+                    .build();
+
+            org.springframework.security.authentication.UsernamePasswordAuthenticationToken authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
+
+            org.springframework.security.core.context.SecurityContext securityContext = org.springframework.security.core.context.SecurityContextHolder
+                    .getContext();
+            securityContext.setAuthentication(authentication);
+
+            session.setAttribute(
+                    org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    securityContext);
+
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", user.getId());
+            userMap.put("loginId", user.getLoginId());
+            userMap.put("username", user.getUsername());
+            userMap.put("email", user.getEmail());
+            userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+            userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+            userMap.put("profileImage",
+                    user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+            userMap.put("profile_image",
+                    user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+            userMap.put("join_date", user.getJoinDate() != null ? user.getJoinDate().toString() : null);
+
+            response.put("success", true);
+            response.put("message", "Role이 변경되었습니다.");
+            response.put("user", userMap);
+        } catch (Exception e) {
+            logger.error("Role 변경 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "Role 변경 중 오류가 발생했습니다: " + e.getMessage());
         }
 
         return response;
