@@ -718,6 +718,7 @@
     flex-wrap: wrap;
 }
 
+.user-profile-btn,
 .user-edit-btn,
 .user-delete-btn,
 .user-toggle-btn {
@@ -730,6 +731,16 @@
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
+}
+
+.user-profile-btn {
+    background: linear-gradient(45deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.user-profile-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .user-edit-btn {
@@ -1688,6 +1699,7 @@
         gap: 4px;
     }
 
+    .user-profile-btn,
     .user-edit-btn,
     .user-delete-btn,
     .user-toggle-btn {

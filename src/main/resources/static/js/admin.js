@@ -45,6 +45,22 @@ const regionNames = {
     area16: '영도구',
 };
 
+// 모달 닫기 시 스크롤 락(overflow: hidden)까지 확실히 해제
+function safeCloseModal(modalId) {
+    // utils/modal.js가 로드된 경우
+    if (typeof window.closeModal === 'function') {
+        window.closeModal(modalId);
+        return;
+    }
+
+    // 폴백: 모달 숨김 + 스크롤 복원
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    document.body.style.overflow = '';
+}
+
 // 해시태그 기반 카테고리 매핑
 const hashtagToCategory = {
     해수욕장: 'beach',
@@ -343,17 +359,17 @@ function initializeEventListeners() {
     }
 
     // 모달 닫기
-    const closeModal = document.getElementById('close-modal');
+    const closeModalBtn = document.getElementById('close-modal');
     const modal = document.getElementById('edit-modal');
 
-    if (closeModal && modal) {
-        closeModal.addEventListener('click', () => {
-            modal.style.display = 'none';
+    if (closeModalBtn && modal) {
+        closeModalBtn.addEventListener('click', () => {
+            safeCloseModal('edit-modal');
         });
 
         window.addEventListener('click', (event) => {
             if (event.target === modal) {
-                modal.style.display = 'none';
+                safeCloseModal('edit-modal');
             }
         });
     }
@@ -425,13 +441,13 @@ function initializeUserEventListeners() {
 
     if (closeEditUserModal) {
         closeEditUserModal.addEventListener('click', () => {
-            editUserModal.style.display = 'none';
+            safeCloseModal('edit-user-modal');
         });
     }
 
     window.addEventListener('click', (event) => {
         if (event.target === editUserModal) {
-            editUserModal.style.display = 'none';
+            safeCloseModal('edit-user-modal');
         }
     });
 }
@@ -939,7 +955,7 @@ async function handleEditTouristSpot(event) {
             }
 
             // 모달 닫기
-            document.getElementById('edit-modal').style.display = 'none';
+            safeCloseModal('edit-modal');
 
             // 목록 갱신
             await loadTouristSpots();
@@ -1373,6 +1389,7 @@ function createUserRow(user) {
         <td>${formatDate(user.lastLogin, 'locale')}</td>
         <td>
             <div class="user-actions">
+                <button class="user-profile-btn" onclick="goToUserProfile(${user.id})">프로필</button>
                 <button class="user-edit-btn" onclick="openEditUserModal(${user.id})">수정</button>
                 <button class="user-toggle-btn" onclick="toggleUserStatus(${user.id})">${
                     user.status === 'active' ? '비활성화' : '활성화'
@@ -1455,6 +1472,14 @@ function openEditUserModal(userId) {
 // 전역 스코프에 함수 바인딩
 window.openEditUserModal = openEditUserModal;
 
+// 유저 프로필 페이지로 이동 (관리자용)
+function goToUserProfile(userId) {
+    if (!userId) return;
+    // 같은 탭에서 프로필 페이지로 이동
+    window.location.href = `/pages/profile/${userId}`;
+}
+window.goToUserProfile = goToUserProfile;
+
 // 사용자 수정 처리
 async function handleEditUser(event) {
     event.preventDefault();
@@ -1481,7 +1506,7 @@ async function handleEditUser(event) {
 
         if (data.success) {
             // 모달 닫기
-            document.getElementById('edit-user-modal').style.display = 'none';
+            safeCloseModal('edit-user-modal');
             currentEditUserId = null;
 
             // 목록 갱신
@@ -1674,7 +1699,7 @@ document.addEventListener('keydown', function (event) {
         modals.forEach((modalId) => {
             const modal = document.getElementById(modalId);
             if (modal && modal.style.display === 'block') {
-                modal.style.display = 'none';
+                safeCloseModal(modalId);
             }
         });
     }
@@ -2639,10 +2664,7 @@ function openPhotoRequestDetailModal(requestId) {
 
 // 사진 추가 신청 상세 모달 닫기
 function closePhotoRequestDetailModal() {
-    const modal = document.getElementById('photo-request-detail-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+    safeCloseModal('photo-request-detail-modal');
 }
 
 // 사진 추가 신청 상세 모달에서 승인
@@ -3144,10 +3166,7 @@ function openPenaltyModal(
 
 // 처벌 모달 닫기
 function closePenaltyModal() {
-    const modal = document.getElementById('penalty-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+    safeCloseModal('penalty-modal');
 }
 
 // 처벌 적용

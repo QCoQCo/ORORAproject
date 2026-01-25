@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.busan.orora.commoncode.dto.CommonCodeDto;
@@ -152,6 +153,14 @@ public class PageController {
     @GetMapping("/pages/mypage/mypage")
     public String mypage(Model model) {
         model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
+        return "pages/mypage/mypage";
+    }
+
+    // User Profile (다른 유저의 프로필 보기)
+    @GetMapping("/pages/profile/{userId}")
+    public String userProfile(@PathVariable Long userId, Model model) {
+        model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
+        model.addAttribute("profileUserId", userId);
         return "pages/mypage/mypage";
     }
 

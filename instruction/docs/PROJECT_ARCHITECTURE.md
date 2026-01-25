@@ -357,6 +357,30 @@ orders (1) ──── (N) order_item
 7. OrderMapper.cancelOrder() → order_status = 'CANCEL'
 ```
 
+---
+
+## (ORORA 추가) 사용자 프로필(타인) 보기 플로우
+
+### 개요
+리뷰/댓글/포토리뷰 모달 등에서 **작성자 이름/프로필 이미지 클릭** 시 해당 유저의 프로필(마이페이지 형태)을 볼 수 있습니다.
+
+### 페이지 엔드포인트
+- `GET /pages/profile/{userId}`: 타인 프로필 페이지 (템플릿: `pages/mypage/mypage`)
+
+### 화면 동작 요약
+- 타인 프로필에서는 **프로필 수정 버튼 숨김**
+- 타인 프로필에서는 **리뷰 탭만 노출** (그 외 탭 숨김)
+- 데이터 로딩:
+  - `GET /api/users/{userId}` (사용자 기본 정보)
+  - `GET /api/users/{userId}/reviews` (작성 리뷰 목록)
+
+### 관련 파일
+- `src/main/java/com/busan/orora/controller/PageController.java` (페이지 라우팅)
+- `src/main/resources/templates/pages/mypage/mypage.html` (뷰)
+- `src/main/resources/static/js/mypage.js` (타인 프로필 모드 로직)
+- `src/main/resources/static/js/detailPage.js` (리뷰/댓글/포토리뷰 모달에서 프로필 이동)
+- `src/main/resources/static/js/admin.js` (관리자 유저관리 ‘프로필’ 버튼 이동)
+
 ## 5. 보안 설정
 
 ### 5.1 Spring Security 설정 (SecurityConfig)
