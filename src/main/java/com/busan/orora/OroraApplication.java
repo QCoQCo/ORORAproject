@@ -42,18 +42,18 @@ public class OroraApplication {
 			System.setProperty("GOOGLE_REDIRECT_URI", googleRedirectUri);
 
 			// 디버깅: OAuth2 환경변수 로드 확인
-			if (!kakaoClientId.isEmpty()) {
-				logger.info("카카오 OAuth2 클라이언트 ID 로드됨: {}",
-						kakaoClientId.substring(0, Math.min(10, kakaoClientId.length())) + "...");
-			} else {
-				logger.warn("카카오 OAuth2 클라이언트 ID가 설정되지 않았습니다.");
-			}
-			if (!googleClientId.isEmpty()) {
-				logger.info("구글 OAuth2 클라이언트 ID 로드됨: {}",
-						googleClientId.substring(0, Math.min(20, googleClientId.length())) + "...");
-			} else {
-				logger.warn("구글 OAuth2 클라이언트 ID가 설정되지 않았습니다.");
-			}
+			// if (!kakaoClientId.isEmpty()) {
+			// logger.info("카카오 OAuth2 클라이언트 ID 로드됨: {}",
+			// kakaoClientId.substring(0, Math.min(10, kakaoClientId.length())) + "...");
+			// } else {
+			// logger.warn("카카오 OAuth2 클라이언트 ID가 설정되지 않았습니다.");
+			// }
+			// if (!googleClientId.isEmpty()) {
+			// logger.info("구글 OAuth2 클라이언트 ID 로드됨: {}",
+			// googleClientId.substring(0, Math.min(20, googleClientId.length())) + "...");
+			// } else {
+			// logger.warn("구글 OAuth2 클라이언트 ID가 설정되지 않았습니다.");
+			// }
 		} catch (Exception e) {
 			logger.warn(".env 파일 로드 실패: {}", e.getMessage());
 		}

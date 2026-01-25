@@ -72,7 +72,7 @@ public class FileService {
     }
 
     /**
-     * 파일을 삭제합니다.
+     *
      * 
      * @param filePath 삭제할 파일의 전체 경로 (절대 경로 또는 상대 경로)
      * @throws Exception 파일 삭제 중 오류 발생 시
@@ -87,7 +87,7 @@ public class FileService {
     }
 
     /**
-     * 파일이 존재하는지 확인합니다.
+     * 
      * 
      * @param filePath 확인할 파일의 전체 경로 (절대 경로 또는 상대 경로)
      * @return 파일 존재 여부

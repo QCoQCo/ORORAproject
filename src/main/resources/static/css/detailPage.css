@@ -3095,3 +3095,29 @@ h6 {
         height: 24px;
     }
 }
+
+/* 클릭 가능한 프로필 요소 스타일 */
+.clickable-profile {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.clickable-profile:hover {
+    opacity: 0.7;
+}
+
+.clickable-profile:hover strong {
+    text-decoration: underline;
+}
+
+.userImage.clickable-profile:hover img,
+.comment-user-image.clickable-profile:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.userId.clickable-profile:hover,
+.comment-user-name.clickable-profile:hover,
+.photo-review-modal-user.clickable-profile:hover {
+    color: var(--primary-500);
+}

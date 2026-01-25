@@ -145,6 +145,8 @@ function updateHeader() {
     const user = getCurrentUser();
     const isLoggedInUser = isLoggedIn();
     const isAdminUser = isAdmin();
+    const roleCode = user && (user.roleCode || user.role) ? String(user.roleCode || user.role).toUpperCase() : 'MEMBER';
+    const isAdminRole = roleCode === 'ADMIN';
 
     // 로그인 버튼과 사용자 정보 영역 찾기
     const loginBtn = container.querySelector('.btn1');
@@ -154,26 +156,37 @@ function updateHeader() {
         if (isLoggedInUser && user) {
             // 로그인된 상태: 사용자명 드롭다운 메뉴 표시
             loginBtn.innerHTML = `
-                <div class="user-dropdown">
-                    <button class="user-dropdown-btn">
-                        <span class="username">${user.username || '사용자'}</span>
-                        <span class="dropdown-arrow">▼</span>
-                    </button>
-                    <div class="user-dropdown-menu">
-                        <a href="/pages/mypage/mypage" class="dropdown-item">
-                            <span class="dropdown-icon">👤</span>
-                            마이페이지
-                        </a>
-                        <button class="dropdown-item logout-item" onclick="logout()">
-                            <span class="dropdown-icon">🚪</span>
-                            로그아웃
+                <div class="user-controls">
+                    <div class="role-toggle" title="Role 변경">
+                        <span class="role-chip role-member ${!isAdminRole ? 'active' : ''}">USER</span>
+                        <label class="role-switch" aria-label="Role switch">
+                            <input class="role-switch-input" type="checkbox" ${isAdminRole ? 'checked' : ''} />
+                            <span class="role-switch-slider"></span>
+                        </label>
+                        <span class="role-chip role-admin ${isAdminRole ? 'active' : ''}">ADMIN</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-btn">
+                            <span class="username">${user.username || '사용자'}</span>
+                            <span class="dropdown-arrow">▼</span>
                         </button>
+                        <div class="user-dropdown-menu">
+                            <a href="/pages/mypage/mypage" class="dropdown-item">
+                                <span class="dropdown-icon">👤</span>
+                                마이페이지
+                            </a>
+                            <button class="dropdown-item logout-item" onclick="logout()">
+                                <span class="dropdown-icon">🚪</span>
+                                로그아웃
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
             // 드롭다운 메뉴 초기화 (DOM 업데이트 후)
             setTimeout(() => {
                 initUserDropdown();
+                initRoleSwitch();
             }, 100);
         } else {
             // 로그인되지 않은 상태: 로그인 버튼 표시
@@ -260,6 +273,76 @@ function initUserDropdown() {
     });
 }
 
+async function updateMyRole(roleCode) {
+    const response = await fetch('/api/users/me/role', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ roleCode }),
+    });
+
+    let data = null;
+    try {
+        data = await response.json();
+    } catch (e) {
+        // ignore
+    }
+
+    if (!response.ok || !data || data.success !== true) {
+        const message = data && data.message ? data.message : 'Role 변경에 실패했습니다.';
+        throw new Error(message);
+    }
+
+    return data.user;
+}
+
+function persistCurrentUser(user) {
+    const userJson = JSON.stringify(user);
+    const hasLocalStorage = localStorage.getItem('loggedInUser') !== null;
+    if (hasLocalStorage) {
+        localStorage.setItem('loggedInUser', userJson);
+    } else {
+        sessionStorage.setItem('loggedInUser', userJson);
+    }
+}
+
+function initRoleSwitch() {
+    const input = document.querySelector('.role-switch-input');
+    if (!input) return;
+    if (input.dataset.bound === 'true') return;
+    input.dataset.bound = 'true';
+
+    input.addEventListener('change', async function () {
+        const checked = input.checked;
+        const nextRole = checked ? 'ADMIN' : 'MEMBER';
+
+        input.disabled = true;
+        try {
+            const updatedUser = await updateMyRole(nextRole);
+            if (updatedUser) {
+                persistCurrentUser(updatedUser);
+            }
+
+            // 역할 변경 후 즉시 헤더/메뉴 반영
+            headerUpdated = false;
+            updateHeader();
+            setTimeout(() => {
+                initUserDropdown();
+                initRoleSwitch();
+            }, 150);
+        } catch (error) {
+            console.error(error);
+            // 실패 시 토글 원복
+            input.checked = !checked;
+            alert(error.message || 'Role 변경 중 오류가 발생했습니다.');
+        } finally {
+            input.disabled = false;
+        }
+    });
+}
+
 // 헤더 업데이트 중복 방지 플래그
 let headerUpdateInProgress = false;
 let headerUpdated = false;
@@ -285,6 +368,7 @@ function tryUpdateHeader() {
         updateHeader();
         setTimeout(() => {
             initUserDropdown();
+            initRoleSwitch();
             headerUpdateInProgress = false;
             headerUpdated = true;
         }, 200);
@@ -318,5 +402,6 @@ window.updateHeaderAfterLogin = function () {
     // 하지만 확실하게 하기 위해 추가 호출
     setTimeout(() => {
         initUserDropdown();
+        initRoleSwitch();
     }, 300);
 };

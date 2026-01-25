@@ -3,12 +3,19 @@ class LanguageManager {
     constructor() {
         this.currentLanguage = localStorage.getItem('selectedLanguage') || 'ko';
         this.translations = {};
+        // ko(기본) 텍스트 복원을 위한 스냅샷 저장소
+        this.defaultTexts = {};
+        this.defaultPlaceholders = {};
+        this.defaultAltTexts = {};
+        this.defaultTitleTexts = {};
         this.init();
     }
 
     async init() {
         // 언어별 번역 데이터 로드
         await this.loadTranslations();
+        // (중요) 번역으로 덮어쓰기 전에 기본(ko) 텍스트 스냅샷 확보
+        this.captureDefaultTexts();
         // 초기화 시에는 애니메이션 없이 번역 적용
         this.applyLanguage(this.currentLanguage, true);
 
@@ -56,6 +63,62 @@ class LanguageManager {
             // 에러가 발생해도 기본 한국어 텍스트는 HTML에 있으므로 문제없음
             this.translations.ko = {};
         }
+    }
+
+    // 번역 적용 전에(또는 동적으로 삽입된 후) 기본(ko) 텍스트를 스냅샷으로 저장
+    captureDefaultTexts() {
+        // data-translate (text / placeholder)
+        const elements = document.querySelectorAll('[data-translate]');
+        elements.forEach((element) => {
+            const key = element.getAttribute('data-translate');
+            if (!key) return;
+
+            const tagName = element.tagName;
+            const isTextInput =
+                (tagName === 'INPUT' || tagName === 'TEXTAREA') &&
+                // INPUT일 때 type이 없으면 text로 취급됨
+                (tagName !== 'INPUT' ||
+                    (element.getAttribute('type') || 'text').toLowerCase() === 'text');
+
+            if (isTextInput) {
+                if (this.defaultPlaceholders[key] === undefined) {
+                    const placeholder = element.getAttribute('placeholder');
+                    if (placeholder !== null) {
+                        this.defaultPlaceholders[key] = placeholder.trim();
+                    }
+                }
+            } else {
+                if (this.defaultTexts[key] === undefined) {
+                    this.defaultTexts[key] = (element.textContent || '').trim();
+                }
+            }
+        });
+
+        // data-translate-alt (alt)
+        const altElements = document.querySelectorAll('[data-translate-alt]');
+        altElements.forEach((element) => {
+            const key = element.getAttribute('data-translate-alt');
+            if (!key) return;
+            if (this.defaultAltTexts[key] === undefined) {
+                const alt = element.getAttribute('alt');
+                if (alt !== null) {
+                    this.defaultAltTexts[key] = alt.trim();
+                }
+            }
+        });
+
+        // data-translate-title (title)
+        const titleElements = document.querySelectorAll('[data-translate-title]');
+        titleElements.forEach((element) => {
+            const key = element.getAttribute('data-translate-title');
+            if (!key) return;
+            if (this.defaultTitleTexts[key] === undefined) {
+                const title = element.getAttribute('title');
+                if (title !== null) {
+                    this.defaultTitleTexts[key] = title.trim();
+                }
+            }
+        });
     }
 
     // getKoreanTexts() 함수 제거됨
@@ -634,21 +697,46 @@ class LanguageManager {
     }
 
     updateElements() {
-        // 한국어일 때는 HTML의 기본 텍스트를 그대로 사용 (번역 불필요)
-        if (this.currentLanguage === 'ko') {
-            return;
+        // ko로 복원할 때는(이미 번역된 상태일 수 있으므로) 여기서 스냅샷을 새로 뜨지 않는다.
+        // 스냅샷은 "번역으로 덮어쓰기 직전" 또는 "동적으로 삽입된 직후(번역 전)"에만 확보해야 한다.
+        if (this.currentLanguage !== 'ko') {
+            this.captureDefaultTexts();
         }
 
         const elements = document.querySelectorAll('[data-translate]');
         elements.forEach((element) => {
             const key = element.getAttribute('data-translate');
-            const translation = this.getTranslation(key);
-            if (translation) {
-                if (element.tagName === 'INPUT' && element.type === 'text') {
-                    element.placeholder = translation;
+            if (!key) return;
+
+            const tagName = element.tagName;
+            const isTextInput =
+                (tagName === 'INPUT' || tagName === 'TEXTAREA') &&
+                (tagName !== 'INPUT' ||
+                    (element.getAttribute('type') || 'text').toLowerCase() === 'text');
+
+            // ko로 돌아올 때는 기본(ko) 스냅샷으로 복원
+            if (this.currentLanguage === 'ko') {
+                if (isTextInput) {
+                    const fallback = this.defaultPlaceholders[key];
+                    if (fallback !== undefined) {
+                        element.placeholder = fallback;
+                    }
                 } else {
-                    element.textContent = translation;
+                    const fallback = this.defaultTexts[key];
+                    if (fallback !== undefined) {
+                        element.textContent = fallback;
+                    }
                 }
+                return;
+            }
+
+            const translation = this.getTranslation(key);
+            if (!translation) return;
+
+            if (isTextInput) {
+                element.placeholder = translation;
+            } else {
+                element.textContent = translation;
             }
         });
 
@@ -656,20 +744,36 @@ class LanguageManager {
         const altElements = document.querySelectorAll('[data-translate-alt]');
         altElements.forEach((element) => {
             const key = element.getAttribute('data-translate-alt');
-            const translation = this.getTranslation(key);
-            if (translation) {
-                element.setAttribute('alt', translation);
+            if (!key) return;
+
+            if (this.currentLanguage === 'ko') {
+                const fallback = this.defaultAltTexts[key];
+                if (fallback !== undefined) {
+                    element.setAttribute('alt', fallback);
+                }
+                return;
             }
+
+            const translation = this.getTranslation(key);
+            if (translation) element.setAttribute('alt', translation);
         });
 
         // title 속성 번역 처리
         const titleElements = document.querySelectorAll('[data-translate-title]');
         titleElements.forEach((element) => {
             const key = element.getAttribute('data-translate-title');
-            const translation = this.getTranslation(key);
-            if (translation) {
-                element.setAttribute('title', translation);
+            if (!key) return;
+
+            if (this.currentLanguage === 'ko') {
+                const fallback = this.defaultTitleTexts[key];
+                if (fallback !== undefined) {
+                    element.setAttribute('title', fallback);
+                }
+                return;
             }
+
+            const translation = this.getTranslation(key);
+            if (translation) element.setAttribute('title', translation);
         });
     }
 

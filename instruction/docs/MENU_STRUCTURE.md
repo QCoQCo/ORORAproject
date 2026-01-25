@@ -36,6 +36,7 @@ graph TD
     F --> F4[비밀번호 재설정 /pages/login/reset-password]
     F --> F5[마이페이지 /pages/mypage/mypage]
     F --> F6[프로필 수정 /pages/mypage/edit-profile]
+    F --> F7[사용자 프로필(타인) /pages/profile/{userId}]
     
     G --> G1[관광지 상세 /pages/detailed/detailed?id=spotId]
     
@@ -111,6 +112,9 @@ ORORA (arataBUSAN)
 │       ├── /pages/mypage/mypage (마이페이지 메인)
 │       └── /pages/mypage/edit-profile (프로필 수정)
 │
+├── 👥 사용자 프로필 (타인)
+│   └── /pages/profile/{userId} (타인 프로필 보기: 리뷰 탭만 노출, 프로필 수정 숨김)
+│
 ├── 📍 관광지 상세 페이지
 │   └── /pages/detailed/detailed?id={spotId}
 │
@@ -184,6 +188,7 @@ ORORA (arataBUSAN)
 #### 2.2 마이페이지
 - 마이페이지 메인: `/pages/mypage/mypage`
 - 프로필 수정: `/pages/mypage/edit-profile`
+- 사용자 프로필(타인): `/pages/profile/{userId}`
 
 ### 3. 기능 페이지
 
@@ -205,6 +210,8 @@ ORORA (arataBUSAN)
 - ✅ 오로라 소개
 - ✅ 여행팁
 - ✅ 관광지 상세 페이지
+- ✅ 사용자 프로필(타인) 페이지 (`/pages/profile/{userId}`)  
+  - 리뷰/댓글/포토리뷰에서 작성자 이름/프로필 이미지를 클릭하면 이동
 - ✅ 로그인/회원가입
   - 일반 로그인
   - 카카오 소셜 로그인
@@ -248,6 +255,7 @@ ORORA (arataBUSAN)
 - `GET /api/users/{userId}/liked-spots` - 좋아요한 관광지
 - `GET /api/users/{userId}/comments` - 작성한 댓글
 - `PUT /api/users/{userId}/profile` - 프로필 수정
+  - (타인 프로필 `/pages/profile/{userId}`에서는 **리뷰 탭만** 사용)
 
 #### 로그인 페이지
 - `POST /api/auth/login` - 일반 로그인
