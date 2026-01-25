@@ -1,23 +1,56 @@
 // 마이페이지 JavaScript
 
+// 전역 변수: 다른 유저의 프로필인지 여부
+let isViewingOtherProfile = false;
+let viewingUserId = null;
+
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', async function () {
-    // 서버에서 로그인 상태 확인
-    const isLoggedInStatus = await isLoggedInAsync();
-    if (!isLoggedInStatus) {
-        alert('로그인이 필요합니다.');
-        window.location.href = '/pages/login/login';
-        return;
+    // 다른 유저의 프로필 보기인지 확인
+    const contentDiv = document.querySelector('[layout\\:fragment="content"]') || 
+                       document.querySelector('[data-profile-user-id]');
+    const profileUserId = contentDiv?.getAttribute('data-profile-user-id');
+    
+    if (profileUserId && profileUserId !== 'null' && profileUserId !== '') {
+        // 다른 유저의 프로필 보기 모드
+        isViewingOtherProfile = true;
+        viewingUserId = parseInt(profileUserId);
+        
+        // 현재 로그인한 사용자와 비교
+        const currentUser = getCurrentUser();
+        if (currentUser && currentUser.id === viewingUserId) {
+            // 본인의 프로필이면 마이페이지로 리다이렉트
+            window.location.href = '/pages/mypage/mypage';
+            return;
+        }
+        
+        // 다른 유저 프로필 표시
+        await displayOtherUserProfile(viewingUserId);
+        
+        // 탭 기능 초기화 (제한된 탭만)
+        initTabsForOtherProfile();
+        
+        // 해당 유저의 리뷰 데이터만 로드
+        await loadUserReviews(viewingUserId);
+    } else {
+        // 본인의 마이페이지 모드
+        // 서버에서 로그인 상태 확인
+        const isLoggedInStatus = await isLoggedInAsync();
+        if (!isLoggedInStatus) {
+            alert('로그인이 필요합니다.');
+            window.location.href = '/pages/login/login';
+            return;
+        }
+
+        // 사용자 정보 표시
+        displayUserInfo();
+
+        // 탭 기능 초기화
+        initTabs();
+
+        // 데이터 로드
+        loadUserData();
     }
-
-    // 사용자 정보 표시
-    displayUserInfo();
-
-    // 탭 기능 초기화
-    initTabs();
-
-    // 데이터 로드
-    loadUserData();
 });
 
 // 사용자 정보 표시
@@ -104,6 +137,99 @@ async function displayUserInfo() {
         const profileImageUrl =
             user.profileImage || user.profile_image || '/images/defaultProfile.png';
         document.getElementById('profile-image').src = profileImageUrl;
+    }
+}
+
+// 다른 유저의 프로필 표시
+async function displayOtherUserProfile(userId) {
+    try {
+        const response = await fetch(`/api/users/${userId}`);
+        
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('사용자 정보를 불러올 수 없습니다.');
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.user) {
+            const userInfo = data.user;
+            
+            // 사용자 정보 업데이트
+            document.getElementById('user-name').textContent = userInfo.username + '님의 프로필';
+            document.getElementById('user-email').textContent = userInfo.email || '';
+            
+            // 가입일 표시
+            if (userInfo.join_date) {
+                const joinDateStr = formatJoinDate(userInfo.join_date);
+                document.getElementById('join-date').textContent = `가입일: ${joinDateStr}`;
+            } else {
+                document.getElementById('join-date').textContent = '';
+            }
+            
+            // 프로필 이미지 설정
+            const profileImageUrl = userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
+            document.getElementById('profile-image').src = profileImageUrl;
+            
+            // 프로필 수정 버튼 숨기기
+            const editBtn = document.getElementById('edit-profile-btn');
+            if (editBtn) {
+                editBtn.style.display = 'none';
+            }
+            
+            // 다른 유저 프로필에서는 특정 탭들 숨기기
+            hideTabsForOtherProfile();
+        } else {
+            throw new Error('사용자 정보를 찾을 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('다른 유저 프로필 로드 오류:', error);
+        document.getElementById('user-name').textContent = '사용자를 찾을 수 없습니다';
+        document.getElementById('user-email').textContent = '';
+        document.getElementById('join-date').textContent = '';
+        
+        const editBtn = document.getElementById('edit-profile-btn');
+        if (editBtn) {
+            editBtn.style.display = 'none';
+        }
+    }
+}
+
+// 다른 유저 프로필에서 특정 탭 숨기기
+function hideTabsForOtherProfile() {
+    // 숨길 탭 목록 (댓글, 좋아요, 신청관리, 관광지 추가신청)
+    const tabsToHide = ['comments', 'likes', 'requests', 'spot-add'];
+    
+    tabsToHide.forEach(tabName => {
+        const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+        const tabPanel = document.getElementById(`${tabName}-tab`);
+        
+        if (tabBtn) tabBtn.style.display = 'none';
+        if (tabPanel) tabPanel.style.display = 'none';
+    });
+    
+    // 리뷰 탭 텍스트 변경
+    const reviewsTabBtn = document.querySelector('.tab-btn[data-tab="reviews"]');
+    if (reviewsTabBtn) {
+        reviewsTabBtn.textContent = '리뷰';
+    }
+}
+
+// 다른 유저 프로필용 탭 초기화
+function initTabsForOtherProfile() {
+    // 리뷰 탭만 활성화
+    const reviewsTab = document.querySelector('.tab-btn[data-tab="reviews"]');
+    if (reviewsTab) {
+        reviewsTab.classList.add('active');
+    }
+    
+    const reviewsPanel = document.getElementById('reviews-tab');
+    if (reviewsPanel) {
+        reviewsPanel.classList.add('active');
     }
 }
 
