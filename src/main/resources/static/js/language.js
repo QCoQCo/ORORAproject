@@ -48,16 +48,20 @@ class LanguageManager {
             }
             this.translations.jp = await jpResponse.json();
 
-            // 한국어는 기본값으로 사용
-            this.translations.ko = this.getKoreanTexts();
+            // 한국어는 HTML의 기본 텍스트를 그대로 사용하므로 별도 로드 불필요
+            this.translations.ko = {};
         } catch (error) {
             console.error('번역 데이터 로드 실패:', error);
             console.error('에러 상세:', error.message);
-            // 에러가 발생해도 기본 한국어 텍스트는 사용 가능하도록
-            this.translations.ko = this.getKoreanTexts();
+            // 에러가 발생해도 기본 한국어 텍스트는 HTML에 있으므로 문제없음
+            this.translations.ko = {};
         }
     }
 
+    // getKoreanTexts() 함수 제거됨
+    // 한국어는 HTML의 기본 텍스트를 그대로 사용하므로 별도 관리 불필요
+    // 이전 코드는 주석 처리됨 (참고용)
+    /*
     getKoreanTexts() {
         // 현재 페이지의 한국어 텍스트들을 수집
         return {
@@ -564,6 +568,20 @@ class LanguageManager {
             'orora.cho_yujung_work2': '로그인페이지 작성',
             'orora.cho_yujung_work3': '회원가입페이지 작성',
             'orora.cho_yujung_work4': '빠진부분찾기',
+            'orora.frontend_dev': '프론트엔드 개발',
+            'orora.backend_dev': '백엔드 개발',
+            'orora.team_leader_work1': '프로젝트 총괄',
+            'orora.team_leader_work2': '시스템 설계',
+            'orora.lee_jongwoo_work5': '지역검색 페이지 api 제작',
+            'orora.lee_jongwoo_work6': '관광지 좋아요 기능 구현',
+            'orora.lee_jian_work5': '테마 페이지 api 제작',
+            'orora.lee_jian_work6': '태그 페이지 & 오로라 소개 페이지 디자인 수정',
+            'orora.lee_jian_work7': '헤더 디자인 수정',
+            'orora.jung_yujin_work5': '부산소개 페이지의 일본어 번역',
+            'orora.jung_yujin_work6': '태마 페이지 api 제작',
+            'orora.cho_yujung_work5': '태그 페이지 api 제작',
+            'orora.cho_yujung_work6': '빠진부분찾기',
+            'orora.cho_yujung_work7': '버그 찾기 & 수정',
 
             // Footer
             'footer.description1': '새로운 부산을 발견하다',
@@ -583,6 +601,7 @@ class LanguageManager {
                 '본 사이트는 교육 목적으로 제작되었습니다. 관광 정보는 참고용이며, 실제 여행 계획 시 공식 기관 정보를 확인해주세요.',
         };
     }
+    */
 
     async applyLanguage(language, skipAnimation = false) {
         // 현재 언어와 같고 애니메이션을 건너뛰지 않는 경우에만 리턴
@@ -615,6 +634,11 @@ class LanguageManager {
     }
 
     updateElements() {
+        // 한국어일 때는 HTML의 기본 텍스트를 그대로 사용 (번역 불필요)
+        if (this.currentLanguage === 'ko') {
+            return;
+        }
+
         const elements = document.querySelectorAll('[data-translate]');
         elements.forEach((element) => {
             const key = element.getAttribute('data-translate');
@@ -650,8 +674,12 @@ class LanguageManager {
     }
 
     getTranslation(key) {
+        // 한국어일 때는 HTML의 기본 텍스트를 사용하므로 번역 불필요
+        if (this.currentLanguage === 'ko') {
+            return null;
+        }
         const translation = this.translations[this.currentLanguage]?.[key];
-        return translation || this.translations.ko?.[key] || key;
+        return translation || key;
     }
 
     setupLanguageSelector() {
