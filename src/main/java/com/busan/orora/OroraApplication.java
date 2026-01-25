@@ -28,11 +28,11 @@ public class OroraApplication {
 			// OAuth2 환경변수 전달
 			String kakaoClientId = dotenv.get("KAKAO_CLIENT_ID", "");
 			String kakaoClientSecret = dotenv.get("KAKAO_CLIENT_SECRET", "");
-			String kakaoRedirectUri = dotenv.get("KAKAO_REDIRECT_URI", "http://localhost:8080/login/oauth2/code/kakao");
+			String kakaoRedirectUri = dotenv.get("KAKAO_REDIRECT_URI", "");
 			String googleClientId = dotenv.get("GOOGLE_CLIENT_ID", "");
 			String googleClientSecret = dotenv.get("GOOGLE_CLIENT_SECRET", "");
 			String googleRedirectUri = dotenv.get("GOOGLE_REDIRECT_URI",
-					"http://localhost:8080/login/oauth2/code/google");
+					"");
 
 			System.setProperty("KAKAO_CLIENT_ID", kakaoClientId);
 			System.setProperty("KAKAO_CLIENT_SECRET", kakaoClientSecret);
