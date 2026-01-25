@@ -104,7 +104,6 @@ def main():
     spot_hashtag_mapping = {}  # {spot_id: [hashtag_names]}
     spot_title_to_id = {}  # {title: spot_id} - 리뷰 매핑용
     
-    # 관광지 ID 시작 번호 (기존 데이터가 6개 있으므로 7부터)
     spot_id = 7
     image_id = 1
     hashtag_id = 1
