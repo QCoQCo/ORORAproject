@@ -8,7 +8,8 @@
     <head>
         <title layout:fragment="title">관리자 페이지 - arataBUSAN</title>
         <th:block layout:fragment="css">
-            <link rel="stylesheet" th:href="@{/css/admin.css}" />
+            <link rel="stylesheet" th:href="@{/css/common/modal.css}" />
+        <link rel="stylesheet" th:href="@{/css/admin.css}" />
         </th:block>
     </head>
     <body>
@@ -299,10 +300,10 @@
                             <table class="reports-table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th >ID</th>
                                         <th>신고자</th>
                                         <th>피신고자</th>
-                                        <th>신고 유형</th>
+                                        <th style="min-width: 120px;">신고 유형</th>
                                         <th>신고 내용</th>
                                         <th>신고 일시</th>
                                         <th>상태</th>
@@ -887,6 +888,9 @@
             </section>
         </div>
         <th:block layout:fragment="script">
+            <script th:src="@{/js/utils/date.js}"></script>
+            <script th:src="@{/js/utils/modal.js}"></script>
+            <script th:src="@{/js/utils/notification.js}"></script>
             <script th:src="@{/js/admin.js}"></script>
         </th:block>
     </body>

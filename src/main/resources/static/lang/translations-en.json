@@ -442,7 +442,7 @@
     "tag.clear_all_tags": "Clear All Tags",
 
     "theme.user_recommended": "User Recommended Themes",
-    "theme.kpop_travel": "K-POP Travel",
+    "theme.kpop_travel": "Popular Destinations",
     "theme.culture_travel": "Culture Travel",
     "theme.nature_travel": "Nature Travel",
     "theme.food_travel": "Food Travel",
@@ -482,5 +482,19 @@
     "orora.cho_yujung_work1": "Tourist attraction detail page creation",
     "orora.cho_yujung_work2": "Login page creation",
     "orora.cho_yujung_work3": "Signup page creation",
-    "orora.cho_yujung_work4": "Finding missing parts"
+    "orora.cho_yujung_work4": "Finding missing parts",
+    "orora.frontend_dev": "Frontend Development",
+    "orora.backend_dev": "Backend Development",
+    "orora.team_leader_work1": "Project management",
+    "orora.team_leader_work2": "System design",
+    "orora.lee_jongwoo_work5": "Region search page API development",
+    "orora.lee_jongwoo_work6": "Tourist spot like feature implementation",
+    "orora.lee_jian_work5": "Theme page API development",
+    "orora.lee_jian_work6": "Tag page & Orora introduction page design modifications",
+    "orora.lee_jian_work7": "Header design modifications",
+    "orora.jung_yujin_work5": "Japanese translation for Busan introduction page",
+    "orora.jung_yujin_work6": "Theme page API development",
+    "orora.cho_yujung_work5": "Tag page API development",
+    "orora.cho_yujung_work6": "Finding missing parts",
+    "orora.cho_yujung_work7": "Bug finding & fixing"
 }

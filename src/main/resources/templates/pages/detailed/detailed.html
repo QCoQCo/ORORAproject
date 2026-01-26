@@ -4,6 +4,7 @@
     <head>
         <title layout:fragment="title">부산 관광지 상세정보</title>
         <th:block layout:fragment="css">
+            <link rel="stylesheet" th:href="@{/css/common/modal.css}" />
             <link rel="stylesheet" th:href="@{/css/detailPage.css}" />
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
         </th:block>
@@ -434,6 +435,9 @@
 
         <th:block layout:fragment="script">
             <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+            <script th:src="@{/js/utils/date.js}"></script>
+            <script th:src="@{/js/utils/modal.js}"></script>
+            <script th:src="@{/js/utils/notification.js}"></script>
             <script th:src="@{/js/detailPage.js}"></script>
         </th:block>
     </body>

@@ -469,90 +469,7 @@
     font-weight: 700;
 }
 
-/* 모달 스타일 */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-}
-
-.modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 85vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    animation: modalSlideIn 0.3s ease;
-}
-
-/* 모달 스크롤바 스타일 */
-.modal-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #3498db, #2980b9);
-    border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, #2980b9, #1f5f8b);
-}
-
-/* Firefox 스크롤바 스타일 */
-.modal-content {
-    scrollbar-width: thin;
-    scrollbar-color: #3498db #f1f1f1;
-}
-
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.close {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #aaa;
-    transition: color 0.3s ease;
-}
-
-.close:hover {
-    color: #e74c3c;
-}
-
-.modal h2 {
-    margin-bottom: 25px;
-    color: #2c3e50;
-    font-weight: 600;
-    text-align: center;
-}
+/* 모달 관련 스타일은 common/modal.css로 이동됨 */
 
 /* 위치 검색 스타일 */
 .location-search-container {
@@ -801,6 +718,7 @@
     flex-wrap: wrap;
 }
 
+.user-profile-btn,
 .user-edit-btn,
 .user-delete-btn,
 .user-toggle-btn {
@@ -813,6 +731,16 @@
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
+}
+
+.user-profile-btn {
+    background: linear-gradient(45deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.user-profile-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .user-edit-btn {
@@ -886,6 +814,318 @@
     color: #7f8c8d;
     font-size: 0.9rem;
     margin: 0 15px;
+}
+
+/* ============================================
+   유저 신고 관리 영역 스타일
+   ============================================ */
+
+/* 유저 신고 관리 헤더 */
+.reports-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.reports-header h2 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.reports-header .section-description {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* 유저 신고 관리 컨트롤 */
+.reports-controls {
+    margin-bottom: 25px;
+}
+
+.reports-controls .search-filter {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.reports-controls .search-filter input,
+.reports-controls .search-filter select {
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.reports-controls .search-filter input {
+    flex: 1;
+    min-width: 250px;
+}
+
+.reports-controls .search-filter select {
+    min-width: 150px;
+}
+
+.reports-controls .search-filter input:focus,
+.reports-controls .search-filter select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+}
+
+/* 유저 신고 테이블 컨테이너 */
+.reports-table-container {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+/* 유저 신고 테이블 */
+.reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.reports-table thead {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+.reports-table th {
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 30px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+.reports-table td {
+    padding: 15px 3px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+    color: #34495e;
+    vertical-align: top;
+}
+
+.reports-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.reports-table tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.001);
+}
+
+.reports-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 신고 유형 배지 */
+.reports-table td span[style*='background: #007bff'] {
+    display: inline-block;
+    background: linear-gradient(45deg, #3498db, #2980b9) !important;
+    color: white !important;
+    padding: 4px 10px !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    margin-right: 6px !important;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+/* 상태 배지 스타일 개선 */
+.reports-table td span[style*='background: #ffc107'] {
+    background: linear-gradient(45deg, #ffc107, #ff9800) !important;
+    color: #000 !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+}
+
+.reports-table td span[style*='background: #28a745'] {
+    background: linear-gradient(45deg, #27ae60, #2ecc71) !important;
+    color: white !important;
+    padding: 6px 8px !important;
+    min-width: 65px !important;
+    border-radius: 6px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+}
+
+/* 신고 내용 셀 스타일 */
+.reports-table td > div {
+    line-height: 1.5;
+}
+
+.reports-table td > div[style*='max-width: 300px'] {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.reports-table td > div[style*='color: #666'] {
+    color: #555 !important;
+    margin-top: 6px;
+}
+
+.reports-table td > div[style*='color: #999'] {
+    color: #7f8c8d !important;
+    margin-top: 4px;
+}
+
+/* 작업 버튼 영역 */
+.reports-table td:last-child {
+    white-space: nowrap;
+}
+
+.reports-table .approve-btn,
+.reports-table .reject-btn,
+.reports-table .delete-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    margin-right: 5px;
+}
+
+.reports-table .approve-btn {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+}
+
+.reports-table .approve-btn:hover {
+    background: linear-gradient(45deg, #218838, #1ea080);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.reports-table .reject-btn {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    color: white;
+}
+
+.reports-table .reject-btn:hover {
+    background: linear-gradient(45deg, #c82333, #bd2130);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.reports-table .delete-btn {
+    background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+    color: white;
+}
+
+.reports-table .delete-btn:hover {
+    background: linear-gradient(45deg, #7f8c8d, #6c7a7d);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+}
+
+/* 유저 신고 페이지네이션 */
+.reports-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.reports-pagination .pagination-btn {
+    padding: 10px 15px;
+    border: 2px solid #e9ecef;
+    background: white;
+    color: #7f8c8d;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.reports-pagination .pagination-btn:hover:not(:disabled) {
+    border-color: #3498db;
+    color: #3498db;
+    transform: translateY(-1px);
+}
+
+.reports-pagination .pagination-btn.active {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    border-color: transparent;
+}
+
+.reports-pagination .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.reports-pagination .pagination-info {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin: 0 15px;
+}
+
+/* 반응형 디자인 - 유저 신고 관리 */
+@media (max-width: 768px) {
+    .reports-controls .search-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reports-controls .search-filter input,
+    .reports-controls .search-filter select {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .reports-table th,
+    .reports-table td {
+        padding: 10px 8px;
+        font-size: 0.8rem;
+    }
+
+    .reports-table .approve-btn,
+    .reports-table .reject-btn,
+    .reports-table .delete-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        margin-right: 3px;
+    }
+
+    .reports-pagination {
+        gap: 5px;
+    }
+
+    .reports-pagination .pagination-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
 }
 
 /* ============================================
@@ -987,7 +1227,9 @@
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
 .code-group-card:hover {
@@ -1095,7 +1337,9 @@
     cursor: pointer;
     font-weight: 600;
     font-size: 0.95rem;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
 .add-code-btn:hover,
@@ -1298,7 +1542,9 @@
     font-weight: 600;
     width: 100%;
     margin-top: 10px;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
 #add-group-modal .submit-btn:hover,
@@ -1453,6 +1699,7 @@
         gap: 4px;
     }
 
+    .user-profile-btn,
     .user-edit-btn,
     .user-delete-btn,
     .user-toggle-btn {

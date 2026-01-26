@@ -1,6 +1,10 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}" lang="ko">
+<!doctype html>
+<html
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/layout}"
+    lang="ko"
+>
     <head>
         <title layout:fragment="title" data-translate="orora.title">오로라 소개</title>
         <th:block layout:fragment="css">
@@ -60,7 +64,9 @@
                                 </p>
                             </div>
                             <div class="record">
-                                <p data-translate="orora.team_leader">조장</p>
+                                <p data-translate="orora.team_leader">팀장</p>
+                                <p data-translate="orora.team_leader_work1">프로젝트 총괄</p>
+                                <p data-translate="orora.team_leader_work2">시스템 설계</p>
                             </div>
                         </li>
                         <li>
@@ -73,14 +79,26 @@
                                     </a>
                                 </p>
                             </div>
-                            <div class="record">
-                                <p data-translate="orora.lee_jongwoo_work1">이 페이지 작성</p>
+                            <div class="record-front">
+                                <h2 data-translate="orora.frontend_dev">프론트엔드 개발</h2>
+                                <p data-translate="orora.lee_jongwoo_work1">
+                                    오로라 소개 페이지 작성
+                                </p>
                                 <p data-translate="orora.lee_jongwoo_work2">여행팁 페이지 작성</p>
                                 <p data-translate="orora.lee_jongwoo_work3">
                                     여행팁 페이지 탭기능 구현
                                 </p>
                                 <p data-translate="orora.lee_jongwoo_work4">
                                     그 외 여행팁 페이지 js구현
+                                </p>
+                            </div>
+                            <div class="record-back">
+                                <h2 data-translate="orora.backend_dev">백엔드 개발</h2>
+                                <p data-translate="orora.lee_jongwoo_work5">
+                                    지역검색 페이지 api 제작
+                                </p>
+                                <p data-translate="orora.lee_jongwoo_work6">
+                                    관광지 좋아요 기능 구현
                                 </p>
                             </div>
                         </li>
@@ -94,8 +112,9 @@
                                     </a>
                                 </p>
                             </div>
-                            <div class="record">
-                                <p data-translate="orora.lee_jian_work1">tag페이지 담당</p>
+                            <div class="record-front">
+                                <h2 data-translate="orora.frontend_dev">프론트엔드 개발</h2>
+                                <p data-translate="orora.lee_jian_work1">태그 페이지 담당</p>
                                 <p data-translate="orora.lee_jian_work2">테그별 관광지 목록 제작</p>
                                 <p data-translate="orora.lee_jian_work3">
                                     주제를 빠르게 탐색할 수 있도록 각 태그에 링크를 연결해 이동이
@@ -104,6 +123,14 @@
                                 <p data-translate="orora.lee_jian_work4">
                                     이미지와 함께 배치하여, 사용자가 내용을 확인할 수 있도록 함
                                 </p>
+                            </div>
+                            <div class="record-back">
+                                <h2 data-translate="orora.backend_dev">백엔드 개발</h2>
+                                <p data-translate="orora.lee_jian_work5">테마 페이지 api 제작</p>
+                                <p data-translate="orora.lee_jian_work6">
+                                    태그 페이지 & 오로라 소개 페이지 디자인 수정
+                                </p>
+                                <p data-translate="orora.lee_jian_work7">헤더 디자인 수정</p>
                             </div>
                         </li>
                         <li>
@@ -119,7 +146,8 @@
                                     </a>
                                 </p>
                             </div>
-                            <div class="record">
+                            <div class="record-front">
+                                <h2 data-translate="orora.frontend_dev">프론트엔드 개발</h2>
                                 <p data-translate="orora.jung_yujin_work1">
                                     부산의 오늘 페이지 제작
                                 </p>
@@ -130,6 +158,13 @@
                                     소통 캐릭터 페이지 제작
                                 </p>
                                 <p data-translate="orora.jung_yujin_work4">세부 디자인 수정</p>
+                            </div>
+                            <div class="record-back">
+                                <h2 data-translate="orora.backend_dev">백엔드 개발</h2>
+                                <p data-translate="orora.jung_yujin_work5">
+                                    부산소개 페이지의 일본어 번역
+                                </p>
+                                <p data-translate="orora.jung_yujin_work6">태마 페이지 api 제작</p>
                             </div>
                         </li>
                         <li>
@@ -142,7 +177,8 @@
                                     </a>
                                 </p>
                             </div>
-                            <div class="record">
+                            <div class="record-front">
+                                <h2 data-translate="orora.frontend_dev">프론트엔드 개발</h2>
                                 <p data-translate="orora.cho_yujung_work1">
                                     관광지 상세페이지 작성
                                 </p>
@@ -150,12 +186,17 @@
                                 <p data-translate="orora.cho_yujung_work3">회원가입페이지 작성</p>
                                 <p data-translate="orora.cho_yujung_work4">빠진부분찾기</p>
                             </div>
+                            <div class="record-back">
+                                <h2 data-translate="orora.backend_dev">백엔드 개발</h2>
+                                <p data-translate="orora.cho_yujung_work5">태그 페이지 api 제작</p>
+                                <p data-translate="orora.cho_yujung_work6">빠진부분찾기</p>
+                                <p data-translate="orora.cho_yujung_work7">버그 찾기 & 수정</p>
+                            </div>
                         </li>
                     </ul>
                 </div>
             </section>
         </div>
-        <th:block layout:fragment="script">
-        </th:block>
+        <th:block layout:fragment="script"> </th:block>
     </body>
 </html>

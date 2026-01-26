@@ -66,7 +66,8 @@ INSERT INTO common_code_groups (group_code, group_name, group_name_en, group_nam
 ('USER_STATUS', '사용자 상태', 'User Status', 'ユーザーステータス', '사용자 계정의 활성화 상태', 2),
 ('GENDER', '성별', 'Gender', '性別', '사용자의 성별 정보', 3),
 ('SPOT_CATEGORY', '관광지 카테고리', 'Tourist Spot Category', '観光地カテゴリー', '관광지의 분류 카테고리', 4),
-('REPORT_STATUS', '신고 상태', 'Report Status', '報告ステータス', '리뷰 신고의 처리 상태', 5);
+('REPORT_STATUS', '신고 상태', 'Report Status', '報告ステータス', '리뷰 신고의 처리 상태', 5),
+('LOGIN_TYPE', '로그인 타입', 'Login Type', 'ログインタイプ', '사용자 로그인 방식 (일반/카카오/구글)', 6);
 
 -- ============================================
 -- 4. 공통코드 초기 데이터
@@ -110,6 +111,15 @@ INSERT INTO common_codes (group_code, code, code_name, code_name_en, code_name_j
 ('REPORT_STATUS', 'REVIEWED', '검토중', 'Reviewed', '検討中', '관리자가 검토 중인 상태', 2),
 ('REPORT_STATUS', 'RESOLVED', '처리완료', 'Resolved', '処理完了', '신고가 처리되어 완료된 상태', 3),
 ('REPORT_STATUS', 'DISMISSED', '기각', 'Dismissed', '却下', '신고가 기각된 상태', 4);
+
+-- 4-6. 로그인 타입 (LOGIN_TYPE)
+
+INSERT INTO common_code_groups (group_code, group_name, group_name_en, group_name_jp, description, sort_order) VALUES
+('LOGIN_TYPE', '로그인 타입', 'Login Type', 'ログインタイプ', '사용자 로그인 방식 (일반/카카오/구글)', 6);
+INSERT INTO common_codes (group_code, code, code_name, code_name_en, code_name_jp, description, sort_order) VALUES
+('LOGIN_TYPE', 'NOR', '일반 회원가입', 'Normal Registration', '通常登録', '일반 회원가입을 통한 로그인', 1),
+('LOGIN_TYPE', 'KAK', '카카오 로그인', 'Kakao Login', 'カカオログイン', '카카오 소셜 로그인', 2),
+('LOGIN_TYPE', 'GOO', '구글 로그인', 'Google Login', 'グーグルログイン', '구글 소셜 로그인', 3);
 
 -- ============================================
 -- 5. 유용한 조회 쿼리 예시

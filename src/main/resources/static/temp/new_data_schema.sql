@@ -4,7 +4,7 @@
 -- 주의: 이 스키마는 공통코드 테이블(common_code_groups, common_codes)을 사용합니다.
 -- 공통코드 테이블 스키마는 common_code_schema.sql 파일을 참조하세요.
 -- ENUM 대신 VARCHAR로 코드값을 저장하며, 공통코드 테이블의 코드값을 참조합니다.
---
+-- 
 CREATE DATABASE arata_busan;
 USE arata_busan;
 
@@ -204,8 +204,8 @@ CREATE TABLE review_reports (
 CREATE TABLE spot_requests (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL COMMENT '신청자 ID',
-    tourist_spot_id INT COMMENT '관광지 ID (사진 추가 신청의 경우 필수, 관광지 추가 신청의 경우 NULL)',
-    request_type VARCHAR(20) NOT NULL COMMENT '신청 유형: photo(사진 추가), spot(관광지 추가)',
+    tourist_spot_id INT COMMENT '관광지 ID (사진 추가 신청 및 관광지 정보 수정 신청의 경우 필수, 관광지 추가 신청의 경우 NULL)',
+    request_type VARCHAR(20) NOT NULL COMMENT '신청 유형: photo(사진 추가), spot(관광지 추가), edit(관광지 정보 수정)',
     
     -- 사진 관련 필드 (사진 추가 신청 시 사용)
     image_url VARCHAR(500) COMMENT '신청한 사진 URL (사진 추가 신청의 경우 필수)',

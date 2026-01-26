@@ -1,7 +1,7 @@
 #header-container {
     position: sticky;
     top: 0;
-    z-index: 999;
+    z-index: 1000;
     width: 100%;
 }
 
@@ -14,7 +14,7 @@
     padding: 0 100px;
     background: linear-gradient(to right, #fff 0%, #dbf6ff 25%, #96daff 100%);
     position: relative;
-    z-index: 999;
+    z-index: 1000;
     /* background: linear-gradient(to right, #fff 0%, rgb(206, 220, 255) 25%, khaki 100%); */
 }
 
@@ -95,7 +95,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 10px 0;
     min-width: 150px;
-    z-index: 1000;
+    z-index: 1001;
     opacity: 0;
     transform: translateY(-10px);
     transition: all 0.3s ease;
@@ -144,14 +144,15 @@
 #header .btns .btn1 a {
     padding: 10px 20px;
     color: #000;
+    background-color: #fff;
+    border-radius: 5px;
     text-decoration: none;
     display: block;
     width: 100%;
     height: 100%;
 }
 
-#header .btns .btn2,
-#header .btns .btn1 {
+#header .btns .btn2 {
     border: none;
     border-radius: 5px;
     background-color: #fff;
@@ -167,8 +168,7 @@
     padding: 10px 20px;
 }
 
-#header .btns .btn2:hover,
-#header .btns .btn1:hover {
+#header .btns .btn2:hover {
     background-color: #f0f0f0;
     transform: translateY(-2px);
 }
@@ -212,6 +212,7 @@
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+    z-index: 999;
 }
 
 .search-box input {
@@ -249,6 +250,90 @@
 .user-dropdown {
     position: relative;
     display: inline-block;
+    z-index: 1003;
+}
+
+.user-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Role 토글(슬라이드) */
+.role-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #e0e0e0;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    user-select: none;
+}
+
+.role-chip {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #6c757d;
+    padding: 4px 8px;
+    border-radius: 999px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.role-chip.active {
+    color: #0175c1;
+    background: rgba(1, 117, 193, 0.12);
+}
+
+.role-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.role-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.role-switch-slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    background: #d0d7de;
+    transition: all 0.2s ease;
+    border-radius: 999px;
+}
+
+.role-switch-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.role-switch-input:checked + .role-switch-slider {
+    background: linear-gradient(to right, #0175c1, #a8dcff);
+}
+
+.role-switch-input:checked + .role-switch-slider::before {
+    transform: translateX(20px);
+}
+
+.role-switch-input:disabled + .role-switch-slider {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .user-dropdown-btn {
@@ -270,6 +355,7 @@
     overflow: hidden;
     min-height: 40px;
     justify-content: center;
+    z-index: 1003;
 }
 
 .user-dropdown-btn::before {
@@ -298,7 +384,7 @@
     font-weight: 600;
     color: #2c3e50;
     position: relative;
-    z-index: 1;
+    z-index: 1000;
 }
 
 .dropdown-arrow {
@@ -306,7 +392,7 @@
     color: #6c757d;
     transition: transform 0.3s ease;
     position: relative;
-    z-index: 1;
+    z-index: 1000;
 }
 
 .user-dropdown-btn:hover .dropdown-arrow {
@@ -324,7 +410,7 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     padding: 8px 0;
     min-width: 180px;
-    z-index: 1000;
+    z-index: 1002;
     opacity: 0;
     transform: translateY(-10px) scale(0.95);
     transition: all 0.3s ease;
@@ -336,6 +422,7 @@
     opacity: 1;
     transform: translateY(0) scale(1);
     pointer-events: auto;
+    z-index: 1003;
 }
 
 .dropdown-item {
@@ -399,6 +486,36 @@
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
+    .user-controls {
+        gap: 10px;
+    }
+
+    .role-toggle {
+        padding: 5px 8px;
+        gap: 6px;
+    }
+
+    .role-chip {
+        font-size: 11px;
+        padding: 3px 7px;
+    }
+
+    .role-switch {
+        width: 40px;
+        height: 22px;
+    }
+
+    .role-switch-slider::before {
+        width: 16px;
+        height: 16px;
+        left: 3px;
+        top: 3px;
+    }
+
+    .role-switch-input:checked + .role-switch-slider::before {
+        transform: translateX(18px);
+    }
+
     .user-dropdown-btn {
         padding: 8px 16px;
         font-size: 13px;
@@ -478,7 +595,7 @@
         width: 100%;
         background-color: #fff;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
+        z-index: 1001;
     }
 
     #nav.active {
