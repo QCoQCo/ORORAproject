@@ -372,13 +372,17 @@ public class UserService {
         UserDto existingUser = userMapper.findByEmail(email);
         
         if (existingUser != null) {
-            // 기존 사용자가 있는 경우, 로그인 타입/닉네임을 최신 값으로 업데이트
+            // 기존 사용자가 있는 경우, 로그인 타입은 최신 값으로 업데이트
+            // 닉네임(username)은 "사용자가 직접 수정할 수 있는 값"으로 취급하고,
+            // 소셜 제공자 값으로 덮어쓰지 않도록 한다. (사용자 커스텀 닉네임 유지)
             boolean shouldUpdate = false;
             if (existingUser.getLoginTypeCode() == null || !existingUser.getLoginTypeCode().equals(loginTypeCode)) {
                 existingUser.setLoginTypeCode(loginTypeCode);
                 shouldUpdate = true;
             }
-            if (username != null && !username.trim().isEmpty() && !username.equals(existingUser.getUsername())) {
+            // username은 기존 값이 없을 때만 채움
+            if ((existingUser.getUsername() == null || existingUser.getUsername().trim().isEmpty())
+                    && username != null && !username.trim().isEmpty()) {
                 existingUser.setUsername(username);
                 shouldUpdate = true;
             }
@@ -397,7 +401,9 @@ public class UserService {
                 UserDto legacyUser = userMapper.findByEmail(legacyTempEmail);
                 if (legacyUser != null) {
                     legacyUser.setEmail(email);
-                    if (username != null && !username.trim().isEmpty()) {
+                    // username은 기존 값이 없을 때만 채움
+                    if ((legacyUser.getUsername() == null || legacyUser.getUsername().trim().isEmpty())
+                            && username != null && !username.trim().isEmpty()) {
                         legacyUser.setUsername(username);
                     }
                     legacyUser.setLoginTypeCode(loginTypeCode);
