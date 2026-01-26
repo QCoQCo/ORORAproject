@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         // 현재 로그인한 사용자와 비교
         const currentUser = getCurrentUser();
-        if (currentUser && currentUser.id === viewingUserId) {
+        if (currentUser && Number(currentUser.id) === viewingUserId) {
             // 본인의 프로필이면 마이페이지로 리다이렉트
             window.location.href = '/pages/mypage/mypage';
             return;
