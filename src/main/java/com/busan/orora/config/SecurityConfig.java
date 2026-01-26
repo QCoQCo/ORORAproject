@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -44,6 +45,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/tag-spots").permitAll() // 해시태그 API
                         .requestMatchers("/api/tourist-spots/**").permitAll() // 관광지 조회 API
                         .requestMatchers("/api/reviews").permitAll() // 리뷰 조회 API (GET)
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/*/comments").permitAll() // 리뷰 댓글 조회 API (GET)
+                        .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll() // 공개 프로필/공개 데이터 API (GET)
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/reviews").permitAll() // 사용자 작성 리뷰 조회 (GET)
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/liked-reviews").permitAll() // 사용자 좋아요 누른 리뷰 조회 (GET)
                         .requestMatchers("/api/search/**").permitAll() // 검색 API
                         // 관리자 API는 인증 필요 (권한 체크는 Controller에서 수행)
                         .requestMatchers("/api/admin/**").authenticated()

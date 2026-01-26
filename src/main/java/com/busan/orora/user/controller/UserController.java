@@ -445,6 +445,44 @@ public class UserController {
         return response;
     }
 
+    /**
+     * 공개 프로필 조회 API (비로그인 허용)
+     * GET /api/public/users/{userId}
+     *
+     * - 개인정보(이메일/전화/주소 등)는 노출하지 않음
+     */
+    @GetMapping("/api/public/users/{userId}")
+    @ResponseBody
+    public Map<String, Object> getPublicUserById(@org.springframework.web.bind.annotation.PathVariable Long userId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            UserDto user = userService.getUserById(userId);
+            if (user != null) {
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("id", user.getId());
+                userMap.put("username", user.getUsername());
+                userMap.put("profileImage",
+                        user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+                userMap.put("profile_image",
+                        user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+                userMap.put("join_date", user.getJoinDate() != null ? user.getJoinDate().toString() : null);
+
+                response.put("success", true);
+                response.put("user", userMap);
+            } else {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "공개 사용자 정보 조회 중 오류가 발생했습니다: " + e.getMessage());
+            logger.error("오류 발생", e);
+        }
+
+        return response;
+    }
+
     // 사용자 정보 조회 API
     @GetMapping("/api/users/{userId}")
     @ResponseBody
@@ -504,7 +542,8 @@ public class UserController {
             @RequestPart(value = "address", required = false) String address,
             @RequestPart(value = "birthDate", required = false) String birthDate,
             @RequestPart(value = "genderCode", required = false) String genderCode,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -532,6 +571,22 @@ public class UserController {
 
             // 프로필 업데이트
             UserDto updatedUser = userService.updateUserProfile(userId, userDto, profileImage);
+
+            // 세션 사용자 정보도 최신화 (헤더/로그인상태 체크에서 사용)
+            try {
+                HttpSession session = request != null ? request.getSession(false) : null;
+                if (session != null) {
+                    Object sessionUserObj = session.getAttribute("loggedInUser");
+                    if (sessionUserObj instanceof UserDto sessionUser) {
+                        if (sessionUser.getId() != null && sessionUser.getId().equals(updatedUser.getId())) {
+                            session.setAttribute("loggedInUser", updatedUser);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // 세션 갱신 실패해도 프로필 수정 자체는 성공 처리
+                logger.debug("세션 사용자 정보 갱신 실패", e);
+            }
 
             // 응답 생성
             Map<String, Object> userMap = new HashMap<>();

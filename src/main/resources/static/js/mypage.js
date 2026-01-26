@@ -143,7 +143,7 @@ async function displayUserInfo() {
 // 다른 유저의 프로필 표시
 async function displayOtherUserProfile(userId) {
     try {
-        const response = await fetch(`/api/users/${userId}`);
+        const response = await fetch(`/api/public/users/${userId}`);
         
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('text/html')) {
