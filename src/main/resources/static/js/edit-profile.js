@@ -52,7 +52,8 @@ async function loadUserInfo() {
             }
 
             // 프로필 이미지 설정
-            const profileImageUrl = userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
+            const profileImageUrl =
+                userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
             document.getElementById('current-profile-image').src = profileImageUrl;
         }
     } catch (error) {
@@ -169,9 +170,15 @@ async function saveProfile() {
         if (data.success) {
             alert('프로필이 성공적으로 수정되었습니다.');
 
-            // sessionStorage 업데이트
+            // 사용자 정보 업데이트 (localStorage 또는 sessionStorage에 저장)
             if (data.user) {
-                sessionStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                // 현재 로그인 상태 유지 여부 확인 (localStorage에 있으면 유지, 없으면 sessionStorage)
+                const hasLocalStorage = localStorage.getItem('loggedInUser') !== null;
+                if (hasLocalStorage) {
+                    localStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                } else {
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                }
             }
 
             // 마이페이지로 이동

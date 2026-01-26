@@ -20,4 +20,7 @@ public interface UserMapper {
     void updateUserStatus(@Param("id") Long id, @Param("statusCode") String statusCode);
     void updateUserRole(@Param("id") Long id, @Param("roleCode") String roleCode);
     void deleteUser(@Param("id") Long id);
+    UserDto findByUsernameOrEmail(@Param("username") String username, @Param("email") String email);
+    void updatePassword(@Param("loginId") String loginId, @Param("passwordHash") String passwordHash);
+    UserDto findByEmail(@Param("email") String email);
 }

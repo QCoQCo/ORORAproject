@@ -269,13 +269,25 @@ async function fetchRegionSpots(regionIds) {
     try {
         const query = regionIds.join(',');
         const res = await fetch(`/api/regions/spots?regionIds=${query}`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다.');
+        }
+
         if (!res.ok) throw new Error('API 요청 실패');
 
-        const spots = await res.json();;
+        const spots = await res.json();
 
         await renderSpotList(spots);
     } catch (e) {
-        console.error('관광지 데이터 로드 오류:', e);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (e instanceof SyntaxError && e.message.includes('JSON')) {
+            console.error('관광지 데이터 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('관광지 데이터 로드 오류:', e);
+        }
         ul.innerHTML =
             '<li style="padding: 20px; text-align: center; color: #999;">관광지 데이터를 불러오지 못했습니다.</li>';
     }
@@ -358,7 +370,6 @@ async function renderSpotList(spots) {
         }
     } else {
         // ListLoader가 없으면 간단한 리스트로 표시
-        console.warn('ListLoader를 사용할 수 없습니다. 간단한 리스트로 표시합니다.');
         spots.forEach((spot) => {
             const li = document.createElement('li');
             li.textContent = spot.title || '제목 없음';
@@ -373,7 +384,7 @@ async function renderSpotList(spots) {
 function updateSelectionInfo() {
     const info = document.getElementById('selection-info');
     if (!info) return;
-    
+
     const regionName = new Set();
     selectedRegionIds.forEach((id) => {
         const regionElement = document.querySelector(`.c-click[sigungu-code="${id}"]`);

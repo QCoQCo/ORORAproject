@@ -1,10 +1,77 @@
 // 인증 관련 공통 함수들
 
+// 서버에서 로그인 상태 확인
+let serverLoginStatusChecked = false;
+let serverLoginStatus = null;
+
+async function checkServerLoginStatus() {
+    if (serverLoginStatusChecked && serverLoginStatus !== null) {
+        return serverLoginStatus;
+    }
+
+    try {
+        const response = await fetch('/api/auth/check', {
+            method: 'GET',
+            credentials: 'include', // 쿠키를 포함하여 요청
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            serverLoginStatus = data.loggedIn === true;
+            serverLoginStatusChecked = true;
+
+            // 서버에서 로그인 상태가 확인되면 클라이언트 스토리지 동기화
+            if (data.loggedIn && data.user) {
+                // 로그인 상태 유지 여부 확인 (localStorage에 있으면 유지, 없으면 sessionStorage)
+                const hasLocalStorage = localStorage.getItem('loggedInUser') !== null;
+                if (hasLocalStorage) {
+                    localStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                } else {
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                }
+            } else {
+                // 서버에서 로그인되지 않았으면 클라이언트 스토리지도 삭제
+                localStorage.removeItem('loggedInUser');
+                sessionStorage.removeItem('loggedInUser');
+            }
+
+            return serverLoginStatus;
+        } else {
+            // 서버 응답 실패 시 클라이언트 스토리지만 확인
+            serverLoginStatus = false;
+            serverLoginStatusChecked = true;
+            return false;
+        }
+    } catch (error) {
+        console.error('서버 로그인 상태 확인 오류:', error);
+        // 오류 발생 시 클라이언트 스토리지만 확인
+        serverLoginStatus = false;
+        serverLoginStatusChecked = true;
+        return false;
+    }
+}
+
 // 로그인 상태 확인
 function isLoggedIn() {
-    // localStorage와 sessionStorage 모두 확인
-    const loggedInUser = localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser');
+    // 먼저 클라이언트 스토리지 확인 (빠른 응답)
+    const loggedInUser =
+        localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser');
     return loggedInUser !== null;
+}
+
+// 비동기 로그인 상태 확인 (서버 확인 포함)
+async function isLoggedInAsync() {
+    // 클라이언트 스토리지 먼저 확인
+    const hasClientStorage = isLoggedIn();
+
+    // 서버 상태 확인
+    const serverStatus = await checkServerLoginStatus();
+
+    // 서버 상태가 우선 (서버가 false면 클라이언트 스토리지 삭제)
+    return serverStatus;
 }
 
 // 현재 로그인한 사용자 정보 가져오기
@@ -15,7 +82,7 @@ function getCurrentUser() {
     if (!loggedInUser) {
         loggedInUser = sessionStorage.getItem('loggedInUser');
     }
-    
+
     if (loggedInUser) {
         try {
             return JSON.parse(loggedInUser);
@@ -38,6 +105,7 @@ async function logout() {
     try {
         const response = await fetch('/api/auth/logout', {
             method: 'POST',
+            credentials: 'include', // 쿠키를 포함하여 요청
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -46,15 +114,19 @@ async function logout() {
         // 응답은 확인하지만 실패해도 로그아웃은 진행
         if (response.ok) {
             const data = await response.json();
-            console.log(data.message);
         }
     } catch (error) {
         console.error('로그아웃 API 호출 오류:', error);
     }
 
+    // 서버 상태 확인 플래그 리셋
+    serverLoginStatusChecked = false;
+    serverLoginStatus = null;
+
     // localStorage와 sessionStorage 모두에서 사용자 정보 삭제
     localStorage.removeItem('loggedInUser');
     sessionStorage.removeItem('loggedInUser');
+
     // 모든 페이지에서 로그아웃 후 메인 페이지로 이동
     window.location.href = '/';
 }
@@ -65,15 +137,16 @@ function updateHeader() {
     const headerContainer = document.getElementById('header-container');
     const header = document.getElementById('header');
     const container = headerContainer || header;
-    
+
     if (!container) {
-        console.warn('헤더를 찾을 수 없습니다. header-container 또는 #header를 확인하세요.');
         return;
     }
 
     const user = getCurrentUser();
     const isLoggedInUser = isLoggedIn();
     const isAdminUser = isAdmin();
+    const roleCode = user && (user.roleCode || user.role) ? String(user.roleCode || user.role).toUpperCase() : 'MEMBER';
+    const isAdminRole = roleCode === 'ADMIN';
 
     // 로그인 버튼과 사용자 정보 영역 찾기
     const loginBtn = container.querySelector('.btn1');
@@ -83,34 +156,43 @@ function updateHeader() {
         if (isLoggedInUser && user) {
             // 로그인된 상태: 사용자명 드롭다운 메뉴 표시
             loginBtn.innerHTML = `
-                <div class="user-dropdown">
-                    <button class="user-dropdown-btn">
-                        <span class="username">${user.username || '사용자'}</span>
-                        <span class="dropdown-arrow">▼</span>
-                    </button>
-                    <div class="user-dropdown-menu">
-                        <a href="/pages/mypage/mypage" class="dropdown-item">
-                            <span class="dropdown-icon">👤</span>
-                            마이페이지
-                        </a>
-                        <button class="dropdown-item logout-item" onclick="logout()">
-                            <span class="dropdown-icon">🚪</span>
-                            로그아웃
+                <div class="user-controls">
+                    <div class="role-toggle" title="Role 변경">
+                        <span class="role-chip role-member ${!isAdminRole ? 'active' : ''}">USER</span>
+                        <label class="role-switch" aria-label="Role switch">
+                            <input class="role-switch-input" type="checkbox" ${isAdminRole ? 'checked' : ''} />
+                            <span class="role-switch-slider"></span>
+                        </label>
+                        <span class="role-chip role-admin ${isAdminRole ? 'active' : ''}">ADMIN</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-btn">
+                            <span class="username">${user.username || '사용자'}</span>
+                            <span class="dropdown-arrow">▼</span>
                         </button>
+                        <div class="user-dropdown-menu">
+                            <a href="/pages/mypage/mypage" class="dropdown-item">
+                                <span class="dropdown-icon">👤</span>
+                                마이페이지
+                            </a>
+                            <button class="dropdown-item logout-item" onclick="logout()">
+                                <span class="dropdown-icon">🚪</span>
+                                로그아웃
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
             // 드롭다운 메뉴 초기화 (DOM 업데이트 후)
             setTimeout(() => {
                 initUserDropdown();
+                initRoleSwitch();
             }, 100);
         } else {
             // 로그인되지 않은 상태: 로그인 버튼 표시
             loginBtn.innerHTML =
                 '<a href="/pages/login/login" data-translate="header.login">로그인</a>';
         }
-    } else {
-        console.warn('로그인 버튼을 찾을 수 없습니다:', { loginBtn, btnsContainer });
     }
 
     // 관리자 메뉴 표시/숨김
@@ -135,7 +217,7 @@ function initUserDropdown() {
     }
 
     // 기존 이벤트 리스너 제거를 위해 새 핸들러 함수 생성
-    const toggleDropdown = function(e) {
+    const toggleDropdown = function (e) {
         e.preventDefault();
         e.stopPropagation();
         userDropdownMenu.classList.toggle('active');
@@ -144,7 +226,7 @@ function initUserDropdown() {
     // 기존 이벤트 리스너 제거 후 새로 추가
     const newBtn = userDropdownBtn.cloneNode(true);
     userDropdownBtn.parentNode.replaceChild(newBtn, userDropdownBtn);
-    
+
     // 새로운 버튼 참조
     const btn = document.querySelector('.user-dropdown-btn');
     const menu = document.querySelector('.user-dropdown-menu');
@@ -155,14 +237,27 @@ function initUserDropdown() {
     }
 
     // 드롭다운 버튼 클릭 이벤트
-    btn.addEventListener('click', toggleDropdown);
+    btn.addEventListener('click', function (e) {
+        // 검색창이 열려있으면 닫기
+        const searchBox = document.querySelector('.search-box');
+        if (searchBox && searchBox.classList.contains('active')) {
+            searchBox.classList.remove('active');
+        }
+        // 드롭다운 토글
+        toggleDropdown(e);
+    });
 
     // 외부 클릭 시 드롭다운 닫기 (한 번만 등록)
     if (!window.userDropdownClickHandler) {
-        window.userDropdownClickHandler = function(e) {
+        window.userDropdownClickHandler = function (e) {
             const currentBtn = document.querySelector('.user-dropdown-btn');
             const currentMenu = document.querySelector('.user-dropdown-menu');
-            if (currentBtn && currentMenu && !currentBtn.contains(e.target) && !currentMenu.contains(e.target)) {
+            if (
+                currentBtn &&
+                currentMenu &&
+                !currentBtn.contains(e.target) &&
+                !currentMenu.contains(e.target)
+            ) {
                 currentMenu.classList.remove('active');
             }
         };
@@ -172,9 +267,79 @@ function initUserDropdown() {
     // 드롭다운 메뉴 항목 클릭 시 닫기
     const dropdownItems = menu.querySelectorAll('.dropdown-item');
     dropdownItems.forEach((item) => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             menu.classList.remove('active');
         });
+    });
+}
+
+async function updateMyRole(roleCode) {
+    const response = await fetch('/api/users/me/role', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ roleCode }),
+    });
+
+    let data = null;
+    try {
+        data = await response.json();
+    } catch (e) {
+        // ignore
+    }
+
+    if (!response.ok || !data || data.success !== true) {
+        const message = data && data.message ? data.message : 'Role 변경에 실패했습니다.';
+        throw new Error(message);
+    }
+
+    return data.user;
+}
+
+function persistCurrentUser(user) {
+    const userJson = JSON.stringify(user);
+    const hasLocalStorage = localStorage.getItem('loggedInUser') !== null;
+    if (hasLocalStorage) {
+        localStorage.setItem('loggedInUser', userJson);
+    } else {
+        sessionStorage.setItem('loggedInUser', userJson);
+    }
+}
+
+function initRoleSwitch() {
+    const input = document.querySelector('.role-switch-input');
+    if (!input) return;
+    if (input.dataset.bound === 'true') return;
+    input.dataset.bound = 'true';
+
+    input.addEventListener('change', async function () {
+        const checked = input.checked;
+        const nextRole = checked ? 'ADMIN' : 'MEMBER';
+
+        input.disabled = true;
+        try {
+            const updatedUser = await updateMyRole(nextRole);
+            if (updatedUser) {
+                persistCurrentUser(updatedUser);
+            }
+
+            // 역할 변경 후 즉시 헤더/메뉴 반영
+            headerUpdated = false;
+            updateHeader();
+            setTimeout(() => {
+                initUserDropdown();
+                initRoleSwitch();
+            }, 150);
+        } catch (error) {
+            console.error(error);
+            // 실패 시 토글 원복
+            input.checked = !checked;
+            alert(error.message || 'Role 변경 중 오류가 발생했습니다.');
+        } finally {
+            input.disabled = false;
+        }
     });
 }
 
@@ -183,7 +348,7 @@ let headerUpdateInProgress = false;
 let headerUpdated = false;
 
 // 페이지 언로드 시 플래그 리셋 (다음 페이지 로드 시 업데이트 허용)
-window.addEventListener('beforeunload', function() {
+window.addEventListener('beforeunload', function () {
     headerUpdated = false;
     window.headerUpdated = false;
 });
@@ -194,15 +359,16 @@ function tryUpdateHeader() {
     if (headerUpdateInProgress || headerUpdated) {
         return false;
     }
-    
+
     const headerContainer = document.getElementById('header-container');
     const header = document.getElementById('header');
-    
+
     if (headerContainer || header) {
         headerUpdateInProgress = true;
         updateHeader();
         setTimeout(() => {
             initUserDropdown();
+            initRoleSwitch();
             headerUpdateInProgress = false;
             headerUpdated = true;
         }, 200);
@@ -212,11 +378,14 @@ function tryUpdateHeader() {
 }
 
 // 페이지 로드 시 한 번만 헤더 업데이트
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+    // 서버에서 로그인 상태 확인 후 헤더 업데이트
+    await checkServerLoginStatus();
+
     // 헤더가 로드된 후 업데이트 (최대 5번 시도)
     let attempts = 0;
     const maxAttempts = 5;
-    
+
     const interval = setInterval(() => {
         attempts++;
         if (tryUpdateHeader() || attempts >= maxAttempts) {
@@ -226,12 +395,13 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // 로그인 성공 후 헤더 업데이트를 위한 전역 함수
-window.updateHeaderAfterLogin = function() {
+window.updateHeaderAfterLogin = function () {
     headerUpdated = false; // 로그인 후에는 다시 업데이트 허용
     updateHeader();
     // updateHeader() 내부에서 이미 initUserDropdown()을 호출하므로 여기서는 불필요
     // 하지만 확실하게 하기 위해 추가 호출
     setTimeout(() => {
         initUserDropdown();
+        initRoleSwitch();
     }, 300);
 };

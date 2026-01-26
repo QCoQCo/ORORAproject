@@ -20,32 +20,90 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import org.springframework.ui.Model;
 
 @Controller
 public class UserController {
+
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-    
+
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.busan.orora.commoncode.service.CommonCodeService commonCodeService;
+
     // 로그인 페이지
     @GetMapping("/pages/login/login")
-    public String loginPage() {
+    public String loginPage(Model model) {
+        // LOGIN_TYPE 공통코드 조회
+        List<com.busan.orora.commoncode.dto.CommonCodeDto> loginTypes = commonCodeService
+                .getCodesByGroupCode("LOGIN_TYPE");
+
+        // 각 로그인 타입의 활성 상태를 모델에 추가
+        boolean isNormalActive = false;
+        boolean isKakaoActive = false;
+        boolean isGoogleActive = false;
+
+        for (com.busan.orora.commoncode.dto.CommonCodeDto code : loginTypes) {
+            if ("NOR".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
+                isNormalActive = true;
+            } else if ("KAK".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
+                isKakaoActive = true;
+            } else if ("GOO".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
+                isGoogleActive = true;
+            }
+        }
+
+        model.addAttribute("isNormalActive", isNormalActive);
+        model.addAttribute("isKakaoActive", isKakaoActive);
+        model.addAttribute("isGoogleActive", isGoogleActive);
+
         return "pages/login/login";
     }
 
     // 회원가입 페이지
     @GetMapping("/pages/login/signup")
-    public String signupPage() {
+    public String signupPage(Model model) {
+        // 일반 회원가입(NOR) 활성 상태 확인
+        List<com.busan.orora.commoncode.dto.CommonCodeDto> loginTypes = commonCodeService
+                .getCodesByGroupCode("LOGIN_TYPE");
+
+        boolean isNormalActive = false;
+        for (com.busan.orora.commoncode.dto.CommonCodeDto code : loginTypes) {
+            if ("NOR".equals(code.getCode()) && Boolean.TRUE.equals(code.getIsActive())) {
+                isNormalActive = true;
+                break;
+            }
+        }
+
+        // 일반 회원가입이 비활성화되어 있으면 로그인 페이지로 리다이렉트
+        if (!isNormalActive) {
+            return "redirect:/pages/login/login";
+        }
+
         return "pages/login/signup";
+    }
+
+    // 아이디 찾기 페이지
+    @GetMapping("/pages/login/find-id")
+    public String findIdPage() {
+        return "pages/login/find-id";
+    }
+
+    // 비밀번호 재설정 페이지
+    @GetMapping("/pages/login/reset-password")
+    public String resetPasswordPage() {
+        return "pages/login/reset-password";
     }
 
     // 로그인 API
     @PostMapping("/api/auth/login")
     @ResponseBody
     public Map<String, Object> login(@RequestBody UserLoginForm loginForm,
-                                     HttpServletRequest request,
-                                     HttpServletResponse response) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
@@ -55,7 +113,33 @@ public class UserController {
                 // 세션에 사용자 정보 저장
                 HttpSession session = request.getSession();
                 session.setAttribute("loggedInUser", user);
-                
+
+                // Spring Security 인증 컨텍스트에 권한 설정
+                String roleCode = user.getRoleCode() != null ? user.getRoleCode() : "MEMBER";
+                org.springframework.security.core.authority.SimpleGrantedAuthority authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                        "ROLE_" + roleCode);
+
+                org.springframework.security.core.userdetails.UserDetails userDetails = org.springframework.security.core.userdetails.User
+                        .builder()
+                        .username(user.getLoginId())
+                        .password("") // 비밀번호는 인증 후이므로 필요 없음
+                        .authorities(authority)
+                        .build();
+
+                org.springframework.security.authentication.UsernamePasswordAuthenticationToken authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+
+                // SecurityContext에 Authentication 설정
+                org.springframework.security.core.context.SecurityContext securityContext = org.springframework.security.core.context.SecurityContextHolder
+                        .getContext();
+                securityContext.setAuthentication(authentication);
+
+                // 세션에 SecurityContext 저장 (다음 요청에서도 유지되도록)
+                // Spring Security의 기본 세션 키 사용
+                session.setAttribute(
+                        org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                        securityContext);
+
                 // 로그인 상태 유지 설정
                 if (loginForm.getKeepLogin() != null && loginForm.getKeepLogin()) {
                     // 로그인 상태 유지: 세션 타임아웃을 7일로 설정
@@ -187,6 +271,7 @@ public class UserController {
     @GetMapping("/api/auth/check-id")
     @ResponseBody
     public Map<String, Object> checkId(@RequestParam String userId) {
+
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -201,13 +286,162 @@ public class UserController {
         return response;
     }
 
+    // 로그인 상태 확인 API
+    @GetMapping("/api/auth/check")
+    @ResponseBody
+    public Map<String, Object> checkLoginStatus(HttpServletRequest request) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                UserDto user = (UserDto) session.getAttribute("loggedInUser");
+                if (user != null) {
+                    response.put("success", true);
+                    response.put("loggedIn", true);
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("loginId", user.getLoginId());
+                    userMap.put("username", user.getUsername());
+                    userMap.put("email", user.getEmail());
+                    userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+                    userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+                    userMap.put("profileImage",
+                            user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+                    userMap.put("profile_image",
+                            user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+                    userMap.put("join_date", user.getJoinDate() != null ? user.getJoinDate().toString() : null);
+                    response.put("user", userMap);
+                    return response;
+                }
+            }
+
+            response.put("success", true);
+            response.put("loggedIn", false);
+            response.put("message", "로그인되지 않았습니다.");
+        } catch (Exception e) {
+            logger.error("로그인 상태 확인 중 오류 발생", e);
+            response.put("success", false);
+            response.put("loggedIn", false);
+            response.put("message", "로그인 상태 확인 중 오류가 발생했습니다.");
+        }
+
+        return response;
+    }
+
+    // 내 Role 변경 API (헤더 토글용)
+    @PostMapping("/api/users/me/role")
+    @ResponseBody
+    public Map<String, Object> updateMyRole(@RequestBody Map<String, String> requestBody, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            HttpSession session = request.getSession(false);
+            if (session == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            UserDto user = (UserDto) session.getAttribute("loggedInUser");
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            String roleCode = requestBody != null ? requestBody.get("roleCode") : null;
+            if (roleCode == null || roleCode.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "roleCode가 필요합니다.");
+                return response;
+            }
+
+            roleCode = roleCode.trim().toUpperCase();
+            // 요구사항: 일반유저 <-> ADMIN 토글
+            if (!"MEMBER".equals(roleCode) && !"ADMIN".equals(roleCode)) {
+                response.put("success", false);
+                response.put("message", "허용되지 않은 roleCode 입니다. (MEMBER 또는 ADMIN)");
+                return response;
+            }
+
+            // DB 업데이트
+            userService.updateUserRole(user.getId(), roleCode);
+
+            // 세션 사용자 정보 업데이트
+            user.setRoleCode(roleCode);
+            session.setAttribute("loggedInUser", user);
+
+            // Spring Security 인증 컨텍스트 권한 업데이트
+            org.springframework.security.core.authority.SimpleGrantedAuthority authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                    "ROLE_" + roleCode);
+
+            org.springframework.security.core.userdetails.UserDetails userDetails = org.springframework.security.core.userdetails.User
+                    .builder()
+                    .username(user.getLoginId())
+                    .password("")
+                    .authorities(authority)
+                    .build();
+
+            org.springframework.security.authentication.UsernamePasswordAuthenticationToken authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
+
+            org.springframework.security.core.context.SecurityContext securityContext = org.springframework.security.core.context.SecurityContextHolder
+                    .getContext();
+            securityContext.setAuthentication(authentication);
+
+            session.setAttribute(
+                    org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    securityContext);
+
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", user.getId());
+            userMap.put("loginId", user.getLoginId());
+            userMap.put("username", user.getUsername());
+            userMap.put("email", user.getEmail());
+            userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+            userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+            userMap.put("profileImage",
+                    user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+            userMap.put("profile_image",
+                    user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+            userMap.put("join_date", user.getJoinDate() != null ? user.getJoinDate().toString() : null);
+
+            response.put("success", true);
+            response.put("message", "Role이 변경되었습니다.");
+            response.put("user", userMap);
+        } catch (Exception e) {
+            logger.error("Role 변경 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "Role 변경 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return response;
+    }
+
     // 로그아웃 API
     @PostMapping("/api/auth/logout")
     @ResponseBody
-    public Map<String, Object> logout() {
+    public Map<String, Object> logout(HttpServletRequest request) {
+
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "로그아웃되었습니다.");
+
+        try {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+                logger.debug("세션 무효화 완료");
+            }
+
+            response.put("success", true);
+            response.put("message", "로그아웃되었습니다.");
+        } catch (Exception e) {
+            logger.error("로그아웃 처리 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "로그아웃 처리 중 오류가 발생했습니다.");
+        }
+
         return response;
     }
 
@@ -215,6 +449,7 @@ public class UserController {
     @GetMapping("/api/users/{userId}")
     @ResponseBody
     public Map<String, Object> getUserById(@org.springframework.web.bind.annotation.PathVariable Long userId) {
+
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -261,6 +496,7 @@ public class UserController {
     @org.springframework.web.bind.annotation.PutMapping("/api/users/{userId}/profile")
     @ResponseBody
     public Map<String, Object> updateProfile(
+
             @org.springframework.web.bind.annotation.PathVariable Long userId,
             @RequestPart(value = "username", required = false) String username,
             @RequestPart(value = "email", required = false) String email,
@@ -324,6 +560,90 @@ public class UserController {
             response.put("success", false);
             response.put("message", "프로필 수정 중 오류가 발생했습니다: " + e.getMessage());
             logger.error("오류 발생", e);
+        }
+
+        return response;
+    }
+
+    // 아이디 찾기 API
+    @PostMapping("/api/auth/find-id")
+    @ResponseBody
+    public Map<String, Object> findId(@RequestBody Map<String, String> request) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String username = request.get("username");
+            String email = request.get("email");
+
+            if ((username == null || username.trim().isEmpty()) &&
+                    (email == null || email.trim().isEmpty())) {
+                response.put("success", false);
+                response.put("message", "이름 또는 이메일을 입력해주세요.");
+                return response;
+            }
+
+            UserDto user = userService.findUserByUsernameOrEmail(username, email);
+
+            if (user != null) {
+                response.put("success", true);
+                response.put("loginId", user.getLoginId());
+                response.put("message", "아이디를 찾았습니다.");
+            } else {
+                response.put("success", false);
+                response.put("message", "일치하는 사용자 정보를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "아이디 찾기 중 오류가 발생했습니다: " + e.getMessage());
+            logger.error("아이디 찾기 오류 발생", e);
+        }
+
+        return response;
+    }
+
+    // 비밀번호 재설정 API
+    @PostMapping("/api/auth/reset-password")
+    @ResponseBody
+    public Map<String, Object> resetPassword(@RequestBody Map<String, String> request) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String loginId = request.get("loginId");
+            String newPassword = request.get("newPassword");
+
+            if (loginId == null || loginId.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "아이디를 입력해주세요.");
+                return response;
+            }
+
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "새 비밀번호를 입력해주세요.");
+                return response;
+            }
+
+            if (newPassword.length() < 6 || newPassword.length() > 15) {
+                response.put("success", false);
+                response.put("message", "비밀번호는 6자 이상 15자 이하로 입력해주세요.");
+                return response;
+            }
+
+            boolean success = userService.resetPassword(loginId, newPassword);
+
+            if (success) {
+                response.put("success", true);
+                response.put("message", "비밀번호가 성공적으로 재설정되었습니다.");
+            } else {
+                response.put("success", false);
+                response.put("message", "일치하는 사용자를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "비밀번호 재설정 중 오류가 발생했습니다: " + e.getMessage());
+            logger.error("비밀번호 재설정 오류 발생", e);
         }
 
         return response;

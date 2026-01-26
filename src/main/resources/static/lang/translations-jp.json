@@ -442,7 +442,7 @@
     "tag.clear_all_tags": "すべてのタグをクリア",
 
     "theme.user_recommended": "ユーザーおすすめテーマ",
-    "theme.kpop_travel": "K-POP旅行",
+    "theme.kpop_travel": "人気旅行先",
     "theme.culture_travel": "文化旅行",
     "theme.nature_travel": "自然旅行",
     "theme.food_travel": "食べ物旅行",
@@ -482,5 +482,19 @@
     "orora.cho_yujung_work1": "観光地詳細ページ作成",
     "orora.cho_yujung_work2": "ログインページ作成",
     "orora.cho_yujung_work3": "会員登録ページ作成",
-    "orora.cho_yujung_work4": "不足部分発見"
+    "orora.cho_yujung_work4": "不足部分発見",
+    "orora.frontend_dev": "フロントエンド開発",
+    "orora.backend_dev": "バックエンド開発",
+    "orora.team_leader_work1": "プロジェクト総括",
+    "orora.team_leader_work2": "システム設計",
+    "orora.lee_jongwoo_work5": "地域検索ページAPI制作",
+    "orora.lee_jongwoo_work6": "観光地いいね機能実装",
+    "orora.lee_jian_work5": "テーマページAPI制作",
+    "orora.lee_jian_work6": "タグページ＆オロラ紹介ページデザイン修正",
+    "orora.lee_jian_work7": "ヘッダーデザイン修正",
+    "orora.jung_yujin_work5": "釜山紹介ページの日本語翻訳",
+    "orora.jung_yujin_work6": "テーマページAPI制作",
+    "orora.cho_yujung_work5": "タグページAPI制作",
+    "orora.cho_yujung_work6": "不足部分発見",
+    "orora.cho_yujung_work7": "バグ発見＆修正"
 }

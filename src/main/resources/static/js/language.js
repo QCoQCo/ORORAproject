@@ -3,12 +3,19 @@ class LanguageManager {
     constructor() {
         this.currentLanguage = localStorage.getItem('selectedLanguage') || 'ko';
         this.translations = {};
+        // ko(기본) 텍스트 복원을 위한 스냅샷 저장소
+        this.defaultTexts = {};
+        this.defaultPlaceholders = {};
+        this.defaultAltTexts = {};
+        this.defaultTitleTexts = {};
         this.init();
     }
 
     async init() {
         // 언어별 번역 데이터 로드
         await this.loadTranslations();
+        // (중요) 번역으로 덮어쓰기 전에 기본(ko) 텍스트 스냅샷 확보
+        this.captureDefaultTexts();
         // 초기화 시에는 애니메이션 없이 번역 적용
         this.applyLanguage(this.currentLanguage, true);
 
@@ -33,7 +40,7 @@ class LanguageManager {
             const enResponse = await fetch(enUrl);
             if (!enResponse.ok) {
                 throw new Error(
-                    `영어 번역 파일 로드 실패: ${enResponse.status} ${enResponse.statusText}`
+                    `영어 번역 파일 로드 실패: ${enResponse.status} ${enResponse.statusText}`,
                 );
             }
             this.translations.en = await enResponse.json();
@@ -43,21 +50,81 @@ class LanguageManager {
             const jpResponse = await fetch(jpUrl);
             if (!jpResponse.ok) {
                 throw new Error(
-                    `일본어 번역 파일 로드 실패: ${jpResponse.status} ${jpResponse.statusText}`
+                    `일본어 번역 파일 로드 실패: ${jpResponse.status} ${jpResponse.statusText}`,
                 );
             }
             this.translations.jp = await jpResponse.json();
 
-            // 한국어는 기본값으로 사용
-            this.translations.ko = this.getKoreanTexts();
+            // 한국어는 HTML의 기본 텍스트를 그대로 사용하므로 별도 로드 불필요
+            this.translations.ko = {};
         } catch (error) {
             console.error('번역 데이터 로드 실패:', error);
             console.error('에러 상세:', error.message);
-            // 에러가 발생해도 기본 한국어 텍스트는 사용 가능하도록
-            this.translations.ko = this.getKoreanTexts();
+            // 에러가 발생해도 기본 한국어 텍스트는 HTML에 있으므로 문제없음
+            this.translations.ko = {};
         }
     }
 
+    // 번역 적용 전에(또는 동적으로 삽입된 후) 기본(ko) 텍스트를 스냅샷으로 저장
+    captureDefaultTexts() {
+        // data-translate (text / placeholder)
+        const elements = document.querySelectorAll('[data-translate]');
+        elements.forEach((element) => {
+            const key = element.getAttribute('data-translate');
+            if (!key) return;
+
+            const tagName = element.tagName;
+            const isTextInput =
+                (tagName === 'INPUT' || tagName === 'TEXTAREA') &&
+                // INPUT일 때 type이 없으면 text로 취급됨
+                (tagName !== 'INPUT' ||
+                    (element.getAttribute('type') || 'text').toLowerCase() === 'text');
+
+            if (isTextInput) {
+                if (this.defaultPlaceholders[key] === undefined) {
+                    const placeholder = element.getAttribute('placeholder');
+                    if (placeholder !== null) {
+                        this.defaultPlaceholders[key] = placeholder.trim();
+                    }
+                }
+            } else {
+                if (this.defaultTexts[key] === undefined) {
+                    this.defaultTexts[key] = (element.textContent || '').trim();
+                }
+            }
+        });
+
+        // data-translate-alt (alt)
+        const altElements = document.querySelectorAll('[data-translate-alt]');
+        altElements.forEach((element) => {
+            const key = element.getAttribute('data-translate-alt');
+            if (!key) return;
+            if (this.defaultAltTexts[key] === undefined) {
+                const alt = element.getAttribute('alt');
+                if (alt !== null) {
+                    this.defaultAltTexts[key] = alt.trim();
+                }
+            }
+        });
+
+        // data-translate-title (title)
+        const titleElements = document.querySelectorAll('[data-translate-title]');
+        titleElements.forEach((element) => {
+            const key = element.getAttribute('data-translate-title');
+            if (!key) return;
+            if (this.defaultTitleTexts[key] === undefined) {
+                const title = element.getAttribute('title');
+                if (title !== null) {
+                    this.defaultTitleTexts[key] = title.trim();
+                }
+            }
+        });
+    }
+
+    // getKoreanTexts() 함수 제거됨
+    // 한국어는 HTML의 기본 텍스트를 그대로 사용하므로 별도 관리 불필요
+    // 이전 코드는 주석 처리됨 (참고용)
+    /*
     getKoreanTexts() {
         // 현재 페이지의 한국어 텍스트들을 수집
         return {
@@ -564,6 +631,20 @@ class LanguageManager {
             'orora.cho_yujung_work2': '로그인페이지 작성',
             'orora.cho_yujung_work3': '회원가입페이지 작성',
             'orora.cho_yujung_work4': '빠진부분찾기',
+            'orora.frontend_dev': '프론트엔드 개발',
+            'orora.backend_dev': '백엔드 개발',
+            'orora.team_leader_work1': '프로젝트 총괄',
+            'orora.team_leader_work2': '시스템 설계',
+            'orora.lee_jongwoo_work5': '지역검색 페이지 api 제작',
+            'orora.lee_jongwoo_work6': '관광지 좋아요 기능 구현',
+            'orora.lee_jian_work5': '테마 페이지 api 제작',
+            'orora.lee_jian_work6': '태그 페이지 & 오로라 소개 페이지 디자인 수정',
+            'orora.lee_jian_work7': '헤더 디자인 수정',
+            'orora.jung_yujin_work5': '부산소개 페이지의 일본어 번역',
+            'orora.jung_yujin_work6': '태마 페이지 api 제작',
+            'orora.cho_yujung_work5': '태그 페이지 api 제작',
+            'orora.cho_yujung_work6': '빠진부분찾기',
+            'orora.cho_yujung_work7': '버그 찾기 & 수정',
 
             // Footer
             'footer.description1': '새로운 부산을 발견하다',
@@ -583,6 +664,7 @@ class LanguageManager {
                 '본 사이트는 교육 목적으로 제작되었습니다. 관광 정보는 참고용이며, 실제 여행 계획 시 공식 기관 정보를 확인해주세요.',
         };
     }
+    */
 
     async applyLanguage(language, skipAnimation = false) {
         // 현재 언어와 같고 애니메이션을 건너뛰지 않는 경우에만 리턴
@@ -615,16 +697,46 @@ class LanguageManager {
     }
 
     updateElements() {
+        // ko로 복원할 때는(이미 번역된 상태일 수 있으므로) 여기서 스냅샷을 새로 뜨지 않는다.
+        // 스냅샷은 "번역으로 덮어쓰기 직전" 또는 "동적으로 삽입된 직후(번역 전)"에만 확보해야 한다.
+        if (this.currentLanguage !== 'ko') {
+            this.captureDefaultTexts();
+        }
+
         const elements = document.querySelectorAll('[data-translate]');
         elements.forEach((element) => {
             const key = element.getAttribute('data-translate');
-            const translation = this.getTranslation(key);
-            if (translation) {
-                if (element.tagName === 'INPUT' && element.type === 'text') {
-                    element.placeholder = translation;
+            if (!key) return;
+
+            const tagName = element.tagName;
+            const isTextInput =
+                (tagName === 'INPUT' || tagName === 'TEXTAREA') &&
+                (tagName !== 'INPUT' ||
+                    (element.getAttribute('type') || 'text').toLowerCase() === 'text');
+
+            // ko로 돌아올 때는 기본(ko) 스냅샷으로 복원
+            if (this.currentLanguage === 'ko') {
+                if (isTextInput) {
+                    const fallback = this.defaultPlaceholders[key];
+                    if (fallback !== undefined) {
+                        element.placeholder = fallback;
+                    }
                 } else {
-                    element.textContent = translation;
+                    const fallback = this.defaultTexts[key];
+                    if (fallback !== undefined) {
+                        element.textContent = fallback;
+                    }
                 }
+                return;
+            }
+
+            const translation = this.getTranslation(key);
+            if (!translation) return;
+
+            if (isTextInput) {
+                element.placeholder = translation;
+            } else {
+                element.textContent = translation;
             }
         });
 
@@ -632,26 +744,46 @@ class LanguageManager {
         const altElements = document.querySelectorAll('[data-translate-alt]');
         altElements.forEach((element) => {
             const key = element.getAttribute('data-translate-alt');
-            const translation = this.getTranslation(key);
-            if (translation) {
-                element.setAttribute('alt', translation);
+            if (!key) return;
+
+            if (this.currentLanguage === 'ko') {
+                const fallback = this.defaultAltTexts[key];
+                if (fallback !== undefined) {
+                    element.setAttribute('alt', fallback);
+                }
+                return;
             }
+
+            const translation = this.getTranslation(key);
+            if (translation) element.setAttribute('alt', translation);
         });
 
         // title 속성 번역 처리
         const titleElements = document.querySelectorAll('[data-translate-title]');
         titleElements.forEach((element) => {
             const key = element.getAttribute('data-translate-title');
-            const translation = this.getTranslation(key);
-            if (translation) {
-                element.setAttribute('title', translation);
+            if (!key) return;
+
+            if (this.currentLanguage === 'ko') {
+                const fallback = this.defaultTitleTexts[key];
+                if (fallback !== undefined) {
+                    element.setAttribute('title', fallback);
+                }
+                return;
             }
+
+            const translation = this.getTranslation(key);
+            if (translation) element.setAttribute('title', translation);
         });
     }
 
     getTranslation(key) {
+        // 한국어일 때는 HTML의 기본 텍스트를 사용하므로 번역 불필요
+        if (this.currentLanguage === 'ko') {
+            return null;
+        }
         const translation = this.translations[this.currentLanguage]?.[key];
-        return translation || this.translations.ko?.[key] || key;
+        return translation || key;
     }
 
     setupLanguageSelector() {
@@ -687,8 +819,6 @@ class LanguageManager {
             setTimeout(() => {
                 this.setupLanguageSelectorWithRetry(retryCount + 1);
             }, 100);
-        } else {
-            console.warn('언어 선택기를 찾을 수 없습니다. 헤더가 로드되지 않았을 수 있습니다.');
         }
     }
 

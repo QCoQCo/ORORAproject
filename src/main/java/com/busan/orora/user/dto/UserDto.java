@@ -40,6 +40,7 @@ public class UserDto {
     private String username;
     private String email;
     private String passwordHash;
+    private String loginTypeCode; // 로그인 타입 코드 (LOGIN_TYPE 그룹 참조: NOR, KAK, GOO)
     private String roleCode;
     private String statusCode;
     private String profileImage; // deprecated: user_profile_images 테이블 사용 권장

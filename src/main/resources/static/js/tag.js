@@ -31,9 +31,7 @@ class TagSearchSystem {
 
             // 초기 검색 결과 표시 (모든 관광지)
             this.performSearch();
-        } catch (error) {
-            console.error('태그 검색 시스템 초기화 오류:', error);
-        }
+        } catch (error) {}
     }
 
     async loadData() {
@@ -88,11 +86,8 @@ class TagSearchSystem {
                         }
                     });
                 }
-            } else {
-                console.error('데이터 구조 오류: regions 속성이 없습니다.', data);
             }
         } catch (error) {
-            console.error('데이터 로드 실패:', error);
             // 에러 발생 시 빈 배열로 초기화하여 페이지가 정상적으로 로드되도록 함
             this.allSpots = [];
         }
@@ -137,7 +132,7 @@ class TagSearchSystem {
 
         // 모든 태그 알파벳 순 정렬
         const sortedTags = Array.from(this.allTags.entries()).sort((a, b) =>
-            a[0].localeCompare(b[0])
+            a[0].localeCompare(b[0]),
         );
 
         allTagsContainer.innerHTML = '';
@@ -234,7 +229,7 @@ class TagSearchSystem {
             if (this.selectedTags.size > 0) {
                 const spotTags = spot.hashtags.map((tag) => tag.trim());
                 const hasAllSelectedTags = Array.from(this.selectedTags).every((selectedTag) =>
-                    spotTags.includes(selectedTag)
+                    spotTags.includes(selectedTag),
                 );
                 if (!hasAllSelectedTags) return false;
             }
@@ -257,7 +252,7 @@ class TagSearchSystem {
         const categoryFilter = document.getElementById('category-filter').value;
         if (categoryFilter !== 'all') {
             this.filteredSpots = this.filteredSpots.filter((spot) =>
-                this.matchesCategory(spot, categoryFilter)
+                this.matchesCategory(spot, categoryFilter),
             );
         }
 
@@ -286,7 +281,7 @@ class TagSearchSystem {
                         tag.includes('관광') ||
                         tag.includes('전망') ||
                         tag.includes('포토스팟') ||
-                        tag.includes('랜드마크')
+                        tag.includes('랜드마크'),
                 );
             case 'nature':
                 return tags.some(
@@ -296,7 +291,7 @@ class TagSearchSystem {
                         tag.includes('산') ||
                         tag.includes('해수욕장') ||
                         tag.includes('바다') ||
-                        tag.includes('생태')
+                        tag.includes('생태'),
                 );
             case 'culture':
                 return tags.some(
@@ -306,7 +301,7 @@ class TagSearchSystem {
                         tag.includes('사찰') ||
                         tag.includes('전통') ||
                         tag.includes('예술') ||
-                        tag.includes('박물관')
+                        tag.includes('박물관'),
                 );
             case 'food':
                 return tags.some(
@@ -316,7 +311,7 @@ class TagSearchSystem {
                         tag.includes('맛집') ||
                         tag.includes('카페') ||
                         tag.includes('해산물') ||
-                        tag.includes('로컬푸드')
+                        tag.includes('로컬푸드'),
                 );
             case 'activity':
                 return tags.some(
@@ -326,7 +321,7 @@ class TagSearchSystem {
                         tag.includes('케이블카') ||
                         tag.includes('등산') ||
                         tag.includes('자전거') ||
-                        tag.includes('운동')
+                        tag.includes('운동'),
                 );
             case 'shopping':
                 return tags.some(
@@ -335,7 +330,7 @@ class TagSearchSystem {
                         tag.includes('백화점') ||
                         tag.includes('상가') ||
                         tag.includes('브랜드') ||
-                        tag.includes('패션')
+                        tag.includes('패션'),
                 );
             case 'relaxation':
                 return tags.some(
@@ -344,7 +339,7 @@ class TagSearchSystem {
                         tag.includes('휴식') ||
                         tag.includes('온천') ||
                         tag.includes('조용') ||
-                        tag.includes('명상')
+                        tag.includes('명상'),
                 );
             default:
                 return true;
@@ -406,9 +401,8 @@ class TagSearchSystem {
         //     }
         // });
 
-
         // 🔥 ListLoader용 데이터 변환
-        const listData = this.currentResults.map(spot => ({
+        const listData = this.currentResults.map((spot) => ({
             id: spot.id,
             title: spot.title || '제목 없음',
             description: spot.description || '',
@@ -447,16 +441,13 @@ class TagSearchSystem {
         // 템플릿이 이미 DOM에 있는지 확인만 수행
         const template = document.getElementById('list-item');
         if (!template) {
-            console.warn(
-                '리스트 템플릿을 찾을 수 없습니다. Thymeleaf fragment가 포함되어 있는지 확인하세요.'
-            );
         }
     }
 
     applyTagHighlight() {
-        document.querySelectorAll('#results-grid .item').forEach(itemEl => {
+        document.querySelectorAll('#results-grid .item').forEach((itemEl) => {
             const spotId = itemEl.dataset.spotId;
-            const spot = this.currentResults.find(s => String(s.id) === spotId);
+            const spot = this.currentResults.find((s) => String(s.id) === spotId);
             if (!spot) return;
 
             const hashtagElement = itemEl.querySelector('.hash-tag');
@@ -477,9 +468,9 @@ class TagSearchSystem {
     }
 
     applyRegionInfo() {
-        document.querySelectorAll('#results-grid .item').forEach(itemEl => {
+        document.querySelectorAll('#results-grid .item').forEach((itemEl) => {
             const spotId = itemEl.dataset.spotId;
-            const spot = this.currentResults.find(s => String(s.id) === spotId);
+            const spot = this.currentResults.find((s) => String(s.id) === spotId);
             if (!spot) return;
 
             const regionElement = itemEl.querySelector('.item-info');
@@ -495,7 +486,7 @@ class TagSearchSystem {
             regionElement.appendChild(regionInfo);
         });
     }
-    
+
     // createResultItem(spot) {
     //     const template = document.getElementById('list-item');
     //     if (!template) {
@@ -527,7 +518,7 @@ class TagSearchSystem {
     //     const descriptionElement = itemFragment.querySelector('.item-description');
     //     if (descriptionElement) {
     //         descriptionElement.textContent = spot.description || '';
-    //     }    
+    //     }
 
     //     const hashtagElement = itemFragment.querySelector('.hash-tag');
     //     if (hashtagElement && spot.hashtags) {
@@ -617,7 +608,7 @@ class TagSearchSystem {
 
     selectCategory(category) {
         this.selectedCategory = category;
-        
+
         // 카테고리 버튼 active 상태 업데이트
         const categoryButtons = document.querySelectorAll('.category-item');
         categoryButtons.forEach((btn) => {

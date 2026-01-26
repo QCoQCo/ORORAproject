@@ -1,22 +1,56 @@
 // 마이페이지 JavaScript
 
+// 전역 변수: 다른 유저의 프로필인지 여부
+let isViewingOtherProfile = false;
+let viewingUserId = null;
+
 // 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function () {
-    // 로그인 상태 확인
-    if (!isLoggedIn()) {
-        alert('로그인이 필요합니다.');
-        window.location.href = '/pages/login/login';
-        return;
+document.addEventListener('DOMContentLoaded', async function () {
+    // 다른 유저의 프로필 보기인지 확인
+    const contentDiv = document.querySelector('[layout\\:fragment="content"]') || 
+                       document.querySelector('[data-profile-user-id]');
+    const profileUserId = contentDiv?.getAttribute('data-profile-user-id');
+    
+    if (profileUserId && profileUserId !== 'null' && profileUserId !== '') {
+        // 다른 유저의 프로필 보기 모드
+        isViewingOtherProfile = true;
+        viewingUserId = parseInt(profileUserId);
+        
+        // 현재 로그인한 사용자와 비교
+        const currentUser = getCurrentUser();
+        if (currentUser && currentUser.id === viewingUserId) {
+            // 본인의 프로필이면 마이페이지로 리다이렉트
+            window.location.href = '/pages/mypage/mypage';
+            return;
+        }
+        
+        // 다른 유저 프로필 표시
+        await displayOtherUserProfile(viewingUserId);
+        
+        // 탭 기능 초기화 (제한된 탭만)
+        initTabsForOtherProfile();
+        
+        // 해당 유저의 리뷰 데이터만 로드
+        await loadUserReviews(viewingUserId);
+    } else {
+        // 본인의 마이페이지 모드
+        // 서버에서 로그인 상태 확인
+        const isLoggedInStatus = await isLoggedInAsync();
+        if (!isLoggedInStatus) {
+            alert('로그인이 필요합니다.');
+            window.location.href = '/pages/login/login';
+            return;
+        }
+
+        // 사용자 정보 표시
+        displayUserInfo();
+
+        // 탭 기능 초기화
+        initTabs();
+
+        // 데이터 로드
+        loadUserData();
     }
-
-    // 사용자 정보 표시
-    displayUserInfo();
-
-    // 탭 기능 초기화
-    initTabs();
-
-    // 데이터 로드
-    loadUserData();
 });
 
 // 사용자 정보 표시
@@ -27,6 +61,17 @@ async function displayUserInfo() {
     try {
         // 최신 사용자 정보를 API에서 가져오기
         const response = await fetch(`/api/users/${user.id}`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (data.success && data.user) {
@@ -39,9 +84,7 @@ async function displayUserInfo() {
             // 가입일 표시
             if (userInfo.join_date) {
                 const joinDateStr = formatJoinDate(userInfo.join_date);
-                document.getElementById(
-                    'join-date'
-                ).textContent = `가입일: ${joinDateStr}`;
+                document.getElementById('join-date').textContent = `가입일: ${joinDateStr}`;
             } else {
                 document.getElementById('join-date').textContent = `가입일: 2024-01-01`;
             }
@@ -51,8 +94,14 @@ async function displayUserInfo() {
                 userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
             document.getElementById('profile-image').src = profileImageUrl;
 
-            // sessionStorage 업데이트 (최신 정보로)
-            sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+            // 사용자 정보 업데이트 (localStorage 또는 sessionStorage에 저장)
+            // 현재 로그인 상태 유지 여부 확인 (localStorage에 있으면 유지, 없으면 sessionStorage)
+            const hasLocalStorage = localStorage.getItem('loggedInUser') !== null;
+            if (hasLocalStorage) {
+                localStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+            } else {
+                sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+            }
         } else {
             // API 호출 실패 시 sessionStorage의 정보 사용
             document.getElementById('user-name').textContent = user.username;
@@ -69,7 +118,12 @@ async function displayUserInfo() {
             document.getElementById('profile-image').src = profileImageUrl;
         }
     } catch (error) {
-        console.error('사용자 정보 로드 오류:', error);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('사용자 정보 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('사용자 정보 로드 오류:', error);
+        }
         // 에러 발생 시 sessionStorage의 정보 사용
         document.getElementById('user-name').textContent = user.username;
         document.getElementById('user-email').textContent = user.email;
@@ -83,6 +137,99 @@ async function displayUserInfo() {
         const profileImageUrl =
             user.profileImage || user.profile_image || '/images/defaultProfile.png';
         document.getElementById('profile-image').src = profileImageUrl;
+    }
+}
+
+// 다른 유저의 프로필 표시
+async function displayOtherUserProfile(userId) {
+    try {
+        const response = await fetch(`/api/users/${userId}`);
+        
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('사용자 정보를 불러올 수 없습니다.');
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.user) {
+            const userInfo = data.user;
+            
+            // 사용자 정보 업데이트
+            document.getElementById('user-name').textContent = userInfo.username + '님의 프로필';
+            document.getElementById('user-email').textContent = userInfo.email || '';
+            
+            // 가입일 표시
+            if (userInfo.join_date) {
+                const joinDateStr = formatJoinDate(userInfo.join_date);
+                document.getElementById('join-date').textContent = `가입일: ${joinDateStr}`;
+            } else {
+                document.getElementById('join-date').textContent = '';
+            }
+            
+            // 프로필 이미지 설정
+            const profileImageUrl = userInfo.profileImage || userInfo.profile_image || '/images/defaultProfile.png';
+            document.getElementById('profile-image').src = profileImageUrl;
+            
+            // 프로필 수정 버튼 숨기기
+            const editBtn = document.getElementById('edit-profile-btn');
+            if (editBtn) {
+                editBtn.style.display = 'none';
+            }
+            
+            // 다른 유저 프로필에서는 특정 탭들 숨기기
+            hideTabsForOtherProfile();
+        } else {
+            throw new Error('사용자 정보를 찾을 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('다른 유저 프로필 로드 오류:', error);
+        document.getElementById('user-name').textContent = '사용자를 찾을 수 없습니다';
+        document.getElementById('user-email').textContent = '';
+        document.getElementById('join-date').textContent = '';
+        
+        const editBtn = document.getElementById('edit-profile-btn');
+        if (editBtn) {
+            editBtn.style.display = 'none';
+        }
+    }
+}
+
+// 다른 유저 프로필에서 특정 탭 숨기기
+function hideTabsForOtherProfile() {
+    // 숨길 탭 목록 (댓글, 좋아요, 신청관리, 관광지 추가신청)
+    const tabsToHide = ['comments', 'likes', 'requests', 'spot-add'];
+    
+    tabsToHide.forEach(tabName => {
+        const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+        const tabPanel = document.getElementById(`${tabName}-tab`);
+        
+        if (tabBtn) tabBtn.style.display = 'none';
+        if (tabPanel) tabPanel.style.display = 'none';
+    });
+    
+    // 리뷰 탭 텍스트 변경
+    const reviewsTabBtn = document.querySelector('.tab-btn[data-tab="reviews"]');
+    if (reviewsTabBtn) {
+        reviewsTabBtn.textContent = '리뷰';
+    }
+}
+
+// 다른 유저 프로필용 탭 초기화
+function initTabsForOtherProfile() {
+    // 리뷰 탭만 활성화
+    const reviewsTab = document.querySelector('.tab-btn[data-tab="reviews"]');
+    if (reviewsTab) {
+        reviewsTab.classList.add('active');
+    }
+    
+    const reviewsPanel = document.getElementById('reviews-tab');
+    if (reviewsPanel) {
+        reviewsPanel.classList.add('active');
     }
 }
 
@@ -126,7 +273,7 @@ async function loadUserData() {
     try {
         // 리뷰 데이터 로드
         await loadUserReviews(user.id);
-        
+
         // 좋아요 누른 리뷰 데이터 로드
         await loadLikedReviews(user.id);
 
@@ -137,7 +284,7 @@ async function loadUserData() {
         await loadUserLikes(user.id);
     } catch (error) {
         console.error('데이터 로드 오류:', error);
-        showError('데이터를 불러오는 중 오류가 발생했습니다.');
+        showNotification('데이터를 불러오는 중 오류가 발생했습니다.', 'error');
     }
 }
 
@@ -153,6 +300,17 @@ async function loadUserReviews(userId) {
     try {
         // 실제 API 호출
         const response = await fetch(`/api/users/${userId}/reviews`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) {
@@ -190,7 +348,12 @@ async function loadUserReviews(userId) {
 
         reviewsCount.textContent = `${reviews.length}개`;
     } catch (error) {
-        console.error('리뷰 로드 오류:', error);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('리뷰 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('리뷰 로드 오류:', error);
+        }
         reviewsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -215,6 +378,17 @@ async function loadLikedReviews(userId) {
     try {
         // API 호출
         const response = await fetch(`/api/users/${userId}/liked-reviews`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) {
@@ -255,7 +429,12 @@ async function loadLikedReviews(userId) {
             likedReviewsCount.textContent = `${reviews.length}개`;
         }
     } catch (error) {
-        console.error('좋아요 누른 리뷰 로드 오류:', error);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('좋아요 누른 리뷰 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('좋아요 누른 리뷰 로드 오류:', error);
+        }
         likedReviewsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -270,7 +449,7 @@ async function loadLikedReviews(userId) {
 function createLikedReviewHTML(review) {
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-    const date = formatDate(review.created_at);
+    const date = formatDate(review.created_at, 'korean');
     const authorName = review.author_name || '익명';
 
     return `
@@ -301,6 +480,17 @@ async function loadUserComments(userId) {
     try {
         // 실제 API 호출
         const response = await fetch(`/api/users/${userId}/comments`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) {
@@ -325,17 +515,26 @@ async function loadUserComments(userId) {
                 review_id: comment.reviewId || comment.review_id,
                 review_title: comment.reviewTitle || comment.review_title || '제목 없음',
                 tourist_spot_id: comment.touristSpotId || comment.tourist_spot_id,
-                tourist_spot_name: comment.touristSpotName || comment.tourist_spot_name || '알 수 없는 관광지',
-                review_author_name: comment.reviewAuthorName || comment.review_author_name || '익명',
+                tourist_spot_name:
+                    comment.touristSpotName || comment.tourist_spot_name || '알 수 없는 관광지',
+                review_author_name:
+                    comment.reviewAuthorName || comment.review_author_name || '익명',
                 created_at: comment.createdAt || comment.created_at,
             }));
 
-            commentsList.innerHTML = formattedComments.map((comment) => createCommentHTML(comment)).join('');
+            commentsList.innerHTML = formattedComments
+                .map((comment) => createCommentHTML(comment))
+                .join('');
         }
 
         commentsCount.textContent = `${comments.length}개`;
     } catch (error) {
-        console.error('댓글 로드 오류:', error);
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('댓글 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('댓글 로드 오류:', error);
+        }
         commentsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -358,6 +557,17 @@ async function loadUserLikes(userId) {
     try {
         // 실제 API 호출
         const response = await fetch(`/api/users/${userId}/liked-spots`);
+
+        // 응답이 HTML인지 확인 (인증/권한 문제로 로그인 페이지가 반환된 경우)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('인증이 필요합니다. 로그인해주세요.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) throw new Error();
@@ -378,6 +588,12 @@ async function loadUserLikes(userId) {
 
         likesCount.textContent = `${likes.length}개`;
     } catch (error) {
+        // JSON 파싱 에러인 경우 (HTML 응답)
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('좋아요한 관광지 로드 오류: 인증이 필요합니다.');
+        } else {
+            console.error('좋아요한 관광지 로드 오류:', error);
+        }
         likesList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
@@ -398,7 +614,7 @@ function createReviewHTML(review) {
                       (img) =>
                           `<img src="${img.image_url}" alt="${
                               img.alt_text || '리뷰 이미지'
-                          }" class="review-image" onclick="openImageModal('${img.image_url}')">`
+                          }" class="review-image" onclick="openImageModal('${img.image_url}')">`,
                   )
                   .join('')}</div>`
             : '';
@@ -407,7 +623,7 @@ function createReviewHTML(review) {
         <div class="review-item">
             <div class="item-header">
                 <h3 class="item-title">${review.title}</h3>
-                <span class="item-date">${formatDate(review.created_at)}</span>
+                <span class="item-date">${formatDate(review.created_at, 'korean')}</span>
             </div>
             <div class="item-content">${review.content}</div>
             <div class="item-meta">
@@ -428,7 +644,9 @@ function createReviewHTML(review) {
 
 // 댓글 HTML 생성
 function createCommentHTML(comment) {
-    const reviewAuthor = comment.review_author_name ? `<span class="review-author">리뷰 작성자: ${comment.review_author_name}</span>` : '';
+    const reviewAuthor = comment.review_author_name
+        ? `<span class="review-author">리뷰 작성자: ${comment.review_author_name}</span>`
+        : '';
     return `
         <div class="comment-item" onclick="window.location.href='/pages/detailed/detailed?id=${comment.tourist_spot_id}'">
             <div class="item-header">
@@ -452,7 +670,7 @@ function createLikeHTML(like) {
         <div class="like-item">
             <div class="item-header">
                 <h3 class="item-title">${like.title}</h3>
-                <span class="item-date">${formatDate(like.likedAt)}</span>
+                <span class="item-date">${formatDate(like.likedAt, 'korean')}</span>
             </div>
             <div class="item-content">${like.description || '좋아요한 관광지입니다.'}</div>
             <div class="item-meta">
@@ -464,112 +682,12 @@ function createLikeHTML(like) {
     `;
 }
 
-// 날짜 포맷팅 (한국 시간 기준, 시간대 변환 방지)
-function formatDate(dateString) {
-    if (!dateString) return '';
-    
-    const dateStr = dateString.toString();
-    
-    // 날짜 문자열에서 직접 년/월/일 추출 (시간대 변환 없이)
-    // 지원 형식: "2026-01-12", "2026-01-12 15:26:20", "2026-01-12T15:26:20"
-    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (match) {
-        const year = parseInt(match[1]);
-        const month = parseInt(match[2]);
-        const day = parseInt(match[3]);
-        return `${year}년 ${month}월 ${day}일`;
-    }
-    
-    // 다른 형식의 날짜인 경우
-    try {
-        const date = new Date(dateString);
-        if (!isNaN(date.getTime())) {
-            // 한국 시간대(UTC+9)로 변환하여 표시
-            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
-            const year = koreaTime.getUTCFullYear();
-            const month = koreaTime.getUTCMonth() + 1;
-            const day = koreaTime.getUTCDate();
-            return `${year}년 ${month}월 ${day}일`;
-        }
-    } catch (e) {
-        console.error('날짜 파싱 오류:', e);
-    }
-    
-    return '';
-}
+// formatDate 함수는 utils/date.js에서 가져옴 (korean 포맷 사용)
 
-// 가입일 포맷팅 (한국 시간 기준)
-function formatJoinDate(dateString) {
-    if (!dateString) return '정보 없음';
-    
-    const dateStr = dateString.toString();
-    
-    // 날짜 문자열에서 직접 년/월/일 추출
-    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (match) {
-        const year = parseInt(match[1]);
-        const month = parseInt(match[2]);
-        const day = parseInt(match[3]);
-        return `${year}. ${month}. ${day}.`;
-    }
-    
-    // 다른 형식의 날짜인 경우
-    try {
-        const date = new Date(dateString);
-        if (!isNaN(date.getTime())) {
-            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
-            const year = koreaTime.getUTCFullYear();
-            const month = koreaTime.getUTCMonth() + 1;
-            const day = koreaTime.getUTCDate();
-            return `${year}. ${month}. ${day}.`;
-        }
-    } catch (e) {
-        console.error('날짜 파싱 오류:', e);
-    }
-    
-    return '정보 없음';
-}
+// formatJoinDate 함수는 utils/date.js에서 가져옴
 
-// 이미지 모달 열기
-function openImageModal(imageUrl) {
-    // 간단한 이미지 모달 구현
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        cursor: pointer;
-    `;
-
-    const img = document.createElement('img');
-    img.src = imageUrl;
-    img.style.cssText = `
-        max-width: 90%;
-        max-height: 90%;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    `;
-
-    modal.appendChild(img);
-    document.body.appendChild(modal);
-
-    modal.addEventListener('click', () => {
-        document.body.removeChild(modal);
-    });
-}
-
-// 에러 표시
-function showError(message) {
-    console.error(message);
-    // 필요시 사용자에게 에러 메시지 표시
-}
+// openImageModal 함수는 utils/modal.js에서 가져옴
+// showError 함수는 utils/notification.js에서 가져옴
 
 // 샘플 데이터 함수들 (실제 API 연동 시 교체 필요)
 async function getSampleUserReviews(userId) {
@@ -656,7 +774,7 @@ async function loadUserRequests(userId) {
         if (data.success && data.requests) {
             // 현재 사용자의 신청만 필터링
             const userRequests = data.requests.filter(
-                (req) => req.userId === userId || req.userId === String(userId)
+                (req) => req.userId === userId || req.userId === String(userId),
             );
 
             if (userRequests.length === 0) {
@@ -695,23 +813,23 @@ function createRequestHTML(request) {
     const statusBadge = getRequestStatusBadge(request.status);
     const createdAt = formatRequestDate(request.createdAt);
     const description = request.description || '-';
-    
+
     // 이미지 미리보기 생성 (모든 신청 유형에서 이미지가 있으면 표시)
     let imagePreview = '';
     if (request.imageUrl) {
         // 쉼표로 구분된 여러 이미지 URL 처리
         const imageUrls = request.imageUrl.split(',').filter((url) => url.trim());
-        
+
         if (imageUrls.length > 0) {
             const firstImageUrl = imageUrls[0];
             const imageCount = imageUrls.length;
-            
+
             // 여러 이미지가 있으면 개수 배지 표시
             const countBadge =
                 imageCount > 1
                     ? `<span style="position: absolute; top: 5px; right: 5px; background: #007bff; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;">${imageCount}</span>`
                     : '';
-            
+
             // 여러 이미지가 있으면 모두 표시, 하나면 단일 이미지만 표시
             if (imageCount > 1) {
                 const imagesHtml = imageUrls
@@ -723,10 +841,10 @@ function createRequestHTML(request) {
                              onclick="openImageModal('${url.trim()}')" />
                         ${index === 0 ? '<span style="position: absolute; top: 2px; left: 2px; background: #28a745; color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.65rem;">대표</span>' : ''}
                     </div>
-                `
+                `,
                     )
                     .join('');
-                
+
                 imagePreview = `
                     <div style="margin-top: 10px;">
                         <p style="margin-bottom: 5px; font-size: 0.85rem; color: #666;"><strong>신청 이미지 (${imageCount}개):</strong></p>
@@ -843,7 +961,9 @@ let spotAddFormInitialized = false;
 
 // 카카오맵 API 키 가져오기
 function getKakaoMapApiKey() {
-    const wrapper = document.querySelector('[layout\\:fragment="content"]') || document.querySelector('[data-kakao-api-key]');
+    const wrapper =
+        document.querySelector('[layout\\:fragment="content"]') ||
+        document.querySelector('[data-kakao-api-key]');
     if (wrapper) {
         return wrapper.dataset.kakaoApiKey;
     }
@@ -870,7 +990,6 @@ function loadKakaoMapScript() {
 
         const apiKey = getKakaoMapApiKey();
         if (!apiKey) {
-            console.warn('카카오맵 API 키를 찾을 수 없습니다.');
             reject(new Error('카카오맵 API 키를 찾을 수 없습니다.'));
             return;
         }
@@ -898,9 +1017,9 @@ function loadKakaoMapScript() {
 async function searchSpotLocation() {
     const searchInput = document.getElementById('spot-location-search');
     const resultsContainer = document.getElementById('spot-location-results');
-    
+
     if (!searchInput || !resultsContainer) return;
-    
+
     const query = searchInput.value.trim();
     if (!query) {
         alert('검색어를 입력해주세요.');
@@ -909,7 +1028,7 @@ async function searchSpotLocation() {
 
     try {
         await loadKakaoMapScript();
-        
+
         const places = new kakao.maps.services.Places();
         places.keywordSearch(query, (data, status) => {
             if (status === kakao.maps.services.Status.OK) {
@@ -919,21 +1038,23 @@ async function searchSpotLocation() {
                 const geocoder = new kakao.maps.services.Geocoder();
                 geocoder.addressSearch(query, (addressData, addressStatus) => {
                     if (addressStatus === kakao.maps.services.Status.OK) {
-                        const formattedResults = addressData.map(item => ({
+                        const formattedResults = addressData.map((item) => ({
                             place_name: item.address_name,
                             address_name: item.address_name,
                             road_address_name: item.road_address?.address_name || '',
                             y: item.y,
-                            x: item.x
+                            x: item.x,
                         }));
                         displayLocationResults(formattedResults);
                     } else {
-                        resultsContainer.innerHTML = '<div class="location-no-results">검색 결과가 없습니다.</div>';
+                        resultsContainer.innerHTML =
+                            '<div class="location-no-results">검색 결과가 없습니다.</div>';
                         resultsContainer.style.display = 'block';
                     }
                 });
             } else {
-                resultsContainer.innerHTML = '<div class="location-no-results">검색 중 오류가 발생했습니다.</div>';
+                resultsContainer.innerHTML =
+                    '<div class="location-no-results">검색 중 오류가 발생했습니다.</div>';
                 resultsContainer.style.display = 'block';
             }
         });
@@ -954,7 +1075,9 @@ function displayLocationResults(results) {
         return;
     }
 
-    resultsContainer.innerHTML = results.map((place, index) => `
+    resultsContainer.innerHTML = results
+        .map(
+            (place, index) => `
         <div class="location-result-item" data-index="${index}" 
              data-lat="${place.y}" data-lng="${place.x}" 
              data-name="${place.place_name}" 
@@ -962,16 +1085,18 @@ function displayLocationResults(results) {
             <div class="place-name">${place.place_name}</div>
             <div class="place-address">${place.road_address_name || place.address_name}</div>
         </div>
-    `).join('');
+    `,
+        )
+        .join('');
 
     // 결과 클릭 이벤트 추가
-    resultsContainer.querySelectorAll('.location-result-item').forEach(item => {
+    resultsContainer.querySelectorAll('.location-result-item').forEach((item) => {
         item.addEventListener('click', () => {
             selectLocation(
                 parseFloat(item.dataset.lat),
                 parseFloat(item.dataset.lng),
                 item.dataset.name,
-                item.dataset.address
+                item.dataset.address,
             );
         });
     });
@@ -1027,15 +1152,19 @@ function updateImagePreview() {
         return;
     }
 
-    previewContainer.innerHTML = selectedFiles.map((file, index) => `
+    previewContainer.innerHTML = selectedFiles
+        .map(
+            (file, index) => `
         <div class="selected-file-item" data-index="${index}">
             <img src="${URL.createObjectURL(file)}" alt="${file.name}">
             <button type="button" class="remove-file" data-index="${index}">&times;</button>
         </div>
-    `).join('');
+    `,
+        )
+        .join('');
 
     // 삭제 버튼 이벤트 추가
-    previewContainer.querySelectorAll('.remove-file').forEach(btn => {
+    previewContainer.querySelectorAll('.remove-file').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const index = parseInt(e.target.dataset.index);
             selectedFiles.splice(index, 1);
@@ -1050,7 +1179,7 @@ async function initSpotAddForm() {
     if (spotAddFormInitialized) {
         return;
     }
-    
+
     const form = document.getElementById('spot-add-form');
     const regionSelect = document.getElementById('spot-region');
     const descriptionTextarea = document.getElementById('spot-description');
@@ -1064,7 +1193,7 @@ async function initSpotAddForm() {
     if (imageInput) {
         imageInput.addEventListener('change', function (e) {
             const files = Array.from(e.target.files);
-            
+
             // 최대 10장 제한
             if (selectedFiles.length + files.length > 10) {
                 alert('이미지는 최대 10장까지 추가할 수 있습니다.');
@@ -1072,14 +1201,14 @@ async function initSpotAddForm() {
             }
 
             // 파일 추가
-            files.forEach(file => {
+            files.forEach((file) => {
                 if (file.type.startsWith('image/')) {
                     selectedFiles.push(file);
                 }
             });
 
             updateImagePreview();
-            
+
             // input 초기화 (같은 파일 다시 선택 가능하도록)
             imageInput.value = '';
         });
@@ -1184,12 +1313,12 @@ async function initSpotAddForm() {
             formData.append('linkUrl', document.getElementById('spot-link').value);
             formData.append('hashtags', document.getElementById('spot-hashtags').value);
             formData.append('description', document.getElementById('spot-description').value);
-            
+
             // 위치 정보 추가
             const latitude = document.getElementById('spot-latitude').value;
             const longitude = document.getElementById('spot-longitude').value;
             const address = document.getElementById('spot-address').value;
-            
+
             if (latitude) formData.append('latitude', latitude);
             if (longitude) formData.append('longitude', longitude);
             if (address) formData.append('address', address);
@@ -1227,7 +1356,7 @@ async function initSpotAddForm() {
             }
         });
     }
-    
+
     // 초기화 완료 플래그 설정
     spotAddFormInitialized = true;
 }

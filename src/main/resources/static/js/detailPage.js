@@ -71,59 +71,6 @@ function initSectionNavigation() {
 // DOM 로드 완료 후 초기화
 document.addEventListener('DOMContentLoaded', initSectionNavigation);
 
-//   const scrollPosition = window.scrollY;
-
-// sectionEl.forEach((el, i) => {
-//     el.addEventListener('click', function () {
-//         sectionEl.forEach(se => se.classList.remove('active'));
-//         el.classList.add('active');
-
-//         sectionList.forEach((e, idx) => {
-//             let minus = 0;
-//             if (idx === 0) {
-//                 minus = 70;
-//             }
-//             if (i === idx) {
-//                 let sectionTop = sectionList[idx].offsetTop - minus;
-//                 window.scrollTo({ top: sectionTop, behavior: "smooth" });
-//             }
-//         })
-//     })
-// });
-
-// function onReset() {
-//   sectionsEl.forEach(({ el: otherEl }) => otherEl.classList.remove('on'));
-// }
-
-// function scrolls(){
-//     const scrollPosition = window.scrollY;
-//     sectionList.forEach(se => {
-//         const sectionTop = sectionEl.offsetTop;
-//         const sectionHeight = section.offsetHeight;
-//         const offset = window.innerHeight * 0.2;
-
-//         if(scrollPosition + offset >= sectionTop && scrollPosition < sectionTop + sectionHeight - offset){
-//             onReset();
-//             const tabId = section.id.replace('-section', '');
-//             const activeTab = document.getElementById(tabId);
-//             if(activeTab){
-//                 activeTab.classList.add('on');
-//             }
-//             if(scrollPosition === 0){
-//                 onReset();
-//             }
-//         }
-//     })
-// }
-// window.addEventListener('scroll', updateActiveTab);
-
-// 관광지 하트 눌렀을 때, 빈하트 -> 빨간하트
-// if (likeBtn) {
-//     like.addEventListener('click', () => {
-//         likeBtn.classList.toggle('likeBtnActive');
-//     });
-// }
-
 // Swiper 인스턴스를 전역으로 관리
 let swiperInstance = null;
 let swiper2Instance = null;
@@ -145,7 +92,6 @@ function initSwiper() {
     const mainSwiper = document.querySelector('.mySwiper2');
 
     if (!thumbSwiper || !mainSwiper) {
-        console.log('Swiper 요소를 찾을 수 없습니다.');
         return;
     }
 
@@ -572,8 +518,8 @@ function updateSpotInfo(spot, regionName) {
                     spot.hashtags && spot.hashtags.includes('무료')
                         ? '무료'
                         : spot.hashtags && spot.hashtags.includes('유료')
-                        ? '유료 (현장 문의)'
-                        : '현장 문의'
+                          ? '유료 (현장 문의)'
+                          : '현장 문의'
                 }</p>
             </li>
             <li>
@@ -603,7 +549,7 @@ function getCategoryFromHashtags(hashtags) {
     if (hashtags.some((tag) => tag.includes('산') || tag.includes('공원'))) return '산/공원';
     if (
         hashtags.some(
-            (tag) => tag.includes('문화') || tag.includes('사찰') || tag.includes('박물관')
+            (tag) => tag.includes('문화') || tag.includes('사찰') || tag.includes('박물관'),
         )
     )
         return '문화/역사';
@@ -840,7 +786,6 @@ let reviewImages = []; // 리뷰에 첨부할 이미지 파일들
 // 리뷰 데이터 로드
 async function loadReviews() {
     if (!currentSpotId) {
-        console.warn('관광지 ID가 없어 리뷰를 불러올 수 없습니다.');
         showNoReviewsMessage();
         return;
     }
@@ -931,17 +876,8 @@ function createReviewElement(review) {
     const reviewDiv = document.createElement('div');
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    let currentUserId = null;
-
-    if (loggedInUser) {
-        try {
-            const user = JSON.parse(loggedInUser);
-            currentUserId = user.id;
-        } catch (error) {
-            console.error('사용자 정보 파싱 오류:', error);
-        }
-    }
+    const user = getCurrentUser();
+    const currentUserId = user ? user.id : null;
 
     // 리뷰 작성자 ID 가져오기
     const reviewUserId = review.userId || review.user_id;
@@ -960,14 +896,18 @@ function createReviewElement(review) {
     const replies = review.replies || review.comments || review.commentCount || 0;
     const isLiked = review.isLiked || false;
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
+    // 클릭 가능한 프로필 요소 (본인 리뷰가 아닌 경우)
+    const profileClickable = !isMyReview && reviewUserId;
+    const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${reviewUserId})"` : '';
+    const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
+    
     const userImageHTML = review.userProfileImage
-    ? `<p class="userImage">
+        ? `<p class="userImage clickable-profile" ${profileClickHandler} ${profileCursorStyle}>
            <img src="${review.userProfileImage}"
                 alt="${userName}"
                 class="comment-user-image">
        </p>`
-    : `<p class="userImage"></p>`;
-
+        : `<p class="userImage"></p>`;
 
     // 본인 리뷰인 경우: 수정/삭제 버튼 표시, 신고 버튼 숨김
     const myReviewButtonsHTML = isMyReview
@@ -986,12 +926,12 @@ function createReviewElement(review) {
     // 수정 날짜 처리
     const createdAt = review.createdAt || review.created_at;
     const updatedAt = review.updatedAt || review.updated_at;
-    const createdDateStr = formatDate(createdAt || new Date().toISOString());
-    const updatedDateStr = formatDate(updatedAt);
-    
+    const createdDateStr = formatDate(createdAt || new Date().toISOString(), 'dot');
+    const updatedDateStr = formatDate(updatedAt, 'dot');
+
     // 수정 날짜가 생성 날짜와 다른 경우에만 표시
     const isEdited = updatedAt && createdDateStr !== updatedDateStr;
-    const dateHTML = isEdited 
+    const dateHTML = isEdited
         ? `<p class="reviewDate">${createdDateStr}</p>
            <p class="reviewDateEdited">(수정: ${updatedDateStr})</p>`
         : `<p class="reviewDate">${createdDateStr}</p>`;
@@ -1000,9 +940,9 @@ function createReviewElement(review) {
         <div class="userReviewTop">
             ${userImageHTML}
             <div class="userInfo">
-                <p class="userId"><strong>${userName}</strong>${
-        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
-    }</p>
+                <p class="userId ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}><strong>${userName}</strong>${
+                    isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
+                }</p>
                 <div class="reviewRating">${stars} (${review.rating || 0}/5)</div>
                 <p class="reviewTitle">${review.title || ''}</p>
             </div>
@@ -1037,38 +977,7 @@ function createReviewElement(review) {
 }
 
 // 날짜 포맷팅 (한국 시간 기준, 시간대 변환 방지)
-function formatDate(dateString) {
-    if (!dateString) return '';
-    
-    const dateStr = dateString.toString();
-    
-    // 날짜 문자열에서 직접 년/월/일 추출 (시간대 변환 없이)
-    // 지원 형식: "2026-01-12", "2026-01-12 15:26:20", "2026-01-12T15:26:20", "2026-01-12T15:26:20Z"
-    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (match) {
-        const year = parseInt(match[1]);
-        const month = parseInt(match[2]);
-        const day = parseInt(match[3]);
-        return `${year}. ${month}. ${day}`;
-    }
-    
-    // 다른 형식의 날짜인 경우 (예: "Jan 12, 2026")
-    try {
-        const date = new Date(dateString);
-        if (!isNaN(date.getTime())) {
-            // 한국 시간대(UTC+9)로 변환하여 표시
-            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
-            const year = koreaTime.getUTCFullYear();
-            const month = koreaTime.getUTCMonth() + 1;
-            const day = koreaTime.getUTCDate();
-            return `${year}. ${month}. ${day}`;
-        }
-    } catch (e) {
-        console.error('날짜 파싱 오류:', e);
-    }
-    
-    return '';
-}
+// formatDate 함수는 utils/date.js에서 가져옴
 
 // 리뷰 없음 메시지 표시
 function showNoReviewsMessage() {
@@ -1415,21 +1324,14 @@ async function submitReview() {
     }
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
+    const user = getCurrentUser();
+    if (!user) {
         alert('로그인이 필요합니다. 로그인 후 리뷰를 작성해주세요.');
         return;
     }
 
-    let userId;
-    try {
-        const user = JSON.parse(loggedInUser);
-        userId = user.id;
-        if (!userId) {
-            throw new Error('사용자 ID를 찾을 수 없습니다.');
-        }
-    } catch (error) {
-        console.error('사용자 정보 파싱 오류:', error);
+    const userId = user.id;
+    if (!userId) {
         alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
         return;
     }
@@ -1580,7 +1482,7 @@ async function toggleReviewLike(reviewId) {
 
             // 포토리뷰 모달에서도 업데이트
             const modalReviewElement = document.querySelector(
-                `#photo-review-modal [data-review-id="${reviewId}"]`
+                `#photo-review-modal [data-review-id="${reviewId}"]`,
             );
             if (modalReviewElement) {
                 const modalLikeBtn = modalReviewElement.querySelector('.reviewLikeBtn');
@@ -1612,8 +1514,6 @@ function reportReview(reviewId) {
 
 // 댓글 목록 토글 (펼치기/접기)
 async function toggleReviewReply(reviewId) {
-    console.log('toggleReviewReply called with reviewId:', reviewId);
-
     // 모든 가능한 댓글 컨테이너 찾기
     let commentsContainer = document.getElementById(`photo-review-comments-${reviewId}`);
 
@@ -1641,7 +1541,6 @@ async function toggleReviewReply(reviewId) {
             isExpanded = computedStyle.display !== 'none';
         }
     }
-
 
     if (isExpanded) {
         // 접기
@@ -1679,7 +1578,7 @@ async function toggleReviewReply(reviewId) {
             } else {
                 // 일반 리뷰
                 const reviewElement = document.querySelector(
-                    `.userReview[data-review-id="${reviewId}"]`
+                    `.userReview[data-review-id="${reviewId}"]`,
                 );
                 if (reviewElement) {
                     commentsContainer.id = `review-comments-${reviewId}`;
@@ -1736,6 +1635,11 @@ async function loadReviewComments(reviewId, container) {
 
         // 댓글 수정 폼 이벤트 리스너 추가
         initCommentEditForms();
+
+        // 댓글 수 업데이트
+        updateCommentCount(reviewId, comments.length);
+
+        return comments.length;
     } catch (error) {
         console.error('댓글 로드 오류:', error);
         container.innerHTML = `
@@ -1745,6 +1649,28 @@ async function loadReviewComments(reviewId, container) {
             ${createCommentFormHTML(reviewId)}
         `;
         initCommentForm(reviewId);
+        return 0;
+    }
+}
+
+// 댓글 수 업데이트 함수
+function updateCommentCount(reviewId, count) {
+    // 포토리뷰 모달 내의 댓글 수 업데이트
+    const photoReviewModal = document.getElementById('photo-review-modal-content');
+    if (photoReviewModal && photoReviewModal.getAttribute('data-review-id') == reviewId) {
+        const reviewReCount = photoReviewModal.querySelector('.reviewReCount');
+        if (reviewReCount) {
+            reviewReCount.textContent = count;
+        }
+    }
+
+    // 일반 리뷰 목록 내의 댓글 수 업데이트
+    const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
+    if (reviewElement) {
+        const reviewReCount = reviewElement.querySelector('.reviewReCount');
+        if (reviewReCount) {
+            reviewReCount.textContent = count;
+        }
     }
 }
 
@@ -1752,32 +1678,29 @@ async function loadReviewComments(reviewId, container) {
 function createCommentHTML(comment) {
     const userName = comment.userName || comment.userLoginId || '익명';
     const createdAt = formatDate(
-        comment.createdAt || comment.created_at || new Date().toISOString()
+        comment.createdAt || comment.created_at || new Date().toISOString(),
+        'dot',
     );
     const userProfileImage = comment.userProfileImage || '/images/defaultProfile.png';
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    let currentUserId = null;
-
-    if (loggedInUser) {
-        try {
-            const user = JSON.parse(loggedInUser);
-            currentUserId = user.id;
-        } catch (error) {
-            console.error('사용자 정보 파싱 오류:', error);
-        }
-    }
+    const user = getCurrentUser();
+    const currentUserId = user ? user.id : null;
 
     const commentUserId = comment.userId || comment.user_id;
     const isMyComment = currentUserId && commentUserId && currentUserId == commentUserId;
+    
+    // 클릭 가능한 프로필 요소 (본인 댓글이 아닌 경우)
+    const profileClickable = !isMyComment && commentUserId;
+    const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${commentUserId})"` : '';
+    const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
 
     // 본인 댓글인 경우 신고 버튼 숨김, 삭제/수정 버튼 표시
     const actionButtonsHTML = isMyComment
         ? `<div class="comment-actions">
             <button class="edit-comment-btn" onclick="editComment(${comment.id}, '${(
-              comment.content || ''
-          ).replace(/'/g, "\\'")}')">수정</button>
+                comment.content || ''
+            ).replace(/'/g, "\\'")}')">수정</button>
             <button class="delete-comment-btn" onclick="deleteComment(${comment.id})">삭제</button>
         </div>`
         : `<div class="comment-report-btn">
@@ -1786,12 +1709,12 @@ function createCommentHTML(comment) {
 
     return `
         <div class="comment-item ${isMyComment ? 'my-comment' : ''}" data-comment-id="${
-        comment.id
-    }">
+            comment.id
+        }">
             <div class="comment-header">
-                <img src="${userProfileImage}" alt="${userName}" class="comment-user-image" />
+                <img src="${userProfileImage}" alt="${userName}" class="comment-user-image ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle} />
                 <div class="comment-user-info">
-                    <p class="comment-user-name">
+                    <p class="comment-user-name ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}>
                         <strong>${userName}</strong>
                         ${isMyComment ? ' <span class="my-comment-badge">내 댓글</span>' : ''}
                     </p>
@@ -1910,21 +1833,14 @@ async function submitComment(reviewId) {
     }
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
+    const user = getCurrentUser();
+    if (!user) {
         alert('로그인이 필요합니다. 로그인 후 댓글을 작성해주세요.');
         return;
     }
 
-    let userId;
-    try {
-        const user = JSON.parse(loggedInUser);
-        userId = user.id;
-        if (!userId) {
-            throw new Error('사용자 ID를 찾을 수 없습니다.');
-        }
-    } catch (error) {
-        console.error('사용자 정보 파싱 오류:', error);
+    const userId = user.id;
+    if (!userId) {
         alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
         return;
     }
@@ -1953,6 +1869,7 @@ async function submitComment(reviewId) {
         if (data.success) {
             // 댓글 목록 새로고침 - 포토리뷰 모달과 일반 리뷰 모두 처리
             let commentsContainer = document.getElementById(`photo-review-comments-${reviewId}`);
+            const isPhotoReviewModal = !!commentsContainer;
 
             if (!commentsContainer) {
                 // 일반 리뷰의 경우
@@ -1970,15 +1887,14 @@ async function submitComment(reviewId) {
                 commentsContainer.style.display !== 'none' &&
                 window.getComputedStyle(commentsContainer).display !== 'none';
 
-            // 리뷰 목록 새로고침 (댓글 수 업데이트) - 이전에 댓글창이 열려있었다면 다시 열기
-            await loadReviews();
+            if (isPhotoReviewModal && wasOpen) {
+                // 포토리뷰 모달이 열려있고 댓글창도 열려있으면 댓글 컨테이너만 직접 새로고침
+                const commentCount = await loadReviewComments(reviewId, commentsContainer);
+                commentsContainer.style.display = 'block';
+                // 댓글 수 업데이트
+                updateCommentCount(reviewId, commentCount);
 
-            // 댓글창이 열려있었으면 다시 열기
-            if (wasOpen) {
-                // loadReviews() 후 DOM이 재생성되었으므로 toggleReviewReply를 호출하여 댓글창 다시 열기
-                await toggleReviewReply(reviewId);
-
-                // 폼 초기화 (댓글 목록 로드 후)
+                // 폼 초기화
                 const newTextarea = document.getElementById(`comment-input-${reviewId}`);
                 const charCount = document.getElementById(`comment-char-count-${reviewId}`);
                 if (newTextarea) {
@@ -1987,6 +1903,27 @@ async function submitComment(reviewId) {
                 if (charCount) {
                     charCount.textContent = '0';
                     charCount.style.color = 'var(--neutral-500)';
+                }
+            } else {
+                // 일반 리뷰이거나 댓글창이 닫혀있으면 기존 로직 사용
+                // 리뷰 목록 새로고침 (댓글 수 업데이트) - 이전에 댓글창이 열려있었다면 다시 열기
+                await loadReviews();
+
+                // 댓글창이 열려있었으면 다시 열기
+                if (wasOpen) {
+                    // loadReviews() 후 DOM이 재생성되었으므로 toggleReviewReply를 호출하여 댓글창 다시 열기
+                    await toggleReviewReply(reviewId);
+
+                    // 폼 초기화 (댓글 목록 로드 후)
+                    const newTextarea = document.getElementById(`comment-input-${reviewId}`);
+                    const charCount = document.getElementById(`comment-char-count-${reviewId}`);
+                    if (newTextarea) {
+                        newTextarea.value = '';
+                    }
+                    if (charCount) {
+                        charCount.textContent = '0';
+                        charCount.style.color = 'var(--neutral-500)';
+                    }
                 }
             }
         } else {
@@ -2073,21 +2010,14 @@ async function saveComment(commentId) {
     }
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
+    const user = getCurrentUser();
+    if (!user) {
         alert('로그인이 필요합니다.');
         return;
     }
 
-    let userId;
-    try {
-        const user = JSON.parse(loggedInUser);
-        userId = user.id;
-        if (!userId) {
-            throw new Error('사용자 ID를 찾을 수 없습니다.');
-        }
-    } catch (error) {
-        console.error('사용자 정보 파싱 오류:', error);
+    const userId = user.id;
+    if (!userId) {
         alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
         return;
     }
@@ -2136,14 +2066,14 @@ async function saveComment(commentId) {
 
                 if (reviewId) {
                     let commentsContainer = document.getElementById(
-                        `photo-review-comments-${reviewId}`
+                        `photo-review-comments-${reviewId}`,
                     );
                     if (!commentsContainer) {
                         commentsContainer = document.getElementById(`review-comments-${reviewId}`);
                     }
                     if (!commentsContainer && reviewElement) {
                         commentsContainer = reviewElement.querySelector(
-                            '.review-comments-container'
+                            '.review-comments-container',
                         );
                     }
 
@@ -2175,21 +2105,14 @@ async function deleteComment(commentId) {
     }
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
+    const user = getCurrentUser();
+    if (!user) {
         alert('로그인이 필요합니다.');
         return;
     }
 
-    let userId;
-    try {
-        const user = JSON.parse(loggedInUser);
-        userId = user.id;
-        if (!userId) {
-            throw new Error('사용자 ID를 찾을 수 없습니다.');
-        }
-    } catch (error) {
-        console.error('사용자 정보 파싱 오류:', error);
+    const userId = user.id;
+    if (!userId) {
         alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
         return;
     }
@@ -2218,9 +2141,15 @@ async function deleteComment(commentId) {
                     : null;
 
                 // 댓글창이 열려있는지 확인
-                const commentsContainer = document.querySelector(
-                    `#review-comments-${reviewId}, #photo-review-comments-${reviewId}`
+                let commentsContainer = document.getElementById(
+                    `photo-review-comments-${reviewId}`,
                 );
+                const isPhotoReviewModal = !!commentsContainer;
+
+                if (!commentsContainer) {
+                    commentsContainer = document.getElementById(`review-comments-${reviewId}`);
+                }
+
                 const wasOpen =
                     commentsContainer &&
                     commentsContainer.style.display !== 'none' &&
@@ -2228,12 +2157,21 @@ async function deleteComment(commentId) {
 
                 commentItem.remove();
 
-                // 리뷰 목록 새로고침 (댓글 수 업데이트)
-                await loadReviews();
+                if (isPhotoReviewModal && wasOpen) {
+                    // 포토리뷰 모달이 열려있고 댓글창도 열려있으면 댓글 컨테이너만 직접 새로고침
+                    const commentCount = await loadReviewComments(reviewId, commentsContainer);
+                    commentsContainer.style.display = 'block';
+                    // 댓글 수 업데이트
+                    updateCommentCount(reviewId, commentCount);
+                } else {
+                    // 일반 리뷰이거나 댓글창이 닫혀있으면 기존 로직 사용
+                    // 리뷰 목록 새로고침 (댓글 수 업데이트)
+                    await loadReviews();
 
-                // 댓글창이 열려있었으면 다시 열기
-                if (wasOpen && reviewId) {
-                    await toggleReviewReply(reviewId);
+                    // 댓글창이 열려있었으면 다시 열기
+                    if (wasOpen && reviewId) {
+                        await toggleReviewReply(reviewId);
+                    }
                 }
             }
         } else {
@@ -2248,8 +2186,8 @@ async function deleteComment(commentId) {
 // 신고 모달 열기
 function openReportModal(targetId, targetType) {
     // 현재 로그인한 사용자 정보 확인
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
+    const user = getCurrentUser();
+    if (!user) {
         alert('로그인이 필요합니다. 로그인 후 신고해주세요.');
         return;
     }
@@ -2382,16 +2320,14 @@ async function submitReport(event) {
     }
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    let userId;
-    try {
-        const user = JSON.parse(loggedInUser);
-        userId = user.id;
-        if (!userId) {
-            throw new Error('사용자 ID를 찾을 수 없습니다.');
-        }
-    } catch (error) {
-        console.error('사용자 정보 파싱 오류:', error);
+    const user = getCurrentUser();
+    if (!user) {
+        alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+
+    const userId = user.id;
+    if (!userId) {
         alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.');
         return;
     }
@@ -2744,21 +2680,13 @@ function initPhotoRequestModal() {
             }
 
             // 현재 로그인한 사용자 정보 가져오기
-            const loggedInUser = sessionStorage.getItem('loggedInUser');
-            if (!loggedInUser) {
+            const user = getCurrentUser();
+            if (!user || !user.id) {
                 alert('로그인이 필요합니다.');
                 return;
             }
 
-            let userId;
-            try {
-                const user = JSON.parse(loggedInUser);
-                userId = user.id;
-            } catch (error) {
-                console.error('사용자 정보 파싱 오류:', error);
-                alert('사용자 정보를 가져올 수 없습니다.');
-                return;
-            }
+            const userId = user.id;
 
             // FormData 생성
             const formData = new FormData();
@@ -2898,21 +2826,13 @@ function initSpotEditRequestModal() {
             }
 
             // 현재 로그인한 사용자 정보 가져오기
-            const loggedInUser = sessionStorage.getItem('loggedInUser');
-            if (!loggedInUser) {
+            const user = getCurrentUser();
+            if (!user || !user.id) {
                 alert('로그인이 필요합니다.');
                 return;
             }
 
-            let userId;
-            try {
-                const user = JSON.parse(loggedInUser);
-                userId = user.id;
-            } catch (error) {
-                console.error('사용자 정보 파싱 오류:', error);
-                alert('사용자 정보를 가져올 수 없습니다.');
-                return;
-            }
+            const userId = user.id;
 
             // FormData 생성
             const formData = new FormData();
@@ -2979,7 +2899,6 @@ function updatePhotoReviews(spotReviews) {
 // 포토리뷰 로드 (별도 API 호출)
 async function loadPhotoReviews() {
     if (!currentSpotId) {
-        console.warn('관광지 ID가 없어 포토리뷰를 불러올 수 없습니다.');
         return;
     }
 
@@ -3094,14 +3013,8 @@ function createPhotoReviewListItem(review) {
     item.setAttribute('data-review-id', review.id);
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    let currentUserId = null;
-    if (loggedInUser) {
-        try {
-            const userData = JSON.parse(loggedInUser);
-            currentUserId = userData.id;
-        } catch (e) {}
-    }
+    const user = getCurrentUser();
+    const currentUserId = user ? user.id : null;
 
     // 리뷰 작성자 ID 가져오기
     const reviewUserId = review.userId || review.user_id;
@@ -3121,7 +3034,10 @@ function createPhotoReviewListItem(review) {
     const title = review.title || '';
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-    const createdAt = formatDate(review.createdAt || review.created_at || new Date().toISOString());
+    const createdAt = formatDate(
+        review.createdAt || review.created_at || new Date().toISOString(),
+        'dot',
+    );
     const imageCount = review.images ? review.images.length : 0;
 
     item.innerHTML = `
@@ -3132,8 +3048,8 @@ function createPhotoReviewListItem(review) {
         <div class="photo-review-list-info">
             <div class="photo-review-list-header">
                 <p class="photo-review-user">${userName}${
-        isMyReview ? ' <span class="my-photo-review-badge">내 리뷰</span>' : ''
-    }</p>
+                    isMyReview ? ' <span class="my-photo-review-badge">내 리뷰</span>' : ''
+                }</p>
                 <p class="photo-review-date">${createdAt}</p>
             </div>
             <p class="photo-review-title">${title}</p>
@@ -3154,14 +3070,8 @@ function createPhotoReviewGridItem(review) {
     item.setAttribute('data-review-id', review.id);
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    let currentUserId = null;
-    if (loggedInUser) {
-        try {
-            const userData = JSON.parse(loggedInUser);
-            currentUserId = userData.id;
-        } catch (e) {}
-    }
+    const user = getCurrentUser();
+    const currentUserId = user ? user.id : null;
 
     // 리뷰 작성자 ID 가져오기
     const reviewUserId = review.userId || review.user_id;
@@ -3205,17 +3115,8 @@ function openPhotoReviewModal(review) {
     document.body.style.overflow = 'hidden';
 
     // 현재 로그인한 사용자 정보 가져오기
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    let currentUserId = null;
-
-    if (loggedInUser) {
-        try {
-            const user = JSON.parse(loggedInUser);
-            currentUserId = user.id;
-        } catch (error) {
-            console.error('사용자 정보 파싱 오류:', error);
-        }
-    }
+    const user = getCurrentUser();
+    const currentUserId = user ? user.id : null;
 
     // 리뷰 작성자 ID 가져오기
     const reviewUserId = review.userId || review.user_id;
@@ -3226,14 +3127,14 @@ function openPhotoReviewModal(review) {
     const contentText = review.content || '';
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-    
+
     // 수정 날짜 처리
     const createdAtRaw = review.createdAt || review.created_at;
     const updatedAtRaw = review.updatedAt || review.updated_at;
-    const createdAt = formatDate(createdAtRaw || new Date().toISOString());
-    const updatedAt = formatDate(updatedAtRaw);
+    const createdAt = formatDate(createdAtRaw || new Date().toISOString(), 'dot');
+    const updatedAt = formatDate(updatedAtRaw, 'dot');
     const isEdited = updatedAtRaw && createdAt !== updatedAt;
-    
+
     const images = review.images || [];
     const likes = review.likes || review.likeCount || 0;
     const replies = review.replies || review.comments || review.commentCount || 0;
@@ -3253,6 +3154,11 @@ function openPhotoReviewModal(review) {
         : `<div class="reportBtn">
             <button onclick="reportReview(${review.id})">신고</button>
         </div>`;
+    
+    // 클릭 가능한 프로필 요소 (본인 리뷰가 아닌 경우)
+    const profileClickable = !isMyReview && reviewUserId;
+    const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${reviewUserId})"` : '';
+    const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
 
     let imagesHTML = '';
     if (images.length > 0) {
@@ -3264,8 +3170,8 @@ function openPhotoReviewModal(review) {
                         return `
                         <div class="photo-review-modal-image-item">
                             <img src="${imageUrl}" alt="리뷰 이미지 ${
-                            index + 1
-                        }" onerror="this.src='/images/logo.png'" />
+                                index + 1
+                            }" onerror="this.src='/images/logo.png'" />
                         </div>
                     `;
                     })
@@ -3275,7 +3181,7 @@ function openPhotoReviewModal(review) {
     }
 
     // 날짜 HTML 생성
-    const modalDateHTML = isEdited 
+    const modalDateHTML = isEdited
         ? `<p class="photo-review-modal-date">${createdAt}</p>
            <p class="photo-review-modal-date-edited">(수정: ${updatedAt})</p>`
         : `<p class="photo-review-modal-date">${createdAt}</p>`;
@@ -3283,10 +3189,10 @@ function openPhotoReviewModal(review) {
     content.innerHTML = `
         <div class="photo-review-modal-header">
             <div class="photo-review-modal-user-info">
-                <p class="photo-review-modal-user">
+                <p class="photo-review-modal-user ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}>
                     <strong>${userName}</strong>${
-        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
-    }
+                        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
+                    }
                 </p>
                 <div class="photo-review-modal-date-container">
                     ${modalDateHTML}
@@ -3452,7 +3358,7 @@ function initPrintAndShareButtons() {
     const printBtn = document.querySelector('.print');
     if (printBtn) {
         printBtn.style.cursor = 'pointer';
-        printBtn.addEventListener('click', function() {
+        printBtn.addEventListener('click', function () {
             window.print();
         });
     }
@@ -3461,29 +3367,32 @@ function initPrintAndShareButtons() {
     const shareBtn = document.querySelector('.share');
     if (shareBtn) {
         shareBtn.style.cursor = 'pointer';
-        shareBtn.addEventListener('click', function() {
+        shareBtn.addEventListener('click', function () {
             const currentUrl = window.location.href;
-            
+
             // Clipboard API를 사용하여 URL 복사
-            navigator.clipboard.writeText(currentUrl).then(function() {
-                // 복사 성공 시 알림 표시
-                showCopyNotification();
-            }).catch(function(err) {
-                // 구형 브라우저 대응 (fallback)
-                const textArea = document.createElement('textarea');
-                textArea.value = currentUrl;
-                textArea.style.position = 'fixed';
-                textArea.style.left = '-9999px';
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
+            navigator.clipboard
+                .writeText(currentUrl)
+                .then(function () {
+                    // 복사 성공 시 알림 표시
                     showCopyNotification();
-                } catch (e) {
-                    alert('URL 복사에 실패했습니다.');
-                }
-                document.body.removeChild(textArea);
-            });
+                })
+                .catch(function (err) {
+                    // 구형 브라우저 대응 (fallback)
+                    const textArea = document.createElement('textarea');
+                    textArea.value = currentUrl;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-9999px';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showCopyNotification();
+                    } catch (e) {
+                        alert('URL 복사에 실패했습니다.');
+                    }
+                    document.body.removeChild(textArea);
+                });
         });
     }
 }
@@ -3505,7 +3414,7 @@ function showCopyNotification() {
         <span class="copy-notification-icon">✓</span>
         <span class="copy-notification-text">클립보드에 저장되었습니다!</span>
     `;
-    
+
     document.body.appendChild(notification);
 
     // 애니메이션을 위해 약간의 지연 후 show 클래스 추가
@@ -3546,7 +3455,7 @@ function openEditReviewModal(reviewId) {
     }
 
     // 리뷰 데이터 가져오기
-    const review = reviews.find(r => r.id === reviewId);
+    const review = reviews.find((r) => r.id === reviewId);
     if (!review) {
         alert('리뷰를 찾을 수 없습니다.');
         return;
@@ -3575,7 +3484,7 @@ function openEditReviewModal(reviewId) {
     reviewIdInput.value = reviewId;
     titleInput.value = review.title || '';
     contentInput.value = review.content || '';
-    
+
     // 글자 수 업데이트
     if (charCount) {
         charCount.textContent = (review.content || '').length;
@@ -3609,7 +3518,7 @@ function closeEditReviewModal() {
         modal.style.display = 'none';
         document.body.style.overflow = '';
     }
-    
+
     // 폼 초기화
     resetEditReviewForm();
 }
@@ -3688,7 +3597,7 @@ function initEditReviewModal() {
     // 모달 외부 클릭 시 닫기
     const modal = document.getElementById('edit-review-modal');
     if (modal) {
-        modal.onclick = function(e) {
+        modal.onclick = function (e) {
             if (e.target === modal) {
                 closeEditReviewModal();
             }
@@ -3697,8 +3606,8 @@ function initEditReviewModal() {
 
     // 별점 선택
     const stars = document.querySelectorAll('.edit-star');
-    stars.forEach(star => {
-        star.onclick = function(e) {
+    stars.forEach((star) => {
+        star.onclick = function (e) {
             e.preventDefault();
             const rating = parseInt(this.getAttribute('data-rating'));
             editSelectedRating = rating;
@@ -3710,7 +3619,7 @@ function initEditReviewModal() {
     const contentInput = document.getElementById('edit-review-content');
     const charCount = document.getElementById('edit-review-char-count');
     if (contentInput && charCount) {
-        contentInput.oninput = function() {
+        contentInput.oninput = function () {
             charCount.textContent = this.value.length;
         };
     }
@@ -3719,12 +3628,12 @@ function initEditReviewModal() {
     const addImageBtn = document.getElementById('edit-add-image-btn');
     const imageInput = document.getElementById('edit-review-image-input');
     if (addImageBtn && imageInput) {
-        addImageBtn.onclick = function(e) {
+        addImageBtn.onclick = function (e) {
             e.preventDefault();
             imageInput.click();
         };
 
-        imageInput.onchange = function() {
+        imageInput.onchange = function () {
             handleEditImageSelect(this.files);
             this.value = ''; // 같은 파일 재선택 허용
         };
@@ -3733,7 +3642,7 @@ function initEditReviewModal() {
     // 새 이미지 전체 삭제 버튼
     const removeAllNewBtn = document.getElementById('remove-all-new-images');
     if (removeAllNewBtn) {
-        removeAllNewBtn.onclick = function(e) {
+        removeAllNewBtn.onclick = function (e) {
             e.preventDefault();
             editNewImages = [];
             updateEditNewImagesPreview();
@@ -3743,7 +3652,7 @@ function initEditReviewModal() {
     // 폼 제출
     const form = document.getElementById('edit-review-form');
     if (form) {
-        form.onsubmit = function(e) {
+        form.onsubmit = function (e) {
             e.preventDefault();
             submitEditReview();
         };
@@ -3758,7 +3667,7 @@ function displayEditExistingImages() {
     if (!container) return;
 
     // 삭제되지 않은 기존 이미지만 필터링
-    const activeImages = editExistingImages.filter(img => {
+    const activeImages = editExistingImages.filter((img) => {
         const imgId = img.id || img.imageId;
         return !editDeletedImageIds.includes(imgId);
     });
@@ -3773,10 +3682,11 @@ function displayEditExistingImages() {
             <span>기존 사진 (${activeImages.length}장)</span>
         </div>
         <div class="edit-existing-images-list">
-            ${activeImages.map(img => {
-                const imgId = img.id || img.imageId;
-                const imgUrl = img.imageUrl || img.image_url || '';
-                return `
+            ${activeImages
+                .map((img) => {
+                    const imgId = img.id || img.imageId;
+                    const imgUrl = img.imageUrl || img.image_url || '';
+                    return `
                     <div class="edit-image-item" data-image-id="${imgId}">
                         <img src="${imgUrl}" alt="리뷰 이미지" onerror="this.src='/images/logo.png'" />
                         <button type="button" class="remove-existing-image-btn" onclick="removeEditExistingImage(${imgId})">
@@ -3787,7 +3697,8 @@ function displayEditExistingImages() {
                         </button>
                     </div>
                 `;
-            }).join('')}
+                })
+                .join('')}
         </div>
     `;
 }
@@ -3809,7 +3720,7 @@ function handleEditImageSelect(files) {
     if (!files || files.length === 0) return;
 
     // 현재 유효한 기존 이미지 수 계산
-    const activeExistingCount = editExistingImages.filter(img => {
+    const activeExistingCount = editExistingImages.filter((img) => {
         const imgId = img.id || img.imageId;
         return !editDeletedImageIds.includes(imgId);
     }).length;
@@ -3817,12 +3728,16 @@ function handleEditImageSelect(files) {
     // 최대 5장 제한 체크
     const totalAfterAdd = activeExistingCount + editNewImages.length + files.length;
     if (totalAfterAdd > 5) {
-        alert(`최대 5장까지만 업로드할 수 있습니다.\n현재: ${activeExistingCount + editNewImages.length}장, 추가 가능: ${5 - activeExistingCount - editNewImages.length}장`);
+        alert(
+            `최대 5장까지만 업로드할 수 있습니다.\n현재: ${
+                activeExistingCount + editNewImages.length
+            }장, 추가 가능: ${5 - activeExistingCount - editNewImages.length}장`,
+        );
         return;
     }
 
     // 파일 처리
-    Array.from(files).forEach(file => {
+    Array.from(files).forEach((file) => {
         if (!file.type.startsWith('image/')) {
             alert('이미지 파일만 업로드할 수 있습니다.');
             return;
@@ -3834,11 +3749,11 @@ function handleEditImageSelect(files) {
         }
 
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             editNewImages.push({
                 id: Date.now() + Math.random(),
                 file: file,
-                preview: e.target.result
+                preview: e.target.result,
             });
             updateEditNewImagesPreview();
         };
@@ -3852,7 +3767,7 @@ function handleEditImageSelect(files) {
 function updateEditNewImagesPreview() {
     const container = document.getElementById('edit-new-images-preview');
     const imagesContainer = document.getElementById('edit-new-images-container');
-    
+
     if (!container || !imagesContainer) return;
 
     if (editNewImages.length === 0) {
@@ -3861,24 +3776,30 @@ function updateEditNewImagesPreview() {
     }
 
     container.style.display = 'block';
-    imagesContainer.innerHTML = editNewImages.map((img, index) => `
+    imagesContainer.innerHTML = editNewImages
+        .map(
+            (img, index) => `
         <div class="edit-image-item" data-new-image-id="${img.id}">
             <img src="${img.preview}" alt="새 이미지 ${index + 1}" />
-            <button type="button" class="remove-new-image-btn" onclick="removeEditNewImage('${img.id}')">
+            <button type="button" class="remove-new-image-btn" onclick="removeEditNewImage('${
+                img.id
+            }')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
         </div>
-    `).join('');
+    `,
+        )
+        .join('');
 }
 
 /**
  * 새 이미지 삭제
  */
 function removeEditNewImage(imageId) {
-    editNewImages = editNewImages.filter(img => img.id.toString() !== imageId.toString());
+    editNewImages = editNewImages.filter((img) => img.id.toString() !== imageId.toString());
     updateEditNewImagesPreview();
 }
 
@@ -3944,7 +3865,7 @@ async function submitEditReview() {
         }
 
         // 새 이미지 파일 추가
-        editNewImages.forEach(img => {
+        editNewImages.forEach((img) => {
             if (img.file) {
                 formData.append('images', img.file);
             }
@@ -3952,7 +3873,7 @@ async function submitEditReview() {
 
         const response = await fetch(`/api/reviews/${reviewId}`, {
             method: 'PUT',
-            body: formData
+            body: formData,
         });
 
         const data = await response.json();
@@ -3960,14 +3881,18 @@ async function submitEditReview() {
         if (data.success) {
             alert('리뷰가 수정되었습니다.');
             closeEditReviewModal();
-            
+
             // 포토리뷰 모달이 열려있으면 함께 닫기
             const photoReviewModal = document.getElementById('photo-review-modal');
-            if (photoReviewModal && photoReviewModal.style.display !== 'none' && photoReviewModal.style.display !== '') {
+            if (
+                photoReviewModal &&
+                photoReviewModal.style.display !== 'none' &&
+                photoReviewModal.style.display !== ''
+            ) {
                 photoReviewModal.style.display = 'none';
                 document.body.style.overflow = '';
             }
-            
+
             // 리뷰 목록 새로고침
             await loadReviews();
         } else {
@@ -3999,7 +3924,7 @@ async function deleteReview(reviewId) {
     }
 
     // 리뷰 데이터 가져오기
-    const review = reviews.find(r => r.id === reviewId);
+    const review = reviews.find((r) => r.id === reviewId);
     if (!review) {
         alert('리뷰를 찾을 수 없습니다.');
         return;
@@ -4021,22 +3946,22 @@ async function deleteReview(reviewId) {
         const response = await fetch(`/api/reviews/${reviewId}?userId=${user.id}`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+            },
         });
 
         const data = await response.json();
 
         if (data.success) {
             alert('리뷰가 삭제되었습니다.');
-            
+
             // 포토리뷰 모달이 열려있으면 닫기
             const photoReviewModal = document.getElementById('photo-review-modal');
             if (photoReviewModal && photoReviewModal.style.display !== 'none') {
                 photoReviewModal.style.display = 'none';
                 document.body.style.overflow = '';
             }
-            
+
             // 리뷰 목록 새로고침
             await loadReviews();
         } else {
@@ -4047,3 +3972,21 @@ async function deleteReview(reviewId) {
         alert('리뷰 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     }
 }
+
+// 유저 프로필 페이지로 이동
+function goToUserProfile(userId) {
+    if (!userId) return;
+    
+    // 현재 로그인한 사용자인지 확인
+    const currentUser = getCurrentUser();
+    if (currentUser && currentUser.id === userId) {
+        // 본인이면 마이페이지로 이동
+        window.location.href = '/pages/mypage/mypage';
+    } else {
+        // 다른 유저면 프로필 페이지로 이동
+        window.location.href = `/pages/profile/${userId}`;
+    }
+}
+
+// 전역 스코프에 goToUserProfile 함수 등록
+window.goToUserProfile = goToUserProfile;
