@@ -500,7 +500,9 @@ public class UserController {
                 userMap.put("email", user.getEmail());
                 userMap.put("phoneNumber", user.getPhoneNumber());
                 userMap.put("address", user.getAddress());
-                userMap.put("birthDate", user.getBirthDate() != null ? user.getBirthDate().toString() : null);
+                // birthDate는 DB에서 DATE 컬럼이므로 "yyyy-MM-dd" 형태로 내려보냄 (timezone 이슈 방지)
+                userMap.put("birthDate",
+                        user.getBirthDate() != null ? user.getBirthDate().toLocalDate().toString() : null);
                 userMap.put("genderCode", user.getGenderCode());
                 userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
                 userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
@@ -596,7 +598,9 @@ public class UserController {
             userMap.put("email", updatedUser.getEmail());
             userMap.put("phoneNumber", updatedUser.getPhoneNumber());
             userMap.put("address", updatedUser.getAddress());
-            userMap.put("birthDate", updatedUser.getBirthDate() != null ? updatedUser.getBirthDate().toString() : null);
+            // birthDate는 DB에서 DATE 컬럼이므로 "yyyy-MM-dd" 형태로 내려보냄 (timezone 이슈 방지)
+            userMap.put("birthDate",
+                    updatedUser.getBirthDate() != null ? updatedUser.getBirthDate().toLocalDate().toString() : null);
             userMap.put("genderCode", updatedUser.getGenderCode());
             userMap.put("role", updatedUser.getRoleCode() != null ? updatedUser.getRoleCode() : "MEMBER");
             userMap.put("roleCode", updatedUser.getRoleCode() != null ? updatedUser.getRoleCode() : "MEMBER");
