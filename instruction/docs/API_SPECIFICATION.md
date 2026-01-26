@@ -412,7 +412,7 @@
   "region": {
     "id": 1,
     "name": "해운대구",
-    "areaCode": "area01"
+    "areaCode": 26350
   }
 }
 ```
@@ -423,22 +423,35 @@
 - **응답 형식**:
 ```json
 {
-  "regions": [
-    {
-      "regionId": 1,
-      "regionName": "해운대구",
+  "regions": {
+    "area01": {
+      "name": "해운대구",
+      "code": "26350",
       "spots": [
         {
           "id": 1,
           "title": "관광지명",
           "description": "관광지 설명",
-          "imageUrl": "/images/upload/spots/image.jpg"
+          "hashtags": ["해시태그1", "해시태그2"],
+          "imageUrl": "/images/upload/spots/image.jpg",
+          "linkUrl": "https://example.com",
+          "category": "CULTURE",
+          "categoryCode": "CULTURE",
+          "categoryActive": true,
+          "isActive": true,
+          "viewCount": 100,
+          "ratingAvg": 4.2,
+          "ratingCount": 12
         }
       ]
     }
-  ]
+  }
 }
 ```
+
+- **비고**
+  - `regions`는 **배열이 아니라 객체(Map)** 입니다.
+  - 키(`area01`, `area02` ...)는 UI 편의를 위한 순번 키이며, 실제 행정 코드 값은 `code`(= `regions.area_code`)에 들어갑니다.
 
 ### 3. 사진 등록 신청
 - **엔드포인트**: `POST /api/spot-requests/photo`
@@ -526,12 +539,12 @@
   {
     "id": 1,
     "name": "해운대구",
-    "areaCode": "area01"
+    "areaCode": 26350
   },
   {
     "id": 2,
     "name": "중구",
-    "areaCode": "area02"
+    "areaCode": 26110
   }
 ]
 ```
@@ -1625,7 +1638,9 @@
 
 5. **날짜 형식**: 날짜는 ISO 8601 형식(`YYYY-MM-DDTHH:mm:ss`)을 사용합니다.
 
-6. **지역 코드**: 지역 코드는 `area01`, `area02` 형식을 사용하며, 숫자 부분이 지역 ID와 매핑됩니다.
+6. **지역 코드/키**:
+   - `GET /api/regions`의 `areaCode`는 **행정 코드(숫자)** 입니다. (DB `regions.area_code`)
+   - `GET /api/tourist-spots`의 `regions`는 UI 편의를 위해 `area01`, `area02` 같은 **순번 키**를 사용하며, 실제 행정 코드는 각 지역 객체의 `code` 필드에 담깁니다.
 
 7. **카테고리 코드**: 관광지 카테고리는 공통코드의 `SPOT_CATEGORY` 그룹에서 관리됩니다.
 

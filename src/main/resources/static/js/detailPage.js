@@ -180,10 +180,13 @@ async function loadTouristSpotDetail() {
                     showInactiveCategoryBanner();
                 }
 
-                const likeBtn = document.querySelector('.likeBtn');
-                const likeCount = document.querySelector('.likeCount');
+                const likeWrap = document.querySelector('.like');
+                const likeBtn = likeWrap?.querySelector('.likeBtn') || document.querySelector('.likeBtn');
+                const likeCount =
+                    likeWrap?.querySelector('.likeCount') || document.querySelector('.likeCount');
 
-                if (!likeBtn) return;
+                // like 전체 영역(하트 + 카운트 + 여백)을 클릭 가능하게 처리
+                if (!likeWrap || !likeBtn) return;
 
                 // 좋아요 상태 호출
                 const likeUrl = userId
@@ -199,7 +202,7 @@ async function loadTouristSpotDetail() {
                 }
 
                 // 좋아요 토글
-                likeBtn.addEventListener('click', async () => {
+                likeWrap.addEventListener('click', async () => {
                     if (!userId) {
                         alert('로그인이 필요합니다');
                         return;
@@ -896,8 +899,8 @@ function createReviewElement(review) {
     const replies = review.replies || review.comments || review.commentCount || 0;
     const isLiked = review.isLiked || false;
     const likeClass = isLiked ? 'reviewLikeBtn active' : 'reviewLikeBtn';
-    // 클릭 가능한 프로필 요소 (본인 리뷰가 아닌 경우)
-    const profileClickable = !isMyReview && reviewUserId;
+    // 클릭 가능한 프로필 요소 (본인/타인 모두)
+    const profileClickable = !!reviewUserId;
     const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${reviewUserId})"` : '';
     const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
     
@@ -1690,8 +1693,8 @@ function createCommentHTML(comment) {
     const commentUserId = comment.userId || comment.user_id;
     const isMyComment = currentUserId && commentUserId && currentUserId == commentUserId;
     
-    // 클릭 가능한 프로필 요소 (본인 댓글이 아닌 경우)
-    const profileClickable = !isMyComment && commentUserId;
+    // 클릭 가능한 프로필 요소 (본인/타인 모두)
+    const profileClickable = !!commentUserId;
     const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${commentUserId})"` : '';
     const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
 
@@ -3155,10 +3158,15 @@ function openPhotoReviewModal(review) {
             <button onclick="reportReview(${review.id})">신고</button>
         </div>`;
     
-    // 클릭 가능한 프로필 요소 (본인 리뷰가 아닌 경우)
-    const profileClickable = !isMyReview && reviewUserId;
+    // 클릭 가능한 프로필 요소 (본인/타인 모두)
+    const profileClickable = !!reviewUserId;
     const profileClickHandler = profileClickable ? `onclick="goToUserProfile(${reviewUserId})"` : '';
     const profileCursorStyle = profileClickable ? 'style="cursor: pointer;"' : '';
+    const userProfileImage =
+        review.userProfileImage ||
+        review.profileImage ||
+        review.profile_image ||
+        '/images/defaultProfile.png';
 
     let imagesHTML = '';
     if (images.length > 0) {
@@ -3189,11 +3197,15 @@ function openPhotoReviewModal(review) {
     content.innerHTML = `
         <div class="photo-review-modal-header">
             <div class="photo-review-modal-user-info">
-                <p class="photo-review-modal-user ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}>
-                    <strong>${userName}</strong>${
-                        isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
-                    }
-                </p>
+                <div class="photo-review-modal-user-left">
+                    <img src="${userProfileImage}" alt="${userName}" class="photo-review-modal-user-image ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}
+                        onerror="this.src='/images/defaultProfile.png'" />
+                    <p class="photo-review-modal-user ${profileClickable ? 'clickable-profile' : ''}" ${profileClickHandler} ${profileCursorStyle}>
+                        <strong>${userName}</strong>${
+                            isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
+                        }
+                    </p>
+                </div>
                 <div class="photo-review-modal-date-container">
                     ${modalDateHTML}
                 </div>
@@ -3975,16 +3987,18 @@ async function deleteReview(reviewId) {
 
 // 유저 프로필 페이지로 이동
 function goToUserProfile(userId) {
-    if (!userId) return;
+    const targetUserId = Number(userId);
+    if (!Number.isFinite(targetUserId) || targetUserId <= 0) return;
     
     // 현재 로그인한 사용자인지 확인
     const currentUser = getCurrentUser();
-    if (currentUser && currentUser.id === userId) {
+    const currentUserId = currentUser ? Number(currentUser.id) : null;
+    if (currentUserId && currentUserId === targetUserId) {
         // 본인이면 마이페이지로 이동
         window.location.href = '/pages/mypage/mypage';
     } else {
         // 다른 유저면 프로필 페이지로 이동
-        window.location.href = `/pages/profile/${userId}`;
+        window.location.href = `/pages/profile/${targetUserId}`;
     }
 }
 
