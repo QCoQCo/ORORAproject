@@ -94,6 +94,7 @@
         UPDATE users
         SET username = #{username},
             email = #{email},
+            login_type_code = #{loginTypeCode},
             phone_number = #{phoneNumber},
             address = #{address},
             birth_date = #{birthDate},

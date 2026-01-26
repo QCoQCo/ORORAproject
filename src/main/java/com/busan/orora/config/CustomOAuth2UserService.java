@@ -32,11 +32,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String loginTypeCode = getLoginTypeCode(registrationId);
 
         Map<String, Object> attributes = oAuth2User.getAttributes();
+        String providerUserId = getProviderUserId(attributes, registrationId);
         String email = getEmail(attributes, registrationId);
         String username = getUsername(attributes, registrationId);
 
         // 사용자 생성 또는 업데이트
-        UserDto user = userService.createOrUpdateSocialUser(email, username, loginTypeCode);
+        UserDto user = userService.createOrUpdateSocialUser(email, username, loginTypeCode, providerUserId);
 
         // 세션에 사용자 정보 저장
         try {
@@ -71,13 +72,24 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return "NOR";
     }
 
+    private String getProviderUserId(Map<String, Object> attributes, String registrationId) {
+        if ("kakao".equalsIgnoreCase(registrationId)) {
+            Object kakaoId = attributes.get("id");
+            return kakaoId != null ? kakaoId.toString() : null;
+        } else if ("google".equalsIgnoreCase(registrationId)) {
+            Object sub = attributes.get("sub");
+            return sub != null ? sub.toString() : null;
+        }
+        return null;
+    }
+
     private String getEmail(Map<String, Object> attributes, String registrationId) {
         if ("kakao".equalsIgnoreCase(registrationId)) {
-            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-            if (kakaoAccount != null) {
-                String email = (String) kakaoAccount.get("email");
-                // 카카오는 이메일 권한이 없을 수 있으므로, 이메일이 없으면 카카오 ID로 임시 이메일 생성
-                if (email != null && !email.trim().isEmpty()) {
+            Object kakaoAccountObj = attributes.get("kakao_account");
+            if (kakaoAccountObj instanceof Map<?, ?> kakaoAccount) {
+                Object emailObj = kakaoAccount.get("email");
+                // 카카오는 이메일 동의(스코프)가 없거나 사용자가 동의하지 않으면 이메일이 없을 수 있음
+                if (emailObj instanceof String email && !email.trim().isEmpty()) {
                     return email;
                 }
             }
@@ -96,17 +108,31 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private String getUsername(Map<String, Object> attributes, String registrationId) {
         if ("kakao".equalsIgnoreCase(registrationId)) {
-            Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-            if (properties != null) {
-                String nickname = (String) properties.get("nickname");
-                if (nickname != null && !nickname.isEmpty()) {
+            // 1) 최신 응답 형태: kakao_account.profile.nickname (profile_nickname 스코프)
+            Object kakaoAccountObj = attributes.get("kakao_account");
+            if (kakaoAccountObj instanceof Map<?, ?> kakaoAccount) {
+                Object profileObj = kakaoAccount.get("profile");
+                if (profileObj instanceof Map<?, ?> profile) {
+                    Object nicknameObj = profile.get("nickname");
+                    if (nicknameObj instanceof String nickname && !nickname.trim().isEmpty()) {
+                        return nickname;
+                    }
+                }
+            }
+
+            // 2) 구 응답 형태: properties.nickname
+            Object propertiesObj = attributes.get("properties");
+            if (propertiesObj instanceof Map<?, ?> properties) {
+                Object nicknameObj = properties.get("nickname");
+                if (nicknameObj instanceof String nickname && !nickname.trim().isEmpty()) {
                     return nickname;
                 }
             }
-            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-            if (kakaoAccount != null) {
-                String email = (String) kakaoAccount.get("email");
-                if (email != null) {
+
+            // 3) 닉네임이 없으면 이메일 앞부분으로 대체
+            if (kakaoAccountObj instanceof Map<?, ?> kakaoAccount) {
+                Object emailObj = kakaoAccount.get("email");
+                if (emailObj instanceof String email && email.contains("@")) {
                     return email.split("@")[0];
                 }
             }
