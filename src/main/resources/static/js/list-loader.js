@@ -114,7 +114,8 @@ class ListLoader {
             linkElement.href = 'javascript:void(0)'; // 기본 링크 동작 방지
             linkElement.addEventListener('click', (e) => {
                 e.preventDefault();
-                if (!e.target.closest('.likeBtn')) {
+                // 좋아요 영역(.like) 클릭 시 상세 이동 방지
+                if (!e.target.closest('.like')) {
                     // 카테고리가 비활성화된 경우 클릭 차단
                     if (isCategoryInactive) {
                         this.showInactiveNotification();
@@ -126,9 +127,10 @@ class ListLoader {
         }
 
         // 좋아요 버튼 클릭 이벤트
-        const likeBtn = itemFragment.querySelector('.likeBtn');
-        if (likeBtn) {
-            likeBtn.addEventListener('click', async (e) => {
+        const likeWrap = itemFragment.querySelector('.like');
+        const likeBtn = likeWrap?.querySelector('.likeBtn');
+        if (likeWrap && likeBtn) {
+            likeWrap.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -138,7 +140,7 @@ class ListLoader {
                     return;
                 }
 
-                const itemEl = likeBtn.closest('.item');
+                const itemEl = likeWrap.closest('.item');
                 const spotId = itemEl.dataset.spotId;
                 const userId = getCurrentUser()?.id;
 
@@ -194,7 +196,8 @@ class ListLoader {
             }
 
             itemElement.addEventListener('click', (e) => {
-                if (!e.target.closest('.likeBtn')) {
+                // 좋아요 영역(.like) 클릭 시 상세 이동 방지
+                if (!e.target.closest('.like')) {
                     // 카테고리가 비활성화된 경우 클릭 차단
                     if (isCategoryInactive) {
                         this.showInactiveNotification();
