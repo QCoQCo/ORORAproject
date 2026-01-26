@@ -1,26 +1,32 @@
-const nav = document.querySelector('#nav');
-const navList = nav.querySelectorAll('.d1 li');
+function initNavHoverMenus() {
+    const nav = document.querySelector('#nav');
+    if (!nav) return;
 
-navList.forEach((li) => {
-    const subMenu = li.querySelector('.sub');
+    const navList = nav.querySelectorAll('.d1 li');
 
-    // 서브메뉴가 있는 경우에만 이벤트 추가
-    if (subMenu) {
-        li.addEventListener('mouseenter', () => {
-            // CSS 애니메이션을 위해 약간의 지연
-            setTimeout(() => {
-                subMenu.style.display = 'block';
-            }, 10);
-        });
+    navList.forEach((li) => {
+        const subMenu = li.querySelector('.sub');
 
-        li.addEventListener('mouseleave', () => {
-            // 애니메이션 완료 후 숨기기
-            setTimeout(() => {
-                subMenu.style.display = 'none';
-            }, 300);
-        });
-    }
-});
+        // 서브메뉴가 있는 경우에만 이벤트 추가
+        if (subMenu) {
+            li.addEventListener('mouseenter', () => {
+                // CSS 애니메이션을 위해 약간의 지연
+                setTimeout(() => {
+                    subMenu.style.display = 'block';
+                }, 10);
+            });
+
+            li.addEventListener('mouseleave', () => {
+                // 애니메이션 완료 후 숨기기
+                setTimeout(() => {
+                    subMenu.style.display = 'none';
+                }, 300);
+            });
+        }
+    });
+}
+
+initNavHoverMenus();
 
 function initMobileMenu() {
     const hamburger = document.getElementById('hamburger');
@@ -74,80 +80,102 @@ initMobileMenu();
 // DOMContentLoaded와 load 이벤트 모두에서 초기화 시도
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(initSearchBox, 100);
+        setTimeout(initSearchBox, 0);
     });
 } else {
-    setTimeout(initSearchBox, 100);
+    setTimeout(initSearchBox, 0);
 }
 
 // 윈도우 로드 후에도 한 번 더 시도
 window.addEventListener('load', () => {
-    setTimeout(initSearchBox, 200);
+    setTimeout(initSearchBox, 0);
 });
 
-// 검색 기능 초기화 상태 추적
-let searchBoxInitialized = false;
-
-// 검색 기능
+// 검색 기능 (이벤트 위임으로 DOM 교체에도 안전하게)
 function initSearchBox() {
-    // 이미 초기화되었다면 종료
-    if (searchBoxInitialized) {
-        return;
+    if (window.__ororaSearchBoxBound === true) return;
+    window.__ororaSearchBoxBound = true;
+
+    const searchBtnSelector = '#header .btns .btn2';
+    const searchBoxSelector = '.search-box';
+    const searchInputSelector = '.search-box input';
+    const searchSubmitBtnSelector = '.search-box button';
+
+    function getEls() {
+        const searchBtn = document.querySelector(searchBtnSelector);
+        const searchBox = document.querySelector(searchBoxSelector);
+        const searchInput = document.querySelector(searchInputSelector);
+        const searchSubmitBtn = document.querySelector(searchSubmitBtnSelector);
+        return { searchBtn, searchBox, searchInput, searchSubmitBtn };
     }
 
-    // 약간의 지연을 두고 요소를 찾기
-    setTimeout(() => {
-        const searchBtn = document.querySelector('#header .btns .btn2');
-        const searchBox = document.querySelector('.search-box');
-
-        if (searchBtn && searchBox) {
-            const searchInput = searchBox.querySelector('input');
-            const searchSubmitBtn = searchBox.querySelector('button');
-
-            // 초기화 성공 플래그 설정
-            searchBoxInitialized = true;
-
-            // 검색 버튼 클릭 시 검색 박스 토글
-            searchBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                searchBox.classList.toggle('active');
-
-                // 검색 박스가 활성화되면 입력창에 포커스
-                if (searchBox.classList.contains('active')) {
-                    setTimeout(() => {
-                        if (searchInput) {
-                            searchInput.focus();
-                        }
-                    }, 300);
-                }
-            });
-
-            // 검색 실행 버튼 클릭
-            if (searchSubmitBtn) {
-                searchSubmitBtn.addEventListener('click', () => {
-                    performSearch();
-                });
-            }
-
-            // 엔터 키로 검색 실행
-            if (searchInput) {
-                searchInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        performSearch();
-                    }
-                });
-            }
-
-            // 검색 박스 외부 클릭 시 닫기
-            document.addEventListener('click', (e) => {
-                if (!searchBox.contains(e.target) && !searchBtn.contains(e.target)) {
-                    searchBox.classList.remove('active');
-                }
-            });
-        } else {
-            console.error('검색 버튼 또는 검색 박스를 찾을 수 없습니다.');
+    function openSearchBox() {
+        const { searchBox, searchInput } = getEls();
+        if (!searchBox) return;
+        searchBox.classList.add('active');
+        if (searchInput) {
+            setTimeout(() => searchInput.focus(), 0);
         }
-    }, 100); // setTimeout 종료
+    }
+
+    function toggleSearchBox() {
+        const { searchBox, searchInput } = getEls();
+        if (!searchBox) return;
+        searchBox.classList.toggle('active');
+        if (searchBox.classList.contains('active') && searchInput) {
+            setTimeout(() => searchInput.focus(), 0);
+        }
+    }
+
+    // 클릭 위임
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+
+        const { searchBtn, searchBox } = getEls();
+        if (!searchBtn || !searchBox) return;
+
+        const clickedSearchBtn = target.closest(searchBtnSelector);
+        const clickedSubmitBtn = target.closest(searchSubmitBtnSelector);
+        const clickedInsideSearchBox = target.closest(searchBoxSelector);
+
+        // 검색 버튼: 토글
+        if (clickedSearchBtn) {
+            e.preventDefault();
+            toggleSearchBox();
+            return;
+        }
+
+        // 검색 실행 버튼: 검색
+        if (clickedSubmitBtn && clickedInsideSearchBox) {
+            e.preventDefault();
+            performSearch();
+            return;
+        }
+
+        // 외부 클릭: 닫기
+        if (!clickedInsideSearchBox) {
+            searchBox.classList.remove('active');
+        }
+    });
+
+    // 엔터 키로 검색 실행 (위임)
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+        if (!target.matches(searchInputSelector)) return;
+
+        e.preventDefault();
+        performSearch();
+    });
+
+    // 초기 상태에서 요소가 이미 있으면 포커스 편의 제공 (선택 사항)
+    // (요소가 동적으로 교체돼도 위임으로 계속 동작함)
+    const { searchBox } = getEls();
+    if (searchBox && searchBox.classList.contains('active')) {
+        openSearchBox();
+    }
 }
 
 // 검색 실행 함수

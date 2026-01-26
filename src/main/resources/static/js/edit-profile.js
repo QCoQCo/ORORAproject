@@ -41,9 +41,10 @@ async function loadUserInfo() {
 
             // 생년월일 설정
             if (userInfo.birthDate) {
-                const birthDate = new Date(userInfo.birthDate);
-                const formattedDate = birthDate.toISOString().split('T')[0];
-                document.getElementById('birthDate').value = formattedDate;
+                // 주의: 생년월일은 "날짜"이므로 timezone 변환을 피해야 함
+                // (ex. "2026-01-01T00:00" 를 Date로 만들고 toISOString() 하면 KST에서 하루 밀릴 수 있음)
+                const match = String(userInfo.birthDate).match(/^(\d{4}-\d{2}-\d{2})/);
+                document.getElementById('birthDate').value = match ? match[1] : '';
             }
 
             // 성별 설정
