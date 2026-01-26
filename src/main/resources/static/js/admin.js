@@ -1322,8 +1322,10 @@ async function initializeUsers() {
                 email: user.email,
                 role: user.roleCode ? user.roleCode.toLowerCase() : 'member', // ADMIN -> admin
                 status: user.statusCode ? user.statusCode.toLowerCase() : 'active', // ACTIVE -> active
-                joinDate: user.joinDate ? new Date(user.joinDate).toISOString().split('T')[0] : '-',
-                lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString() : '-',
+                // NOTE: toISOString()은 UTC로 강제 변환되어 날짜가 하루 밀릴 수 있음.
+                // 서버에서 내려오는 문자열을 그대로 두고, 화면 표시는 formatDate에서 KST로 처리.
+                joinDate: user.joinDate || '-',
+                lastLogin: user.lastLogin || '-',
             }));
             filteredUsers = [...users];
 
@@ -3075,14 +3077,8 @@ function getReportTypeLabel(type) {
 // 신고 날짜 포맷팅
 function formatReportDate(dateString) {
     if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+    // utils/date.js의 formatDate는 KST(Asia/Seoul) 기준으로 표시함
+    return formatDate(dateString, 'locale-full') || '-';
 }
 
 // 유저 신고 필터링
