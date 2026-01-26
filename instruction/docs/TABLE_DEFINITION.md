@@ -6,10 +6,12 @@
 
 ---
 
-## 문서 반영 사항 (2026-01-25)
+## 문서 반영 사항 (2026-01-26)
 
-- **사용자 프로필(타인) 보기 기능 추가**: `/pages/profile/{userId}` (뷰 라우팅)
-- **DB 스키마 변경 없음**: 이번 기능은 화면/JS/페이지 라우팅 변경이며, 테이블/컬럼 변경은 없습니다.
+- **사용자 프로필(타인) 보기 기능**: `/pages/profile/{userId}` (뷰 라우팅)
+- **업로드 이미지 서빙 경로 표준화**: 업로드 이미지는 `/images/upload/**`로 서빙(WebMvcConfig 기준)
+- **스키마 반영**: `spot_requests`, `comment_reports`, `user_profile_images` 등 신청/신고/프로필이미지 관련 테이블 반영
+- **로그인 타입**: `users.login_type_code` 컬럼(마이그레이션: `add_login_type_migration.sql`) 반영
 
 ## 중요 사항
 
@@ -29,12 +31,15 @@
 4. [hashtags - 해시태그 테이블](#4-hashtags---해시태그-테이블)
 5. [tourist_spot_hashtags - 관광지-해시태그 연결 테이블](#5-tourist_spot_hashtags---관광지-해시태그-연결-테이블)
 6. [users - 사용자 테이블](#6-users---사용자-테이블)
+6-1. [user_profile_images - 사용자 프로필 이미지 테이블](#6-1-user_profile_images---사용자-프로필-이미지-테이블)
 7. [reviews - 리뷰 테이블](#7-reviews---리뷰-테이블)
 8. [review_images - 리뷰 이미지 테이블](#8-review_images---리뷰-이미지-테이블)
 9. [tourist_spot_likes - 관광지 좋아요 테이블](#9-tourist_spot_likes---관광지-좋아요-테이블)
 10. [review_likes - 리뷰 좋아요 테이블](#10-review_likes---리뷰-좋아요-테이블)
 11. [review_comments - 리뷰 댓글 테이블](#11-review_comments---리뷰-댓글-테이블)
 12. [review_reports - 리뷰 신고 테이블](#12-review_reports---리뷰-신고-테이블)
+13. [spot_requests - 관광지/사진 추가 신청 테이블](#13-spot_requests---관광지사진-추가-신청-테이블)
+14. [comment_reports - 댓글 신고 테이블](#14-comment_reports---댓글-신고-테이블)
 
 ---
 
@@ -85,10 +90,11 @@
 | description   | TEXT         | NULL                        | -                                             | 관광지 설명                                                                                    |
 | link_url      | VARCHAR(500) | NULL                        | -                                             | 관련 링크 URL                                                                                  |
 | category_code | VARCHAR(50)  | -                           | 'CULTURE'                                     | 관광지 카테고리 코드 (SPOT_CATEGORY 그룹 참조: BEACH, MOUNTAIN, CULTURE, FOOD, SHOPPING, CAFE) |
+| latitude      | DECIMAL(10,8) | NULL                       | -                                             | 위도 (카카오맵 위치 정보)                                                                      |
+| longitude     | DECIMAL(11,8) | NULL                       | -                                             | 경도 (카카오맵 위치 정보)                                                                      |
+| address       | VARCHAR(80)  | NULL                        | -                                             | 주소                                                                                            |
 | is_active     | BOOLEAN      | -                           | TRUE                                          | 활성화 여부                                                                                    |
 | view_count    | INT          | -                           | 0                                             | 조회수                                                                                         |
-| rating_avg    | DECIMAL(3,2) | -                           | 0.00                                          | 평균 평점 (소수점 2자리)                                                                       |
-| rating_count  | INT          | -                           | 0                                             | 평점 개수                                                                                      |
 | created_at    | TIMESTAMP    | -                           | CURRENT_TIMESTAMP                             | 생성일시                                                                                       |
 | updated_at    | TIMESTAMP    | -                           | CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 수정일시                                                                                       |
 
@@ -98,6 +104,7 @@
 -   INDEX: idx_region_id (region_id)
 -   INDEX: idx_category_code (category_code)
 -   INDEX: idx_is_active (is_active)
+-   INDEX: idx_latitude_longitude (latitude, longitude)
 
 ### 외래키 관계
 
@@ -120,16 +127,22 @@
 
 ### 컬럼 정의
 
-| 컬럼명          | 데이터 타입  | 제약조건                    | 기본값            | 설명                              |
-| --------------- | ------------ | --------------------------- | ----------------- | --------------------------------- |
-| id              | INT          | PRIMARY KEY, AUTO_INCREMENT | -                 | 이미지 고유 식별자                |
-| tourist_spot_id | INT          | NOT NULL, FOREIGN KEY       | -                 | 관광지 ID (tourist_spots.id 참조) |
-| image_url       | VARCHAR(500) | NOT NULL                    | -                 | 이미지 URL                        |
-| created_at      | TIMESTAMP    | -                           | CURRENT_TIMESTAMP | 생성일시                          |
+| 컬럼명          | 데이터 타입   | 제약조건                    | 기본값                                        | 설명                              |
+| --------------- | ------------ | --------------------------- | --------------------------------------------- | --------------------------------- |
+| id              | INT          | PRIMARY KEY, AUTO_INCREMENT | -                                             | 이미지 고유 식별자                |
+| img_name        | VARCHAR(255) | NULL                        | -                                             | 저장된 파일명                     |
+| ori_img_name    | VARCHAR(255) | NULL                        | -                                             | 원본 파일명                       |
+| tourist_spot_id | INT          | NOT NULL, FOREIGN KEY       | -                                             | 관광지 ID (tourist_spots.id 참조) |
+| image_url       | VARCHAR(500) | NOT NULL                    | -                                             | 이미지 URL                        |
+| rep_img_yn      | VARCHAR(1)   | -                           | 'N'                                           | 대표 이미지 여부 (Y/N)            |
+| reg_time        | DATETIME     | NOT NULL                    | CURRENT_TIMESTAMP                             | 등록 시간                         |
+| update_time     | DATETIME     | NOT NULL                    | CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 수정 시간                         |
 
 ### 인덱스
 
 -   PRIMARY KEY: id
+-   INDEX: idx_tourist_spot_id (tourist_spot_id)
+-   INDEX: idx_rep_img_yn (rep_img_yn)
 
 ### 외래키 관계
 
@@ -220,9 +233,9 @@
 | username      | VARCHAR(50)  | NOT NULL                    | -                                             | 사용자명                                                              |
 | email         | VARCHAR(255) | NOT NULL, UNIQUE            | -                                             | 이메일 주소 (고유값)                                                  |
 | password_hash | VARCHAR(255) | NOT NULL                    | -                                             | 비밀번호 해시값                                                       |
+| login_type_code | VARCHAR(50) | -                          | 'NOR'                                         | 로그인 타입 코드 (LOGIN_TYPE 그룹 참조: NOR/KAK/GOO)                  |
 | role_code     | VARCHAR(50)  | -                           | 'MEMBER'                                      | 사용자 역할 코드 (USER_ROLE 그룹 참조: ADMIN, VIP, MEMBER)            |
 | status_code   | VARCHAR(50)  | -                           | 'ACTIVE'                                      | 사용자 상태 코드 (USER_STATUS 그룹 참조: ACTIVE, INACTIVE, SUSPENDED) |
-| profile_image | VARCHAR(500) | NULL                        | -                                             | 프로필 이미지 URL                                                     |
 | phone_number  | VARCHAR(20)  | NULL                        | -                                             | 전화번호                                                              |
 | address       | VARCHAR(80)  | NULL                        | -                                             | 주소                                                                  |
 | birth_date    | DATE         | NULL                        | -                                             | 생년월일                                                              |
@@ -239,6 +252,7 @@
 -   UNIQUE: email
 -   INDEX: idx_login_id (login_id)
 -   INDEX: idx_email (email)
+-   INDEX: idx_login_type_code (login_type_code)
 -   INDEX: idx_role_code (role_code)
 -   INDEX: idx_status_code (status_code)
 -   INDEX: idx_gender_code (gender_code)
@@ -254,6 +268,40 @@
 -   `review_likes.user_id` → `users.id` (CASCADE)
 -   `review_comments.user_id` → `users.id` (CASCADE)
 -   `review_reports.user_id` → `users.id` (CASCADE)
+
+### 비고
+
+-   **프로필 이미지**는 `user_profile_images.image_url`의 최신값을 사용합니다. (응답의 `profile_image`는 JOIN/서브쿼리로 구성)
+-   레거시 호환을 위해 `users.profile_image` 컬럼이 존재할 수 있으나, 신규 구현은 `user_profile_images` 사용을 권장합니다.
+
+---
+
+## 6-1. user_profile_images - 사용자 프로필 이미지 테이블
+
+### 개요
+
+사용자 프로필 이미지를 저장하는 테이블입니다. 최신 이미지를 프로필 대표로 사용합니다.
+
+### 컬럼 정의
+
+| 컬럼명        | 데이터 타입   | 제약조건                    | 기본값                                        | 설명                |
+| ------------- | ------------ | --------------------------- | --------------------------------------------- | ------------------- |
+| id            | INT          | PRIMARY KEY, AUTO_INCREMENT | -                                             | 이미지 고유 식별자  |
+| img_name      | VARCHAR(255) | NULL                        | -                                             | 저장된 파일명       |
+| ori_img_name  | VARCHAR(255) | NULL                        | -                                             | 원본 파일명         |
+| user_id       | INT          | NOT NULL, FOREIGN KEY       | -                                             | 사용자 ID           |
+| image_url     | VARCHAR(500) | NOT NULL                    | -                                             | 이미지 URL          |
+| reg_time      | DATETIME     | NOT NULL                    | CURRENT_TIMESTAMP                             | 등록 시간           |
+| update_time   | DATETIME     | NOT NULL                    | CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 수정 시간           |
+
+### 인덱스
+
+-   PRIMARY KEY: id
+-   INDEX: idx_user_id (user_id)
+
+### 외래키 관계
+
+-   `user_id` → `users.id` (ON DELETE CASCADE)
 
 ---
 
@@ -480,6 +528,83 @@
 
 ---
 
+## 13. spot_requests - 관광지/사진 추가 신청 테이블
+
+### 개요
+
+사용자가 **사진 추가(photo)**, **관광지 추가(spot)**, **관광지 정보 수정요청(edit)** 을 등록하는 신청 테이블입니다.
+
+### 컬럼 정의(핵심)
+
+| 컬럼명          | 데이터 타입   | 제약조건                    | 기본값                                        | 설명 |
+| --------------- | ------------ | --------------------------- | --------------------------------------------- | ---- |
+| id              | INT          | PRIMARY KEY, AUTO_INCREMENT | -                                             | 신청 ID |
+| user_id         | INT          | NOT NULL, FOREIGN KEY       | -                                             | 신청자 ID |
+| tourist_spot_id | INT          | NULL, FOREIGN KEY           | -                                             | 대상 관광지 ID (photo/edit에서 사용) |
+| request_type    | VARCHAR(20)  | NOT NULL                    | -                                             | `photo`/`spot`/`edit` |
+| image_url       | VARCHAR(500) | NULL                        | -                                             | 업로드 이미지 URL(단일 또는 쉼표구분 가능) |
+| img_name        | VARCHAR(255) | NULL                        | -                                             | 저장된 파일명(단일 또는 쉼표구분 가능) |
+| ori_img_name    | VARCHAR(255) | NULL                        | -                                             | 원본 파일명(단일 또는 쉼표구분 가능) |
+| spot_title      | VARCHAR(80)  | NULL                        | -                                             | 관광지명(spot 신청) |
+| region_id       | INT          | NULL, FOREIGN KEY           | -                                             | 지역 ID(spot 신청) |
+| link_url        | VARCHAR(500) | NULL                        | -                                             | 링크 URL(spot 신청) |
+| hashtags        | TEXT         | NULL                        | -                                             | 해시태그(쉼표로 구분, spot 신청) |
+| latitude        | DECIMAL(10,8) | NULL                       | -                                             | 위도(spot 신청) |
+| longitude       | DECIMAL(11,8) | NULL                       | -                                             | 경도(spot 신청) |
+| address         | VARCHAR(200) | NULL                        | -                                             | 주소(spot 신청) |
+| description     | TEXT         | NULL                        | -                                             | 신청 설명/수정요청 내용 |
+| status          | VARCHAR(50)  | -                           | `pending`                                     | `pending`/`approved`/`rejected` |
+| reject_reason   | TEXT         | NULL                        | -                                             | 거부 사유 |
+| created_at      | TIMESTAMP    | -                           | CURRENT_TIMESTAMP                             | 생성일시 |
+| updated_at      | TIMESTAMP    | -                           | CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 수정일시 |
+
+### 인덱스(예)
+
+-   INDEX: idx_user_id (user_id)
+-   INDEX: idx_request_type (request_type)
+-   INDEX: idx_status (status)
+-   INDEX: idx_created_at (created_at)
+
+### 외래키 관계
+
+-   `user_id` → `users.id` (ON DELETE CASCADE)
+-   `tourist_spot_id` → `tourist_spots.id` (ON DELETE SET NULL)
+-   `region_id` → `regions.id` (ON DELETE SET NULL)
+
+---
+
+## 14. comment_reports - 댓글 신고 테이블
+
+### 개요
+
+사용자가 댓글을 신고한 정보를 저장합니다.
+
+### 컬럼 정의(핵심)
+
+| 컬럼명      | 데이터 타입 | 제약조건                    | 기본값                                        | 설명 |
+| ----------- | ----------- | --------------------------- | --------------------------------------------- | ---- |
+| id          | INT         | PRIMARY KEY, AUTO_INCREMENT | -                                             | 신고 ID |
+| user_id     | INT         | NOT NULL, FOREIGN KEY       | -                                             | 신고자 ID |
+| comment_id  | INT         | NOT NULL, FOREIGN KEY       | -                                             | 신고된 댓글 ID |
+| reason      | TEXT        | NOT NULL                    | -                                             | 신고 사유 |
+| status_code | VARCHAR(50) | -                           | 'PENDING'                                     | 신고 상태 코드 |
+| created_at  | TIMESTAMP   | -                           | CURRENT_TIMESTAMP                             | 생성일시 |
+| updated_at  | TIMESTAMP   | -                           | CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 수정일시 |
+
+### 인덱스
+
+-   UNIQUE: unique_user_comment_report (user_id, comment_id)
+-   INDEX: idx_comment_id (comment_id)
+-   INDEX: idx_user_id (user_id)
+-   INDEX: idx_status_code (status_code)
+
+### 외래키 관계
+
+-   `user_id` → `users.id` (ON DELETE CASCADE)
+-   `comment_id` → `review_comments.id` (ON DELETE CASCADE)
+
+---
+
 ## 테이블 관계도
 
 ```
@@ -492,6 +617,7 @@ regions (1) ──< (N) tourist_spots (1) ──< (N) tourist_spot_images
                                  │ (1)
                                  │
                                  └──< (N) tourist_spot_likes (N) >── (1) users
+users (1) ──< (N) user_profile_images
                                  │
                                  │ (1)
                                  │
@@ -504,6 +630,10 @@ regions (1) ──< (N) tourist_spots (1) ──< (N) tourist_spot_images
                                       ├──< (N) review_comments (N) >── (1) users
                                       │
                                       └──< (N) review_reports (N) >── (1) users
+                                           │
+                                           └──< (N) comment_reports (N) >── (1) users
+
+users (1) ──< (N) spot_requests (신청)
 ```
 
 ---
@@ -522,7 +652,7 @@ regions (1) ──< (N) tourist_spots (1) ──< (N) tourist_spot_images
 3. **평점 시스템**:
 
     - 리뷰 평점은 1~5점 사이의 정수값만 허용
-    - 관광지의 평균 평점(rating_avg)과 평점 개수(rating_count)는 별도 관리 필요
+    - 관광지의 평균 평점/개수는 **리뷰 테이블 기반으로 계산**하여 API 응답에 포함됩니다. (DB에 컬럼으로 저장하지 않음)
 
 4. **승인 시스템**:
 

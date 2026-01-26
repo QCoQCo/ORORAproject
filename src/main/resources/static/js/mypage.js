@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         // 탭 기능 초기화 (제한된 탭만)
         initTabsForOtherProfile();
         
-        // 해당 유저의 리뷰 데이터만 로드
-        await loadUserReviews(viewingUserId);
+        // 해당 유저의 리뷰 데이터 로드 (작성 리뷰 + 좋아요 누른 리뷰)
+        await Promise.all([loadUserReviews(viewingUserId), loadLikedReviews(viewingUserId)]);
     } else {
         // 본인의 마이페이지 모드
         // 서버에서 로그인 상태 확인
@@ -158,9 +158,10 @@ async function displayOtherUserProfile(userId) {
         
         if (data.success && data.user) {
             const userInfo = data.user;
+            const username = userInfo.username || '사용자';
             
             // 사용자 정보 업데이트
-            document.getElementById('user-name').textContent = userInfo.username + '님의 프로필';
+            document.getElementById('user-name').textContent = `${username}님의 프로필`;
             document.getElementById('user-email').textContent = userInfo.email || '';
             
             // 가입일 표시
@@ -179,6 +180,16 @@ async function displayOtherUserProfile(userId) {
             const editBtn = document.getElementById('edit-profile-btn');
             if (editBtn) {
                 editBtn.style.display = 'none';
+            }
+
+            // 섹션 제목 문구 변경 (다른 유저 프로필)
+            const writtenTitleEl = document.getElementById('written-reviews-title');
+            if (writtenTitleEl) {
+                writtenTitleEl.textContent = `${username}님이 작성한 리뷰`;
+            }
+            const likedTitleEl = document.getElementById('liked-reviews-title');
+            if (likedTitleEl) {
+                likedTitleEl.textContent = `${username}님이 좋아요 누른 리뷰`;
             }
             
             // 다른 유저 프로필에서는 특정 탭들 숨기기
