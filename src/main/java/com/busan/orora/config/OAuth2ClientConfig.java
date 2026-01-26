@@ -47,6 +47,10 @@ public class OAuth2ClientConfig {
                     .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                     .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                     .redirectUri(kakaoRedirectUri)
+                    // 카카오 user/me 응답에 email, nickname을 포함하려면 스코프가 필요함
+                    // - account_email: 이메일
+                    // - profile_nickname: 닉네임
+                    .scope("account_email", "profile_nickname")
                     .authorizationUri("https://kauth.kakao.com/oauth/authorize")
                     .tokenUri("https://kauth.kakao.com/oauth/token")
                     .userInfoUri("https://kapi.kakao.com/v2/user/me")
