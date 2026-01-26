@@ -359,10 +359,11 @@ public class UserService {
      * @param email        이메일
      * @param username     사용자명
      * @param loginTypeCode 로그인 타입 코드 (KAK, GOO)
+     * @param providerUserId 소셜 제공자 유저 ID (카카오 id / 구글 sub)
      * @return 사용자 DTO
      */
     @Transactional
-    public UserDto createOrUpdateSocialUser(String email, String username, String loginTypeCode) {
+    public UserDto createOrUpdateSocialUser(String email, String username, String loginTypeCode, String providerUserId) {
         // 이메일이 null이거나 비어있으면 에러 발생 가능하므로 처리
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("소셜 로그인 시 이메일 정보가 필요합니다. (로그인 타입: " + loginTypeCode + ")");
@@ -371,9 +372,17 @@ public class UserService {
         UserDto existingUser = userMapper.findByEmail(email);
         
         if (existingUser != null) {
-            // 기존 사용자가 있는 경우, 로그인 타입만 업데이트 (이미 다른 방식으로 가입한 경우)
+            // 기존 사용자가 있는 경우, 로그인 타입/닉네임을 최신 값으로 업데이트
+            boolean shouldUpdate = false;
             if (existingUser.getLoginTypeCode() == null || !existingUser.getLoginTypeCode().equals(loginTypeCode)) {
                 existingUser.setLoginTypeCode(loginTypeCode);
+                shouldUpdate = true;
+            }
+            if (username != null && !username.trim().isEmpty() && !username.equals(existingUser.getUsername())) {
+                existingUser.setUsername(username);
+                shouldUpdate = true;
+            }
+            if (shouldUpdate) {
                 userMapper.updateUser(existingUser);
             }
             // 마지막 로그인 시간 업데이트
@@ -381,6 +390,24 @@ public class UserService {
             userMapper.updateLastLogin(existingUser.getId(), existingUser.getLastLogin());
             return existingUser;
         } else {
+            // (카카오) 예전에는 이메일 권한이 없어서 "kakao_{id}@kakao.local" 임시 이메일로 계정이 만들어졌을 수 있음.
+            // 이제 실제 이메일을 받을 수 있게 되었을 때, 같은 사용자로 연결되도록 임시 이메일 계정을 찾아 email을 갱신한다.
+            if ("KAK".equalsIgnoreCase(loginTypeCode) && providerUserId != null && !providerUserId.trim().isEmpty()) {
+                String legacyTempEmail = "kakao_" + providerUserId.trim() + "@kakao.local";
+                UserDto legacyUser = userMapper.findByEmail(legacyTempEmail);
+                if (legacyUser != null) {
+                    legacyUser.setEmail(email);
+                    if (username != null && !username.trim().isEmpty()) {
+                        legacyUser.setUsername(username);
+                    }
+                    legacyUser.setLoginTypeCode(loginTypeCode);
+                    userMapper.updateUser(legacyUser);
+                    legacyUser.setLastLogin(LocalDateTime.now());
+                    userMapper.updateLastLogin(legacyUser.getId(), legacyUser.getLastLogin());
+                    return legacyUser;
+                }
+            }
+
             // 새 사용자 생성
             UserDto newUser = new UserDto();
             newUser.setEmail(email);
