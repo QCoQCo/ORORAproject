@@ -269,6 +269,13 @@ p {
 }
 
 .theme-grid .hash-tag {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.theme-grid .hash-tag .hash-tag-item {
     font-size: 0.8rem;
     color: var(--secondary-blue);
     font-weight: 500;
@@ -276,6 +283,7 @@ p {
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     display: inline-block;
+    white-space: nowrap;
 }
 
 /* Like Button */

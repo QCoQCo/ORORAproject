@@ -93,7 +93,19 @@
 }
 
 .hash-tag {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.hash-tag .hash-tag-item {
     font-size: 0.9em;
     color: #007bff;
     font-weight: 500;
+    background: rgba(0, 123, 255, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    display: inline-block;
+    white-space: nowrap;
 } 
