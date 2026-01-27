@@ -564,10 +564,10 @@ public class ReviewController {
     public Map<String, Object> reportComment(@PathVariable Long commentId,
             @RequestBody Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
+        Long userId = null;
 
         try {
             // 요청 본문에서 데이터 추출
-            Long userId = null;
             if (requestBody.containsKey("userId")) {
                 Object userIdObj = requestBody.get("userId");
                 if (userIdObj instanceof Number) {
@@ -624,10 +624,10 @@ public class ReviewController {
     @ResponseBody
     public Map<String, Object> reportReview(@PathVariable Long reviewId, @RequestBody Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
+        Long userId = null;
 
         try {
             // 요청 본문에서 데이터 추출
-            Long userId = null;
             if (requestBody.containsKey("userId")) {
                 Object userIdObj = requestBody.get("userId");
                 if (userIdObj instanceof Number) {
