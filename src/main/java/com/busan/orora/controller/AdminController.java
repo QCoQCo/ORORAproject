@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -693,7 +692,9 @@ public class AdminController {
     @PutMapping("/spot-requests/{requestId}/approve")
     @ResponseBody
     @Transactional
-    public Map<String, Object> approveSpotRequest(@PathVariable Long requestId) {
+    public Map<String, Object> approveSpotRequest(
+            @PathVariable Long requestId,
+            @RequestBody(required = false) Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
         try {
             // 1. 신청 정보 조회
@@ -728,8 +729,44 @@ public class AdminController {
                     );
                 }
             } else if ("spot".equals(request.getRequestType())) {
-                // 관광지 추가 신청: 프론트엔드에서 별도로 처리 (추가 모달 통해)
-                // 이 엔드포인트에서는 상태만 변경
+                // 관광지 추가 신청:
+                // - 관광지 생성은 프론트(관리자 모달)에서 수행
+                // - 승인 시점에 생성된 touristSpotId를 받아 신청 이미지들을 관광지 이미지로 등록
+                Long createdSpotId = null;
+                if (requestBody != null && requestBody.get("touristSpotId") != null) {
+                    Object spotIdObj = requestBody.get("touristSpotId");
+                    if (spotIdObj instanceof Number) {
+                        createdSpotId = ((Number) spotIdObj).longValue();
+                    } else {
+                        try {
+                            createdSpotId = Long.parseLong(String.valueOf(spotIdObj));
+                        } catch (NumberFormatException ignore) {
+                            createdSpotId = null;
+                        }
+                    }
+                }
+
+                if (createdSpotId != null && createdSpotId > 0) {
+                    // 신청과 생성된 관광지 연결
+                    spotRequestService.updateRequestTouristSpotId(requestId, createdSpotId);
+
+                    // 신청 이미지들을 관광지 이미지로 등록
+                    String imageUrlStr = request.getImageUrl();
+                    if (imageUrlStr != null && !imageUrlStr.trim().isEmpty()) {
+                        // 기존 대표 이미지 여부 확인 (관리자가 추가로 업로드했을 수 있음)
+                        List<SpotImageDto> existingImages = spotImageService.getImagesBySpotId(createdSpotId);
+                        boolean hasRepImage = existingImages.stream()
+                                .anyMatch(img -> "Y".equals(img.getRepImgYn()));
+
+                        boolean setRepForFirst = !hasRepImage;
+                        for (String url : imageUrlStr.split(",")) {
+                            String normalized = url == null ? "" : url.trim();
+                            if (normalized.isEmpty()) continue;
+                            spotImageService.addImageByUrl(createdSpotId, normalized, setRepForFirst);
+                            setRepForFirst = false;
+                        }
+                    }
+                }
             }
 
             // 3. 신청 상태를 'approved'로 변경

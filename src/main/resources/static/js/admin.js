@@ -621,7 +621,7 @@ function openAddSpotModal() {
         const imageList = document.getElementById('edit-spot-images');
         if (imageList)
             imageList.innerHTML =
-                '<p class="no-images">새 관광지입니다. 추가 후 이미지를 등록할 수 있습니다.</p>';
+                '<p class="no-images">새 관광지입니다. 아래에서 이미지를 선택하면 추가 시 함께 등록됩니다.</p>';
 
         // 새 이미지 미리보기 초기화
         const selectedFilesPreview = document.getElementById('selected-files-preview');
@@ -935,19 +935,34 @@ async function handleEditTouristSpot(event) {
         const data = await response.json();
 
         if (data.success) {
-            // 수정 모드에서만 새 이미지 업로드 (추가 모드는 관광지 생성 후 별도로 이미지 추가)
-            if (!isAddMode) {
-                const newImagesInput = document.getElementById('edit-spot-new-images');
-                const spot = touristSpots[currentEditRegion].spots[currentEditIndex];
-                if (newImagesInput && newImagesInput.files.length > 0 && spot) {
-                    await uploadNewSpotImages(spot.id, newImagesInput.files);
+            // 새 이미지 업로드
+            // - 추가 모드: 생성된 spotId(data.spot.id)로 업로드
+            // - 수정 모드: 기존 spot.id로 업로드
+            const newImagesInput = document.getElementById('edit-spot-new-images');
+            if (newImagesInput && newImagesInput.files && newImagesInput.files.length > 0) {
+                let spotIdForUpload = null;
+                if (isAddMode) {
+                    spotIdForUpload = data?.spot?.id ?? null;
+                } else {
+                    const spot = touristSpots[currentEditRegion]?.spots?.[currentEditIndex] ?? null;
+                    spotIdForUpload = spot?.id ?? null;
+                }
+
+                if (spotIdForUpload) {
+                    await uploadNewSpotImages(spotIdForUpload, newImagesInput.files);
+                } else {
+                    console.warn('이미지 업로드를 위한 spotId를 찾을 수 없습니다.');
                 }
             }
 
             // 관광지 추가 신청 승인 처리 (신청을 통한 추가인 경우)
             if (isAddMode && currentSpotRequestId) {
                 try {
-                    await approveSpotRequest(currentSpotRequestId);
+                    const createdSpotId = data?.spot?.id ?? null;
+                    await approveSpotRequest(
+                        currentSpotRequestId,
+                        createdSpotId ? { touristSpotId: createdSpotId } : undefined,
+                    );
                 } catch (error) {
                     console.error('신청 승인 처리 실패:', error);
                 }
@@ -2562,19 +2577,24 @@ function changeRequestPage(page) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 사진 추가 신청 승인
-async function approveSpotRequest(requestId) {
+// 사진/관광지 추가 신청 승인
+async function approveSpotRequest(requestId, payload) {
     if (!confirm('이 신청을 승인하시겠습니까?')) {
         return;
     }
 
     try {
-        const response = await fetch(`/api/admin/spot-requests/${requestId}/approve`, {
+        const options = {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-        });
+        };
+        if (payload && typeof payload === 'object') {
+            options.body = JSON.stringify(payload);
+        }
+
+        const response = await fetch(`/api/admin/spot-requests/${requestId}/approve`, options);
 
         const data = await response.json();
 

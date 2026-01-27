@@ -13,6 +13,7 @@ import com.busan.orora.spot.service.SpotRequestService;
 import com.busan.orora.spot.service.SpotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
@@ -181,11 +181,11 @@ public class SpotController {
      * @param description 사진 설명
      * @return 신청 결과
      */
-    @PostMapping("/spot-requests/photo")
+    @PostMapping(value = "/spot-requests/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> submitPhotoRequest(
             @RequestParam("spotId") Long spotId,
             @RequestParam("userId") Long userId,
-            @RequestPart("image") MultipartFile image,
+            @RequestParam("image") MultipartFile image,
             @RequestParam(value = "description", required = false) String description) {
         Map<String, Object> response = new HashMap<>();
         
@@ -238,7 +238,7 @@ public class SpotController {
      * @param image 이미지 파일 (선택)
      * @return 신청 결과
      */
-    @PostMapping("/spot-requests/spot")
+    @PostMapping(value = "/spot-requests/spot", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> submitSpotRequest(
             @RequestParam("userId") Long userId,
             @RequestParam("spotTitle") String spotTitle,
@@ -249,8 +249,8 @@ public class SpotController {
             @RequestParam(value = "latitude", required = false) Double latitude,
             @RequestParam(value = "longitude", required = false) Double longitude,
             @RequestParam(value = "address", required = false) String address,
-            @RequestPart(value = "image", required = false) MultipartFile image,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -341,12 +341,12 @@ public class SpotController {
      * @param image 참고 이미지 파일 (선택사항)
      * @return 신청 결과
      */
-    @PostMapping("/spot-requests/edit")
+    @PostMapping(value = "/spot-requests/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> submitSpotEditRequest(
             @RequestParam("spotId") Long spotId,
             @RequestParam("userId") Long userId,
             @RequestParam("content") String content,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestParam(value = "image", required = false) MultipartFile image) {
         Map<String, Object> response = new HashMap<>();
         
         try {

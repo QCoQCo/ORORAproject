@@ -54,6 +54,12 @@ public class SpotRequestService {
         spotRequestMapper.updateRequestStatus(id, status, rejectReason);
     }
 
+    // 관광지 추가 신청 승인 시 생성된 관광지 ID 연결
+    @Transactional
+    public void updateRequestTouristSpotId(Long id, Long touristSpotId) {
+        spotRequestMapper.updateRequestTouristSpotId(id, touristSpotId);
+    }
+
     // 신청 삭제
     @Transactional
     public void deleteRequest(Long id) {
