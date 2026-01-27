@@ -76,6 +76,12 @@ public interface ReviewMapper {
     // 댓글 신고 삭제
     void deleteCommentReport(@Param("reportId") Long reportId);
 
+    // 리뷰 신고 중복 확인
+    Long findReviewReportByUserAndReview(@Param("userId") Long userId, @Param("reviewId") Long reviewId);
+
+    // 댓글 신고 중복 확인
+    Long findCommentReportByUserAndComment(@Param("userId") Long userId, @Param("commentId") Long commentId);
+
     // 리뷰 이미지 저장
     void insertReviewImage(@Param("reviewId") Long reviewId, @Param("imageUrl") String imageUrl,
             @Param("imageOrder") Integer imageOrder, @Param("altText") String altText);
@@ -88,4 +94,10 @@ public interface ReviewMapper {
 
     // 사용자별 댓글 조회 (리뷰 및 관광지 정보 포함)
     List<Map<String, Object>> findCommentsByUserId(@Param("userId") Long userId);
+
+    // 리뷰 신고 ID로 reviewId 조회
+    Long findReviewIdByReportId(@Param("reportId") Long reportId);
+
+    // 댓글 신고 ID로 commentId 조회
+    Long findCommentIdByReportId(@Param("reportId") Long reportId);
 }
