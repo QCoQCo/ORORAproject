@@ -452,17 +452,29 @@ class TagSearchSystem {
 
             const hashtagElement = itemEl.querySelector('.hash-tag');
             if (hashtagElement && spot.hashtags) {
-                const hashtagText = spot.hashtags
-                    .map((tag) => {
-                        const cleanTag = tag.trim();
+                // 기존 내용 제거
+                hashtagElement.innerHTML = '';
+                
+                // 각 태그를 개별 span 요소로 생성
+                spot.hashtags.forEach((tag) => {
+                    const cleanTag = tag.trim();
+                    if (cleanTag) {
+                        const tagSpan = document.createElement('span');
+                        tagSpan.className = 'hash-tag-item';
+                        
+                        // 선택된 태그는 강조 표시
                         if (this.selectedTags.has(cleanTag)) {
-                            return `<strong>#${tag}</strong>`;
+                            tagSpan.classList.add('selected');
+                            const strongTag = document.createElement('strong');
+                            strongTag.textContent = cleanTag;
+                            tagSpan.appendChild(strongTag);
+                        } else {
+                            tagSpan.textContent = cleanTag;
                         }
-                        return `#${tag}`;
-                    })
-                    .join(' ');
-
-                hashtagElement.innerHTML = hashtagText;
+                        
+                        hashtagElement.appendChild(tagSpan);
+                    }
+                });
             }
         });
     }

@@ -6,6 +6,11 @@ let currentEditIndex = null;
 let currentEditRegion = null;
 let isAddMode = false; // 추가 모드 여부 (true: 추가, false: 수정)
 
+// 관광지 목록 페이지네이션 관련 전역 변수
+let spotsCurrentPage = 1;
+let spotsPerPage = 12;
+let filteredSpotsList = [];
+
 // 사용자 관리 관련 전역 변수
 let users = [];
 let currentEditUserId = null;
@@ -452,22 +457,50 @@ function initializeUserEventListeners() {
     });
 }
 
+// 관광지 목록을 평면 배열로 변환
+function convertSpotsToFlatList(spots) {
+    const flatList = [];
+    Object.keys(spots).forEach((regionKey) => {
+        const region = spots[regionKey];
+        if (region.spots && Array.isArray(region.spots)) {
+            region.spots.forEach((spot) => {
+                flatList.push({
+                    ...spot,
+                    regionKey: regionKey,
+                    regionName: region.name,
+                });
+            });
+        }
+    });
+    return flatList;
+}
+
 // 관광지 목록 표시
 function displayTouristSpots(filteredSpots = null) {
     const grid = document.getElementById('tourist-spots-grid');
     const spots = filteredSpots || touristSpots;
 
+    // 관광지를 평면 배열로 변환
+    filteredSpotsList = convertSpotsToFlatList(spots);
+    
+    // 페이지네이션 적용
+    const startIndex = (spotsCurrentPage - 1) * spotsPerPage;
+    const endIndex = startIndex + spotsPerPage;
+    const spotsToShow = filteredSpotsList.slice(startIndex, endIndex);
+
     grid.innerHTML = '';
 
-    Object.keys(spots).forEach((regionKey) => {
-        const region = spots[regionKey];
-        if (region.spots && Array.isArray(region.spots)) {
-            region.spots.forEach((spot, index) => {
-                const card = createTouristSpotCard(spot, regionKey, spot.id || index, region.name);
-                grid.appendChild(card);
-            });
-        }
+    spotsToShow.forEach((spot) => {
+        const card = createTouristSpotCard(
+            spot,
+            spot.regionKey,
+            spot.id,
+            spot.regionName
+        );
+        grid.appendChild(card);
     });
+
+    updateSpotsPagination();
 }
 
 // 관광지 카드 생성
@@ -585,7 +618,73 @@ function filterTouristSpots() {
         }
     });
 
+    // 필터링 시 첫 페이지로 리셋
+    spotsCurrentPage = 1;
     displayTouristSpots(filteredSpots);
+}
+
+// 관광지 목록 페이지네이션 업데이트
+function updateSpotsPagination() {
+    const totalPages = Math.ceil(filteredSpotsList.length / spotsPerPage);
+    const paginationContainer = document.getElementById('spots-pagination');
+
+    if (!paginationContainer) return;
+
+    paginationContainer.innerHTML = '';
+
+    // 페이지가 1개 이하인 경우 페이지네이션 숨김
+    if (totalPages <= 1) {
+        return;
+    }
+
+    // 이전 버튼
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'pagination-btn';
+    prevBtn.textContent = '이전';
+    prevBtn.disabled = spotsCurrentPage === 1;
+    prevBtn.onclick = () => {
+        if (spotsCurrentPage > 1) {
+            spotsCurrentPage--;
+            displayTouristSpots();
+        }
+    };
+    paginationContainer.appendChild(prevBtn);
+
+    // 페이지 번호들
+    const startPage = Math.max(1, spotsCurrentPage - 2);
+    const endPage = Math.min(totalPages, spotsCurrentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = `pagination-btn ${i === spotsCurrentPage ? 'active' : ''}`;
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => {
+            spotsCurrentPage = i;
+            displayTouristSpots();
+        };
+        paginationContainer.appendChild(pageBtn);
+    }
+
+    // 다음 버튼
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'pagination-btn';
+    nextBtn.textContent = '다음';
+    nextBtn.disabled = spotsCurrentPage === totalPages;
+    nextBtn.onclick = () => {
+        if (spotsCurrentPage < totalPages) {
+            spotsCurrentPage++;
+            displayTouristSpots();
+        }
+    };
+    paginationContainer.appendChild(nextBtn);
+
+    // 정보 표시
+    const info = document.createElement('div');
+    info.className = 'pagination-info';
+    const startItem = (spotsCurrentPage - 1) * spotsPerPage + 1;
+    const endItem = Math.min(spotsCurrentPage * spotsPerPage, filteredSpotsList.length);
+    info.textContent = `${startItem}-${endItem} / ${filteredSpotsList.length}`;
+    paginationContainer.appendChild(info);
 }
 
 // 추가 모달 열기 (수정 모달 재활용)
