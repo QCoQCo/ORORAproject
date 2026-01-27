@@ -89,11 +89,34 @@ public class ReviewService {
         reviewMapper.deleteComment(commentId, userId);
     }
 
-    public void reportComment(Long commentId, Long userId, String reason) {
+    /**
+     * 관리자용 댓글 삭제 (작성자 확인 없이)
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteCommentByAdmin(Long commentId) throws Exception {
+        Long commentUserId = reviewMapper.findCommentUserId(commentId);
+        if (commentUserId == null) {
+            throw new Exception("댓글을 찾을 수 없습니다.");
+        }
+        // 관리자는 작성자 확인 없이 삭제 가능
+        reviewMapper.deleteComment(commentId, commentUserId);
+    }
+
+    public void reportComment(Long commentId, Long userId, String reason) throws Exception {
+        // 중복 신고 확인
+        Long existingReportId = reviewMapper.findCommentReportByUserAndComment(userId, commentId);
+        if (existingReportId != null) {
+            throw new Exception("이미 신고한 댓글입니다.");
+        }
         reviewMapper.insertCommentReport(commentId, userId, reason);
     }
 
-    public void reportReview(Long reviewId, Long userId, String reason) {
+    public void reportReview(Long reviewId, Long userId, String reason) throws Exception {
+        // 중복 신고 확인
+        Long existingReportId = reviewMapper.findReviewReportByUserAndReview(userId, reviewId);
+        if (existingReportId != null) {
+            throw new Exception("이미 신고한 리뷰입니다.");
+        }
         reviewMapper.insertReviewReport(reviewId, userId, reason);
     }
 
@@ -233,6 +256,19 @@ public class ReviewService {
         }
 
         // 리뷰 삭제 (관련 좋아요, 댓글, 이미지는 CASCADE 또는 별도 처리 필요)
+        reviewMapper.deleteReview(reviewId);
+    }
+
+    /**
+     * 관리자용 리뷰 삭제 (작성자 확인 없이)
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteReviewByAdmin(Long reviewId) throws Exception {
+        ReviewDto review = reviewMapper.findReviewById(reviewId);
+        if (review == null) {
+            throw new Exception("리뷰를 찾을 수 없습니다.");
+        }
+        // 관리자는 작성자 확인 없이 삭제 가능
         reviewMapper.deleteReview(reviewId);
     }
 

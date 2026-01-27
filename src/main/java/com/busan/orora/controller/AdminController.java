@@ -1077,8 +1077,24 @@ public class AdminController {
                 // 콘텐츠 삭제 처리
                 Boolean deleteContent = (Boolean) request.get("deleteContent");
                 if (Boolean.TRUE.equals(deleteContent)) {
-                    // TODO: 관련 리뷰 또는 댓글 삭제 처리
-                    // 실제 구현 시 reviewService.deleteReview() 또는 commentService.deleteComment() 호출
+                    try {
+                        if ("comment".equals(reportType)) {
+                            // 댓글 삭제
+                            Long commentId = reviewMapper.findCommentIdByReportId(reportId);
+                            if (commentId != null) {
+                                reviewService.deleteCommentByAdmin(commentId);
+                            }
+                        } else {
+                            // 리뷰 삭제
+                            Long reviewId = reviewMapper.findReviewIdByReportId(reportId);
+                            if (reviewId != null) {
+                                reviewService.deleteReviewByAdmin(reviewId);
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("콘텐츠 삭제 중 오류 발생: " + e.getMessage(), e);
+                        // 삭제 실패해도 신고 처리는 계속 진행
+                    }
                 }
             }
             
