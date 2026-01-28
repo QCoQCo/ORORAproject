@@ -564,10 +564,10 @@ public class ReviewController {
     public Map<String, Object> reportComment(@PathVariable Long commentId,
             @RequestBody Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
+        Long userId = null;
 
         try {
             // 요청 본문에서 데이터 추출
-            Long userId = null;
             if (requestBody.containsKey("userId")) {
                 Object userIdObj = requestBody.get("userId");
                 if (userIdObj instanceof Number) {
@@ -598,9 +598,19 @@ public class ReviewController {
             response.put("message", "신고가 접수되었습니다. 검토 후 조치하겠습니다.");
 
             return response;
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            response.put("success", false);
+            response.put("message", "이미 신고한 댓글입니다.");
+            logger.warn("중복 신고 시도: userId={}, commentId={}", userId, commentId);
+            return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "신고 처리 중 오류가 발생했습니다: " + e.getMessage());
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && errorMessage.contains("이미 신고")) {
+                response.put("message", errorMessage);
+            } else {
+                response.put("message", "신고 처리 중 오류가 발생했습니다: " + errorMessage);
+            }
             logger.error("오류 발생", e);
             return response;
         }
@@ -614,10 +624,10 @@ public class ReviewController {
     @ResponseBody
     public Map<String, Object> reportReview(@PathVariable Long reviewId, @RequestBody Map<String, Object> requestBody) {
         Map<String, Object> response = new HashMap<>();
+        Long userId = null;
 
         try {
             // 요청 본문에서 데이터 추출
-            Long userId = null;
             if (requestBody.containsKey("userId")) {
                 Object userIdObj = requestBody.get("userId");
                 if (userIdObj instanceof Number) {
@@ -648,9 +658,19 @@ public class ReviewController {
             response.put("message", "신고가 접수되었습니다. 검토 후 조치하겠습니다.");
 
             return response;
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            response.put("success", false);
+            response.put("message", "이미 신고한 리뷰입니다.");
+            logger.warn("중복 신고 시도: userId={}, reviewId={}", userId, reviewId);
+            return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "신고 처리 중 오류가 발생했습니다: " + e.getMessage());
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && errorMessage.contains("이미 신고")) {
+                response.put("message", errorMessage);
+            } else {
+                response.put("message", "신고 처리 중 오류가 발생했습니다: " + errorMessage);
+            }
             logger.error("오류 발생", e);
             return response;
         }

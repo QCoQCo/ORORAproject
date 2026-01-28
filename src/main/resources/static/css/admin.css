@@ -662,6 +662,22 @@
     font-size: 0.9rem;
 }
 
+/* ID 열 너비 제한 */
+.users-table th:first-child,
+.users-table td:first-child {
+    max-width: 80px;
+    min-width: 60px;
+    overflow-x: auto;
+    /* text-overflow: ellipsis; */
+    white-space: nowrap;
+    /* word-break: break-all; */
+}
+
+.users-table th:last-child,
+.users-table td:last-child {
+    width: 180px;
+}
+
 .users-table tbody tr {
     transition: all 0.3s ease;
 }

@@ -6,6 +6,11 @@ let currentEditIndex = null;
 let currentEditRegion = null;
 let isAddMode = false; // 추가 모드 여부 (true: 추가, false: 수정)
 
+// 관광지 목록 페이지네이션 관련 전역 변수
+let spotsCurrentPage = 1;
+let spotsPerPage = 12;
+let filteredSpotsList = [];
+
 // 사용자 관리 관련 전역 변수
 let users = [];
 let currentEditUserId = null;
@@ -452,22 +457,50 @@ function initializeUserEventListeners() {
     });
 }
 
+// 관광지 목록을 평면 배열로 변환
+function convertSpotsToFlatList(spots) {
+    const flatList = [];
+    Object.keys(spots).forEach((regionKey) => {
+        const region = spots[regionKey];
+        if (region.spots && Array.isArray(region.spots)) {
+            region.spots.forEach((spot) => {
+                flatList.push({
+                    ...spot,
+                    regionKey: regionKey,
+                    regionName: region.name,
+                });
+            });
+        }
+    });
+    return flatList;
+}
+
 // 관광지 목록 표시
 function displayTouristSpots(filteredSpots = null) {
     const grid = document.getElementById('tourist-spots-grid');
     const spots = filteredSpots || touristSpots;
 
+    // 관광지를 평면 배열로 변환
+    filteredSpotsList = convertSpotsToFlatList(spots);
+    
+    // 페이지네이션 적용
+    const startIndex = (spotsCurrentPage - 1) * spotsPerPage;
+    const endIndex = startIndex + spotsPerPage;
+    const spotsToShow = filteredSpotsList.slice(startIndex, endIndex);
+
     grid.innerHTML = '';
 
-    Object.keys(spots).forEach((regionKey) => {
-        const region = spots[regionKey];
-        if (region.spots && Array.isArray(region.spots)) {
-            region.spots.forEach((spot, index) => {
-                const card = createTouristSpotCard(spot, regionKey, spot.id || index, region.name);
-                grid.appendChild(card);
-            });
-        }
+    spotsToShow.forEach((spot) => {
+        const card = createTouristSpotCard(
+            spot,
+            spot.regionKey,
+            spot.id,
+            spot.regionName
+        );
+        grid.appendChild(card);
     });
+
+    updateSpotsPagination();
 }
 
 // 관광지 카드 생성
@@ -585,7 +618,73 @@ function filterTouristSpots() {
         }
     });
 
+    // 필터링 시 첫 페이지로 리셋
+    spotsCurrentPage = 1;
     displayTouristSpots(filteredSpots);
+}
+
+// 관광지 목록 페이지네이션 업데이트
+function updateSpotsPagination() {
+    const totalPages = Math.ceil(filteredSpotsList.length / spotsPerPage);
+    const paginationContainer = document.getElementById('spots-pagination');
+
+    if (!paginationContainer) return;
+
+    paginationContainer.innerHTML = '';
+
+    // 페이지가 1개 이하인 경우 페이지네이션 숨김
+    if (totalPages <= 1) {
+        return;
+    }
+
+    // 이전 버튼
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'pagination-btn';
+    prevBtn.textContent = '이전';
+    prevBtn.disabled = spotsCurrentPage === 1;
+    prevBtn.onclick = () => {
+        if (spotsCurrentPage > 1) {
+            spotsCurrentPage--;
+            displayTouristSpots();
+        }
+    };
+    paginationContainer.appendChild(prevBtn);
+
+    // 페이지 번호들
+    const startPage = Math.max(1, spotsCurrentPage - 2);
+    const endPage = Math.min(totalPages, spotsCurrentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = `pagination-btn ${i === spotsCurrentPage ? 'active' : ''}`;
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => {
+            spotsCurrentPage = i;
+            displayTouristSpots();
+        };
+        paginationContainer.appendChild(pageBtn);
+    }
+
+    // 다음 버튼
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'pagination-btn';
+    nextBtn.textContent = '다음';
+    nextBtn.disabled = spotsCurrentPage === totalPages;
+    nextBtn.onclick = () => {
+        if (spotsCurrentPage < totalPages) {
+            spotsCurrentPage++;
+            displayTouristSpots();
+        }
+    };
+    paginationContainer.appendChild(nextBtn);
+
+    // 정보 표시
+    const info = document.createElement('div');
+    info.className = 'pagination-info';
+    const startItem = (spotsCurrentPage - 1) * spotsPerPage + 1;
+    const endItem = Math.min(spotsCurrentPage * spotsPerPage, filteredSpotsList.length);
+    info.textContent = `${startItem}-${endItem} / ${filteredSpotsList.length}`;
+    paginationContainer.appendChild(info);
 }
 
 // 추가 모달 열기 (수정 모달 재활용)
@@ -621,7 +720,7 @@ function openAddSpotModal() {
         const imageList = document.getElementById('edit-spot-images');
         if (imageList)
             imageList.innerHTML =
-                '<p class="no-images">새 관광지입니다. 추가 후 이미지를 등록할 수 있습니다.</p>';
+                '<p class="no-images">새 관광지입니다. 아래에서 이미지를 선택하면 추가 시 함께 등록됩니다.</p>';
 
         // 새 이미지 미리보기 초기화
         const selectedFilesPreview = document.getElementById('selected-files-preview');
@@ -935,19 +1034,34 @@ async function handleEditTouristSpot(event) {
         const data = await response.json();
 
         if (data.success) {
-            // 수정 모드에서만 새 이미지 업로드 (추가 모드는 관광지 생성 후 별도로 이미지 추가)
-            if (!isAddMode) {
-                const newImagesInput = document.getElementById('edit-spot-new-images');
-                const spot = touristSpots[currentEditRegion].spots[currentEditIndex];
-                if (newImagesInput && newImagesInput.files.length > 0 && spot) {
-                    await uploadNewSpotImages(spot.id, newImagesInput.files);
+            // 새 이미지 업로드
+            // - 추가 모드: 생성된 spotId(data.spot.id)로 업로드
+            // - 수정 모드: 기존 spot.id로 업로드
+            const newImagesInput = document.getElementById('edit-spot-new-images');
+            if (newImagesInput && newImagesInput.files && newImagesInput.files.length > 0) {
+                let spotIdForUpload = null;
+                if (isAddMode) {
+                    spotIdForUpload = data?.spot?.id ?? null;
+                } else {
+                    const spot = touristSpots[currentEditRegion]?.spots?.[currentEditIndex] ?? null;
+                    spotIdForUpload = spot?.id ?? null;
+                }
+
+                if (spotIdForUpload) {
+                    await uploadNewSpotImages(spotIdForUpload, newImagesInput.files);
+                } else {
+                    console.warn('이미지 업로드를 위한 spotId를 찾을 수 없습니다.');
                 }
             }
 
             // 관광지 추가 신청 승인 처리 (신청을 통한 추가인 경우)
             if (isAddMode && currentSpotRequestId) {
                 try {
-                    await approveSpotRequest(currentSpotRequestId);
+                    const createdSpotId = data?.spot?.id ?? null;
+                    await approveSpotRequest(
+                        currentSpotRequestId,
+                        createdSpotId ? { touristSpotId: createdSpotId } : undefined,
+                    );
                 } catch (error) {
                     console.error('신청 승인 처리 실패:', error);
                 }
@@ -2562,19 +2676,24 @@ function changeRequestPage(page) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 사진 추가 신청 승인
-async function approveSpotRequest(requestId) {
+// 사진/관광지 추가 신청 승인
+async function approveSpotRequest(requestId, payload) {
     if (!confirm('이 신청을 승인하시겠습니까?')) {
         return;
     }
 
     try {
-        const response = await fetch(`/api/admin/spot-requests/${requestId}/approve`, {
+        const options = {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-        });
+        };
+        if (payload && typeof payload === 'object') {
+            options.body = JSON.stringify(payload);
+        }
+
+        const response = await fetch(`/api/admin/spot-requests/${requestId}/approve`, options);
 
         const data = await response.json();
 

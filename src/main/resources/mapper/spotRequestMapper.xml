@@ -243,6 +243,14 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 관광지 추가 신청 승인 시 생성된 관광지 ID 연결 -->
+    <update id="updateRequestTouristSpotId">
+        UPDATE spot_requests
+        SET tourist_spot_id = #{touristSpotId},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
     <!-- 신청 삭제 -->
     <delete id="deleteRequest" parameterType="Long">
         DELETE FROM spot_requests
