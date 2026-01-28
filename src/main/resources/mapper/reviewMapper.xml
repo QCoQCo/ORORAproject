@@ -351,6 +351,36 @@
         DELETE FROM comment_reports WHERE id = #{reportId}
     </delete>
 
+    <!-- 리뷰 신고 ID로 reviewId 조회 -->
+    <select id="findReviewIdByReportId" resultType="Long">
+        SELECT review_id 
+        FROM review_reports 
+        WHERE id = #{reportId}
+    </select>
+
+    <!-- 댓글 신고 ID로 commentId 조회 -->
+    <select id="findCommentIdByReportId" resultType="Long">
+        SELECT comment_id 
+        FROM comment_reports 
+        WHERE id = #{reportId}
+    </select>
+
+    <!-- 리뷰 신고 중복 확인 -->
+    <select id="findReviewReportByUserAndReview" resultType="Long">
+        SELECT id 
+        FROM review_reports 
+        WHERE user_id = #{userId} AND review_id = #{reviewId}
+        LIMIT 1
+    </select>
+
+    <!-- 댓글 신고 중복 확인 -->
+    <select id="findCommentReportByUserAndComment" resultType="Long">
+        SELECT id 
+        FROM comment_reports 
+        WHERE user_id = #{userId} AND comment_id = #{commentId}
+        LIMIT 1
+    </select>
+
     <!-- 사용자별 댓글 조회 (리뷰 및 관광지 정보 포함) -->
     <select id="findCommentsByUserId" resultType="java.util.HashMap" parameterType="Long">
         SELECT 

@@ -444,11 +444,33 @@
     font-weight: 500;
 }
 
-.hash-tag strong {
-    color: var(--primary-blue);
+.hash-tag {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.hash-tag .hash-tag-item {
+    font-size: 0.9em;
+    color: var(--secondary-blue);
+    font-weight: 500;
+    background: rgba(59, 130, 196, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.hash-tag .hash-tag-item.selected {
     background: var(--gradient-blue);
-    padding: 0.1rem 0.3rem;
-    border-radius: 4px;
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.hash-tag .hash-tag-item.selected strong {
+    color: var(--primary-blue);
+    font-weight: 700;
 }
 
 /* Load More Section */

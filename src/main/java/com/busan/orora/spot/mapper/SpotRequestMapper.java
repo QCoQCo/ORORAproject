@@ -29,6 +29,9 @@ public interface SpotRequestMapper {
     void updateRequestStatus(@Param("id") Long id, 
                             @Param("status") String status, 
                             @Param("rejectReason") String rejectReason);
+
+    // 관광지 추가 신청 승인 시 생성된 관광지 ID 연결
+    void updateRequestTouristSpotId(@Param("id") Long id, @Param("touristSpotId") Long touristSpotId);
     
     // 신청 삭제
     void deleteRequest(@Param("id") Long id);

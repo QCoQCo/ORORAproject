@@ -103,9 +103,26 @@ class ListLoader {
 
         const hashtagElement = itemFragment.querySelector('.hash-tag');
         if (hashtagElement && itemData.hashtags) {
-            hashtagElement.textContent = Array.isArray(itemData.hashtags)
-                ? itemData.hashtags.join(' ')
-                : itemData.hashtags;
+            // 기존 내용 제거
+            hashtagElement.innerHTML = '';
+            
+            // 해시태그 배열 처리
+            const tags = Array.isArray(itemData.hashtags) 
+                ? itemData.hashtags 
+                : (typeof itemData.hashtags === 'string' 
+                    ? itemData.hashtags.split(/\s+/) 
+                    : []);
+            
+            // 각 태그를 개별 span 요소로 생성
+            tags.forEach((tag) => {
+                const trimmedTag = tag.trim();
+                if (trimmedTag) {
+                    const tagSpan = document.createElement('span');
+                    tagSpan.className = 'hash-tag-item';
+                    tagSpan.textContent = trimmedTag;
+                    hashtagElement.appendChild(tagSpan);
+                }
+            });
         }
 
         // 링크 설정 - 기본 링크 제거하고 클릭 이벤트로 처리
