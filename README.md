@@ -1,381 +1,237 @@
-# あらた釜山 (ARATA BUSAN) 🌊
+<div align="center">
 
-> **새로운 부산을 발견하다** - 부산의 숨겨진 보석 같은 관광지와 특별한 경험을 찾아보세요
+![あらた釜山 ARATA BUSAN](src/main/resources/static/images/logo.png)
 
-[![GitHub](https://img.shields.io/badge/GitHub-ORORAproject-blue)](https://github.com/QCoQCo/ORORAproject)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.0-orange.svg)](https://github.com/QCoQCo/ORORAproject/releases)
+**언어 선택 / 言語選択**
 
-## 📖 프로젝트 소개
+[![한국어](https://img.shields.io/badge/한국어-0078D4?style=for-the-badge&labelColor=333)](#readme-ko)　[![日本語](https://img.shields.io/badge/日本語-E34F26?style=for-the-badge&labelColor=333)](#readme-ja)
 
-**あらた釜山**은 부산 관광 정보를 제공하는 종합 웹 플랫폼입니다. 일본어로 "새로운"을 의미하는 "あらた(아라타)"와 부산을 결합하여, 기존과는 다른 새로운 시각으로 부산의 매력을 소개하는 인터랙티브 관광 가이드입니다.
+</div>
+
+---
+
+<a id="readme-ko"></a>
+
+## 📖 한국어
+
+> **새로운 부산을 발견하다** — 부산의 숨겨진 보석 같은 관광지와 특별한 경험을 찾아보세요
+
+### 프로젝트 소개
+
+**あらた釜山(아라타 부산)**은 부산 관광 정보를 제공하는 종합 웹 플랫폼입니다. 일본어로 "새로운"을 의미하는 "あらた"와 부산을 결합하여, 기존과는 다른 새로운 시각으로 부산의 매력을 소개하는 인터랙티브 관광 가이드입니다.
 
 ### 🎯 주요 목표
 
--   부산 16개 구·군의 관광지 정보 체계적 제공
--   해시태그 기반 스마트 검색 시스템
--   카카오맵 연동을 통한 실시간 위치 기반 서비스
--   사용자 친화적 반응형 웹 인터페이스
--   관리자 시스템을 통한 효율적 콘텐츠 관리
+- 부산 16개 구·군의 관광지 정보 체계적 제공
+- 해시태그·테마·지역·통합 검색 기반 스마트 검색
+- 카카오맵 연동을 통한 위치 기반 서비스
+- 사용자 친화적 반응형 웹 인터페이스
+- 관리자 시스템을 통한 효율적 콘텐츠·회원·신청 관리
 
-## ✨ 주요 기능
+### ✨ 주요 기능
 
-### 🏖️ 다중 검색 시스템
+- **다중 검색**: 지역별·해시태그·테마별·통합 검색
+- **카카오맵 연동**: 실시간 지도, 마커 필터링, 관광지 상세
+- **인터랙티브 UX**: Hero 슬라이더, 스크롤 애니메이션, 반응형
+- **상세 페이지**: Swiper 갤러리, 좋아요/리뷰/댓글/북마크
+- **사용자·관리자**: 회원가입, 권한 관리, 대시보드, 마이페이지·프로필
 
--   **지역별 검색**: 부산 16개 구·군별 관광지 정보 및 인터랙티브 지도
--   **해시태그 검색**: 50+ 개의 태그를 통한 맞춤형 관광지 추천
--   **테마별 검색**: K-POP 여행, 해변, 산/공원, 문화, 전통시장, 쇼핑 등 큐레이션된 테마
+### 🆕 추가 구현 기능 (백엔드·기능 확장)
 
-### 🗺️ 카카오맵 연동 서비스
+| 구분 | 기능 |
+|------|------|
+| **백엔드** | Spring Boot 3.5.x, Java 17, MySQL, MyBatis, Thymeleaf + Layout Dialect |
+| **인증** | 일반 로그인/회원가입, **카카오·구글 OAuth2 소셜 로그인**, 아이디 찾기, 비밀번호 재설정 |
+| **사용자** | 마이페이지, 프로필 수정(이미지 포함), **타인 프로필** 보기(리뷰 탭) |
+| **관광지** | 지역/태그/테마/통합 검색 API, 상세 조회, 조회수, **관광지·사진 추가 신청**, **정보 수정 요청** |
+| **리뷰·소셜** | 리뷰 작성·수정·삭제, **리댓글**, **리뷰/관광지 좋아요**, **리뷰·댓글 신고** |
+| **파일** | 관광지/프로필/리뷰 **이미지 업로드** 및 URL 서빙 |
+| **관리자** | 관광지·사용자·**공통코드**·**신청(spot-requests)**·**신고** 관리, 대시보드 |
+| **다국어** | 한국어·일본어·영어 **언어 선택** (data-translate 기반) |
+| **보안** | Spring Security, 세션 기반 인증, 역할별 접근 제어(ADMIN/MEMBER) |
 
--   실시간 지도 기반 관광지 표시
--   카테고리별 마커 필터링 (해변, 산/공원, 문화, 음식, 쇼핑)
--   해시태그 기반 자동 카테고리 분류 시스템
--   관광지 상세 정보 및 위치 안내
+### 🛠️ 기술 스택
 
-### 🎨 인터랙티브 사용자 경험
+- **Backend**: Spring Boot 3.5.x, Java 17, Gradle, MySQL, MyBatis, Spring Security, OAuth2 Client
+- **Frontend**: HTML5, CSS3, JavaScript(ES6+), Pretendard
+- **View**: Thymeleaf, Layout Dialect
+- **Libraries**: Kakao Maps API, Swiper.js, Font Awesome
+- **Data**: JSON, 로컬 스토리지, 모듈식 컴포넌트
 
--   **Hero 슬라이더**: 부산의 아름다운 풍경 5개 이미지 자동 전환
--   **스크롤 애니메이션**: Intersection Observer API 활용
--   **반응형 디자인**: 모든 디바이스 최적화
--   **부산 사계절 섹션**: 인터랙티브 계절별 관광 정보
-
-### 📱 상세 페이지 기능
-
--   **Swiper 이미지 갤러리**: 관광지 고해상도 이미지 슬라이더
--   **인터랙션 기능**: 좋아요, 조회수, 북마크, 공유 기능
--   **소셜 기능**: 사용자 리뷰 및 평점 시스템
--   **편의 기능**: 지도 연동, 인쇄, 저장 기능
-
-### 👥 사용자 관리 시스템
-
--   **회원가입/로그인**: 아이디 저장 기능 포함
--   **권한 관리**: 일반사용자/관리자 역할 구분
--   **관리자 대시보드**: 관광지 관리, 사용자 관리, 통계 기능
--   **사용자 프로필**: 개인정보 및 활동 이력 관리
-
-### 🏛️ 부산 소개 섹션
-
--   **기본 정보**: 부산시 현황 및 지리적 특성
--   **캐릭터**: 부산시 공식 캐릭터 '부기' 소개
--   **목표 및 비전**: 부산시 발전 계획
--   **상징**: 시 꽃, 나무, 새 등 부산의 상징물
-
-## 🛠️ 기술 스택
-
-### Frontend
-
--   **HTML5**: 시맨틱 마크업 및 웹 접근성 고려
--   **CSS3**: Custom Properties, Flexbox, Grid, 애니메이션
--   **JavaScript (ES6+)**: 모듈화, 비동기 처리, DOM 조작
--   **Pretendard Font**: 한국어 최적화 웹폰트
-
-### Libraries & APIs
-
--   **Kakao Maps API**: 지도 서비스 및 위치 정보
--   **Swiper.js**: 터치 지원 슬라이더 컴포넌트
--   **Font Awesome**: 벡터 아이콘 라이브러리
--   **Intersection Observer API**: 스크롤 기반 애니메이션
-
-### Data Management
-
--   **JSON**: 관광지 및 사용자 데이터 구조화
--   **로컬 스토리지**: 사용자 세션 및 설정 관리
--   **모듈식 컴포넌트**: 헤더, 푸터, 사이드네비 등 재사용 컴포넌트
-
-### Design System
-
--   **CSS Custom Properties**: 일관된 디자인 토큰
--   **Mobile-First**: 반응형 디자인 접근법
--   **BEM 방법론**: CSS 클래스 네이밍 컨벤션
-
-## 📁 프로젝트 구조
-
-```
-PJ01/
-├── components/           # 재사용 가능한 HTML 컴포넌트
-│   ├── header.html       # 네비게이션 헤더
-│   ├── footer.html       # 사이트 푸터
-│   ├── list-item.html    # 관광지 리스트 아이템
-│   └── sidenav-busan.html # 부산 지역 사이드 네비게이션
-├── css/                  # 스타일시트 파일
-│   ├── reset.css         # CSS 초기화
-│   ├── header.css        # 헤더 스타일
-│   ├── footer.css        # 푸터 스타일
-│   ├── index.css         # 메인페이지 스타일
-│   ├── searchBy/         # 검색 페이지 스타일
-│   │   ├── place.css     # 지역별 검색
-│   │   └── theme.css     # 테마별 검색
-│   ├── kakaoMap/         # 카카오맵 스타일
-│   └── detailPage.css    # 상세페이지 스타일
-├── js/                   # JavaScript 파일
-│   ├── index.js          # 메인페이지 인터랙션
-│   ├── header-loader.js  # 컴포넌트 로더
-│   ├── footer-loader.js  # 푸터 로더
-│   ├── kakaoMap/         # 카카오맵 기능
-│   │   └── script.js     # 지도 API 처리
-│   ├── searchBy/         # 검색 기능
-│   │   └── place.js      # 지역별 검색 로직
-│   ├── login.js          # 로그인 기능
-│   ├── admin.js          # 관리자 기능
-│   └── detailPage.js     # 상세페이지 인터랙션
-├── pages/                # 개별 HTML 페이지
-│   ├── about-busan/      # 부산 소개 섹션
-│   │   ├── busan.html    # 부산 메인 소개
-│   │   ├── basisinfo.html # 기본 정보
-│   │   ├── character.html # 캐릭터 소개
-│   │   ├── goals.html    # 목표 및 비전
-│   │   └── symbol.html   # 상징물 소개
-│   ├── about-orora/      # 팀 소개
-│   │   └── orora-introduce.html
-│   ├── search-place/     # 검색 페이지
-│   │   ├── place.html    # 지역별 검색
-│   │   ├── tag.html      # 태그별 검색
-│   │   └── theme.html    # 테마별 검색
-│   ├── detailed/         # 상세 정보
-│   │   ├── detailed.html # 카카오맵 페이지
-│   │   └── detailPage.html # 관광지 상세
-│   ├── login/            # 인증 페이지
-│   │   ├── login.html    # 로그인
-│   │   └── signup.html   # 회원가입
-│   ├── admin/            # 관리자 페이지
-│   │   └── admin.html    # 관리자 대시보드
-│   └── tip/              # 여행 팁
-│       └── tip.html
-├── data/                 # JSON 데이터 파일
-│   ├── busanTouristSpots.json # 관광지 데이터
-│   ├── userReview.json   # 사용자 리뷰 데이터
-│   └── users.json        # 사용자 계정 정보
-├── images/               # 이미지 리소스
-│   ├── 2025(1-26).jpg    # 관광지 이미지
-│   ├── common(1-36).jpg  # 공통 이미지
-│   ├── cafe(1-22).jpg    # 카페 이미지
-│   └── main_*.jpg        # 메인 슬라이더 이미지
-└── index.html            # 메인 페이지
-```
-
-## 🚀 시작하기
-
-### 설치 및 실행
+### 🚀 시작하기
 
 1. **저장소 클론**
 
-    ```bash
-    git clone https://github.com/QCoQCo/ORORAproject.git
-    cd ORORAproject
-    ```
+   ```bash
+   git clone https://github.com/QCoQCo/ORORAproject.git
+   cd ORORAproject
+   ```
 
-2. **카카오맵 API 키 설정**
+2. **카카오맵 API 키 설정**  
+   `src/main/resources/static/js/kakaoMap/script.js`에서 Kakao Developers 발급 JavaScript 키 입력
 
-    ```javascript
-    // js/kakaoMap/script.js에서 API 키 설정
-    // Kakao Developers에서 발급받은 JavaScript 키 입력
-    ```
+3. **환경 설정**  
+   `application.yaml`(또는 `.env`)에 DB, OAuth2(카카오/구글) 등 설정
 
-3. **로컬 서버 실행**
+4. **실행**
 
-    ```bash
-    # Python 3.x 사용
-    python -m http.server 8000
+   ```bash
+   ./gradlew bootRun
+   ```
 
-    # Node.js http-server 사용
-    npx http-server -p 8000
+   접속: `http://localhost:8080` (또는 설정한 포트)
 
-    # VS Code Live Server 확장 사용 (권장)
-    ```
+### 📁 프로젝트 구조 (핵심)
 
-4. **브라우저에서 접속**
-    ```
-    http://localhost:8000
-    ```
+- `src/main/java/com/busan/orora/` — 컨트롤러, 서비스, Mapper, config, user/spot/review/like/search 등
+- `src/main/resources/` — `application.yaml`, `mapper/`, `templates/`, `static/`(css, js, images, data)
+- 메인: `/`, 검색: `/pages/search-place/place|tag|theme|search`, 상세: `/pages/detailed/detailed?id=`, 관리자: `/pages/admin/management`
 
-### 환경 설정
+### 📱 페이지별 기능 요약
 
--   **카카오맵 API**: [Kakao Developers](https://developers.kakao.com/)에서 API 키 발급 필요
--   **브라우저 호환성**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
--   **해상도 지원**: 320px ~ 2560px (모바일 ~ 데스크탑)
-
-## 📱 페이지별 기능 상세
-
-### 메인 페이지 (`index.html`)
-
--   **Hero 슬라이더**: 5개 부산 대표 이미지 자동 전환
--   **네비게이션 카드**: 주요 기능 바로가기
--   **부산 소개**: 거리, 교통, 여행팁 정보
--   **사계절 섹션**: 계절별 부산 여행 추천
-
-### 지역별 검색 (`pages/search-place/place.html`)
-
--   **인터랙티브 지도**: 16개 구·군 선택형 지도
--   **실시간 필터링**: 선택 지역의 관광지 즉시 표시
--   **리스트뷰**: 카드 형태의 관광지 정보
-
-### 태그별 검색 (`pages/search-place/tag.html`)
-
--   **카테고리 필터**: 관광명소, 자연/공원, 문화/역사 등
--   **해시태그 클라우드**: 인기 태그 시각화
--   **동적 검색**: 태그 조합을 통한 정밀 검색
-
-### 테마별 검색 (`pages/search-place/theme.html`)
-
--   **큐레이션 테마**: K-POP 여행 등 특별 기획
--   **테마 그리드**: 시각적 테마 선택
--   **추천 루트**: 테마별 관광 코스
-
-### 카카오맵 페이지 (`pages/detailed/detailed.html`)
-
--   **실시간 지도**: 모든 관광지 마커 표시
--   **카테고리 필터**: 해변, 산/공원, 문화, 음식, 쇼핑
--   **마커 클러스터링**: 지역별 관광지 그룹화
--   **상세 정보 팝업**: 클릭 시 관광지 상세 정보
-
-### 상세 페이지 (`pages/detailed/detailPage.html`)
-
--   **이미지 갤러리**: Swiper 기반 고해상도 이미지
--   **인터랙션**: 좋아요, 조회수, 북마크, 공유
--   **사용자 리뷰**: 평점 및 후기 시스템
--   **편의 기능**: 지도 보기, 인쇄, 저장
-
-### 관리자 페이지 (`pages/admin/admin.html`)
-
--   **관광지 관리**: 추가, 수정, 삭제 기능
--   **사용자 관리**: 회원 정보 및 권한 관리
--   **통계 대시보드**: 방문자 및 인기 관광지 통계
--   **콘텐츠 관리**: 이미지 및 정보 업데이트
-
-## 👥 팀 ORORA 소개
-
-**오로라(ORORA)**는 부산의 새로운 매력을 발견하고 전달하는 것을 목표로 하는 5인 개발팀입니다. 다양한 색깔과 개성을 가진 팀원들이 모여 하나의 아름다운 오로라처럼 협력하여 프로젝트를 완성했습니다.
-
-| 팀원   | 역할            | 담당 영역                  | GitHub                                       |
-| ------ | --------------- | -------------------------- | -------------------------------------------- |
-| 강용훈 | 팀장            | 프로젝트 총괄, 시스템 설계 | [@QCoQCo](https://github.com/QCoQCo)         |
-| 이종우 | 백엔드 개발     | 데이터 구조, API 연동      | [@jongw0o0](https://github.com/jongw0o0)     |
-| 이지안 | 프론트엔드 개발 | UI/UX, 반응형 디자인       | [@jian080](https://github.com/jian080)       |
-| 정유진 | 풀스택 개발     | 지도 연동, 검색 기능       | [@levihisoka](https://github.com/levihisoka) |
-| 조유정 | 디자인 및 기획  | 콘텐츠 기획, 사용자 경험   | [@JOYJ125](https://github.com/JOYJ125)       |
-
-## 🌟 기술적 특징
-
-### 🎨 사용자 경험 (UX)
-
--   **직관적 네비게이션**: 3단계 검색 방식 (지역/태그/테마)
--   **반응형 디자인**: 모바일 퍼스트 접근법
--   **접근성**: WCAG 2.1 AA 준수
--   **로딩 최적화**: 이미지 지연 로딩, 컴포넌트 비동기 로딩
-
-### 🔍 검색 및 필터링
-
--   **다중 검색 엔진**: 3가지 독립적 검색 방식
--   **실시간 필터링**: 즉시 결과 업데이트
--   **해시태그 시스템**: 50+ 개 태그 기반 분류
--   **지도 연동**: 위치 기반 검색 결과
-
-### 📊 데이터 관리
-
--   **구조화된 JSON**: 관광지 체계적 분류
--   **해시태그 매핑**: 자동 카테고리 분류 알고리즘
--   **사용자 데이터**: 역할 기반 권한 관리
--   **성능 최적화**: 지연 로딩 및 캐싱
-
-### 🔧 개발 도구 및 방법론
-
--   **모듈화**: 컴포넌트 기반 개발
--   **버전 관리**: Git 브랜치 전략
--   **코드 품질**: ESLint, Prettier 적용
--   **반응형 테스트**: 다양한 디바이스 호환성 검증
-
-## 📊 프로젝트 통계
-
--   **해시태그**: 50+ 개 분류 태그
--   **페이지 수**: 20+ 개 완성된 페이지
--   **컴포넌트**: 10+ 개 재사용 컴포넌트
-
-## 🚀 주요 성과
-
-### 기술적 성과
-
--   ✅ 완전한 반응형 웹사이트 구현
--   ✅ 카카오맵 API 완전 연동
--   ✅ 3가지 검색 시스템 구현
--   ✅ 사용자 관리 시스템 구축
--   ✅ 관리자 대시보드 개발
-
-### 사용자 경험 성과
-
--   ✅ 직관적 3단계 검색 시스템
--   ✅ 모바일 최적화 (100% 반응형)
--   ✅ 빠른 로딩 속도 (이미지 최적화)
--   ✅ 접근성 준수 (키보드 네비게이션)
-
-## 📄 라이선스 및 저작권
-
-이 프로젝트는 교육 목적으로 제작되었습니다.
-
-### 이미지 저작권
-
--   부산시 공식 이미지: 부산광역시청 제공
--   관광지 사진: 각 출처 표기
--   캐릭터 이미지: 부산시 공식 캐릭터 '부기'
-
-### 데이터 출처
-
--   관광지 정보: 부산관광공사, 한국관광공사
--   지도 서비스: 카카오맵 API
-
-**면책조항**: 모든 관광 정보는 참고용이며, 실제 여행 계획 시 공식 기관 정보를 확인해주세요.
-
-## 🤝 기여하기
-
-프로젝트 개선에 기여하고 싶으시다면:
-
-1. **Fork** 프로젝트
-2. **Feature 브랜치** 생성 (`git checkout -b feature/AmazingFeature`)
-3. **변경사항 커밋** (`git commit -m 'Add some AmazingFeature'`)
-4. **브랜치에 Push** (`git push origin feature/AmazingFeature`)
-5. **Pull Request** 생성
-
-### 기여 가이드라인
-
--   코드 스타일: Prettier 설정 준수
--   커밋 메시지: [Conventional Commits](https://www.conventionalcommits.org/) 형식
--   이슈 리포트: 버그 또는 기능 요청 시 상세한 설명 포함
-
-## 📞 연락처 및 지원
-
--   **프로젝트 링크**: [https://github.com/QCoQCo/ORORAproject](https://github.com/QCoQCo/ORORAproject)
--   **이슈 리포트**: [GitHub Issues](https://github.com/QCoQCo/ORORAproject/issues)
--   **기능 요청**: [GitHub Discussions](https://github.com/QCoQCo/ORORAproject/discussions)
-
-### 버그 리포트
-
-버그를 발견하셨다면 다음 정보와 함께 이슈를 등록해주세요:
-
--   사용 브라우저 및 버전
--   재현 단계
--   예상 결과 vs 실제 결과
--   스크린샷 (가능한 경우)
-
----
-
-**© 2025 arataBUSAN by Team ORORA. All rights reserved.**
-
-_부산의 새로운 매력을 발견하는 여정에 함께해주세요! 🌊_
-
----
+- **메인**: Hero 슬라이더, 네비게이션 카드, 부산 소개, 사계절 섹션
+- **지역/태그/테마 검색**: 인터랙티브 지도·필터, 리스트뷰
+- **통합 검색**: 키워드 검색
+- **관광지 상세**: Swiper 갤러리, 좋아요·리뷰·댓글·북마크·공유, 지도 보기
+- **마이페이지**: 작성 리뷰/좋아요한 리뷰·관광지/댓글, 프로필 수정
+- **관리자**: 관광지·사용자·공통코드·신청·신고 관리, 통계
 
 ### 🏗️ 개발 진행 상황
 
--   [x] 프로젝트 기획 및 설계
--   [x] 메인 페이지 개발
--   [x] 검색 시스템 구현 (지역/태그/테마)
--   [x] 카카오맵 API 연동
--   [x] 상세 페이지 개발
--   [x] 사용자 관리 시스템
--   [x] 관리자 페이지
--   [x] 반응형 디자인 적용
--   [x] 성능 최적화
--   [x] 브라우저 호환성 테스트
--   [x] 배포 및 운영
+- [x] 프로젝트 기획 및 설계
+- [x] 메인·검색·상세·관리자 페이지
+- [x] Spring Boot 백엔드·API·DB 연동
+- [x] 인증(일반·OAuth2)·마이페이지·프로필
+- [x] 리뷰·댓글·좋아요·신고
+- [x] 관광지/사진 추가 신청·정보 수정 요청
+- [x] 파일 업로드·다국어·반응형
 
-**프로젝트 완료일**: 2025년 7월
+### 👥 팀 ORORA
+
+| 팀원   | 역할 | GitHub                                       |
+|--------|------|----------------------------------------------|
+| 강용훈 | 팀장 | [@QCoQCo](https://github.com/QCoQCo)         |
+| 이종우 | 조원 | [@jongw0o0](https://github.com/jongw0o0)     |
+| 이지안 | 조원 | [@jian080](https://github.com/jian080)       |
+| 정유진 | 조원 | [@levihisoka](https://github.com/levihisoka) |
+| 조유정 | 조원 | [@JOYJ125](https://github.com/JOYJ125)       |
+
+**© 2025 arataBUSAN by Team ORORA.**
+
+---
+
+<a id="readme-ja"></a>
+
+## 📖 日本語
+
+> **新しい釜山を発見する** — 釜山の隠れた名所と特別な体験をご紹介します
+
+### プロジェクト紹介
+
+**あらた釜山（アラタ釜山）**は、釜山の観光情報を提供する総合ウェブプラットフォームです。日本語の「新しい」を意味する「あらた」と釜山を組み合わせ、これまでとは違う視点で釜山の魅力を伝えるインタラクティブな観光ガイドです。
+
+### 🎯 主な目標
+
+- 釜山16区の観光スポット情報を体系的に提供
+- ハッシュタグ・テーマ・地域・統合検索によるスマート検索
+- カカオマップ連携による位置情報サービス
+- 使いやすいレスポンシブWebインターフェース
+- 管理画面によるコンテンツ・会員・申請の運用
+
+### ✨ 主な機能
+
+- **複合検索**: 地域・ハッシュタグ・テーマ・統合検索
+- **カカオマップ連携**: 地図表示、マーカーフィルター、スポット詳細
+- **インタラクティブUX**: ヒーロースライダー、スクロールアニメーション、レスポンシブ
+- **詳細ページ**: Swiperギャラリー、いいね・レビュー・コメント・ブックマーク
+- **ユーザー・管理**: 会員登録、権限管理、ダッシュボード、マイページ・プロフィール
+
+### 🆕 追加実装機能（バックエンド・機能拡張）
+
+| 区分 | 機能 |
+|------|------|
+| **バックエンド** | Spring Boot 3.5.x, Java 17, MySQL, MyBatis, Thymeleaf + Layout Dialect |
+| **認証** | 一般ログイン・会員登録、**カカオ・Google OAuth2 ソーシャルログイン**、ID検索、パスワード再設定 |
+| **ユーザー** | マイページ、プロフィール編集（画像含む）、**他者プロフィール**表示（レビュータブ） |
+| **観光スポット** | 地域/タグ/テーマ/統合検索API、詳細表示、閲覧数、**観光地・写真追加申請**、**情報修正申請** |
+| **レビュー・ソーシャル** | レビュー投稿・編集・削除、**返信コメント**、**レビュー・スポットいいね**、**レビュー・コメント通報** |
+| **ファイル** | 観光地/プロフィール/レビュー **画像アップロード** 及びURL配信 |
+| **管理** | 観光地・ユーザー・**共通コード**・**申請(spot-requests)**・**通報**管理、ダッシュボード |
+| **多言語** | 韓国語・日本語・英語 **言語選択**（data-translate対応） |
+| **セキュリティ** | Spring Security、セッション認証、ロール別アクセス制御(ADMIN/MEMBER) |
+
+### 🛠️ 技術スタック
+
+- **Backend**: Spring Boot 3.5.x, Java 17, Gradle, MySQL, MyBatis, Spring Security, OAuth2 Client
+- **Frontend**: HTML5, CSS3, JavaScript(ES6+), Pretendard
+- **View**: Thymeleaf, Layout Dialect
+- **Libraries**: Kakao Maps API, Swiper.js, Font Awesome
+- **Data**: JSON, ローカルストレージ, モジュールコンポーネント
+
+### 🚀 はじめに
+
+1. **リポジトリのクローン**
+
+   ```bash
+   git clone https://github.com/QCoQCo/ORORAproject.git
+   cd ORORAproject
+   ```
+
+2. **カカオマップAPIキー**  
+   `src/main/resources/static/js/kakaoMap/script.js` でKakao DevelopersのJavaScriptキーを設定
+
+3. **環境設定**  
+   `application.yaml`（または `.env`）でDB・OAuth2（カカオ/Google）等を設定
+
+4. **起動**
+
+   ```bash
+   ./gradlew bootRun
+   ```
+
+   アクセス: `http://localhost:8080`（または設定したポート）
+
+### 📁 プロジェクト構成（要）
+
+- `src/main/java/com/busan/orora/` — コントローラ、サービス、Mapper、config、user/spot/review/like/search 等
+- `src/main/resources/` — `application.yaml`, `mapper/`, `templates/`, `static/`(css, js, images, data)
+- メイン: `/`、検索: `/pages/search-place/place|tag|theme|search`、詳細: `/pages/detailed/detailed?id=`、管理: `/pages/admin/management`
+
+### 📱 ページ別機能概要
+
+- **メイン**: Heroスライダー、ナビカード、釜山紹介、四季セクション
+- **地域/タグ/テーマ検索**: インタラクティブ地図・フィルター、リスト表示
+- **統合検索**: キーワード検索
+- **観光地詳細**: Swiperギャラリー、いいね・レビュー・コメント・ブックマーク・共有、地図表示
+- **マイページ**: 投稿レビュー/いいねしたレビュー・スポット/コメント、プロフィール編集
+- **管理画面**: 観光地・ユーザー・共通コード・申請・通報管理、統計
+
+### 🏗️ 開発状況
+
+- [x] 企画・設計
+- [x] メイン・検索・詳細・管理画面
+- [x] Spring Boot バックエンド・API・DB連携
+- [x] 認証（一般・OAuth2）・マイページ・プロフィール
+- [x] レビュー・コメント・いいね・通報
+- [x] 観光地/写真追加申請・情報修正申請
+- [x] ファイルアップロード・多言語・レスポンシブ
+
+### 👥 チーム ORORA
+
+| メンバー | 役割 | GitHub                                       |
+|----------|------|----------------------------------------------|
+| 강용훈   | リーダー | [@QCoQCo](https://github.com/QCoQCo)         |
+| イ・ジョンウ | メンバー | [@jongw0o0](https://github.com/jongw0o0)     |
+| イ・ジアン | メンバー | [@jian080](https://github.com/jian080)       |
+| チョン・ユジン | メンバー | [@levihisoka](https://github.com/levihisoka) |
+| チョ・ユジョン | メンバー | [@JOYJ125](https://github.com/JOYJ125)       |
+
+**© 2025 arataBUSAN by Team ORORA.**
+
+---
+
+<div align="center">
+
+[↑ 맨 위로 / トップへ](#readme-ko)
+
+</div>
