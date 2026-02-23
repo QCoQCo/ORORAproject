@@ -52,6 +52,9 @@
 
 ### 📸 스크린샷
 
+<details>
+<summary>스크린샷 보기 (클릭하여 펼치기)</summary>
+
 | 메인                                                    | 부산 소개                                                                | 지역 검색                                                      |
 | ------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
 | ![메인](src/main/resources/static/images/demo/main.png) | ![부산 소개](src/main/resources/static/images/demo/about_busan_page.png) | ![지역 검색](src/main/resources/static/images/demo/place1.png) |
@@ -67,6 +70,8 @@
 | 다국어(한국어)                                                    | 다국어(일본어)                                                    | 다국어(영어)                                                      |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
 | ![다국어](src/main/resources/static/images/demo/translation1.png) | ![다국어](src/main/resources/static/images/demo/translation2.png) | ![다국어](src/main/resources/static/images/demo/translation3.png) |
+
+</details>
 
 ### 🛠️ 기술 스택
 
@@ -174,6 +179,9 @@
 
 ### 📸 スクリーンショット
 
+<details>
+<summary>スクリーンショットを見る（クリックして展開）</summary>
+
 | メイン                                                    | 釜山紹介                                                                    | 地域検索                                                      |
 | --------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | ![メイン](src/main/resources/static/images/demo/main.png) | ![釜山紹介](src/main/resources/static/images/demo/about_busan_page2_jp.png) | ![地域検索](src/main/resources/static/images/demo/place1.png) |
@@ -189,6 +197,8 @@
 | 多言語(韓国語)                                                    | 多言語(日本語)                                                    | 多言語(英語)                                                      |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
 | ![多言語](src/main/resources/static/images/demo/translation1.png) | ![多言語](src/main/resources/static/images/demo/translation2.png) | ![多言語](src/main/resources/static/images/demo/translation3.png) |
+
+</details>
 
 ### 🛠️ 技術スタック
 
