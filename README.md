@@ -50,6 +50,29 @@
 | **다국어**    | 한국어·일본어·영어 **언어 선택** (data-translate 기반)                                         |
 | **보안**      | Spring Security, 세션 기반 인증, 역할별 접근 제어(ADMIN/MEMBER)                                |
 
+### 📸 스크린샷
+
+<details>
+<summary>스크린샷 보기 (클릭하여 펼치기)</summary>
+
+| 메인                                                    | 부산 소개                                                                | 지역 검색                                                      |
+| ------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| ![메인](src/main/resources/static/images/demo/main.png) | ![부산 소개](src/main/resources/static/images/demo/about_busan_page.png) | ![지역 검색](src/main/resources/static/images/demo/place1.png) |
+
+| 태그·테마 검색                                                                                                                | 관광지 상세 & 리뷰·댓글                                                                                                                  |
+| ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| ![태그](src/main/resources/static/images/demo/tag_page1.png) · ![테마](src/main/resources/static/images/demo/theme_page1.png) | ![상세](src/main/resources/static/images/demo/detail_page1.png) · ![리뷰](src/main/resources/static/images/demo/detail_page_review1.png) |
+
+| 여행 팁                                                       | 관리자                                                          |
+| ------------------------------------------------------------- | --------------------------------------------------------------- |
+| ![여행팁](src/main/resources/static/images/demo/tip_page.png) | ![관리자](src/main/resources/static/images/demo/admin_page.png) |
+
+| 다국어(한국어)                                                    | 다국어(일본어)                                                    | 다국어(영어)                                                      |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| ![다국어](src/main/resources/static/images/demo/translation1.png) | ![다국어](src/main/resources/static/images/demo/translation2.png) | ![다국어](src/main/resources/static/images/demo/translation3.png) |
+
+</details>
+
 ### 🛠️ 기술 스택
 
 - **Backend**: Spring Boot 3.5.x, Java 17, Gradle, MySQL, MyBatis, Spring Security, OAuth2 Client
@@ -96,17 +119,11 @@
 - **마이페이지**: 작성 리뷰/좋아요한 리뷰·관광지/댓글, 프로필 수정
 - **관리자**: 관광지·사용자·공통코드·신청·신고 관리, 통계
 
-### 🏗️ 개발 진행 상황
-
-- [x] 프로젝트 기획 및 설계
-- [x] 메인·검색·상세·관리자 페이지
-- [x] Spring Boot 백엔드·API·DB 연동
-- [x] 인증(일반·OAuth2)·마이페이지·프로필
-- [x] 리뷰·댓글·좋아요·신고
-- [x] 관광지/사진 추가 신청·정보 수정 요청
-- [x] 파일 업로드·다국어·반응형
-
 ### 👥 팀 ORORA
+
+**팀원 소개**
+
+![팀원 소개](src/main/resources/static/images/demo/team_members.png)
 
 | 팀원   | 역할 | GitHub                                       |
 | ------ | ---- | -------------------------------------------- |
@@ -160,6 +177,29 @@
 | **多言語**               | 韓国語・日本語・英語 **言語選択**（data-translate対応）                                              |
 | **セキュリティ**         | Spring Security、セッション認証、ロール別アクセス制御(ADMIN/MEMBER)                                  |
 
+### 📸 スクリーンショット
+
+<details>
+<summary>スクリーンショットを見る（クリックして展開）</summary>
+
+| メイン                                                    | 釜山紹介                                                                    | 地域検索                                                      |
+| --------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| ![メイン](src/main/resources/static/images/demo/main.png) | ![釜山紹介](src/main/resources/static/images/demo/about_busan_page2_jp.png) | ![地域検索](src/main/resources/static/images/demo/place1.png) |
+
+| タグ・テーマ検索                                                                                                                | 観光地詳細 & レビュー・コメント                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![タグ](src/main/resources/static/images/demo/tag_page1.png) · ![テーマ](src/main/resources/static/images/demo/theme_page1.png) | ![詳細](src/main/resources/static/images/demo/detail_page1.png) · ![レビュー](src/main/resources/static/images/demo/detail_page_review1.png) |
+
+| 旅行のコツ                                                        | 管理画面                                                      |
+| ----------------------------------------------------------------- | ------------------------------------------------------------- |
+| ![旅行のコツ](src/main/resources/static/images/demo/tip_page.png) | ![管理](src/main/resources/static/images/demo/admin_page.png) |
+
+| 多言語(韓国語)                                                    | 多言語(日本語)                                                    | 多言語(英語)                                                      |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| ![多言語](src/main/resources/static/images/demo/translation1.png) | ![多言語](src/main/resources/static/images/demo/translation2.png) | ![多言語](src/main/resources/static/images/demo/translation3.png) |
+
+</details>
+
 ### 🛠️ 技術スタック
 
 - **Backend**: Spring Boot 3.5.x, Java 17, Gradle, MySQL, MyBatis, Spring Security, OAuth2 Client
@@ -206,17 +246,11 @@
 - **マイページ**: 投稿レビュー/いいねしたレビュー・スポット/コメント、プロフィール編集
 - **管理画面**: 観光地・ユーザー・共通コード・申請・通報管理、統計
 
-### 🏗️ 開発状況
-
-- [x] 企画・設計
-- [x] メイン・検索・詳細・管理画面
-- [x] Spring Boot バックエンド・API・DB連携
-- [x] 認証（一般・OAuth2）・マイページ・プロフィール
-- [x] レビュー・コメント・いいね・通報
-- [x] 観光地/写真追加申請・情報修正申請
-- [x] ファイルアップロード・多言語・レスポンシブ
-
 ### 👥 チーム ORORA
+
+**チーム紹介**
+
+![チーム紹介](src/main/resources/static/images/demo/team_members_jp.png)
 
 | メンバー       | 役割     | GitHub                                       |
 | -------------- | -------- | -------------------------------------------- |
