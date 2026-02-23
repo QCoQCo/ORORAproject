@@ -50,6 +50,20 @@
 | **다국어**    | 한국어·일본어·영어 **언어 선택** (data-translate 기반)                                         |
 | **보안**      | Spring Security, 세션 기반 인증, 역할별 접근 제어(ADMIN/MEMBER)                                |
 
+### 📸 스크린샷
+
+| 메인 | 부산 소개 | 지역 검색 |
+|------|-----------|-----------|
+| ![메인](src/main/resources/static/images/demo/main.png) | ![부산 소개](src/main/resources/static/images/demo/about_busan_page.png) | ![지역 검색](src/main/resources/static/images/demo/place1.png) |
+
+| 태그·테마 검색 | 관광지 상세 | 리뷰·댓글 |
+|----------------|-------------|-----------|
+| ![태그](src/main/resources/static/images/demo/tag_page1.png) · ![테마](src/main/resources/static/images/demo/theme_page1.png) | ![상세](src/main/resources/static/images/demo/detail_page1.png) | ![리뷰](src/main/resources/static/images/demo/detail_page_review1.png) |
+
+| 여행 팁 | 다국어(일본어) | 관리자 |
+|---------|----------------|--------|
+| ![여행팁](src/main/resources/static/images/demo/tip_page.png) | ![다국어](src/main/resources/static/images/demo/translation1.png) | ![관리자](src/main/resources/static/images/demo/admin_page.png) |
+
 ### 🛠️ 기술 스택
 
 - **Backend**: Spring Boot 3.5.x, Java 17, Gradle, MySQL, MyBatis, Spring Security, OAuth2 Client
@@ -108,6 +122,10 @@
 
 ### 👥 팀 ORORA
 
+**팀원 소개**
+
+![팀원 소개](src/main/resources/static/images/demo/team_members.png)
+
 | 팀원   | 역할 | GitHub                                       |
 | ------ | ---- | -------------------------------------------- |
 | 강용훈 | 팀장 | [@QCoQCo](https://github.com/QCoQCo)         |
@@ -159,6 +177,20 @@
 | **管理**                 | 観光地・ユーザー・**共通コード**・**申請(spot-requests)**・**通報**管理、ダッシュボード              |
 | **多言語**               | 韓国語・日本語・英語 **言語選択**（data-translate対応）                                              |
 | **セキュリティ**         | Spring Security、セッション認証、ロール別アクセス制御(ADMIN/MEMBER)                                  |
+
+### 📸 スクリーンショット
+
+| メイン | 釜山紹介 | 地域検索 |
+|--------|-----------|-----------|
+| ![メイン](src/main/resources/static/images/demo/main.png) | ![釜山紹介](src/main/resources/static/images/demo/about_busan_page2_jp.png) | ![地域検索](src/main/resources/static/images/demo/place1.png) |
+
+| タグ・テーマ検索 | 観光地詳細 | レビュー・コメント |
+|------------------|-------------|-------------------|
+| ![タグ](src/main/resources/static/images/demo/tag_page1.png) · ![テーマ](src/main/resources/static/images/demo/theme_page1.png) | ![詳細](src/main/resources/static/images/demo/detail_page1.png) | ![レビュー](src/main/resources/static/images/demo/detail_page_review1.png) |
+
+| 旅行のコツ | 多言語(日本語) | 管理画面 |
+|------------|----------------|----------|
+| ![旅行のコツ](src/main/resources/static/images/demo/tip_page.png) | ![多言語](src/main/resources/static/images/demo/translation1.png) | ![管理](src/main/resources/static/images/demo/admin_page.png) |
 
 ### 🛠️ 技術スタック
 
@@ -217,6 +249,10 @@
 - [x] ファイルアップロード・多言語・レスポンシブ
 
 ### 👥 チーム ORORA
+
+**チーム紹介**
+
+![チーム紹介](src/main/resources/static/images/demo/team_members_jp.png)
 
 | メンバー       | 役割     | GitHub                                       |
 | -------------- | -------- | -------------------------------------------- |
