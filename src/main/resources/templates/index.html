@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
     xmlns:th="http://www.thymeleaf.org"
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -26,10 +26,7 @@
                     >
                         <div class="slide-overlay"></div>
                     </div>
-                    <div
-                        class="hero-slide"
-                        style="background-image: url('images/main_busan01.jpg')"
-                    >
+                    <div class="hero-slide" style="background-image: url('images/hb.png')">
                         <div class="slide-overlay"></div>
                     </div>
                     <div class="hero-slide" style="background-image: url('images/sandbeach.jpg')">
@@ -97,7 +94,10 @@
                                     관광지의 자세한 정보를 확인하세요
                                 </p>
                             </div>
-                            <a th:href="@{/pages/detailed/detailed(id=${randId})}" class="card-link"></a>
+                            <a
+                                th:href="@{/pages/detailed/detailed(id=${randId})}"
+                                class="card-link"
+                            ></a>
                         </div>
 
                         <div class="nav-card" data-bg="flower">
