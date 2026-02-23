@@ -52,17 +52,21 @@
 
 ### 📸 스크린샷
 
-| 메인 | 부산 소개 | 지역 검색 |
-|------|-----------|-----------|
+| 메인                                                    | 부산 소개                                                                | 지역 검색                                                      |
+| ------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
 | ![메인](src/main/resources/static/images/demo/main.png) | ![부산 소개](src/main/resources/static/images/demo/about_busan_page.png) | ![지역 검색](src/main/resources/static/images/demo/place1.png) |
 
-| 태그·테마 검색 | 관광지 상세 | 리뷰·댓글 |
-|----------------|-------------|-----------|
-| ![태그](src/main/resources/static/images/demo/tag_page1.png) · ![테마](src/main/resources/static/images/demo/theme_page1.png) | ![상세](src/main/resources/static/images/demo/detail_page1.png) | ![리뷰](src/main/resources/static/images/demo/detail_page_review1.png) |
+| 태그·테마 검색                                                                                                                | 관광지 상세 & 리뷰·댓글                                                                                                                  |
+| ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| ![태그](src/main/resources/static/images/demo/tag_page1.png) · ![테마](src/main/resources/static/images/demo/theme_page1.png) | ![상세](src/main/resources/static/images/demo/detail_page1.png) · ![리뷰](src/main/resources/static/images/demo/detail_page_review1.png) |
 
-| 여행 팁 | 다국어(일본어) | 관리자 |
-|---------|----------------|--------|
-| ![여행팁](src/main/resources/static/images/demo/tip_page.png) | ![다국어](src/main/resources/static/images/demo/translation1.png) | ![관리자](src/main/resources/static/images/demo/admin_page.png) |
+| 여행 팁                                                       | 관리자                                                          |
+| ------------------------------------------------------------- | --------------------------------------------------------------- |
+| ![여행팁](src/main/resources/static/images/demo/tip_page.png) | ![관리자](src/main/resources/static/images/demo/admin_page.png) |
+
+| 다국어(한국어)                                                    | 다국어(일본어)                                                    | 다국어(영어)                                                      |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| ![다국어](src/main/resources/static/images/demo/translation1.png) | ![다국어](src/main/resources/static/images/demo/translation2.png) | ![다국어](src/main/resources/static/images/demo/translation3.png) |
 
 ### 🛠️ 기술 스택
 
@@ -180,17 +184,21 @@
 
 ### 📸 スクリーンショット
 
-| メイン | 釜山紹介 | 地域検索 |
-|--------|-----------|-----------|
+| メイン                                                    | 釜山紹介                                                                    | 地域検索                                                      |
+| --------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | ![メイン](src/main/resources/static/images/demo/main.png) | ![釜山紹介](src/main/resources/static/images/demo/about_busan_page2_jp.png) | ![地域検索](src/main/resources/static/images/demo/place1.png) |
 
-| タグ・テーマ検索 | 観光地詳細 | レビュー・コメント |
-|------------------|-------------|-------------------|
-| ![タグ](src/main/resources/static/images/demo/tag_page1.png) · ![テーマ](src/main/resources/static/images/demo/theme_page1.png) | ![詳細](src/main/resources/static/images/demo/detail_page1.png) | ![レビュー](src/main/resources/static/images/demo/detail_page_review1.png) |
+| タグ・テーマ検索                                                                                                                | 観光地詳細 & レビュー・コメント                                                                                                                  |
+| ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| ![タグ](src/main/resources/static/images/demo/tag_page1.png) · ![テーマ](src/main/resources/static/images/demo/theme_page1.png) | ![詳細](src/main/resources/static/images/demo/detail_page1.png) · ![レビュー](src/main/resources/static/images/demo/detail_page_review1.png) |
 
-| 旅行のコツ | 多言語(日本語) | 管理画面 |
-|------------|----------------|----------|
-| ![旅行のコツ](src/main/resources/static/images/demo/tip_page.png) | ![多言語](src/main/resources/static/images/demo/translation1.png) | ![管理](src/main/resources/static/images/demo/admin_page.png) |
+| 旅行のコツ                                                       | 管理画面                                                          |
+| ------------------------------------------------------------- | --------------------------------------------------------------- |
+| ![旅行のコツ](src/main/resources/static/images/demo/tip_page.png) | ![管理](src/main/resources/static/images/demo/admin_page.png) |
+
+| 多言語(韓国語)                                                    | 多言語(日本語)                                                    | 多言語(英語)                                                      |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| ![多言語](src/main/resources/static/images/demo/translation1.png) | ![多言語](src/main/resources/static/images/demo/translation2.png) | ![多言語](src/main/resources/static/images/demo/translation3.png) |
 
 ### 🛠️ 技術スタック
 
