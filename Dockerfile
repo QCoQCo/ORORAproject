@@ -21,7 +21,7 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*-SNAPSHOT.jar app.jar
 
 # JVM 메모리 최적화 옵션 (프리티어 메모리 부족 방지)
-ENV JAVA_OPTS="-Xms512m -Xmx512m -XX:+UseZGC -XX:+ZGenerational"
+ENV JAVA_OPTS="-Xms512m -Xmx512m -XX:+UseZGC"
 
 # Spring Boot 서버 포트 개방
 EXPOSE 8080
