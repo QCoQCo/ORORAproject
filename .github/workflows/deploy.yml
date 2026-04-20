@@ -1,0 +1,81 @@
+name: Deploy to Oracle Cloud
+
+on:
+    push:
+        branches:
+            - main # main 브랜치에 코드가 푸시되면 자동 실행됩니다.
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. GitHub에 올라간 내 코드 가져오기
+            - name: Checkout Code
+              uses: actions/checkout@v3
+
+            # 2. Java 환경 세팅
+            - name: Set up JDK 17
+              uses: actions/setup-java@v3
+              with:
+                  java-version: '17'
+                  distribution: 'corretto'
+
+            # 3. Spring Boot 빌드 (테스트 코드는 건너뛰고 빠르게 빌드합니다)
+            - name: Grant execute permission for gradlew
+              run: chmod +x gradlew
+
+            - name: Build with Gradle
+              run: ./gradlew clean build -x test
+
+            # 4. 아까 등록한 Secret을 이용해 Docker Hub 로그인
+            - name: Log in to Docker Hub
+              uses: docker/login-action@v2
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+
+            # 5. Docker 이미지로 굽고 Docker Hub에 업로드(Push)
+            - name: Build and Push Docker Image
+              uses: docker/build-push-action@v4
+              with:
+                  context: .
+                  push: true
+                  tags: ${{ secrets.DOCKER_USERNAME }}/orora_project:latest
+
+            # 6. 오라클 서버에 원격 접속(SSH)하여 배포 실행
+            - name: Deploy to OCI via SSH
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.EC2_HOST }}
+                  username: ${{ secrets.EC2_USERNAME }}
+                  key: ${{ secrets.EC2_SSH_KEY }}
+                  script: |
+                      # 6-1. Docker Hub에서 방금 올린 최신 이미지 다운로드
+                      sudo docker pull ${{ secrets.DOCKER_USERNAME }}/orora_project:latest
+
+                      # 6-2. 기존에 돌고 있던 컨테이너가 있다면 중지 및 삭제 (에러나도 무시)
+                      sudo docker stop orora_project || true
+                      sudo docker rm orora_project || true
+
+                      # 6-3. 안 쓰는 찌꺼기 이미지 삭제 (서버 용량 확보용)
+                      sudo docker image prune -f
+
+                      # 6-4. 새 컨테이너 실행 (환경변수 주입)
+                      sudo docker run -d \
+                        --name orora_project \
+                        -p 80:8080 \
+                        -e TZ=Asia/Seoul \
+                        -e DB_HOST=${{ secrets.ENV_DB_HOST }} \
+                        -e DB_PORT=${{ secrets.ENV_DB_PORT }} \
+                        -e DB_NAME=${{ secrets.ENV_DB_NAME }} \
+                        -e DB_USERNAME=${{ secrets.ENV_DB_USER }} \
+                        -e DB_PASSWORD=${{ secrets.ENV_DB_PASSWORD }} \
+                        -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+                        -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+                        -e KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }} \
+                        -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+                        -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+                        -e GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }} \
+                        -e KAKAO_MAP_API_KEY=${{ secrets.KAKAO_MAP_API_KEY }} \
+                        ${{ secrets.DOCKER_USERNAME }}/orora_project:latest
