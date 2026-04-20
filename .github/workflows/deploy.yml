@@ -66,16 +66,16 @@ jobs:
                         --name orora_project \
                         -p 80:8080 \
                         -e TZ=Asia/Seoul \
-                        -e DB_HOST=${{ secrets.ENV_DB_HOST }} \
-                        -e DB_PORT=${{ secrets.ENV_DB_PORT }} \
-                        -e DB_NAME=${{ secrets.ENV_DB_NAME }} \
-                        -e DB_USERNAME=${{ secrets.ENV_DB_USER }} \
-                        -e DB_PASSWORD=${{ secrets.ENV_DB_PASSWORD }} \
-                        -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
-                        -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
-                        -e KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }} \
-                        -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-                        -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-                        -e GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }} \
-                        -e KAKAO_MAP_API_KEY=${{ secrets.KAKAO_MAP_API_KEY }} \
+                        -e DB_HOST="${{ secrets.ENV_DB_HOST }}" \
+                        -e DB_PORT="${{ secrets.ENV_DB_PORT }}" \
+                        -e DB_NAME="${{ secrets.ENV_DB_NAME }}" \
+                        -e DB_USERNAME="${{ secrets.ENV_DB_USER }}" \
+                        -e DB_PASSWORD="${{ secrets.ENV_DB_PASSWORD }}" \
+                        -e KAKAO_CLIENT_ID="${{ secrets.KAKAO_CLIENT_ID }}" \
+                        -e KAKAO_CLIENT_SECRET="${{ secrets.KAKAO_CLIENT_SECRET }}" \
+                        -e KAKAO_REDIRECT_URI="${{ secrets.KAKAO_REDIRECT_URI }}" \
+                        -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+                        -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+                        -e GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}" \
+                        -e KAKAO_MAP_API_KEY="${{ secrets.KAKAO_MAP_API_KEY }}" \
                         ${{ secrets.DOCKER_USERNAME }}/orora_project:latest
