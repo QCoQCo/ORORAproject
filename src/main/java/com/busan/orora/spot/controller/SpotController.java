@@ -5,6 +5,7 @@ import com.busan.orora.hashtag.service.HashtagService;
 import com.busan.orora.region.dto.RegionDto;
 import com.busan.orora.region.service.RegionService;
 import com.busan.orora.common.service.FileService;
+import com.busan.orora.common.util.SessionUtil;
 import com.busan.orora.spot.dto.SpotDto;
 import com.busan.orora.spot.dto.SpotImageDto;
 import com.busan.orora.spot.dto.SpotRequestDto;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -176,7 +179,6 @@ public class SpotController {
     /**
      * 사진 등록 신청 API
      * @param spotId 관광지 ID
-     * @param userId 신청자 ID
      * @param image 업로드된 이미지 파일
      * @param description 사진 설명
      * @return 신청 결과
@@ -184,12 +186,20 @@ public class SpotController {
     @PostMapping(value = "/spot-requests/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> submitPhotoRequest(
             @RequestParam("spotId") Long spotId,
-            @RequestParam("userId") Long userId,
             @RequestParam("image") MultipartFile image,
-            @RequestParam(value = "description", required = false) String description) {
+            @RequestParam(value = "description", required = false) String description,
+            HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
+            // 0. 신청자는 요청 값이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(httpRequest);
+            if (userId == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
             // 1. 파일 검증
             if (image == null || image.isEmpty()) {
                 response.put("success", false);
@@ -229,7 +239,6 @@ public class SpotController {
 
     /**
      * 관광지 추가 신청 API
-     * @param userId 신청자 ID
      * @param spotTitle 관광지명
      * @param regionId 지역 ID
      * @param linkUrl 링크 URL (선택)
@@ -240,7 +249,6 @@ public class SpotController {
      */
     @PostMapping(value = "/spot-requests/spot", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> submitSpotRequest(
-            @RequestParam("userId") Long userId,
             @RequestParam("spotTitle") String spotTitle,
             @RequestParam("regionId") Long regionId,
             @RequestParam(value = "linkUrl", required = false) String linkUrl,
@@ -250,10 +258,19 @@ public class SpotController {
             @RequestParam(value = "longitude", required = false) Double longitude,
             @RequestParam(value = "address", required = false) String address,
             @RequestParam(value = "image", required = false) MultipartFile image,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
+            // 0. 신청자는 요청 값이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(httpRequest);
+            if (userId == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
             // 1. 필수 필드 검증
             if (spotTitle == null || spotTitle.trim().isEmpty()) {
                 response.put("success", false);
@@ -336,7 +353,6 @@ public class SpotController {
     /**
      * 관광지 정보 수정요청 API
      * @param spotId 관광지 ID
-     * @param userId 신청자 ID
      * @param content 수정 요청 내용
      * @param image 참고 이미지 파일 (선택사항)
      * @return 신청 결과
@@ -344,12 +360,20 @@ public class SpotController {
     @PostMapping(value = "/spot-requests/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> submitSpotEditRequest(
             @RequestParam("spotId") Long spotId,
-            @RequestParam("userId") Long userId,
             @RequestParam("content") String content,
-            @RequestParam(value = "image", required = false) MultipartFile image) {
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
+            // 0. 신청자는 요청 값이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(httpRequest);
+            if (userId == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
             // 1. 필수 필드 검증
             if (content == null || content.trim().isEmpty()) {
                 response.put("success", false);
@@ -396,16 +420,23 @@ public class SpotController {
     /**
      * 신청 취소 API (사용자용)
      * @param requestId 신청 ID
-     * @param userId 사용자 ID (본인 확인용)
      * @return 취소 결과
      */
     @DeleteMapping("/spot-requests/{requestId}")
     public ResponseEntity<Map<String, Object>> cancelSpotRequest(
             @PathVariable Long requestId,
-            @RequestParam("userId") Long userId) {
+            HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
+            // 0. 본인 확인용 사용자 ID는 요청 값이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(httpRequest);
+            if (userId == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
             // 1. 신청 정보 조회
             SpotRequestDto request = spotRequestService.getRequestById(requestId);
             if (request == null) {
