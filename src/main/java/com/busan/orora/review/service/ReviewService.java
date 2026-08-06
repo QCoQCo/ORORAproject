@@ -195,7 +195,8 @@ public class ReviewService {
         // 2. 이미지 삭제
         if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
             for (Long imageId : deleteImageIds) {
-                reviewMapper.deleteReviewImage(imageId);
+                // 다른 리뷰의 이미지가 삭제되지 않도록 review_id를 함께 조건으로 사용
+                reviewMapper.deleteReviewImage(imageId, reviewId);
             }
         }
 

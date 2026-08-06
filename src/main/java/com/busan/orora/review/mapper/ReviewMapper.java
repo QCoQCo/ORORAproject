@@ -90,7 +90,7 @@ public interface ReviewMapper {
     List<Map<String, Object>> findReviewImagesByReviewId(@Param("reviewId") Long reviewId);
 
     // 리뷰 이미지 삭제
-    void deleteReviewImage(@Param("imageId") Long imageId);
+    void deleteReviewImage(@Param("imageId") Long imageId, @Param("reviewId") Long reviewId);
 
     // 사용자별 댓글 조회 (리뷰 및 관광지 정보 포함)
     List<Map<String, Object>> findCommentsByUserId(@Param("userId") Long userId);
