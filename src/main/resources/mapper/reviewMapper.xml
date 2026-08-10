@@ -68,6 +68,21 @@
         ORDER BY image_order ASC
     </select>
 
+    <!-- 여러 리뷰의 이미지를 한 번에 조회 (N+1 방지) -->
+    <select id="findReviewImagesByReviewIds" resultType="java.util.HashMap">
+        SELECT
+            id,
+            review_id as reviewId,
+            image_url as imageUrl,
+            image_order as imageOrder,
+            alt_text as altText,
+            created_at as createdAt
+        FROM review_images
+        WHERE review_id IN
+        <foreach item="id" collection="reviewIds" open="(" separator="," close=")">#{id}</foreach>
+        ORDER BY review_id ASC, image_order ASC
+    </select>
+
     <!-- 사용자별 리뷰 조회 -->
     <select id="findReviewsByUserId" resultMap="ReviewResultMap" parameterType="Long">
         SELECT 

@@ -89,6 +89,9 @@ public interface ReviewMapper {
     // 리뷰 이미지 조회
     List<Map<String, Object>> findReviewImagesByReviewId(@Param("reviewId") Long reviewId);
 
+    // 여러 리뷰의 이미지를 한 번에 조회 (N+1 방지)
+    List<Map<String, Object>> findReviewImagesByReviewIds(@Param("reviewIds") List<Long> reviewIds);
+
     // 리뷰 이미지 삭제
     void deleteReviewImage(@Param("imageId") Long imageId, @Param("reviewId") Long reviewId);
 

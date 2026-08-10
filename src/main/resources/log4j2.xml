@@ -20,7 +20,15 @@
         </Logger>
 
         <!-- log4jdbc 관련 로그 -->
-        <Logger name="log4jdbc.log4j2" level="DEBUG" additivity="false">
+        <!-- log4jdbc-log4j2는 모든 로그를 이 로거 하나로 보내고 마커로 구분함.
+             (아래 jdbc.* 로거 설정은 이 포크에서는 효과 없음)
+             AUDIT(모든 JDBC 메서드 호출)와 RESULTSET(모든 getter 호출) 마커를 걸러서
+             SQL 실행문/실행시간/조회결과 표만 남긴다. -->
+        <Logger name="log4jdbc.log4j2" level="INFO" additivity="false">
+            <Filters>
+                <MarkerFilter marker="LOG4JDBC_AUDIT" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <MarkerFilter marker="LOG4JDBC_RESULTSET" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>
             <AppenderRef ref="Console"/>
         </Logger>
 
