@@ -166,7 +166,7 @@ class ListLoader {
                     return;
                 }
 
-                const res = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`, {
+                const res = await fetch(`/api/tourist-spots/${spotId}/like`, {
                     method: 'POST',
                 });
 
