@@ -1,5 +1,6 @@
 package com.busan.orora.review.controller;
 
+import com.busan.orora.common.util.SessionUtil;
 import com.busan.orora.like.service.ReviewLikeService;
 import com.busan.orora.review.dto.ReviewDto;
 import com.busan.orora.review.service.ReviewService;
@@ -29,25 +30,30 @@ public class ReviewController {
 
     /**
      * 관광지별 리뷰 목록 조회
-     * GET /api/reviews?touristSpotId={spotId}&userId={userId}
-     * userId는 선택적 파라미터로, 제공되면 각 리뷰에 대한 좋아요 여부를 함께 반환
+     * GET /api/reviews?touristSpotId={spotId}
+     * 로그인 상태이면 각 리뷰에 대한 좋아요 여부를 함께 반환
      */
     @GetMapping("/reviews")
     @ResponseBody
     public Map<String, Object> getReviewsBySpotId(
             @RequestParam Long touristSpotId,
-            @RequestParam(required = false) Long userId) {
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
             List<Map<String, Object>> reviews = reviewService.getReviewsBySpotId(touristSpotId);
 
-            // 로그인한 사용자가 있으면 각 리뷰에 대한 좋아요 여부 추가
-            if (userId != null) {
+            // 로그인한 사용자가 있으면 각 리뷰에 대한 좋아요 여부 추가 (N+1 방지: 한 번에 조회)
+            Long userId = SessionUtil.getLoginUserId(request);
+            if (userId != null && !reviews.isEmpty()) {
+                List<Long> reviewIds = new java.util.ArrayList<>();
+                for (Map<String, Object> review : reviews) {
+                    reviewIds.add(((Number) review.get("id")).longValue());
+                }
+                java.util.Set<Long> likedReviewIds = reviewLikeService.getLikedReviewIds(userId, reviewIds);
                 for (Map<String, Object> review : reviews) {
                     Long reviewId = ((Number) review.get("id")).longValue();
-                    boolean isLiked = reviewLikeService.existsReviewLike(userId, reviewId);
-                    review.put("isLiked", isLiked);
+                    review.put("isLiked", likedReviewIds.contains(reviewId));
                 }
             }
 
@@ -86,12 +92,12 @@ public class ReviewController {
             @RequestParam(value = "title", required = false) String titleParam,
             @RequestParam(value = "content", required = false) String contentParam,
             @RequestParam(value = "rating", required = false) String ratingParam,
-            @RequestParam(value = "userId", required = false) String userIdParam,
             @RequestParam(value = "images", required = false) MultipartFile[] images) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Long userId = null;
+            // 작성자는 요청 값이 아닌 세션에서 확인 (요청으로 전달된 userId는 신뢰하지 않음)
+            Long userId = SessionUtil.getLoginUserId(request);
             Long touristSpotId = null;
             String title = null;
             String content = null;
@@ -103,9 +109,6 @@ public class ReviewController {
 
             if (isMultipart) {
                 // multipart/form-data로 받은 경우
-                if (userIdParam != null) {
-                    userId = Long.parseLong(userIdParam);
-                }
                 if (touristSpotIdParam != null) {
                     touristSpotId = Long.parseLong(touristSpotIdParam);
                 }
@@ -120,14 +123,6 @@ public class ReviewController {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> requestBody = (Map<String, Object>) objectMapper
                             .readValue(request.getInputStream(), Map.class);
-                    if (requestBody.containsKey("userId")) {
-                        Object userIdObj = requestBody.get("userId");
-                        if (userIdObj instanceof Number) {
-                            userId = ((Number) userIdObj).longValue();
-                        } else if (userIdObj instanceof String) {
-                            userId = Long.parseLong((String) userIdObj);
-                        }
-                    }
                     if (requestBody.containsKey("touristSpotId")) {
                         Object spotIdObj = requestBody.get("touristSpotId");
                         if (spotIdObj instanceof Number) {
@@ -156,7 +151,7 @@ public class ReviewController {
             // 유효성 검사
             if (userId == null) {
                 response.put("success", false);
-                response.put("message", "사용자 ID가 필요합니다.");
+                response.put("message", "로그인이 필요합니다.");
                 return response;
             }
             if (touristSpotId == null) {
@@ -219,19 +214,22 @@ public class ReviewController {
     @ResponseBody
     public Map<String, Object> updateReview(
             @PathVariable Long id,
-            @RequestParam(value = "userId") Long userId,
             @RequestParam(value = "title") String title,
             @RequestParam(value = "content") String content,
             @RequestParam(value = "rating") Integer rating,
             @RequestParam(value = "deleteImageIds", required = false) String deleteImageIdsJson,
-            @RequestParam(value = "images", required = false) MultipartFile[] images) {
+            @RequestParam(value = "images", required = false) MultipartFile[] images,
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            // 작성자는 요청 값이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(request);
+
             // 유효성 검사
             if (userId == null) {
                 response.put("success", false);
-                response.put("message", "사용자 정보가 필요합니다.");
+                response.put("message", "로그인이 필요합니다.");
                 return response;
             }
             if (title == null || title.trim().isEmpty()) {
@@ -291,10 +289,18 @@ public class ReviewController {
      */
     @DeleteMapping("/reviews/{id}")
     @ResponseBody
-    public Map<String, Object> deleteReview(@PathVariable Long id, @RequestParam Long userId) {
+    public Map<String, Object> deleteReview(@PathVariable Long id, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            // 작성자는 요청 값이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(request);
+            if (userId == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
             // 리뷰 삭제
             reviewService.deleteReview(id, userId);
 
@@ -366,10 +372,17 @@ public class ReviewController {
      */
     @GetMapping("/users/{userId}/comments")
     @ResponseBody
-    public Map<String, Object> getCommentsByUserId(@PathVariable Long userId) {
+    public Map<String, Object> getCommentsByUserId(@PathVariable Long userId, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            // 마이페이지 전용 데이터이므로 본인(또는 관리자)만 조회 가능
+            if (!SessionUtil.isSelf(request, userId) && !SessionUtil.isAdmin(request)) {
+                response.put("success", false);
+                response.put("message", "본인의 댓글만 조회할 수 있습니다.");
+                return response;
+            }
+
             List<Map<String, Object>> comments = reviewService.getCommentsByUserId(userId);
 
             response.put("success", true);
@@ -416,27 +429,20 @@ public class ReviewController {
     @PostMapping("/reviews/{reviewId}/comments")
     @ResponseBody
     public Map<String, Object> createComment(@PathVariable Long reviewId,
-            @RequestBody Map<String, Object> requestBody) {
+            @RequestBody Map<String, Object> requestBody,
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // 요청 본문에서 데이터 추출
-            Long userId = null;
-            if (requestBody.containsKey("userId")) {
-                Object userIdObj = requestBody.get("userId");
-                if (userIdObj instanceof Number) {
-                    userId = ((Number) userIdObj).longValue();
-                } else if (userIdObj instanceof String) {
-                    userId = Long.parseLong((String) userIdObj);
-                }
-            }
+            // 작성자는 요청 본문이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(request);
 
             String content = (String) requestBody.get("content");
 
             // 유효성 검사
             if (userId == null) {
                 response.put("success", false);
-                response.put("message", "사용자 ID가 필요합니다.");
+                response.put("message", "로그인이 필요합니다.");
                 return response;
             }
             if (content == null || content.trim().isEmpty()) {
@@ -467,27 +473,20 @@ public class ReviewController {
     @PutMapping("/comments/{commentId}")
     @ResponseBody
     public Map<String, Object> updateComment(@PathVariable Long commentId,
-            @RequestBody Map<String, Object> requestBody) {
+            @RequestBody Map<String, Object> requestBody,
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // 요청 본문에서 데이터 추출
-            Long userId = null;
-            if (requestBody.containsKey("userId")) {
-                Object userIdObj = requestBody.get("userId");
-                if (userIdObj instanceof Number) {
-                    userId = ((Number) userIdObj).longValue();
-                } else if (userIdObj instanceof String) {
-                    userId = Long.parseLong((String) userIdObj);
-                }
-            }
+            // 작성자는 요청 본문이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(request);
 
             String content = (String) requestBody.get("content");
 
             // 유효성 검사
             if (userId == null) {
                 response.put("success", false);
-                response.put("message", "사용자 ID가 필요합니다.");
+                response.put("message", "로그인이 필요합니다.");
                 return response;
             }
             if (content == null || content.trim().isEmpty()) {
@@ -518,25 +517,17 @@ public class ReviewController {
     @DeleteMapping("/comments/{commentId}")
     @ResponseBody
     public Map<String, Object> deleteComment(@PathVariable Long commentId,
-            @RequestBody Map<String, Object> requestBody) {
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // 요청 본문에서 데이터 추출
-            Long userId = null;
-            if (requestBody.containsKey("userId")) {
-                Object userIdObj = requestBody.get("userId");
-                if (userIdObj instanceof Number) {
-                    userId = ((Number) userIdObj).longValue();
-                } else if (userIdObj instanceof String) {
-                    userId = Long.parseLong((String) userIdObj);
-                }
-            }
+            // 작성자는 요청 본문이 아닌 세션에서 확인
+            Long userId = SessionUtil.getLoginUserId(request);
 
             // 유효성 검사
             if (userId == null) {
                 response.put("success", false);
-                response.put("message", "사용자 ID가 필요합니다.");
+                response.put("message", "로그인이 필요합니다.");
                 return response;
             }
 
@@ -562,27 +553,19 @@ public class ReviewController {
     @PostMapping("/comments/{commentId}/report")
     @ResponseBody
     public Map<String, Object> reportComment(@PathVariable Long commentId,
-            @RequestBody Map<String, Object> requestBody) {
+            @RequestBody Map<String, Object> requestBody,
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
-        Long userId = null;
+        // 신고자는 요청 본문이 아닌 세션에서 확인
+        Long userId = SessionUtil.getLoginUserId(request);
 
         try {
-            // 요청 본문에서 데이터 추출
-            if (requestBody.containsKey("userId")) {
-                Object userIdObj = requestBody.get("userId");
-                if (userIdObj instanceof Number) {
-                    userId = ((Number) userIdObj).longValue();
-                } else if (userIdObj instanceof String) {
-                    userId = Long.parseLong((String) userIdObj);
-                }
-            }
-
             String reason = (String) requestBody.get("reason");
 
             // 유효성 검사
             if (userId == null) {
                 response.put("success", false);
-                response.put("message", "사용자 ID가 필요합니다.");
+                response.put("message", "로그인이 필요합니다.");
                 return response;
             }
             if (reason == null || reason.trim().isEmpty()) {
@@ -622,27 +605,19 @@ public class ReviewController {
      */
     @PostMapping("/reviews/{reviewId}/report")
     @ResponseBody
-    public Map<String, Object> reportReview(@PathVariable Long reviewId, @RequestBody Map<String, Object> requestBody) {
+    public Map<String, Object> reportReview(@PathVariable Long reviewId, @RequestBody Map<String, Object> requestBody,
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
-        Long userId = null;
+        // 신고자는 요청 본문이 아닌 세션에서 확인
+        Long userId = SessionUtil.getLoginUserId(request);
 
         try {
-            // 요청 본문에서 데이터 추출
-            if (requestBody.containsKey("userId")) {
-                Object userIdObj = requestBody.get("userId");
-                if (userIdObj instanceof Number) {
-                    userId = ((Number) userIdObj).longValue();
-                } else if (userIdObj instanceof String) {
-                    userId = Long.parseLong((String) userIdObj);
-                }
-            }
-
             String reason = (String) requestBody.get("reason");
 
             // 유효성 검사
             if (userId == null) {
                 response.put("success", false);
-                response.put("message", "사용자 ID가 필요합니다.");
+                response.put("message", "로그인이 필요합니다.");
                 return response;
             }
             if (reason == null || reason.trim().isEmpty()) {

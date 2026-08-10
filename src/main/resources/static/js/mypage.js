@@ -1,5 +1,15 @@
 // 마이페이지 JavaScript
 
+// XSS 방지: 사용자 입력값을 innerHTML에 넣기 전에 반드시 이스케이프
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // 전역 변수: 다른 유저의 프로필인지 여부
 let isViewingOtherProfile = false;
 let viewingUserId = null;
@@ -461,17 +471,17 @@ function createLikedReviewHTML(review) {
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
     const date = formatDate(review.created_at, 'korean');
-    const authorName = review.author_name || '익명';
+    const authorName = escapeHtml(review.author_name || '익명');
 
     return `
         <div class="review-item liked-review-item" onclick="window.location.href='/pages/detailed/detailed?id=${review.tourist_spot_id}'">
             <div class="review-header">
                 <span class="review-author">👤 ${authorName}</span>
-                <span class="review-spot">${review.tourist_spot_name}</span>
+                <span class="review-spot">${escapeHtml(review.tourist_spot_name)}</span>
             </div>
-            <h3 class="review-title">${review.title || '제목 없음'}</h3>
+            <h3 class="review-title">${escapeHtml(review.title || '제목 없음')}</h3>
             <div class="review-rating">${stars}</div>
-            <p class="review-content">${review.content || ''}</p>
+            <p class="review-content">${escapeHtml(review.content || '')}</p>
             <div class="review-footer">
                 <span class="review-date">${date}</span>
             </div>
@@ -623,9 +633,9 @@ function createReviewHTML(review) {
             ? `<div class="review-images">${review.images
                   .map(
                       (img) =>
-                          `<img src="${img.image_url}" alt="${
-                              img.alt_text || '리뷰 이미지'
-                          }" class="review-image" onclick="openImageModal('${img.image_url}')">`,
+                          `<img src="${img.image_url}" alt="${escapeHtml(
+                              img.alt_text || '리뷰 이미지',
+                          )}" class="review-image" onclick="openImageModal('${img.image_url}')">`,
                   )
                   .join('')}</div>`
             : '';
@@ -633,10 +643,10 @@ function createReviewHTML(review) {
     return `
         <div class="review-item">
             <div class="item-header">
-                <h3 class="item-title">${review.title}</h3>
+                <h3 class="item-title">${escapeHtml(review.title)}</h3>
                 <span class="item-date">${formatDate(review.created_at, 'korean')}</span>
             </div>
-            <div class="item-content">${review.content}</div>
+            <div class="item-content">${escapeHtml(review.content)}</div>
             <div class="item-meta">
                 <div class="rating">
                     <span class="stars">${stars}</span>
@@ -645,7 +655,7 @@ function createReviewHTML(review) {
                 <a href="/pages/detailed/detailed?id=${
                     review.tourist_spot_id
                 }" class="tourist-spot">
-                    ${review.tourist_spot_name}
+                    ${escapeHtml(review.tourist_spot_name)}
                 </a>
             </div>
             ${imagesHTML}
@@ -656,18 +666,18 @@ function createReviewHTML(review) {
 // 댓글 HTML 생성
 function createCommentHTML(comment) {
     const reviewAuthor = comment.review_author_name
-        ? `<span class="review-author">리뷰 작성자: ${comment.review_author_name}</span>`
+        ? `<span class="review-author">리뷰 작성자: ${escapeHtml(comment.review_author_name)}</span>`
         : '';
     return `
         <div class="comment-item" onclick="window.location.href='/pages/detailed/detailed?id=${comment.tourist_spot_id}'">
             <div class="item-header">
-                <h3 class="item-title">📝 ${comment.review_title}</h3>
+                <h3 class="item-title">📝 ${escapeHtml(comment.review_title)}</h3>
                 <span class="item-date">${formatDate(comment.created_at)}</span>
             </div>
-            <div class="item-content">"${comment.content}"</div>
+            <div class="item-content">"${escapeHtml(comment.content)}"</div>
             <div class="item-meta">
                 <a href="/pages/detailed/detailed?id=${comment.tourist_spot_id}" class="tourist-spot">
-                    📍 ${comment.tourist_spot_name}
+                    📍 ${escapeHtml(comment.tourist_spot_name)}
                 </a>
                 ${reviewAuthor}
             </div>
@@ -680,10 +690,10 @@ function createLikeHTML(like) {
     return `
         <div class="like-item">
             <div class="item-header">
-                <h3 class="item-title">${like.title}</h3>
+                <h3 class="item-title">${escapeHtml(like.title)}</h3>
                 <span class="item-date">${formatDate(like.likedAt, 'korean')}</span>
             </div>
-            <div class="item-content">${like.description || '좋아요한 관광지입니다.'}</div>
+            <div class="item-content">${escapeHtml(like.description || '좋아요한 관광지입니다.')}</div>
             <div class="item-meta">
                 <a href="/pages/detailed/detailed?id=${like.spotId}" class="tourist-spot">
                     자세히 보기
@@ -823,7 +833,7 @@ function createRequestHTML(request) {
     const typeLabel = request.type === 'photo' ? '사진 추가' : '관광지 추가';
     const statusBadge = getRequestStatusBadge(request.status);
     const createdAt = formatRequestDate(request.createdAt);
-    const description = request.description || '-';
+    const description = escapeHtml(request.description || '-');
 
     // 이미지 미리보기 생성 (모든 신청 유형에서 이미지가 있으면 표시)
     let imagePreview = '';
@@ -891,11 +901,11 @@ function createRequestHTML(request) {
             </div>
             <div class="request-content">
                 <div class="request-info">
-                    <p><strong>관광지:</strong> ${request.spotName || '-'}</p>
+                    <p><strong>관광지:</strong> ${escapeHtml(request.spotName || '-')}</p>
                     <p><strong>신청일:</strong> ${createdAt}</p>
                     ${
                         request.status === 'rejected' && request.rejectReason
-                            ? `<p><strong>거부 사유:</strong> ${request.rejectReason}</p>`
+                            ? `<p><strong>거부 사유:</strong> ${escapeHtml(request.rejectReason)}</p>`
                             : ''
                     }
                 </div>
@@ -945,7 +955,7 @@ async function cancelRequest(requestId) {
     }
 
     try {
-        const response = await fetch(`/api/spot-requests/${requestId}?userId=${user.id}`, {
+        const response = await fetch(`/api/spot-requests/${requestId}`, {
             method: 'DELETE',
         });
 
@@ -1089,12 +1099,12 @@ function displayLocationResults(results) {
     resultsContainer.innerHTML = results
         .map(
             (place, index) => `
-        <div class="location-result-item" data-index="${index}" 
-             data-lat="${place.y}" data-lng="${place.x}" 
-             data-name="${place.place_name}" 
-             data-address="${place.road_address_name || place.address_name}">
-            <div class="place-name">${place.place_name}</div>
-            <div class="place-address">${place.road_address_name || place.address_name}</div>
+        <div class="location-result-item" data-index="${index}"
+             data-lat="${place.y}" data-lng="${place.x}"
+             data-name="${escapeHtml(place.place_name)}"
+             data-address="${escapeHtml(place.road_address_name || place.address_name)}">
+            <div class="place-name">${escapeHtml(place.place_name)}</div>
+            <div class="place-address">${escapeHtml(place.road_address_name || place.address_name)}</div>
         </div>
     `,
         )
@@ -1167,7 +1177,7 @@ function updateImagePreview() {
         .map(
             (file, index) => `
         <div class="selected-file-item" data-index="${index}">
-            <img src="${URL.createObjectURL(file)}" alt="${file.name}">
+            <img src="${URL.createObjectURL(file)}" alt="${escapeHtml(file.name)}">
             <button type="button" class="remove-file" data-index="${index}">&times;</button>
         </div>
     `,
@@ -1316,9 +1326,8 @@ async function initSpotAddForm() {
                 return;
             }
 
-            // FormData 생성 (이미지 파일 포함)
+            // FormData 생성 (이미지 파일 포함) — 신청자는 서버가 세션에서 식별
             const formData = new FormData();
-            formData.append('userId', user.id);
             formData.append('spotTitle', spotTitle);
             formData.append('regionId', regionId);
             formData.append('linkUrl', document.getElementById('spot-link').value);

@@ -2,6 +2,7 @@ package com.busan.orora.user.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.busan.orora.common.util.SessionUtil;
 import com.busan.orora.user.service.UserService;
 import com.busan.orora.user.dto.UserDto;
 import com.busan.orora.user.form.UserLoginForm;
@@ -486,11 +487,20 @@ public class UserController {
     // 사용자 정보 조회 API
     @GetMapping("/api/users/{userId}")
     @ResponseBody
-    public Map<String, Object> getUserById(@org.springframework.web.bind.annotation.PathVariable Long userId) {
+    public Map<String, Object> getUserById(@org.springframework.web.bind.annotation.PathVariable Long userId,
+            HttpServletRequest request) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
+            // 개인정보가 포함되므로 본인(또는 관리자)만 조회 가능
+            // 공개 정보가 필요하면 /api/public/users/{userId} 사용
+            if (!SessionUtil.isSelf(request, userId) && !SessionUtil.isAdmin(request)) {
+                response.put("success", false);
+                response.put("message", "본인의 정보만 조회할 수 있습니다.");
+                return response;
+            }
+
             UserDto user = userService.getUserById(userId);
             if (user != null) {
                 Map<String, Object> userMap = new HashMap<>();
@@ -549,8 +559,12 @@ public class UserController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // 현재 로그인한 사용자 확인 (간단한 검증)
-            // TODO: 실제로는 세션/토큰을 통해 권한 확인 필요
+            // 본인(또는 관리자)만 프로필을 수정할 수 있음
+            if (!SessionUtil.isSelf(request, userId) && !SessionUtil.isAdmin(request)) {
+                response.put("success", false);
+                response.put("message", "본인의 프로필만 수정할 수 있습니다.");
+                return response;
+            }
 
             // UserDto 생성
             UserDto userDto = new UserDto();

@@ -12,6 +12,16 @@ function initDOMElements() {
 // 상수 정의
 const HEADER_OFFSET = 70;
 
+// XSS 방지: 사용자 입력값을 innerHTML에 넣기 전에 반드시 이스케이프
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // 스크롤 위치에 따른 섹션 활성화 함수
 function updateActiveSection() {
     const scrollTop = doc.scrollTop;
@@ -188,12 +198,8 @@ async function loadTouristSpotDetail() {
                 // like 전체 영역(하트 + 카운트 + 여백)을 클릭 가능하게 처리
                 if (!likeWrap || !likeBtn) return;
 
-                // 좋아요 상태 호출
-                const likeUrl = userId
-                    ? `/api/tourist-spots/${spotId}/like?userId=${userId}`
-                    : `/api/tourist-spots/${spotId}/like`;
-
-                const likeResponse = await fetch(likeUrl);
+                // 좋아요 상태 호출 (사용자 식별은 서버가 세션에서 처리)
+                const likeResponse = await fetch(`/api/tourist-spots/${spotId}/like`);
                 const likeData = await likeResponse.json();
 
                 likeBtn.classList.toggle('likeBtnActive', likeData.liked);
@@ -208,7 +214,7 @@ async function loadTouristSpotDetail() {
                         return;
                     }
 
-                    const res = await fetch(`/api/tourist-spots/${spotId}/like?userId=${userId}`, {
+                    const res = await fetch(`/api/tourist-spots/${spotId}/like`, {
                         method: 'POST',
                     });
 
@@ -401,16 +407,16 @@ function displaySimilarSpots(container, spots) {
                 .slice(0, 4)
                 .map((tag) => {
                     const isMatched = matchedTagSet.has(tag.toLowerCase());
-                    return `<span class="spot-tag ${isMatched ? 'matched' : ''}">#${tag}</span>`;
+                    return `<span class="spot-tag ${isMatched ? 'matched' : ''}">#${escapeHtml(tag)}</span>`;
                 })
                 .join('');
 
             return `
             <a href="/pages/detailed/detailed?id=${spot.id}" class="similar-spot-card">
-                <img src="${imageUrl}" alt="${spot.title}" class="spot-image" 
+                <img src="${imageUrl}" alt="${escapeHtml(spot.title)}" class="spot-image"
                      onerror="this.src='/images/logo.png'">
                 <div class="spot-info">
-                    <h4 class="spot-title">${spot.title}</h4>
+                    <h4 class="spot-title">${escapeHtml(spot.title)}</h4>
                     <div class="spot-tags">
                         ${tagsHtml}
                     </div>
@@ -462,13 +468,13 @@ function updateImages(spot) {
         // 메인 슬라이더
         const mainSlide = document.createElement('div');
         mainSlide.className = 'swiper-slide';
-        mainSlide.innerHTML = `<img src="${imgSrc}" alt="${spot.title}" />`;
+        mainSlide.innerHTML = `<img src="${imgSrc}" alt="${escapeHtml(spot.title)}" />`;
         mainSlider.appendChild(mainSlide);
 
         // 썸네일 슬라이더
         const thumbSlide = document.createElement('div');
         thumbSlide.className = 'swiper-slide';
-        thumbSlide.innerHTML = `<img src="${imgSrc}" alt="${spot.title}" />`;
+        thumbSlide.innerHTML = `<img src="${imgSrc}" alt="${escapeHtml(spot.title)}" />`;
         thumbSlider.appendChild(thumbSlide);
     });
 }
@@ -724,7 +730,7 @@ function initKakaoMap(spotTitle, latitude, longitude) {
                         position: coords,
                     });
                     const infowindow = new kakao.maps.InfoWindow({
-                        content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`,
+                        content: `<div style="width:150px;text-align:center;padding:6px 0;">${escapeHtml(spotTitle)}</div>`,
                     });
                     infowindow.open(map, marker);
                     map.setCenter(coords);
@@ -739,7 +745,7 @@ function initKakaoMap(spotTitle, latitude, longitude) {
                                 position: coords,
                             });
                             const infowindow = new kakao.maps.InfoWindow({
-                                content: `<div style="width:150px;text-align:center;padding:6px 0;">${spotTitle}</div>`,
+                                content: `<div style="width:150px;text-align:center;padding:6px 0;">${escapeHtml(spotTitle)}</div>`,
                             });
                             infowindow.open(map, marker);
                             map.setCenter(coords);
@@ -798,11 +804,8 @@ async function loadReviews() {
         const user = getCurrentUser();
         const userId = user?.id;
 
-        // 백엔드 API를 통해 리뷰 데이터 로드 (userId가 있으면 좋아요 여부도 함께 조회)
-        let apiUrl = `/api/reviews?touristSpotId=${currentSpotId}`;
-        if (userId) {
-            apiUrl += `&userId=${userId}`;
-        }
+        // 백엔드 API를 통해 리뷰 데이터 로드 (로그인 상태면 서버가 세션으로 좋아요 여부도 함께 조회)
+        const apiUrl = `/api/reviews?touristSpotId=${currentSpotId}`;
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -892,8 +895,8 @@ function createReviewElement(review) {
 
     const stars = '★'.repeat(review.rating || 0) + '☆'.repeat(5 - (review.rating || 0));
 
-    // API 응답 형식에 맞게 필드명 처리
-    const userName = review.userName || review.user_name || '익명';
+    // API 응답 형식에 맞게 필드명 처리 (사용자 입력값은 XSS 방지를 위해 이스케이프)
+    const userName = escapeHtml(review.userName || review.user_name || '익명');
     // const userProfileImage = review.userProfileImage || '/images/defaultProfile.png';
     const likes = review.likes || review.likeCount || 0;
     const replies = review.replies || review.comments || review.commentCount || 0;
@@ -947,14 +950,14 @@ function createReviewElement(review) {
                     isMyReview ? ' <span class="my-review-badge">내 리뷰</span>' : ''
                 }</p>
                 <div class="reviewRating">${stars} (${review.rating || 0}/5)</div>
-                <p class="reviewTitle">${review.title || ''}</p>
+                <p class="reviewTitle">${escapeHtml(review.title || '')}</p>
             </div>
             <div class="reviewDateContainer">
                 ${dateHTML}
             </div>
         </div>
         <div class="reviewContent">
-            <p>${review.content || ''}</p>
+            <p>${escapeHtml(review.content || '')}</p>
         </div>
         <div class="reviewActions">
             <div class="reviewInteractions">
@@ -1358,7 +1361,6 @@ async function submitReview() {
             formData.append('title', title);
             formData.append('content', content);
             formData.append('rating', selectedRating);
-            formData.append('userId', userId);
 
             // 이미지 파일 추가
             reviewImages.forEach((imageData, index) => {
@@ -1375,7 +1377,6 @@ async function submitReview() {
                 title: title,
                 content: content,
                 rating: selectedRating,
-                userId: userId,
             });
         }
 
@@ -1455,7 +1456,7 @@ async function toggleReviewLike(reviewId) {
 
     try {
         // 백엔드 API 호출
-        const response = await fetch(`/api/reviews/${reviewId}/like?userId=${userId}`, {
+        const response = await fetch(`/api/reviews/${reviewId}/like`, {
             method: 'POST',
         });
 
@@ -1679,7 +1680,9 @@ function updateCommentCount(reviewId, count) {
 
 // 댓글 HTML 생성
 function createCommentHTML(comment) {
-    const userName = comment.userName || comment.userLoginId || '익명';
+    // 사용자 입력값은 XSS 방지를 위해 이스케이프
+    const userName = escapeHtml(comment.userName || comment.userLoginId || '익명');
+    const safeContent = escapeHtml(comment.content || '');
     const createdAt = formatDate(
         comment.createdAt || comment.created_at || new Date().toISOString(),
         'dot',
@@ -1701,9 +1704,7 @@ function createCommentHTML(comment) {
     // 본인 댓글인 경우 신고 버튼 숨김, 삭제/수정 버튼 표시
     const actionButtonsHTML = isMyComment
         ? `<div class="comment-actions">
-            <button class="edit-comment-btn" onclick="editComment(${comment.id}, '${(
-                comment.content || ''
-            ).replace(/'/g, "\\'")}')">수정</button>
+            <button class="edit-comment-btn" onclick="editComment(${comment.id})">수정</button>
             <button class="delete-comment-btn" onclick="deleteComment(${comment.id})">삭제</button>
         </div>`
         : `<div class="comment-report-btn">
@@ -1726,7 +1727,7 @@ function createCommentHTML(comment) {
                 ${actionButtonsHTML}
             </div>
             <div class="comment-content" id="comment-content-${comment.id}">
-                <p>${comment.content || ''}</p>
+                <p>${safeContent}</p>
             </div>
             <!-- 댓글 수정 폼 (숨김) -->
             <div class="comment-edit-form" id="comment-edit-form-${
@@ -1734,7 +1735,7 @@ function createCommentHTML(comment) {
             }" style="display: none;">
                 <textarea class="comment-edit-input" id="comment-edit-input-${
                     comment.id
-                }" maxlength="500">${comment.content || ''}</textarea>
+                }" maxlength="500">${safeContent}</textarea>
                 <div class="comment-edit-actions">
                     <span class="comment-edit-char-count"><span id="comment-edit-char-count-${
                         comment.id
@@ -1862,7 +1863,6 @@ async function submitComment(reviewId) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                userId: userId,
                 content: content,
             }),
         });
@@ -2039,7 +2039,6 @@ async function saveComment(commentId) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                userId: userId,
                 content: newContent,
             }),
         });
@@ -2123,12 +2122,6 @@ async function deleteComment(commentId) {
     try {
         const response = await fetch(`/api/comments/${commentId}`, {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: userId,
-            }),
         });
 
         const data = await response.json();
@@ -2354,7 +2347,6 @@ async function submitReport(event) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                userId: userId,
                 reason: reason,
             }),
         });
@@ -2540,15 +2532,11 @@ function updatePageContent(spot, regionName) {
         initSwiper();
     }, 100);
 
-    // 리뷰 로드
+    // 리뷰 로드 (loadReviews가 updatePhotoReviews까지 호출하므로
+    // loadPhotoReviews를 따로 부르면 같은 API를 중복 호출하게 됨)
     setTimeout(() => {
         loadReviews();
     }, 200);
-
-    // 포토리뷰 로드
-    setTimeout(() => {
-        loadPhotoReviews();
-    }, 300);
 }
 
 // 사진 등록 신청 모달 관련 함수들
@@ -2694,7 +2682,6 @@ function initPhotoRequestModal() {
             // FormData 생성
             const formData = new FormData();
             formData.append('spotId', spotId);
-            formData.append('userId', userId);
             formData.append('image', imageFile);
             formData.append('description', description);
 
@@ -2840,7 +2827,6 @@ function initSpotEditRequestModal() {
             // FormData 생성
             const formData = new FormData();
             formData.append('spotId', spotId);
-            formData.append('userId', userId);
             formData.append('content', content);
             if (imageFile) {
                 formData.append('image', imageFile);
@@ -2910,11 +2896,8 @@ async function loadPhotoReviews() {
         const user = getCurrentUser();
         const userId = user?.id;
 
-        // API URL 구성 (userId가 있으면 좋아요 여부도 함께 조회)
-        let apiUrl = `/api/reviews?touristSpotId=${currentSpotId}`;
-        if (userId) {
-            apiUrl += `&userId=${userId}`;
-        }
+        // API URL 구성 (로그인 상태면 서버가 세션으로 좋아요 여부도 함께 조회)
+        const apiUrl = `/api/reviews?touristSpotId=${currentSpotId}`;
         const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -3033,8 +3016,8 @@ function createPhotoReviewListItem(review) {
             ? review.images[0].imageUrl || review.images[0].image_url || ''
             : '/images/logo.png';
 
-    const userName = review.userName || review.user_name || '익명';
-    const title = review.title || '';
+    const userName = escapeHtml(review.userName || review.user_name || '익명');
+    const title = escapeHtml(review.title || '');
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
     const createdAt = formatDate(
@@ -3125,9 +3108,9 @@ function openPhotoReviewModal(review) {
     const reviewUserId = review.userId || review.user_id;
     const isMyReview = currentUserId && reviewUserId && currentUserId == reviewUserId;
 
-    const userName = review.userName || review.user_name || '익명';
-    const title = review.title || '';
-    const contentText = review.content || '';
+    const userName = escapeHtml(review.userName || review.user_name || '익명');
+    const title = escapeHtml(review.title || '');
+    const contentText = escapeHtml(review.content || '');
     const rating = review.rating || 0;
     const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
 
@@ -3866,7 +3849,6 @@ async function submitEditReview() {
     try {
         // FormData 생성 (이미지 포함)
         const formData = new FormData();
-        formData.append('userId', user.id);
         formData.append('title', title);
         formData.append('content', content);
         formData.append('rating', editSelectedRating);
@@ -3955,7 +3937,7 @@ async function deleteReview(reviewId) {
     }
 
     try {
-        const response = await fetch(`/api/reviews/${reviewId}?userId=${user.id}`, {
+        const response = await fetch(`/api/reviews/${reviewId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

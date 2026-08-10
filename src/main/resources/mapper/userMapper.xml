@@ -59,7 +59,7 @@
 
     <select id="findAllUsers" resultMap="UserResultMap">
         SELECT 
-            u.id, u.login_id, u.username, u.email, u.password_hash, u.login_type_code, u.role_code, u.status_code, 
+            u.id, u.login_id, u.username, u.email, u.login_type_code, u.role_code, u.status_code, 
             u.phone_number, u.address, u.birth_date, u.gender_code, u.join_date, u.last_login, 
             u.created_at, u.updated_at,
             COALESCE(

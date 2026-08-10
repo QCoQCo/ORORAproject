@@ -33,26 +33,27 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 정적 리소스 허용
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/upload/**", "/lang/**").permitAll()
+                        // 관리자 영역은 ADMIN 권한 필요
+                        // (아래 permitAll 규칙보다 먼저 선언해야 함: 먼저 일치하는 규칙이 적용됨)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**", "/pages/admin/**").hasRole("ADMIN")
                         // 페이지 허용
                         .requestMatchers("/", "/login/**", "/signup/**").permitAll()
                         .requestMatchers("/pages/login/**").permitAll()
                         .requestMatchers("/pages/**").permitAll()
                         // OAuth2 허용
                         .requestMatchers("/oauth2/**").permitAll()
-                        // 공개 API 허용
+                        // 공개 API 허용 (조회만 허용, 쓰기 요청은 아래 authenticated 규칙을 따름)
                         .requestMatchers("/api/auth/**").permitAll() // 인증 관련 API
-                        .requestMatchers("/api/regions/**").permitAll() // 지역 API
-                        .requestMatchers("/api/tag-spots").permitAll() // 해시태그 API
-                        .requestMatchers("/api/tourist-spots/**").permitAll() // 관광지 조회 API
-                        .requestMatchers("/api/reviews").permitAll() // 리뷰 조회 API (GET)
+                        .requestMatchers(HttpMethod.GET, "/api/regions/**").permitAll() // 지역 API
+                        .requestMatchers(HttpMethod.GET, "/api/tag-spots").permitAll() // 해시태그 API
+                        .requestMatchers(HttpMethod.GET, "/api/tourist-spots/**").permitAll() // 관광지 조회 API
+                        .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll() // 리뷰 조회 API (GET)
                         .requestMatchers(HttpMethod.GET, "/api/reviews/*/comments").permitAll() // 리뷰 댓글 조회 API (GET)
                         .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll() // 공개 프로필/공개 데이터 API (GET)
                         .requestMatchers(HttpMethod.GET, "/api/users/*/reviews").permitAll() // 사용자 작성 리뷰 조회 (GET)
                         .requestMatchers(HttpMethod.GET, "/api/users/*/liked-reviews").permitAll() // 사용자 좋아요 누른 리뷰 조회 (GET)
-                        .requestMatchers("/api/search/**").permitAll() // 검색 API
-                        // 관리자 API는 인증 필요 (권한 체크는 Controller에서 수행)
-                        .requestMatchers("/api/admin/**").authenticated()
-                        .requestMatchers("/admin/**", "/pages/admin/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/search/**").permitAll() // 검색 API
                         // 나머지 API는 인증 필요 (리뷰 작성, 좋아요 등)
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated());
