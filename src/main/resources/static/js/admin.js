@@ -1,5 +1,25 @@
 // 관리자 페이지 JavaScript
 
+// XSS 방지: 사용자 입력값을 innerHTML에 넣기 전에 반드시 이스케이프
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// XSS 방지: 인라인 이벤트 핸들러(onclick 등)의 JS 문자열 리터럴에 넣을 값 이스케이프
+function escapeJsAttr(value) {
+    return escapeHtml(
+        String(value ?? '')
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, "\\'")
+            .replace(/[\r\n]/g, ' '),
+    );
+}
+
 // 전역 변수
 let touristSpots = {};
 let currentEditIndex = null;
@@ -415,7 +435,7 @@ function handleImagePreview(event) {
             previewItem.className = 'preview-item';
             previewItem.innerHTML = `
                 <img src="${e.target.result}" alt="미리보기" />
-                <span class="file-name" title="${file.name}">${file.name.substring(0, 15)}${
+                <span class="file-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name.substring(0, 15))}${
                     file.name.length > 15 ? '...' : ''
                 }</span>
             `;
@@ -548,7 +568,7 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
     if (normalizedHashtags.length > 0) {
         hashtagsDisplay = normalizedHashtags
             .map((tag) => {
-                const tagStr = String(tag).trim();
+                const tagStr = escapeHtml(String(tag).trim());
                 return tagStr.startsWith('#') ? tagStr : '#' + tagStr;
             })
             .filter((tag) => tag.length > 0)
@@ -560,12 +580,12 @@ function createTouristSpotCard(spot, regionKey, spotId, regionName) {
         : '';
 
     card.innerHTML = `
-        <h3>${spot.title} ${inactiveBadge}</h3>
+        <h3>${escapeHtml(spot.title)} ${inactiveBadge}</h3>
         <div class="spot-category">${regionName} (${categoryNames[category] || category})</div>
         <div class="spot-info">
             해시태그: ${hashtagsDisplay}
         </div>
-        <div class="spot-description">${spot.description || ''}</div>
+        <div class="spot-description">${escapeHtml(spot.description || '')}</div>
         <div class="spot-actions">
             <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('${regionKey}', ${spotId})">수정</button>
             <button class="delete-btn" onclick="event.stopPropagation(); deleteTouristSpot('${regionKey}', ${spotId})">삭제</button>
@@ -1496,9 +1516,9 @@ function createUserRow(user) {
     const row = document.createElement('tr');
 
     row.innerHTML = `
-        <td>${user.userId}</td>
-        <td>${user.username}</td>
-        <td>${user.email}</td>
+        <td>${escapeHtml(user.userId)}</td>
+        <td>${escapeHtml(user.username)}</td>
+        <td>${escapeHtml(user.email)}</td>
         <td><span class="user-role-badge ${user.role}">${getRoleText(user.role)}</span></td>
         <td><span class="user-status-badge ${user.status}">${getStatusText(user.status)}</span></td>
         <td>${formatDate(user.joinDate, 'locale')}</td>
@@ -2512,7 +2532,8 @@ function displaySpotRequests() {
                 typeLabel = '정보 수정';
             }
             const createdAt = formatDate(request.createdAt, 'locale-full');
-            const description = request.description || '-';
+            // 사용자 입력값은 XSS 방지를 위해 이스케이프
+            const description = escapeHtml(request.description || '-');
 
             // 여러 이미지가 쉼표로 구분되어 있을 수 있음 - 첫 번째 이미지만 미리보기로 표시
             let imagePreview = '-';
@@ -2559,8 +2580,8 @@ function displaySpotRequests() {
             <tr>
                 <td>${request.id}</td>
                 <td>${typeLabel}</td>
-                <td>${request.applicantName || request.applicantId || '-'}</td>
-                <td>${request.spotName || '-'}</td>
+                <td>${escapeHtml(request.applicantName || request.applicantId || '-')}</td>
+                <td>${escapeHtml(request.spotName || '-')}</td>
                 <td>
                     <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${description}">
                         ${description}
@@ -3075,20 +3096,25 @@ function displayUserReports() {
             const statusBadge = getReportStatusBadge(report.status);
             const typeLabel = getReportTypeLabel(report.type);
             const createdAt = formatReportDate(report.createdAt);
-            const reason = report.reason || '-';
+            // 사용자 입력값은 XSS 방지를 위해 이스케이프
+            const reason = escapeHtml(report.reason || '-');
             const isCommentReport = report.reportType === 'comment';
 
             // 리뷰 내용 또는 댓글 내용 처리
             const reviewContent = report.reviewContent
-                ? report.reviewContent.length > 50
-                    ? report.reviewContent.substring(0, 50) + '...'
-                    : report.reviewContent
+                ? escapeHtml(
+                      report.reviewContent.length > 50
+                          ? report.reviewContent.substring(0, 50) + '...'
+                          : report.reviewContent,
+                  )
                 : '-';
 
             const commentContent = report.commentContent
-                ? report.commentContent.length > 50
-                    ? report.commentContent.substring(0, 50) + '...'
-                    : report.commentContent
+                ? escapeHtml(
+                      report.commentContent.length > 50
+                          ? report.commentContent.substring(0, 50) + '...'
+                          : report.commentContent,
+                  )
                 : null;
 
             // 신고 유형 배지 (리뷰/댓글 구분)
@@ -3105,12 +3131,11 @@ function displayUserReports() {
                 actionButtons = `
                     <button class="approve-btn" onclick="openPenaltyModal(${report.id}, '${
                         report.reportType || 'review'
-                    }', ${report.reportedUserId || 0}, '${(report.reportedUserName || '').replace(
-                        /'/g,
-                        "\\'",
-                    )}', '${typeLabel}', '${(reason || '')
-                        .replace(/'/g, "\\'")
-                        .substring(0, 100)}')" style="margin-right: 5px;">처리</button>
+                    }', ${report.reportedUserId || 0}, '${escapeJsAttr(
+                        report.reportedUserName || '',
+                    )}', '${escapeJsAttr(typeLabel)}', '${escapeJsAttr(
+                        (report.reason || '-').substring(0, 100),
+                    )}')" style="margin-right: 5px;">처리</button>
                     <button class="reject-btn" onclick="rejectReport(${report.id}, '${
                         report.reportType || 'review'
                     }')">반려</button>
@@ -3127,8 +3152,8 @@ function displayUserReports() {
             return `
             <tr>
                 <td>${report.id}</td>
-                <td>${report.reporterName || report.reporterId || '-'}</td>
-                <td>${report.reportedUserName || report.reportedUserId || '-'}</td>
+                <td>${escapeHtml(report.reporterName || report.reporterId || '-')}</td>
+                <td>${escapeHtml(report.reportedUserName || report.reportedUserId || '-')}</td>
                 <td>${reportTypeBadge} ${typeLabel}</td>
                 <td>
                     <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${reason}">
@@ -3142,13 +3167,13 @@ function displayUserReports() {
                                    </div>`
                                 : ''
                             : report.reviewTitle
-                              ? `<div style="margin-top: 5px; font-size: 0.875rem; color: #666;">리뷰: ${report.reviewTitle}</div>`
+                              ? `<div style="margin-top: 5px; font-size: 0.875rem; color: #666;">리뷰: ${escapeHtml(report.reviewTitle)}</div>`
                               : ''
                     }
                     ${
                         isCommentReport
                             ? report.reviewTitle
-                                ? `<div style="margin-top: 3px; font-size: 0.8rem; color: #999;">관련 리뷰: ${report.reviewTitle}</div>`
+                                ? `<div style="margin-top: 3px; font-size: 0.8rem; color: #999;">관련 리뷰: ${escapeHtml(report.reviewTitle)}</div>`
                                 : ''
                             : reviewContent !== '-'
                               ? `<div style="margin-top: 3px; font-size: 0.8rem; color: #999;">${reviewContent}</div>`
@@ -3257,15 +3282,15 @@ function openPenaltyModal(
         <div class="penalty-info-grid">
             <div class="penalty-info-item">
                 <span class="label">피신고자</span>
-                <span class="value">${reportedUserName || '알 수 없음'}</span>
+                <span class="value">${escapeHtml(reportedUserName || '알 수 없음')}</span>
             </div>
             <div class="penalty-info-item">
                 <span class="label">신고 유형</span>
-                <span class="value">${violationType}</span>
+                <span class="value">${escapeHtml(violationType)}</span>
             </div>
             <div class="penalty-info-item full-width">
                 <span class="label">신고 사유</span>
-                <span class="value">${reason || '-'}</span>
+                <span class="value">${escapeHtml(reason || '-')}</span>
             </div>
         </div>
     `;

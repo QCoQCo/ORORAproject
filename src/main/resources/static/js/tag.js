@@ -1,3 +1,13 @@
+// XSS 방지: 사용자 입력값을 innerHTML에 넣기 전에 반드시 이스케이프
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 class TagSearchSystem {
     constructor() {
         this.allSpots = [];
@@ -194,8 +204,8 @@ class TagSearchSystem {
             const tagElement = document.createElement('span');
             tagElement.className = 'selected-tag-item';
             tagElement.innerHTML = `
-                #${tag}
-                <button type="button" class="remove-tag-btn" data-tag="${tag}">×</button>
+                #${escapeHtml(tag)}
+                <button type="button" class="remove-tag-btn" data-tag="${escapeHtml(tag)}">×</button>
             `;
             selectedTagsContainer.appendChild(tagElement);
         });
