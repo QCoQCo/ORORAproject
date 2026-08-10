@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,12 +29,25 @@ public class ReviewService {
 
     public List<Map<String, Object>> getReviewsBySpotId(Long spotId) {
         List<Map<String, Object>> reviews = reviewMapper.findReviewsBySpotId(spotId);
+        if (reviews.isEmpty()) {
+            return reviews;
+        }
 
-        // 각 리뷰에 이미지 정보 추가
+        // 각 리뷰에 이미지 정보 추가 (N+1 방지: 이미지를 한 번에 조회 후 리뷰별로 그룹핑)
+        List<Long> reviewIds = new ArrayList<>();
+        for (Map<String, Object> review : reviews) {
+            reviewIds.add(((Number) review.get("id")).longValue());
+        }
+
+        Map<Long, List<Map<String, Object>>> imagesByReviewId = new HashMap<>();
+        for (Map<String, Object> image : reviewMapper.findReviewImagesByReviewIds(reviewIds)) {
+            Long reviewId = ((Number) image.get("reviewId")).longValue();
+            imagesByReviewId.computeIfAbsent(reviewId, k -> new ArrayList<>()).add(image);
+        }
+
         for (Map<String, Object> review : reviews) {
             Long reviewId = ((Number) review.get("id")).longValue();
-            List<Map<String, Object>> images = reviewMapper.findReviewImagesByReviewId(reviewId);
-            review.put("images", images);
+            review.put("images", imagesByReviewId.getOrDefault(reviewId, new ArrayList<>()));
         }
 
         return reviews;

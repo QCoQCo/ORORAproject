@@ -2532,15 +2532,11 @@ function updatePageContent(spot, regionName) {
         initSwiper();
     }, 100);
 
-    // 리뷰 로드
+    // 리뷰 로드 (loadReviews가 updatePhotoReviews까지 호출하므로
+    // loadPhotoReviews를 따로 부르면 같은 API를 중복 호출하게 됨)
     setTimeout(() => {
         loadReviews();
     }, 200);
-
-    // 포토리뷰 로드
-    setTimeout(() => {
-        loadPhotoReviews();
-    }, 300);
 }
 
 // 사진 등록 신청 모달 관련 함수들

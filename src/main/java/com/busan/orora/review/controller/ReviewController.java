@@ -43,13 +43,17 @@ public class ReviewController {
         try {
             List<Map<String, Object>> reviews = reviewService.getReviewsBySpotId(touristSpotId);
 
-            // 로그인한 사용자가 있으면 각 리뷰에 대한 좋아요 여부 추가
+            // 로그인한 사용자가 있으면 각 리뷰에 대한 좋아요 여부 추가 (N+1 방지: 한 번에 조회)
             Long userId = SessionUtil.getLoginUserId(request);
-            if (userId != null) {
+            if (userId != null && !reviews.isEmpty()) {
+                List<Long> reviewIds = new java.util.ArrayList<>();
+                for (Map<String, Object> review : reviews) {
+                    reviewIds.add(((Number) review.get("id")).longValue());
+                }
+                java.util.Set<Long> likedReviewIds = reviewLikeService.getLikedReviewIds(userId, reviewIds);
                 for (Map<String, Object> review : reviews) {
                     Long reviewId = ((Number) review.get("id")).longValue();
-                    boolean isLiked = reviewLikeService.existsReviewLike(userId, reviewId);
-                    review.put("isLiked", isLiked);
+                    review.put("isLiked", likedReviewIds.contains(reviewId));
                 }
             }
 
