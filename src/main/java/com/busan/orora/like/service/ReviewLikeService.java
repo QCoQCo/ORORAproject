@@ -47,4 +47,12 @@ public class ReviewLikeService {
         Integer count = reviewLikeMapper.countReviewLikesByReviewId(reviewId);
         return count != null ? count : 0;
     }
+
+    // 사용자가 좋아요 누른 리뷰 ID 집합을 한 번에 조회 (N+1 방지)
+    public java.util.Set<Long> getLikedReviewIds(Long userId, java.util.List<Long> reviewIds) {
+        if (userId == null || reviewIds == null || reviewIds.isEmpty()) {
+            return java.util.Collections.emptySet();
+        }
+        return new java.util.HashSet<>(reviewLikeMapper.findLikedReviewIdsByUser(userId, reviewIds));
+    }
 }

@@ -1,4 +1,15 @@
 // 통합 검색 기능
+
+// XSS 방지: 사용자 입력값을 innerHTML에 넣기 전에 반드시 이스케이프
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 class SearchSystem {
     constructor() {
         this.currentKeyword = '';
@@ -153,7 +164,7 @@ class SearchSystem {
                 <div class="item-content">
                     <h4 class="item-title">${this.highlightKeyword(spot.title, this.currentKeyword)}</h4>
                     ${spot.description ? `<p class="item-description">${this.highlightKeyword(spot.description.substring(0, 100), this.currentKeyword)}${spot.description.length > 100 ? '...' : ''}</p>` : ''}
-                    ${spot.linkUrl ? `<a href="${spot.linkUrl}" class="item-link" target="_blank">자세히 보기</a>` : ''}
+                    ${spot.linkUrl ? `<a href="${escapeHtml(spot.linkUrl)}" class="item-link" target="_blank">자세히 보기</a>` : ''}
                 </div>
             </div>
         `,
@@ -183,8 +194,8 @@ class SearchSystem {
                 </div>
                 <p class="item-content">${this.highlightKeyword(review.content.substring(0, 150), this.currentKeyword)}${review.content.length > 150 ? '...' : ''}</p>
                 <div class="item-meta">
-                    <span class="meta-item">관광지: ${review.touristSpotTitle || '알 수 없음'}</span>
-                    ${review.userName ? `<span class="meta-item">작성자: ${review.userName}</span>` : ''}
+                    <span class="meta-item">관광지: ${escapeHtml(review.touristSpotTitle || '알 수 없음')}</span>
+                    ${review.userName ? `<span class="meta-item">작성자: ${escapeHtml(review.userName)}</span>` : ''}
                     <span class="meta-item">${this.formatDate(review.createdAt)}</span>
                 </div>
             </div>
@@ -233,12 +244,12 @@ class SearchSystem {
                 (comment) => `
             <div class="result-item comment-item" onclick="window.location.href='/pages/detailed/detailed?id=${comment.touristSpotId}#review-${comment.reviewId}'">
                 <div class="item-header">
-                    <h4 class="item-title">${comment.reviewTitle || '댓글'}</h4>
+                    <h4 class="item-title">${escapeHtml(comment.reviewTitle || '댓글')}</h4>
                 </div>
                 <p class="item-content">${this.highlightKeyword(comment.content.substring(0, 150), this.currentKeyword)}${comment.content.length > 150 ? '...' : ''}</p>
                 <div class="item-meta">
-                    <span class="meta-item">관광지: ${comment.touristSpotTitle || '알 수 없음'}</span>
-                    ${comment.userName ? `<span class="meta-item">작성자: ${comment.userName}</span>` : ''}
+                    <span class="meta-item">관광지: ${escapeHtml(comment.touristSpotTitle || '알 수 없음')}</span>
+                    ${comment.userName ? `<span class="meta-item">작성자: ${escapeHtml(comment.userName)}</span>` : ''}
                     <span class="meta-item">${this.formatDate(comment.createdAt)}</span>
                 </div>
             </div>
@@ -295,9 +306,13 @@ class SearchSystem {
     }
 
     highlightKeyword(text, keyword) {
-        if (!text || !keyword) return text;
-        const regex = new RegExp(`(${keyword})`, 'gi');
-        return text.replace(regex, '<mark>$1</mark>');
+        // XSS 방지: 텍스트를 먼저 이스케이프한 뒤 하이라이트 적용
+        const safeText = escapeHtml(text);
+        if (!text || !keyword) return safeText;
+        // 키워드도 이스케이프된 텍스트와 매칭되도록 이스케이프하고, 정규식 특수문자를 무력화
+        const safeKeyword = escapeHtml(keyword).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${safeKeyword})`, 'gi');
+        return safeText.replace(regex, '<mark>$1</mark>');
     }
 
     formatDate(dateString) {

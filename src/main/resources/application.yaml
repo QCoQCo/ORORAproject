@@ -22,7 +22,7 @@ spring:
             minimum-idle: 5
             idle-timeout: 600000
             max-lifetime: 1800000
-            connection-test-query: SELECT 1
+            # connection-test-query 미설정 시 JDBC4 isValid()를 사용 (원격 DB에서 SELECT 1 왕복 비용 절약)
 
     servlet:
         multipart:
