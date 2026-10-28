@@ -111,8 +111,11 @@ public class UserController {
             UserDto user = userService.login(loginForm.getLoginId(), loginForm.getPassword());
 
             if (user != null) {
-                // 세션에 사용자 정보 저장
+                // 세션 고정 공격 방지: 로그인 전 세션 ID를 새 ID로 교체 (세션 속성은 유지됨)
                 HttpSession session = request.getSession();
+                request.changeSessionId();
+
+                // 세션에 사용자 정보 저장
                 session.setAttribute("loggedInUser", user);
 
                 // Spring Security 인증 컨텍스트에 권한 설정

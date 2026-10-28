@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -11,6 +13,9 @@ import java.util.UUID;
  */
 @Service
 public class FileService {
+
+    /** 업로드를 허용하는 이미지 확장자 (소문자) */
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif", "webp");
 
     /**
      * 상대 경로를 절대 경로로 변환합니다.
@@ -38,6 +43,9 @@ public class FileService {
      * @throws IOException 파일 저장 중 오류 발생 시
      */
     public String uploadFile(String uploadPath, String originalFileName, byte[] fileData) throws IOException {
+        // 0. 이미지 파일인지 검증 (.html/.svg 등이 업로드되어 같은 출처에서 서빙되는 것을 방지)
+        String extension = validateImageFile(originalFileName, fileData);
+
         // 상대 경로를 절대 경로로 변환
         String absoluteUploadPath = getAbsolutePath(uploadPath);
 
@@ -52,12 +60,9 @@ public class FileService {
         }
 
         // 2. UUID로 고유한 파일명 생성
+        // (확장자는 원본 문자열이 아닌 검증된 값을 사용)
         UUID uuid = UUID.randomUUID();
-        String extension = "";
-        if (originalFileName != null && originalFileName.contains(".")) {
-            extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        }
-        String savedFileName = uuid.toString() + extension;
+        String savedFileName = uuid.toString() + "." + extension;
 
         // 3. 전체 경로 생성
         String fileUploadFullUrl = absoluteUploadPath + File.separator + savedFileName;
@@ -69,6 +74,59 @@ public class FileService {
         }
 
         return savedFileName; // 저장된 파일명만 반환
+    }
+
+    /**
+     * 업로드 파일이 허용된 이미지인지 확인합니다.
+     * 확장자 화이트리스트와 파일 시그니처(매직 바이트)가 모두 일치해야 합니다.
+     *
+     * @return 검증된 확장자 (소문자, 점 제외)
+     * @throws IllegalArgumentException 허용되지 않은 파일인 경우
+     */
+    private String validateImageFile(String originalFileName, byte[] fileData) {
+        String extension = "";
+        if (originalFileName != null && originalFileName.contains(".")) {
+            extension = originalFileName.substring(originalFileName.lastIndexOf(".") + 1).toLowerCase(Locale.ROOT);
+        }
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension) || !matchesImageSignature(extension, fileData)) {
+            throw new IllegalArgumentException("이미지 파일(jpg, jpeg, png, gif, webp)만 업로드할 수 있습니다.");
+        }
+        return extension;
+    }
+
+    /**
+     * 파일 앞부분의 시그니처가 확장자에 맞는 이미지 형식인지 확인합니다.
+     */
+    private boolean matchesImageSignature(String extension, byte[] data) {
+        if (data == null) {
+            return false;
+        }
+        switch (extension) {
+            case "jpg":
+            case "jpeg":
+                return startsWith(data, 0, 0xFF, 0xD8, 0xFF);
+            case "png":
+                return startsWith(data, 0, 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A);
+            case "gif":
+                return startsWith(data, 0, 'G', 'I', 'F', '8', '7', 'a')
+                        || startsWith(data, 0, 'G', 'I', 'F', '8', '9', 'a');
+            case "webp":
+                return startsWith(data, 0, 'R', 'I', 'F', 'F') && startsWith(data, 8, 'W', 'E', 'B', 'P');
+            default:
+                return false;
+        }
+    }
+
+    private boolean startsWith(byte[] data, int offset, int... signature) {
+        if (data.length < offset + signature.length) {
+            return false;
+        }
+        for (int i = 0; i < signature.length; i++) {
+            if ((data[offset + i] & 0xFF) != signature[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

@@ -342,6 +342,22 @@ public class ReviewService {
     }
 
     /**
+     * 리뷰 작성 (이미지 포함)
+     * 이미지 저장에 실패하면 리뷰 작성도 함께 롤백됩니다.
+     *
+     * @param reviewDto 리뷰 정보
+     * @param images    업로드된 이미지 파일 배열 (선택사항)
+     * @return 생성된 리뷰 정보
+     * @throws Exception 파일 저장 또는 DB 저장 중 오류 발생 시
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ReviewDto createReviewWithImages(ReviewDto reviewDto, MultipartFile[] images) throws Exception {
+        ReviewDto createdReview = createReview(reviewDto);
+        saveReviewImages(createdReview.getId(), images);
+        return createdReview;
+    }
+
+    /**
      * 리뷰 이미지 저장
      * 
      * @param reviewId 리뷰 ID

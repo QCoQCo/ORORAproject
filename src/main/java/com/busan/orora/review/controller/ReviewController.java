@@ -184,13 +184,8 @@ public class ReviewController {
             reviewDto.setRating(rating);
             reviewDto.setIsApproved(true);
 
-            // 리뷰 생성
-            ReviewDto createdReview = reviewService.createReview(reviewDto);
-
-            // 이미지가 있으면 저장
-            if (images != null && images.length > 0) {
-                reviewService.saveReviewImages(createdReview.getId(), images);
-            }
+            // 리뷰 생성 (이미지 저장 실패 시 리뷰도 함께 롤백)
+            ReviewDto createdReview = reviewService.createReviewWithImages(reviewDto, images);
 
             response.put("success", true);
             response.put("message", "리뷰가 성공적으로 등록되었습니다.");

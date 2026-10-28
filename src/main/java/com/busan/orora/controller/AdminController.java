@@ -705,6 +705,13 @@ public class AdminController {
                 return response;
             }
 
+            // 이미 처리된 신청은 다시 승인하지 않음 (이미지 중복 등록 방지)
+            if (!"pending".equals(request.getStatus())) {
+                response.put("success", false);
+                response.put("message", "이미 처리된 신청입니다.");
+                return response;
+            }
+
             // 2. 신청 유형에 따라 처리
             if ("photo".equals(request.getRequestType())) {
                 // 사진 추가 신청: 사진을 관광지에 추가
@@ -795,6 +802,13 @@ public class AdminController {
             if (request == null) {
                 response.put("success", false);
                 response.put("message", "신청을 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 이미 처리된 신청은 다시 거부하지 않음 (승인된 신청이 거부로 바뀌는 것 방지)
+            if (!"pending".equals(request.getStatus())) {
+                response.put("success", false);
+                response.put("message", "이미 처리된 신청입니다.");
                 return response;
             }
 

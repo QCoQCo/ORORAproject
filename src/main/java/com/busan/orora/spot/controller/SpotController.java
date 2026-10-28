@@ -67,19 +67,27 @@ public class SpotController {
 
     /**
      * 관광지 상세 정보 조회
+     * ADMIN은 비활성화된 관광지와 비활성화된 카테고리의 관광지도 조회할 수 있습니다.
+     * (권한은 요청 값이 아닌 세션의 로그인 정보로 판단)
      * @param id 관광지 ID
-     * @param userRole 사용자 역할 (ADMIN인 경우 비활성화된 카테고리도 접근 가능)
      * @return 관광지 상세 정보 (이미지, 해시태그, 지역 정보 포함)
      */
     @GetMapping("/tourist-spots/{id}")
     public ResponseEntity<Map<String, Object>> getTouristSpotDetail(
             @PathVariable Long id,
-            @RequestParam(value = "userRole", required = false) String userRole) {
+            HttpServletRequest request) {
         try {
             // 1. 관광지 기본 정보 조회
             SpotDto spot = spotService.getSpotById(id);
             if (spot == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
+            // 비활성화된 관광지는 ADMIN만 조회 가능
+            boolean isAdmin = SessionUtil.isAdmin(request);
+            if (Boolean.FALSE.equals(spot.getIsActive()) && !isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "비활성화된 관광지는 접근할 수 없습니다."));
             }
 
             // 2. 카테고리 활성 상태 확인
@@ -90,7 +98,7 @@ public class SpotController {
                 if (categoryCode == null || categoryCode.getIsActive() == null || !categoryCode.getIsActive()) {
                     categoryActive = false;
                     // ADMIN이 아닌 경우 비활성화된 카테고리 접근 차단
-                    if (!"ADMIN".equals(userRole)) {
+                    if (!isAdmin) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body(Map.of("error", "비활성화된 카테고리의 관광지는 접근할 수 없습니다."));
                     }

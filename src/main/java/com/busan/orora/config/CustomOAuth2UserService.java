@@ -83,17 +83,24 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return null;
     }
 
+    /**
+     * 소셜 계정의 이메일을 반환합니다.
+     * 이메일이 같으면 기존 계정과 연결되므로, 제공자가 인증(verified)한 이메일만 사용합니다.
+     * 인증되지 않은 이메일은 남의 이메일을 등록해 기존 계정에 로그인하는 데 쓰일 수 있어,
+     * 제공자 ID 기반의 임시 이메일로 대체하여 별도 계정으로 처리합니다.
+     */
     private String getEmail(Map<String, Object> attributes, String registrationId) {
         if ("kakao".equalsIgnoreCase(registrationId)) {
             Object kakaoAccountObj = attributes.get("kakao_account");
             if (kakaoAccountObj instanceof Map<?, ?> kakaoAccount) {
                 Object emailObj = kakaoAccount.get("email");
                 // 카카오는 이메일 동의(스코프)가 없거나 사용자가 동의하지 않으면 이메일이 없을 수 있음
-                if (emailObj instanceof String email && !email.trim().isEmpty()) {
+                if (emailObj instanceof String email && !email.trim().isEmpty()
+                        && isTrue(kakaoAccount.get("is_email_verified"))) {
                     return email;
                 }
             }
-            // 이메일이 없으면 카카오 ID를 사용하여 임시 이메일 생성
+            // 이메일이 없거나 인증되지 않았으면 카카오 ID를 사용하여 임시 이메일 생성
             Object kakaoId = attributes.get("id");
             if (kakaoId != null) {
                 return "kakao_" + kakaoId.toString() + "@kakao.local";
@@ -101,9 +108,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             // ID도 없으면 타임스탬프 기반 임시 이메일
             return "kakao_" + System.currentTimeMillis() + "@kakao.local";
         } else if ("google".equalsIgnoreCase(registrationId)) {
-            return (String) attributes.get("email");
+            Object emailObj = attributes.get("email");
+            if (emailObj instanceof String email && !email.trim().isEmpty()
+                    && isTrue(attributes.get("email_verified"))) {
+                return email;
+            }
+            // 이메일이 없거나 인증되지 않았으면 구글 ID(sub)를 사용하여 임시 이메일 생성
+            Object sub = attributes.get("sub");
+            return sub != null ? "google_" + sub.toString() + "@google.local" : null;
         }
         return null;
+    }
+
+    /**
+     * 제공자 응답의 인증 여부 값이 true인지 확인합니다. (Boolean 또는 "true" 문자열)
+     */
+    private boolean isTrue(Object value) {
+        return Boolean.TRUE.equals(value) || "true".equalsIgnoreCase(String.valueOf(value));
     }
 
     private String getUsername(Map<String, Object> attributes, String registrationId) {

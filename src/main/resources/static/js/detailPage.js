@@ -139,7 +139,6 @@ async function loadTouristSpotDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const spotId = urlParams.get('id');
         const userId = getCurrentUser()?.id;
-        const userRole = getCurrentUser()?.roleCode || null;
 
         // ID가 없으면 에러
         if (!spotId) {
@@ -148,17 +147,14 @@ async function loadTouristSpotDetail() {
             return;
         }
 
-        // 백엔드 API를 통해 데이터 로드 (ADMIN인 경우 userRole 전송)
+        // 백엔드 API를 통해 데이터 로드 (ADMIN 여부는 서버가 세션으로 판단)
         try {
-            let apiUrl = `/api/tourist-spots/${spotId}`;
-            if (userRole) {
-                apiUrl += `?userRole=${userRole}`;
-            }
+            const apiUrl = `/api/tourist-spots/${spotId}`;
             const response = await fetch(apiUrl);
             if (response.status === 403) {
-                // 비활성화된 카테고리인 경우
+                // 비활성화된 관광지이거나 비활성화된 카테고리인 경우
                 const errorData = await response.json();
-                alert(errorData.error || '비활성화된 카테고리의 관광지는 접근할 수 없습니다.');
+                alert(errorData.error || '비활성화된 관광지는 접근할 수 없습니다.');
                 window.location.href = '/';
                 return;
             }
@@ -185,8 +181,13 @@ async function loadTouristSpotDetail() {
                 const regionName = spotData.region ? spotData.region.name : '';
                 updatePageContent(spot, regionName);
 
-                // 비활성화된 카테고리인 경우 경고 배너 표시 (ADMIN만 볼 수 있음)
-                if (spotData.categoryActive === false) {
+                // 비활성화된 관광지/카테고리인 경우 경고 배너 표시 (ADMIN만 볼 수 있음)
+                if (spotData.isActive === false) {
+                    showInactiveCategoryBanner(
+                        '비활성화된 관광지',
+                        '이 관광지는 현재 비활성화되어 있어 일반 사용자에게 표시되지 않습니다. (관리자만 접근 가능)'
+                    );
+                } else if (spotData.categoryActive === false) {
                     showInactiveCategoryBanner();
                 }
 
@@ -2414,7 +2415,10 @@ window.saveComment = saveComment;
 window.deleteComment = deleteComment;
 
 // 비활성화된 카테고리 경고 배너 표시 (ADMIN 전용)
-function showInactiveCategoryBanner() {
+function showInactiveCategoryBanner(
+    title = '비활성화된 카테고리',
+    message = '이 관광지는 현재 비활성화된 카테고리에 속해 있어 일반 사용자에게 표시되지 않습니다. (관리자만 접근 가능)'
+) {
     // 이미 배너가 있으면 제거
     const existingBanner = document.getElementById('inactive-category-banner');
     if (existingBanner) {
@@ -2448,9 +2452,9 @@ function showInactiveCategoryBanner() {
             ">
                 <span style="font-size: 24px;">⚠️</span>
                 <div style="text-align: left;">
-                    <strong style="font-size: 16px;">비활성화된 카테고리</strong>
+                    <strong style="font-size: 16px;">${title}</strong>
                     <p style="margin: 4px 0 0 0; font-size: 14px; opacity: 0.9;">
-                        이 관광지는 현재 비활성화된 카테고리에 속해 있어 일반 사용자에게 표시되지 않습니다. (관리자만 접근 가능)
+                        ${message}
                     </p>
                 </div>
                 <button onclick="document.getElementById('inactive-category-banner').remove()" style="

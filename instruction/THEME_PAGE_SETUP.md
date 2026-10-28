@@ -6,9 +6,9 @@
 
 ### 기술 스택
 
--   **백엔드**: Spring Boot 2.x, MyBatis, MySQL
--   **프론트엔드**: Thymeleaf 템플릿, Vanilla JavaScript, CSS3
--   **데이터베이스**: MySQL (arata_busan)
+- **백엔드**: Spring Boot 2.x, MyBatis, MySQL
+- **프론트엔드**: Thymeleaf 템플릿, Vanilla JavaScript, CSS3
+- **데이터베이스**: MySQL (arata_busan)
 
 ---
 
@@ -31,8 +31,8 @@ CREATE TABLE regions (
 
 **주요 필드**:
 
--   `area_code`: 지역 코드 (API 응답의 `code` 필드에 사용)
--   `name`: 지역 이름 (API 응답의 `name` 필드에 사용)
+- `area_code`: 지역 코드 (API 응답의 `code` 필드에 사용)
+- `name`: 지역 이름 (API 응답의 `name` 필드에 사용)
 
 #### `tourist_spots` 테이블
 
@@ -54,9 +54,9 @@ CREATE TABLE tourist_spots (
 
 **주요 필드**:
 
--   `category_code`: 카테고리 코드 (BEACH, CULTURE, FOOD, SHOPPING, CAFE, MOUNTAIN, ETC 등)
--   `is_active`: 활성화 여부 (비활성화된 관광지는 조회에서 제외)
--   `view_count`: 조회수
+- `category_code`: 카테고리 코드 (BEACH, CULTURE, FOOD, SHOPPING, CAFE, MOUNTAIN, ETC 등)
+- `is_active`: 활성화 여부 (비활성화된 관광지는 조회에서 제외)
+- `view_count`: 조회수
 
 #### `tourist_spot_images` 테이블
 
@@ -76,9 +76,9 @@ CREATE TABLE tourist_spot_images (
 
 **⚠️ 중요**:
 
--   `rep_img_yn = 'Y'`인 이미지를 대표 이미지로 사용
--   여러 이미지가 있는 경우 `rep_img_yn = 'Y'`인 첫 번째 이미지를 선택
--   대표 이미지가 없는 경우 `imageUrl`은 `null`로 설정
+- `rep_img_yn = 'Y'`인 이미지를 대표 이미지로 사용
+- 여러 이미지가 있는 경우 `rep_img_yn = 'Y'`인 첫 번째 이미지를 선택
+- 대표 이미지가 없는 경우 `imageUrl`은 `null`로 설정
 
 #### `hashtags` 테이블
 
@@ -140,67 +140,76 @@ tourist_spots (1) ──< (N) reviews
 **⚠️ 반드시 순서대로 실행**:
 
 ```bash
-# 1. 공통코드 테이블 생성
-mysql -u root -p arata_busan < src/main/resources/static/temp/common_code_schema.sql
+# 1. 메인 스키마 생성 (arata_busan DB를 직접 생성하므로 DB 이름을 지정하지 않음)
+mysql -u root -p < db/new_data_schema.sql
 
-# 2. 메인 스키마 생성
-mysql -u root -p arata_busan < src/main/resources/static/temp/new_data_schema.sql
+# 2. 공통코드 테이블 생성
+mysql -u root -p arata_busan < db/common_code_schema.sql
 
-# 3. Phase 3 데이터 삽입 (순서 중요!)
-mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_tourist_spots.sql
-mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_hashtags.sql
-mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_tourist_spot_images.sql
-mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_tourist_spot_hashtags.sql
-mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_reviews.sql
+# 3. users 테이블에 login_type_code 컬럼 추가 (없으면 로그인/회원가입 오류)
+mysql -u root -p arata_busan < db/add_login_type_migration.sql
+
+# 4. 기본 데이터 삽입 (지역 16개, 관광지 id 1~6, 사용자 등 - Phase 3 데이터가 이 데이터에 의존)
+mysql -u root -p arata_busan < db/sample_data.sql
+
+# 5. Phase 3 데이터 삽입 (순서 중요!)
+mysql -u root -p arata_busan < db/phase3_tourist_spots.sql
+mysql -u root -p arata_busan < db/phase3_hashtags.sql
+mysql -u root -p arata_busan < db/phase3_tourist_spot_images.sql
+mysql -u root -p arata_busan < db/phase3_tourist_spot_hashtags.sql
+mysql -u root -p arata_busan < db/phase3_reviews.sql
 ```
+
+> ⚠️ `sample_data.sql`의 사용자 비밀번호 해시는 형식만 맞춘 임의의 값이라 샘플 계정으로는 로그인할 수 없습니다.
+> 회원가입으로 계정을 만든 뒤, 관리자 계정이 필요하면 DB에서 `role_code`를 `ADMIN`으로 변경하세요.
 
 ### 2.2 데이터 파일 상세
 
 #### `phase3_tourist_spots.sql`
 
--   **내용**: 관광지 기본 정보 (80개 관광지)
--   **주요 데이터**:
-    -   `id`: 7~86 (기존 1~6 뒤에 추가)
-    -   `region_id`: 1~16 (16개 지역)
-    -   `title`: 관광지 제목
-    -   `description`: 관광지 설명
-    -   `category_code`: BEACH, CULTURE, FOOD, SHOPPING, CAFE, MOUNTAIN, ETC
-    -   `is_active`: TRUE
-    -   `view_count`: 0 (초기값)
+- **내용**: 관광지 기본 정보 (80개 관광지)
+- **주요 데이터**:
+    - `id`: 7~86 (기존 1~6 뒤에 추가)
+    - `region_id`: 1~16 (16개 지역)
+    - `title`: 관광지 제목
+    - `description`: 관광지 설명
+    - `category_code`: BEACH, CULTURE, FOOD, SHOPPING, CAFE, MOUNTAIN, ETC
+    - `is_active`: TRUE
+    - `view_count`: 0 (초기값)
 
 #### `phase3_hashtags.sql`
 
--   **내용**: 해시태그 목록 (342개 해시태그)
--   **주요 해시태그 예시**:
-    -   자연 관련: 해수욕장, 일출명소, 바다, 산, 공원, 절경
-    -   문화 관련: 문화, 역사, 전통, 예술, 사찰, 박물관
-    -   음식 관련: 맛집, 시장, 해산물, 카페, 디저트
-    -   쇼핑 관련: 쇼핑, 백화점, 소품샵, 편집샵
-    -   K-POP 관련: 핫플레이스, 포토스팟, 데이트, 인스타그램
+- **내용**: 해시태그 목록 (342개 해시태그)
+- **주요 해시태그 예시**:
+    - 자연 관련: 해수욕장, 일출명소, 바다, 산, 공원, 절경
+    - 문화 관련: 문화, 역사, 전통, 예술, 사찰, 박물관
+    - 음식 관련: 맛집, 시장, 해산물, 카페, 디저트
+    - 쇼핑 관련: 쇼핑, 백화점, 소품샵, 편집샵
+    - K-POP 관련: 핫플레이스, 포토스팟, 데이트, 인스타그램
 
 #### `phase3_tourist_spot_images.sql`
 
--   **내용**: 관광지 이미지 정보 (80개 이미지)
--   **주요 데이터**:
-    -   `tourist_spot_id`: 7~86
-    -   `image_url`: `/images/파일명.jpg` 형식
-    -   `rep_img_yn`: 'Y' (모두 대표 이미지)
+- **내용**: 관광지 이미지 정보 (80개 이미지)
+- **주요 데이터**:
+    - `tourist_spot_id`: 7~86
+    - `image_url`: `/images/파일명.jpg` 형식
+    - `rep_img_yn`: 'Y' (모두 대표 이미지)
 
 #### `phase3_tourist_spot_hashtags.sql`
 
--   **내용**: 관광지-해시태그 연결 정보
--   **주요 데이터**:
-    -   `tourist_spot_id`: 7~86
-    -   `hashtag_id`: 해시태그 ID (서브쿼리로 조회)
-    -   각 관광지마다 5~10개의 해시태그 연결
+- **내용**: 관광지-해시태그 연결 정보
+- **주요 데이터**:
+    - `tourist_spot_id`: 7~86
+    - `hashtag_id`: 해시태그 ID (서브쿼리로 조회)
+    - 각 관광지마다 5~10개의 해시태그 연결
 
 #### `phase3_reviews.sql`
 
--   **내용**: 리뷰 정보 (6개 리뷰)
--   **주요 데이터**:
-    -   `tourist_spot_id`: 7, 9, 11, 51
-    -   `rating`: 3~5
-    -   `is_approved`: TRUE
+- **내용**: 리뷰 정보 (6개 리뷰)
+- **주요 데이터**:
+    - `tourist_spot_id`: 7, 9, 11, 51
+    - `rating`: 3~5
+    - `is_approved`: TRUE
 
 ---
 
@@ -210,8 +219,8 @@ mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_reviews.sql
 
 #### `src/main/resources/templates/pages/search-place/theme.html`
 
--   **역할**: 테마 페이지 메인 템플릿
--   **주요 구조**:
+- **역할**: 테마 페이지 메인 템플릿
+- **주요 구조**:
 
     ```html
     <div class="theme-section">
@@ -235,15 +244,15 @@ mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_reviews.sql
     <div th:replace="~{components/list-item.html :: list-item-template}"></div>
     ```
 
--   **사용되는 Thymeleaf 속성**:
-    -   `layout:decorate="~{layouts/layout}"`: 공통 레이아웃 적용
-    -   `th:replace="~{components/list-item.html :: list-item-template}"`: 리스트 아이템 템플릿 포함
-    -   `data-translate`: 다국어 번역 키
+- **사용되는 Thymeleaf 속성**:
+    - `layout:decorate="~{layouts/layout}"`: 공통 레이아웃 적용
+    - `th:replace="~{components/list-item.html :: list-item-template}"`: 리스트 아이템 템플릿 포함
+    - `data-translate`: 다국어 번역 키
 
 #### `src/main/resources/templates/components/list-item.html`
 
--   **역할**: 관광지 아이템 템플릿 (Thymeleaf fragment)
--   **구조**:
+- **역할**: 관광지 아이템 템플릿 (Thymeleaf fragment)
+- **구조**:
     ```html
     <template id="list-item">
         <li class="item">
@@ -259,14 +268,14 @@ mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_reviews.sql
         </li>
     </template>
     ```
--   **JavaScript에서 사용**: `document.getElementById('list-item')`로 접근하여 클론 생성
+- **JavaScript에서 사용**: `document.getElementById('list-item')`로 접근하여 클론 생성
 
 ### 3.2 JavaScript 파일
 
 #### `src/main/resources/static/js/theme.js`
 
--   **주요 클래스**: `ThemeCarousel`
--   **주요 메서드**:
+- **주요 클래스**: `ThemeCarousel`
+- **주요 메서드**:
 
 1. **`init()`**: 초기화 및 데이터 로드
 
@@ -300,12 +309,10 @@ mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_reviews.sql
     ```
 
 3. **`getAuroraRecommendedSpots()`**: 오로라 추천 테마 필터링
-
     - 해시태그에 "부산대표명소", "포토스팟", "랜드마크" 등 포함된 관광지 선별
     - 최대 20개까지 추천
 
 4. **`filterByTheme(spots, theme)`**: 테마별 필터링
-
     - `kpop`: 영화, 문화, 핫플레이스, 젊은이, 트렌디, 데이트, 포토스팟 등
     - `culture`: 문화, 역사, 사찰, 전통, 예술, 박물관 등
     - `nature`: 자연, 산, 공원, 바다, 해수욕장, 등산, 일출, 일몰 등
@@ -313,7 +320,6 @@ mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_reviews.sql
     - `shopping`: 쇼핑, 백화점, 상가, 소품샵, 편집샵 등
 
 5. **`renderCarousel(carouselId, theme)`**: 캐러셀/그리드 렌더링
-
     - 초기: 캐러셀 모드 (가로 스크롤)
     - 더보기 클릭 후: 그리드 모드 (격자 레이아웃)
 
@@ -358,39 +364,39 @@ mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_reviews.sql
     - 페이지네이션 (10개씩 추가)
     - 그리드 모드로 전환
 
--   **데이터 구조 요구사항**:
-    -   API 응답: `{ regions: { area01: { name, code, spots: [...] }, ... } }`
-    -   각 `spot` 객체:
-        -   `id`: 관광지 ID (Long)
-        -   `title`: 제목 (String)
-        -   `description`: 설명 (String)
-        -   `hashtags`: 해시태그 배열 (String[], 필수, 빈 배열 가능)
-        -   `imageUrl`: 대표 이미지 URL (String, null 가능)
-        -   `linkUrl`: 링크 URL (String, null 가능)
-        -   `category`: 카테고리 코드 (String)
-        -   `isActive`: 활성화 여부 (Boolean)
-        -   `viewCount`: 조회수 (Integer)
+- **데이터 구조 요구사항**:
+    - API 응답: `{ regions: { area01: { name, code, spots: [...] }, ... } }`
+    - 각 `spot` 객체:
+        - `id`: 관광지 ID (Long)
+        - `title`: 제목 (String)
+        - `description`: 설명 (String)
+        - `hashtags`: 해시태그 배열 (String[], 필수, 빈 배열 가능)
+        - `imageUrl`: 대표 이미지 URL (String, null 가능)
+        - `linkUrl`: 링크 URL (String, null 가능)
+        - `category`: 카테고리 코드 (String)
+        - `isActive`: 활성화 여부 (Boolean)
+        - `viewCount`: 조회수 (Integer)
 
 ### 3.3 CSS 파일
 
 #### `src/main/resources/static/css/theme.css`
 
--   **주요 스타일**:
-    -   `.theme-section`: 테마 섹션 컨테이너
-    -   `.theme-grid`: 캐러셀/그리드 레이아웃
-    -   `.theme-grid.grid-mode`: 그리드 모드 (더보기 클릭 후)
-    -   `.item`: 관광지 카드 스타일
-    -   `.more-btn`: 더보기 버튼
-    -   반응형 디자인 (모바일, 태블릿, 데스크톱)
+- **주요 스타일**:
+    - `.theme-section`: 테마 섹션 컨테이너
+    - `.theme-grid`: 캐러셀/그리드 레이아웃
+    - `.theme-grid.grid-mode`: 그리드 모드 (더보기 클릭 후)
+    - `.item`: 관광지 카드 스타일
+    - `.more-btn`: 더보기 버튼
+    - 반응형 디자인 (모바일, 태블릿, 데스크톱)
 
 #### `src/main/resources/static/css/list-component.css`
 
--   **주요 스타일**:
-    -   `.item-photo`: 이미지 영역
-    -   `.item-title`: 제목
-    -   `.item-description`: 설명
-    -   `.hash-tag`: 해시태그
-    -   `.likeBtn`: 좋아요 버튼
+- **주요 스타일**:
+    - `.item-photo`: 이미지 영역
+    - `.item-title`: 제목
+    - `.item-description`: 설명
+    - `.hash-tag`: 해시태그
+    - `.likeBtn`: 좋아요 버튼
 
 ---
 
@@ -439,24 +445,24 @@ mysql -u root -p arata_busan < src/main/resources/static/temp/phase3_reviews.sql
 
 **데이터 구조 요구사항**:
 
--   **최상위 객체**: `regions` (필수)
--   **지역 키**: `area01`, `area02`, ... (area_code 기반, 문자열)
--   **지역 객체**:
-    -   `name`: 지역 이름 (String, 필수)
-    -   `code`: 지역 코드 (String, regions 테이블의 area_code)
-    -   `spots`: 관광지 배열 (Array, 필수, 빈 배열 가능)
--   **관광지 객체** (`spot`):
-    -   `id`: 관광지 ID (Long, 필수)
-    -   `title`: 관광지 제목 (String, 필수)
-    -   `description`: 설명 (String, null 가능)
-    -   `hashtags`: 해시태그 배열 (String[], 필수, 빈 배열 가능)
-    -   `imageUrl`: 대표 이미지 URL (String, null 가능)
-    -   `linkUrl`: 링크 URL (String, null 가능)
-    -   `category`: 카테고리 코드 (String, 예: "CULTURE", "BEACH", "FOOD")
-    -   `isActive`: 활성화 여부 (Boolean, 필수)
-    -   `viewCount`: 조회수 (Integer, 필수)
-    -   `ratingAvg`: 평균 평점 (Double, 0.0 ~ 5.0)
-    -   `ratingCount`: 평점 개수 (Integer)
+- **최상위 객체**: `regions` (필수)
+- **지역 키**: `area01`, `area02`, ... (area_code 기반, 문자열)
+- **지역 객체**:
+    - `name`: 지역 이름 (String, 필수)
+    - `code`: 지역 코드 (String, regions 테이블의 area_code)
+    - `spots`: 관광지 배열 (Array, 필수, 빈 배열 가능)
+- **관광지 객체** (`spot`):
+    - `id`: 관광지 ID (Long, 필수)
+    - `title`: 관광지 제목 (String, 필수)
+    - `description`: 설명 (String, null 가능)
+    - `hashtags`: 해시태그 배열 (String[], 필수, 빈 배열 가능)
+    - `imageUrl`: 대표 이미지 URL (String, null 가능)
+    - `linkUrl`: 링크 URL (String, null 가능)
+    - `category`: 카테고리 코드 (String, 예: "CULTURE", "BEACH", "FOOD")
+    - `isActive`: 활성화 여부 (Boolean, 필수)
+    - `viewCount`: 조회수 (Integer, 필수)
+    - `ratingAvg`: 평균 평점 (Double, 0.0 ~ 5.0)
+    - `ratingCount`: 평점 개수 (Integer)
 
 **⚠️ 중요 사항**:
 
@@ -701,37 +707,37 @@ private SpotImageService spotImageService;
 
 ### ✅ 프론트엔드 (파일 존재 확인)
 
--   [x] HTML 파일 존재 (`theme.html`)
--   [x] CSS 파일 존재 (`theme.css`, `list-component.css`)
--   [x] JavaScript 파일 존재 (`theme.js`)
--   [x] 템플릿 파일 존재 (`list-item.html`)
+- [x] HTML 파일 존재 (`theme.html`)
+- [x] CSS 파일 존재 (`theme.css`, `list-component.css`)
+- [x] JavaScript 파일 존재 (`theme.js`)
+- [x] 템플릿 파일 존재 (`list-item.html`)
 
 ### ⚠️ 프론트엔드 (수정 필요)
 
--   [ ] `theme.js`의 49번째 줄: API 엔드포인트 변경 (`/api/tourist-spots`)
--   [ ] `theme.js`의 496번째 줄: `itemData.img` → `itemData.imageUrl` 확인
--   [ ] `theme.js`의 557번째 줄: 상세 페이지 이동 경로 확인
+- [ ] `theme.js`의 49번째 줄: API 엔드포인트 변경 (`/api/tourist-spots`)
+- [ ] `theme.js`의 496번째 줄: `itemData.img` → `itemData.imageUrl` 확인
+- [ ] `theme.js`의 557번째 줄: 상세 페이지 이동 경로 확인
 
 ### ⚠️ 백엔드 (구현 필요)
 
--   [ ] `SpotController.java`: `/api/tourist-spots` 엔드포인트 구현
--   [ ] `SpotService.java`: `getAllSpotsGroupedByRegion()` 메서드 구현
--   [ ] `SpotService.java`: 의존성 주입 추가 (RegionService, HashtagService, SpotImageService, ReviewService)
--   [ ] `ReviewService.java`: 평점 계산 메서드 구현 (`getAverageRating()`, `getRatingCount()`)
--   [ ] `spotMapper.xml`: `findAllSpots()` 쿼리 확인/구현
+- [ ] `SpotController.java`: `/api/tourist-spots` 엔드포인트 구현
+- [ ] `SpotService.java`: `getAllSpotsGroupedByRegion()` 메서드 구현
+- [ ] `SpotService.java`: 의존성 주입 추가 (RegionService, HashtagService, SpotImageService, ReviewService)
+- [ ] `ReviewService.java`: 평점 계산 메서드 구현 (`getAverageRating()`, `getRatingCount()`)
+- [ ] `spotMapper.xml`: `findAllSpots()` 쿼리 확인/구현
 
 ### ⚠️ 데이터베이스 (설정 필요)
 
--   [ ] 데이터베이스 생성 (`arata_busan`)
--   [ ] 공통코드 스키마 실행 (`common_code_schema.sql`)
--   [ ] 메인 스키마 실행 (`new_data_schema.sql`)
--   [ ] Phase 3 데이터 삽입 (순서대로 실행)
--   [ ] 데이터 확인:
-    -   [ ] `SELECT COUNT(*) FROM tourist_spots;` → 86개
-    -   [ ] `SELECT COUNT(*) FROM hashtags;` → 342개
-    -   [ ] `SELECT COUNT(*) FROM tourist_spot_hashtags;` → 800개 이상
-    -   [ ] `SELECT COUNT(*) FROM tourist_spot_images;` → 80개
-    -   [ ] `SELECT COUNT(*) FROM regions;` → 16개
+- [ ] 데이터베이스 생성 (`arata_busan`)
+- [ ] 공통코드 스키마 실행 (`common_code_schema.sql`)
+- [ ] 메인 스키마 실행 (`new_data_schema.sql`)
+- [ ] Phase 3 데이터 삽입 (순서대로 실행)
+- [ ] 데이터 확인:
+    - [ ] `SELECT COUNT(*) FROM tourist_spots;` → 86개
+    - [ ] `SELECT COUNT(*) FROM hashtags;` → 342개
+    - [ ] `SELECT COUNT(*) FROM tourist_spot_hashtags;` → 800개 이상
+    - [ ] `SELECT COUNT(*) FROM tourist_spot_images;` → 80개
+    - [ ] `SELECT COUNT(*) FROM regions;` → 16개
 
 ---
 
@@ -753,11 +759,11 @@ private SpotImageService spotImageService;
 
 ### 8.3 테마별 필터링 테스트
 
--   **자연 여행**: 해수욕장, 일출명소, 산, 공원 등
--   **음식 여행**: 시장, 맛집, 해산물, 카페 등
--   **쇼핑 여행**: 쇼핑, 백화점, 소품샵 등
--   **문화 여행**: 문화, 역사, 사찰, 박물관 등
--   **K-POP 여행**: 핫플레이스, 포토스팟, 데이트 등
+- **자연 여행**: 해수욕장, 일출명소, 산, 공원 등
+- **음식 여행**: 시장, 맛집, 해산물, 카페 등
+- **쇼핑 여행**: 쇼핑, 백화점, 소품샵 등
+- **문화 여행**: 문화, 역사, 사찰, 박물관 등
+- **K-POP 여행**: 핫플레이스, 포토스팟, 데이트 등
 
 ---
 
@@ -765,26 +771,26 @@ private SpotImageService spotImageService;
 
 ### 문제 1: 데이터가 표시되지 않음
 
--   **원인**: API 엔드포인트가 올바르지 않음
--   **해결**: `theme.js`의 fetch URL을 `/api/tourist-spots`로 변경
--   **확인**: 브라우저 개발자 도구의 Network 탭에서 API 호출 확인
+- **원인**: API 엔드포인트가 올바르지 않음
+- **해결**: `theme.js`의 fetch URL을 `/api/tourist-spots`로 변경
+- **확인**: 브라우저 개발자 도구의 Network 탭에서 API 호출 확인
 
 ### 문제 2: 해시태그가 표시되지 않음
 
--   **원인**: API 응답에 `hashtags` 필드가 없거나 배열이 아님
--   **해결**: 백엔드에서 Spot 조회 시 Hashtag 정보를 포함하도록 수정
+- **원인**: API 응답에 `hashtags` 필드가 없거나 배열이 아님
+- **해결**: 백엔드에서 Spot 조회 시 Hashtag 정보를 포함하도록 수정
 
 ### 문제 3: 이미지가 표시되지 않음
 
--   **원인**: `imageUrl`이 올바르지 않거나 데이터가 없음
--   **해결**:
+- **원인**: `imageUrl`이 올바르지 않거나 데이터가 없음
+- **해결**:
     1. 백엔드에서 Spot의 대표 이미지 URL을 포함하도록 수정
     2. `theme.js`의 이미지 fallback 경로 확인
 
 ### 문제 4: 상세 페이지로 이동하지 않음
 
--   **원인**: 경로가 올바르지 않음
--   **해결**: `theme.js`의 `navigateToDetail()` 메서드의 경로를 실제 상세 페이지 경로로 수정
+- **원인**: 경로가 올바르지 않음
+- **해결**: `theme.js`의 `navigateToDetail()` 메서드의 경로를 실제 상세 페이지 경로로 수정
 
 ---
 
@@ -795,12 +801,10 @@ private SpotImageService spotImageService;
 #### 작업 내용
 
 1. **SpotController 구현**
-
     - `GET /api/tourist-spots` 엔드포인트 추가
     - 에러 처리 구현
 
 2. **SpotService 구현**
-
     - `getAllSpotsGroupedByRegion()` 메서드 구현
     - 의존성 주입 추가 (RegionService, HashtagService, SpotImageService, ReviewService)
     - 지역별 그룹화 로직 구현
@@ -809,17 +813,14 @@ private SpotImageService spotImageService;
     - 평점 계산 (ReviewService 연동)
 
 3. **ReviewService 구현** (필요 시)
-
     - `getAverageRating(Long spotId)`: 평균 평점 계산
     - `getRatingCount(Long spotId)`: 평점 개수 조회
 
 4. **Mapper 쿼리 확인/구현**
-
     - `spotMapper.xml`의 `findAllSpots()` 쿼리 확인
     - 필요 시 쿼리 수정
 
 5. **데이터베이스 설정**
-
     - 스키마 실행 순서 확인
     - Phase 3 데이터 삽입
     - 데이터 검증
@@ -830,10 +831,10 @@ private SpotImageService spotImageService;
 
 #### 파일 목록
 
--   `src/main/java/com/busan/orora/spot/controller/SpotController.java`
--   `src/main/java/com/busan/orora/spot/service/SpotService.java`
--   `src/main/java/com/busan/orora/review/service/ReviewService.java` (필요 시)
--   `src/main/resources/mapper/spotMapper.xml`
+- `src/main/java/com/busan/orora/spot/controller/SpotController.java`
+- `src/main/java/com/busan/orora/spot/service/SpotService.java`
+- `src/main/java/com/busan/orora/review/service/ReviewService.java` (필요 시)
+- `src/main/resources/mapper/spotMapper.xml`
 
 ---
 
@@ -842,26 +843,22 @@ private SpotImageService spotImageService;
 #### 작업 내용
 
 1. **theme.js 수정**
-
     - API 엔드포인트 변경 (`/api/tourist-spots`)
     - 데이터 구조 확인 및 수정
     - `imageUrl` 필드 사용 확인
     - 상세 페이지 이동 경로 확인
 
 2. **데이터 처리 로직 확인**
-
     - `loadData()` 메서드의 데이터 변환 로직 확인
     - `filterByTheme()` 메서드의 필터링 로직 확인
     - `createListItem()` 메서드의 템플릿 사용 확인
 
 3. **UI/UX 개선** (선택사항)
-
     - 로딩 상태 표시 추가
     - 에러 처리 개선
     - 빈 데이터 처리 개선
 
 4. **테스트 및 디버깅**
-
     - 브라우저에서 페이지 테스트
     - 개발자 도구로 API 호출 확인
     - 데이터 표시 확인
@@ -874,21 +871,19 @@ private SpotImageService spotImageService;
 
 #### 파일 목록
 
--   `src/main/resources/static/js/theme.js`
--   `src/main/resources/templates/pages/search-place/theme.html`
--   `src/main/resources/static/css/theme.css` (필요 시)
+- `src/main/resources/static/js/theme.js`
+- `src/main/resources/templates/pages/search-place/theme.html`
+- `src/main/resources/static/css/theme.css` (필요 시)
 
 ---
 
 ### 🤝 공동 작업
 
 1. **API 응답 형식 협의**
-
     - 백엔드와 프론트엔드 간 데이터 구조 확인
     - 필수 필드 및 선택 필드 정의
 
 2. **통합 테스트**
-
     - 전체 플로우 테스트
     - 에러 케이스 테스트
 
@@ -902,25 +897,27 @@ private SpotImageService spotImageService;
 
 ### 관련 Instruction 파일
 
--   `instruction/01_tag_page.md`: 태그 검색 페이지 가이드
--   `instruction/05_place_page.md`: 지역별 검색 페이지 가이드
+- `instruction/01_tag_page.md`: 태그 검색 페이지 가이드
+- `instruction/05_place_page.md`: 지역별 검색 페이지 가이드
 
 ### 관련 API 문서
 
--   `src/main/resources/static/temp/BACKEND_API_ENDPOINTS.md`: 백엔드 API 엔드포인트 문서
+- `instruction/docs/API_SPECIFICATION.md`: 백엔드 API 명세
 
 ### 데이터 스키마
 
--   `src/main/resources/static/temp/new_data_schema.sql`: 데이터베이스 스키마
--   `src/main/resources/static/temp/common_code_schema.sql`: 공통코드 스키마
+- `db/new_data_schema.sql`: 데이터베이스 스키마
+- `db/common_code_schema.sql`: 공통코드 스키마
+- `db/add_login_type_migration.sql`: `users.login_type_code` 컬럼 추가
 
 ### 데이터 파일
 
--   `src/main/resources/static/temp/phase3_tourist_spots.sql`: 관광지 데이터
--   `src/main/resources/static/temp/phase3_hashtags.sql`: 해시태그 데이터
--   `src/main/resources/static/temp/phase3_tourist_spot_images.sql`: 이미지 데이터
--   `src/main/resources/static/temp/phase3_tourist_spot_hashtags.sql`: 관광지-해시태그 연결 데이터
--   `src/main/resources/static/temp/phase3_reviews.sql`: 리뷰 데이터
+- `db/sample_data.sql`: 기본 데이터 (지역, 관광지 1~6, 사용자 등)
+- `db/phase3_tourist_spots.sql`: 관광지 데이터
+- `db/phase3_hashtags.sql`: 해시태그 데이터
+- `db/phase3_tourist_spot_images.sql`: 이미지 데이터
+- `db/phase3_tourist_spot_hashtags.sql`: 관광지-해시태그 연결 데이터
+- `db/phase3_reviews.sql`: 리뷰 데이터
 
 ---
 

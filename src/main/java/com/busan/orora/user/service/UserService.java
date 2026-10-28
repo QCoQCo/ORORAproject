@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,11 +42,11 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public void insertUser(UserDto userDto, String rawPassword) {
+    public void insertUser(UserDto userDto, String rawPassword) throws IOException {
         insertUser(userDto, rawPassword, null);
     }
 
-    public void insertUser(UserDto userDto, String rawPassword, MultipartFile profileImage) {
+    public void insertUser(UserDto userDto, String rawPassword, MultipartFile profileImage) throws IOException {
         // 비밀번호 암호화
         userDto.setPasswordHash(passwordEncoder.encode(rawPassword));
 
@@ -63,14 +64,21 @@ public class UserService {
             userDto.setJoinDate(LocalDateTime.now());
         }
 
-        // 사용자 정보 먼저 저장 (ID를 얻기 위해)
+        // 프로필 이미지 파일은 사용자 저장 전에 업로드
+        // (이미지가 아닌 파일이면 예외가 발생하여 회원가입이 진행되지 않음)
+        String oriImgName = null;
+        String imgName = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            oriImgName = profileImage.getOriginalFilename();
+            imgName = fileService.uploadFile(profileImgLocation, oriImgName, profileImage.getBytes());
+        }
+
+        // 사용자 정보 저장 (ID를 얻기 위해)
         userMapper.insertUser(userDto);
 
-        // 프로필 이미지가 제공된 경우 저장
-        if (profileImage != null && !profileImage.isEmpty()) {
+        // 프로필 이미지가 제공된 경우 DB에 저장
+        if (imgName != null) {
             try {
-                String oriImgName = profileImage.getOriginalFilename();
-                String imgName = fileService.uploadFile(profileImgLocation, oriImgName, profileImage.getBytes());
                 String imgUrl = "/images/upload/profiles/" + imgName;
 
                 // user_profile_images 테이블에 저장
