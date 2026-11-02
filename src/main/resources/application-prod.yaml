@@ -1,0 +1,8 @@
+# 운영(배포) 환경 설정
+# SPRING_PROFILES_ACTIVE=prod 일 때 application.yaml 위에 덮어씁니다. (Dockerfile에서 설정)
+
+spring:
+    datasource:
+        # 운영에서는 log4jdbc(모든 SQL과 조회 결과를 로그로 출력) 대신 MySQL 드라이버를 직접 사용
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true&useSSL=false

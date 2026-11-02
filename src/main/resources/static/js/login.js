@@ -38,6 +38,21 @@ if (document.readyState === 'loading') {
     restoreSavedId();
 }
 
+// 소셜 로그인 실패로 돌아온 경우 안내 (SecurityConfig의 실패 핸들러가 ?error= 를 붙임)
+(function showSocialLoginError() {
+    const error = new URLSearchParams(window.location.search).get('error');
+    if (!error) {
+        return;
+    }
+    if (error === 'restricted') {
+        alert('이용이 제한된 계정입니다. 관리자에게 문의해주세요.');
+    } else {
+        alert('소셜 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+    // 새로고침 시 다시 뜨지 않도록 주소에서 error 파라미터 제거
+    window.history.replaceState(null, '', window.location.pathname);
+})();
+
 // 엔터키로 로그인 버튼 클릭
 putId.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {

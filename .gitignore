@@ -44,3 +44,6 @@ out/
 # *.md
 /lsss
 /docs
+
+### User Upload Files ###
+/upload

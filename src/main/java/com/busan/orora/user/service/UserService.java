@@ -238,6 +238,17 @@ public class UserService {
             throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
         }
 
+        // 필수 항목 및 이메일 중복 검사
+        if (userDto.getUsername() == null || userDto.getUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("이름을 입력해주세요.");
+        }
+        if (userDto.getEmail() == null || userDto.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("이메일을 입력해주세요.");
+        }
+        if (!userDto.getEmail().equalsIgnoreCase(existingUser.getEmail()) && isEmailExists(userDto.getEmail())) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+
         // 업데이트할 정보 설정
         existingUser.setUsername(userDto.getUsername());
         existingUser.setEmail(userDto.getEmail());
@@ -267,17 +278,6 @@ public class UserService {
     @Transactional
     public void updateUserStatus(Long userId, String statusCode) {
         userMapper.updateUserStatus(userId, statusCode);
-    }
-
-    /**
-     * 사용자 권한을 업데이트합니다.
-     * 
-     * @param userId   사용자 ID
-     * @param roleCode 권한 코드 (MEMBER, VIP, ADMIN)
-     */
-    @Transactional
-    public void updateUserRole(Long userId, String roleCode) {
-        userMapper.updateUserRole(userId, roleCode);
     }
 
     /**
@@ -376,7 +376,11 @@ public class UserService {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("소셜 로그인 시 이메일 정보가 필요합니다. (로그인 타입: " + loginTypeCode + ")");
         }
-        
+
+        // 정지·비활성화된 계정은 소셜 로그인으로도 로그인할 수 없음
+        // (findByEmail은 ACTIVE 계정만 찾으므로, 확인하지 않으면 같은 이메일로 새 계정을 만들려다 실패함)
+        assertNotRestricted(email);
+
         UserDto existingUser = userMapper.findByEmail(email);
         
         if (existingUser != null) {
@@ -406,6 +410,7 @@ public class UserService {
             // 이제 실제 이메일을 받을 수 있게 되었을 때, 같은 사용자로 연결되도록 임시 이메일 계정을 찾아 email을 갱신한다.
             if ("KAK".equalsIgnoreCase(loginTypeCode) && providerUserId != null && !providerUserId.trim().isEmpty()) {
                 String legacyTempEmail = "kakao_" + providerUserId.trim() + "@kakao.local";
+                assertNotRestricted(legacyTempEmail);
                 UserDto legacyUser = userMapper.findByEmail(legacyTempEmail);
                 if (legacyUser != null) {
                     legacyUser.setEmail(email);
@@ -436,6 +441,18 @@ public class UserService {
             
             userMapper.insertUser(newUser);
             return newUser;
+        }
+    }
+
+    /**
+     * 해당 이메일의 계정이 정지·비활성화 상태이면 예외를 던집니다.
+     *
+     * @throws IllegalStateException 이용이 제한된 계정인 경우
+     */
+    private void assertNotRestricted(String email) {
+        String statusCode = userMapper.findStatusByEmail(email);
+        if (statusCode != null && !"ACTIVE".equals(statusCode)) {
+            throw new IllegalStateException("이용이 제한된 계정입니다. 관리자에게 문의해주세요.");
         }
     }
 }

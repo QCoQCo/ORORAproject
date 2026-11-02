@@ -3,7 +3,8 @@
 <mapper namespace="com.busan.orora.like.mapper.SpotLikeMapper">
     <!-- 관광지 좋아요 추가 -->
     <insert id="addSpotLike" parameterType="com.busan.orora.like.dto.SpotLikeDto">
-        INSERT INTO tourist_spot_likes (user_id, tourist_spot_id)
+        <!-- 동시에 여러 번 눌러도 unique 키 중복 오류가 나지 않도록 IGNORE (이미 있으면 무시) -->
+        INSERT IGNORE INTO tourist_spot_likes (user_id, tourist_spot_id)
         VALUES (#{userId}, #{spotId})
     </insert>
 

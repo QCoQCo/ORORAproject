@@ -1,5 +1,6 @@
 package com.busan.orora.review.controller;
 
+import com.busan.orora.common.util.ErrorMessages;
 import com.busan.orora.common.util.SessionUtil;
 import com.busan.orora.like.service.ReviewLikeService;
 import com.busan.orora.review.dto.ReviewDto;
@@ -66,7 +67,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "리뷰를 불러오는 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -143,7 +144,8 @@ public class ReviewController {
                     }
                 } catch (Exception e) {
                     response.put("success", false);
-                    response.put("message", "요청 데이터를 파싱하는 중 오류가 발생했습니다: " + e.getMessage());
+                    response.put("message", "요청 데이터 형식이 올바르지 않습니다.");
+                    logger.warn("리뷰 작성 요청 파싱 실패: {}", e.getMessage());
                     return response;
                 }
             }
@@ -194,7 +196,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "리뷰 작성 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "리뷰 작성 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -272,7 +274,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "리뷰 수정 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "리뷰 수정 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -305,7 +307,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "리뷰 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "리뷰 삭제 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -330,7 +332,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "리뷰를 불러오는 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -355,7 +357,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "좋아요 누른 리뷰를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "좋아요 누른 리뷰를 불러오는 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -387,7 +389,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "댓글을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "댓글을 불러오는 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -411,7 +413,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "댓글을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "댓글을 불러오는 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -455,7 +457,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "댓글 작성 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "댓글 작성 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -499,7 +501,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "댓글 수정 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "댓글 수정 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -535,7 +537,7 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "댓글 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "댓글 삭제 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -583,12 +585,8 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            String errorMessage = e.getMessage();
-            if (errorMessage != null && errorMessage.contains("이미 신고")) {
-                response.put("message", errorMessage);
-            } else {
-                response.put("message", "신고 처리 중 오류가 발생했습니다: " + errorMessage);
-            }
+            // "이미 신고한 ~입니다." 등 서비스의 안내 메시지는 그대로, 내부 오류는 기본 메시지로
+            response.put("message", ErrorMessages.userMessage(e, "신고 처리 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }
@@ -635,12 +633,8 @@ public class ReviewController {
             return response;
         } catch (Exception e) {
             response.put("success", false);
-            String errorMessage = e.getMessage();
-            if (errorMessage != null && errorMessage.contains("이미 신고")) {
-                response.put("message", errorMessage);
-            } else {
-                response.put("message", "신고 처리 중 오류가 발생했습니다: " + errorMessage);
-            }
+            // "이미 신고한 ~입니다." 등 서비스의 안내 메시지는 그대로, 내부 오류는 기본 메시지로
+            response.put("message", ErrorMessages.userMessage(e, "신고 처리 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
             return response;
         }

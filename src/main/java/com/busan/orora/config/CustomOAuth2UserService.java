@@ -1,5 +1,6 @@
 package com.busan.orora.config;
 
+import com.busan.orora.common.util.SessionUtil;
 import com.busan.orora.user.dto.UserDto;
 import com.busan.orora.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ import java.util.Map;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+    /** 정지·비활성화된 계정의 소셜 로그인 실패 오류 코드 */
+    public static final String ACCOUNT_RESTRICTED = "account_restricted";
 
     @Autowired
     private UserService userService;
@@ -37,7 +42,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String username = getUsername(attributes, registrationId);
 
         // 사용자 생성 또는 업데이트
-        UserDto user = userService.createOrUpdateSocialUser(email, username, loginTypeCode, providerUserId);
+        UserDto user;
+        try {
+            user = userService.createOrUpdateSocialUser(email, username, loginTypeCode, providerUserId);
+        } catch (IllegalStateException e) {
+            // 정지·비활성화된 계정: 로그인 실패로 처리 (SecurityConfig의 실패 핸들러가 안내 페이지로 이동)
+            throw new OAuth2AuthenticationException(new OAuth2Error(ACCOUNT_RESTRICTED, e.getMessage(), null),
+                    e.getMessage(), e);
+        }
 
         // 세션에 사용자 정보 저장
         try {
@@ -47,6 +59,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 HttpServletRequest request = requestAttributes.getRequest();
                 HttpSession session = request.getSession();
                 session.setAttribute("loggedInUser", user);
+                // 새로 로그인하면 항상 실제 권한으로 시작
+                session.removeAttribute(SessionUtil.VIEW_AS_MEMBER);
             }
         } catch (Exception e) {
             // 세션 저장 실패 시 로그만 남기고 계속 진행

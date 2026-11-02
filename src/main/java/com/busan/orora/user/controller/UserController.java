@@ -1,6 +1,11 @@
 package com.busan.orora.user.controller;
 
+import com.busan.orora.common.util.ErrorMessages;
 import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseCookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.busan.orora.common.util.SessionUtil;
 import com.busan.orora.user.service.UserService;
@@ -28,6 +33,9 @@ import org.springframework.ui.Model;
 public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    /** 로그인 상태 유지 기간: 7일 (초 단위) */
+    private static final int KEEP_LOGIN_SECONDS = 7 * 24 * 60 * 60;
 
     @Autowired
     private UserService userService;
@@ -115,39 +123,25 @@ public class UserController {
                 HttpSession session = request.getSession();
                 request.changeSessionId();
 
-                // 세션에 사용자 정보 저장
+                // 세션에 사용자 정보와 Spring Security 인증 정보 저장 (새로 로그인하면 항상 실제 권한으로 시작)
                 session.setAttribute("loggedInUser", user);
-
-                // Spring Security 인증 컨텍스트에 권한 설정
-                String roleCode = user.getRoleCode() != null ? user.getRoleCode() : "MEMBER";
-                org.springframework.security.core.authority.SimpleGrantedAuthority authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(
-                        "ROLE_" + roleCode);
-
-                org.springframework.security.core.userdetails.UserDetails userDetails = org.springframework.security.core.userdetails.User
-                        .builder()
-                        .username(user.getLoginId())
-                        .password("") // 비밀번호는 인증 후이므로 필요 없음
-                        .authorities(authority)
-                        .build();
-
-                org.springframework.security.authentication.UsernamePasswordAuthenticationToken authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-
-                // SecurityContext에 Authentication 설정
-                org.springframework.security.core.context.SecurityContext securityContext = org.springframework.security.core.context.SecurityContextHolder
-                        .getContext();
-                securityContext.setAuthentication(authentication);
-
-                // 세션에 SecurityContext 저장 (다음 요청에서도 유지되도록)
-                // Spring Security의 기본 세션 키 사용
-                session.setAttribute(
-                        org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                        securityContext);
+                session.removeAttribute(SessionUtil.VIEW_AS_MEMBER);
+                SessionUtil.saveAuthentication(session, user);
 
                 // 로그인 상태 유지 설정
                 if (loginForm.getKeepLogin() != null && loginForm.getKeepLogin()) {
                     // 로그인 상태 유지: 세션 타임아웃을 7일로 설정
-                    session.setMaxInactiveInterval(7 * 24 * 60 * 60); // 7일 (초 단위)
+                    session.setMaxInactiveInterval(KEEP_LOGIN_SECONDS);
+
+                    // 세션 쿠키도 7일 유지되도록 다시 발급
+                    // (application.yaml의 기본 세션 쿠키 max-age는 12시간이라 그대로 두면 12시간 뒤 로그아웃됨)
+                    ResponseCookie sessionCookie = ResponseCookie.from("JSESSIONID", session.getId())
+                            .path("/")
+                            .maxAge(KEEP_LOGIN_SECONDS)
+                            .httpOnly(true)
+                            .sameSite("Lax")
+                            .build();
+                    response.addHeader(HttpHeaders.SET_COOKIE, sessionCookie.toString());
                 } else {
                     // 기본 세션 타임아웃 (30분)
                     session.setMaxInactiveInterval(30 * 60); // 30분
@@ -177,8 +171,7 @@ public class UserController {
                 userMap.put("loginId", user.getLoginId());
                 userMap.put("username", user.getUsername());
                 userMap.put("email", user.getEmail());
-                userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
-                userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+                putRoleInfo(userMap, user, request);
                 userMap.put("profileImage",
                         user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
                 userMap.put("profile_image",
@@ -192,7 +185,8 @@ public class UserController {
             }
         } catch (Exception e) {
             responseMap.put("success", false);
-            responseMap.put("message", "로그인 처리 중 오류가 발생했습니다: " + e.getMessage());
+            responseMap.put("message", ErrorMessages.userMessage(e, "로그인 처리 중 오류가 발생했습니다."));
+            logger.error("로그인 처리 중 오류가 발생했습니다", e);
         }
 
         return responseMap;
@@ -264,7 +258,7 @@ public class UserController {
             response.put("message", "회원가입이 완료되었습니다!");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "회원가입 처리 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "회원가입 처리 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
         }
 
@@ -284,7 +278,8 @@ public class UserController {
             response.put("message", available ? "사용 가능한 아이디입니다." : "이미 사용 중인 아이디입니다.");
         } catch (Exception e) {
             response.put("available", false);
-            response.put("message", "아이디 확인 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "아이디 확인 중 오류가 발생했습니다."));
+            logger.error("아이디 확인 중 오류가 발생했습니다", e);
         }
 
         return response;
@@ -309,8 +304,7 @@ public class UserController {
                     userMap.put("loginId", user.getLoginId());
                     userMap.put("username", user.getUsername());
                     userMap.put("email", user.getEmail());
-                    userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
-                    userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+                    putRoleInfo(userMap, user, request);
                     userMap.put("profileImage",
                             user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
                     userMap.put("profile_image",
@@ -334,94 +328,69 @@ public class UserController {
         return response;
     }
 
-    // 내 Role 변경 API (헤더 토글용)
-    @PostMapping("/api/users/me/role")
+    // 회원 시점 전환 API (관리자 전용 헤더 토글용). DB의 권한은 변경하지 않음
+    @PostMapping("/api/users/me/view-mode")
     @ResponseBody
-    public Map<String, Object> updateMyRole(@RequestBody Map<String, String> requestBody, HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> updateMyViewMode(@RequestBody Map<String, Object> requestBody,
+            HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
-        try {
-            HttpSession session = request.getSession(false);
-            if (session == null) {
-                response.put("success", false);
-                response.put("message", "로그인이 필요합니다.");
-                return response;
-            }
-
-            UserDto user = (UserDto) session.getAttribute("loggedInUser");
-            if (user == null) {
-                response.put("success", false);
-                response.put("message", "로그인이 필요합니다.");
-                return response;
-            }
-
-            String roleCode = requestBody != null ? requestBody.get("roleCode") : null;
-            if (roleCode == null || roleCode.trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "roleCode가 필요합니다.");
-                return response;
-            }
-
-            roleCode = roleCode.trim().toUpperCase();
-            // 요구사항: 일반유저 <-> ADMIN 토글
-            if (!"MEMBER".equals(roleCode) && !"ADMIN".equals(roleCode)) {
-                response.put("success", false);
-                response.put("message", "허용되지 않은 roleCode 입니다. (MEMBER 또는 ADMIN)");
-                return response;
-            }
-
-            // DB 업데이트
-            userService.updateUserRole(user.getId(), roleCode);
-
-            // 세션 사용자 정보 업데이트
-            user.setRoleCode(roleCode);
-            session.setAttribute("loggedInUser", user);
-
-            // Spring Security 인증 컨텍스트 권한 업데이트
-            org.springframework.security.core.authority.SimpleGrantedAuthority authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(
-                    "ROLE_" + roleCode);
-
-            org.springframework.security.core.userdetails.UserDetails userDetails = org.springframework.security.core.userdetails.User
-                    .builder()
-                    .username(user.getLoginId())
-                    .password("")
-                    .authorities(authority)
-                    .build();
-
-            org.springframework.security.authentication.UsernamePasswordAuthenticationToken authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-
-            org.springframework.security.core.context.SecurityContext securityContext = org.springframework.security.core.context.SecurityContextHolder
-                    .getContext();
-            securityContext.setAuthentication(authentication);
-
-            session.setAttribute(
-                    org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                    securityContext);
-
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("id", user.getId());
-            userMap.put("loginId", user.getLoginId());
-            userMap.put("username", user.getUsername());
-            userMap.put("email", user.getEmail());
-            userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
-            userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
-            userMap.put("profileImage",
-                    user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
-            userMap.put("profile_image",
-                    user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
-            userMap.put("join_date", user.getJoinDate() != null ? user.getJoinDate().toString() : null);
-
-            response.put("success", true);
-            response.put("message", "Role이 변경되었습니다.");
-            response.put("user", userMap);
-        } catch (Exception e) {
-            logger.error("Role 변경 중 오류 발생", e);
+        // 회원 시점에서도 되돌릴 수 있도록 계정의 실제 권한으로 확인
+        if (!SessionUtil.isAdminAccount(request)) {
             response.put("success", false);
-            response.put("message", "Role 변경 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", "관리자만 사용할 수 있습니다.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
 
-        return response;
+        if (!(requestBody.get("viewAsMember") instanceof Boolean viewAsMember)) {
+            response.put("success", false);
+            response.put("message", "viewAsMember 값이 필요합니다.");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        HttpSession session = request.getSession(false);
+        UserDto user = SessionUtil.getLoginUser(request);
+        session.setAttribute(SessionUtil.VIEW_AS_MEMBER, viewAsMember);
+        SessionUtil.saveAuthentication(session, user);
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getId());
+        userMap.put("loginId", user.getLoginId());
+        userMap.put("username", user.getUsername());
+        userMap.put("email", user.getEmail());
+        putRoleInfo(userMap, user, request);
+        userMap.put("profileImage",
+                user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+        userMap.put("profile_image",
+                user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
+        userMap.put("join_date", user.getJoinDate() != null ? user.getJoinDate().toString() : null);
+
+        response.put("success", true);
+        response.put("message", viewAsMember ? "회원 시점으로 전환했습니다." : "관리자 시점으로 전환했습니다.");
+        response.put("user", userMap);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 사용자 정보 응답에 권한 항목을 넣습니다.
+     * 본인 정보라면 회원 시점 상태를 반영하고, 헤더 토글 표시에 쓰는 항목을 함께 넣습니다.
+     * - role, roleCode: 지금 적용되는 권한
+     * - adminAccount: 계정의 실제 권한이 관리자인지
+     * - viewAsMember: 회원 시점으로 보는 중인지
+     */
+    private void putRoleInfo(Map<String, Object> userMap, UserDto user, HttpServletRequest request) {
+        boolean self = SessionUtil.isSelf(request, user.getId());
+        boolean viewAsMember = self && SessionUtil.isViewAsMember(request);
+        String roleCode = user.getRoleCode() != null ? user.getRoleCode() : "MEMBER";
+        if (viewAsMember) {
+            roleCode = "MEMBER";
+        }
+        userMap.put("role", roleCode);
+        userMap.put("roleCode", roleCode);
+        if (self) {
+            userMap.put("adminAccount", "ADMIN".equals(user.getRoleCode()));
+            userMap.put("viewAsMember", viewAsMember);
+        }
     }
 
     // 로그아웃 API
@@ -480,7 +449,7 @@ public class UserController {
             }
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "공개 사용자 정보 조회 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "공개 사용자 정보 조회 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
         }
 
@@ -517,8 +486,7 @@ public class UserController {
                 userMap.put("birthDate",
                         user.getBirthDate() != null ? user.getBirthDate().toLocalDate().toString() : null);
                 userMap.put("genderCode", user.getGenderCode());
-                userMap.put("role", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
-                userMap.put("roleCode", user.getRoleCode() != null ? user.getRoleCode() : "MEMBER");
+                putRoleInfo(userMap, user, request);
                 userMap.put("profileImage",
                         user.getProfileImage() != null ? user.getProfileImage() : "/images/defaultProfile.png");
                 userMap.put("profile_image",
@@ -532,7 +500,7 @@ public class UserController {
             }
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "사용자 정보 조회 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "사용자 정보 조회 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
         }
 
@@ -569,24 +537,39 @@ public class UserController {
                 return response;
             }
 
-            // UserDto 생성
+            UserDto existingUser = userService.getUserById(userId);
+            if (existingUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return response;
+            }
+
+            // UserDto 생성 (요청에 없는 항목은 기존 값 유지, 빈 문자열은 값 삭제)
             UserDto userDto = new UserDto();
-            userDto.setUsername(username);
-            userDto.setEmail(email);
-            userDto.setPhoneNumber(phoneNumber);
-            userDto.setAddress(address);
+            userDto.setUsername(username != null ? username : existingUser.getUsername());
+            userDto.setEmail(email != null ? email : existingUser.getEmail());
+            userDto.setPhoneNumber(phoneNumber != null ? phoneNumber : existingUser.getPhoneNumber());
+            userDto.setAddress(address != null ? address : existingUser.getAddress());
 
             // 생년월일 변환
-            if (birthDate != null && !birthDate.trim().isEmpty()) {
+            if (birthDate == null) {
+                userDto.setBirthDate(existingUser.getBirthDate());
+            } else if (!birthDate.trim().isEmpty()) {
                 try {
-                    java.time.LocalDate date = java.time.LocalDate.parse(birthDate);
+                    java.time.LocalDate date = java.time.LocalDate.parse(birthDate.trim());
                     userDto.setBirthDate(date.atStartOfDay());
-                } catch (Exception e) {
-                    userDto.setBirthDate(null);
+                } catch (java.time.format.DateTimeParseException e) {
+                    response.put("success", false);
+                    response.put("message", "생년월일 형식이 올바르지 않습니다.");
+                    return response;
                 }
             }
 
-            userDto.setGenderCode(genderCode);
+            if (genderCode == null) {
+                userDto.setGenderCode(existingUser.getGenderCode());
+            } else if (!genderCode.trim().isEmpty()) {
+                userDto.setGenderCode(genderCode);
+            }
 
             // 프로필 업데이트
             UserDto updatedUser = userService.updateUserProfile(userId, userDto, profileImage);
@@ -619,8 +602,7 @@ public class UserController {
             userMap.put("birthDate",
                     updatedUser.getBirthDate() != null ? updatedUser.getBirthDate().toLocalDate().toString() : null);
             userMap.put("genderCode", updatedUser.getGenderCode());
-            userMap.put("role", updatedUser.getRoleCode() != null ? updatedUser.getRoleCode() : "MEMBER");
-            userMap.put("roleCode", updatedUser.getRoleCode() != null ? updatedUser.getRoleCode() : "MEMBER");
+            putRoleInfo(userMap, updatedUser, request);
             userMap.put("profileImage",
                     updatedUser.getProfileImage() != null ? updatedUser.getProfileImage()
                             : "/images/defaultProfile.png");
@@ -634,7 +616,7 @@ public class UserController {
             response.put("user", userMap);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "프로필 수정 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "프로필 수정 중 오류가 발생했습니다."));
             logger.error("오류 발생", e);
         }
 
@@ -671,7 +653,7 @@ public class UserController {
             }
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "아이디 찾기 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "아이디 찾기 중 오류가 발생했습니다."));
             logger.error("아이디 찾기 오류 발생", e);
         }
 
@@ -718,7 +700,7 @@ public class UserController {
             }
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "비밀번호 재설정 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "비밀번호 재설정 중 오류가 발생했습니다."));
             logger.error("비밀번호 재설정 오류 발생", e);
         }
 

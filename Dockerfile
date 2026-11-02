@@ -20,6 +20,9 @@ WORKDIR /app
 # 빌드 단계에서 생성된 jar 파일을 복사
 COPY --from=builder /app/build/libs/*-SNAPSHOT.jar app.jar
 
+# 운영 프로필 사용 (application-prod.yaml: SQL 전체 로깅 끔)
+ENV SPRING_PROFILES_ACTIVE=prod
+
 # JVM 메모리 최적화 옵션 (프리티어 메모리 부족 방지)
 ENV JAVA_OPTS="-Xms512m -Xmx512m -XX:+UseZGC"
 

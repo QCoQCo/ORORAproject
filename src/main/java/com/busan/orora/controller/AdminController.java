@@ -1,5 +1,6 @@
 package com.busan.orora.controller;
 
+import com.busan.orora.common.util.ErrorMessages;
 import com.busan.orora.spot.dto.SpotDto;
 import com.busan.orora.spot.service.SpotService;
 import com.busan.orora.user.dto.UserDto;
@@ -14,6 +15,7 @@ import com.busan.orora.commoncode.service.CommonCodeService;
 import com.busan.orora.spot.dto.SpotImageDto;
 import com.busan.orora.spot.service.SpotImageService;
 import com.busan.orora.review.service.ReviewService;
+import com.busan.orora.common.util.UrlUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,12 +28,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * 관리자 API.
+ * 모든 엔드포인트(/api/admin/**)는 SecurityConfig에서 ADMIN 권한으로 보호되므로
+ * 메서드마다 권한을 따로 확인하지 않습니다.
+ */
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+
+    private static final String INVALID_LINK_URL_MESSAGE = "링크는 http:// 또는 https://로 시작하는 주소만 입력할 수 있습니다.";
     
     @Autowired
     private SpotService spotService;
@@ -63,38 +71,11 @@ public class AdminController {
     @Autowired
     private ReviewService reviewService;
 
-    // 관리자 권한 확인 메서드 (Spring Security 인증 컨텍스트에서만 확인)
-    private boolean isAdmin(HttpServletRequest request) {
-        // Spring Security 인증 컨텍스트에서 권한 확인
-        try {
-            org.springframework.security.core.Authentication auth = 
-                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
-                boolean hasAdminRole = auth.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-                if (hasAdminRole) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            logger.debug("Spring Security 인증 컨텍스트 확인 실패: {}", e.getMessage());
-        }
-        
-        return false;
-    }
-
     // 관광지 목록 조회
     @GetMapping("/tourist-spots")
     @ResponseBody
-    public Map<String, Object> getTouristSpots(HttpServletRequest request) {
+    public Map<String, Object> getTouristSpots() {
         Map<String, Object> response = new HashMap<>();
-        
-        // 관리자 권한 확인
-        if (!isAdmin(request)) {
-            response.put("success", false);
-            response.put("message", "관리자 권한이 필요합니다.");
-            return response;
-        }
         
         try {
             List<SpotDto> spots = spotService.getAllSpots();
@@ -144,7 +125,8 @@ public class AdminController {
             response.put("spots", spotsWithHashtags);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "관광지 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "관광지 목록을 불러오는데 실패했습니다."));
+            logger.error("관광지 목록을 불러오는데 실패했습니다", e);
         }
         return response;
     }
@@ -152,15 +134,8 @@ public class AdminController {
     // 사용자 목록 조회
     @GetMapping("/users")
     @ResponseBody
-    public Map<String, Object> getUsers(HttpServletRequest request) {
+    public Map<String, Object> getUsers() {
         Map<String, Object> response = new HashMap<>();
-        
-        // 관리자 권한 확인
-        if (!isAdmin(request)) {
-            response.put("success", false);
-            response.put("message", "관리자 권한이 필요합니다.");
-            return response;
-        }
         
         try {
             List<UserDto> users = userService.getAllUsers();
@@ -168,7 +143,8 @@ public class AdminController {
             response.put("users", users);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "사용자 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "사용자 목록을 불러오는데 실패했습니다."));
+            logger.error("사용자 목록을 불러오는데 실패했습니다", e);
         }
         return response;
     }
@@ -180,6 +156,12 @@ public class AdminController {
     public Map<String, Object> addTouristSpot(@RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
+            if (!UrlUtil.isSafeLinkUrl((String) request.get("linkUrl"))) {
+                response.put("success", false);
+                response.put("message", INVALID_LINK_URL_MESSAGE);
+                return response;
+            }
+
             // area01 형식의 regionKey를 regionId로 변환
             String regionKey = (String) request.get("regionKey");
             Long regionId = Long.parseLong(regionKey.replace("area", ""));
@@ -224,7 +206,8 @@ public class AdminController {
             response.put("spot", savedSpot);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "관광지 추가에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "관광지 추가에 실패했습니다."));
+            logger.error("관광지 추가에 실패했습니다", e);
         }
         return response;
     }
@@ -240,6 +223,12 @@ public class AdminController {
             if (existingSpot == null) {
                 response.put("success", false);
                 response.put("message", "관광지를 찾을 수 없습니다.");
+                return response;
+            }
+
+            if (!UrlUtil.isSafeLinkUrl((String) request.get("linkUrl"))) {
+                response.put("success", false);
+                response.put("message", INVALID_LINK_URL_MESSAGE);
                 return response;
             }
 
@@ -288,7 +277,8 @@ public class AdminController {
             response.put("spot", updatedSpot);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "관광지 수정에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "관광지 수정에 실패했습니다."));
+            logger.error("관광지 수정에 실패했습니다", e);
         }
         return response;
     }
@@ -305,7 +295,8 @@ public class AdminController {
             response.put("message", "관광지가 삭제되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "관광지 삭제에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "관광지 삭제에 실패했습니다."));
+            logger.error("관광지 삭제에 실패했습니다", e);
         }
         return response;
     }
@@ -331,7 +322,8 @@ public class AdminController {
             response.put("user", userDto);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "사용자 추가에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "사용자 추가에 실패했습니다."));
+            logger.error("사용자 추가에 실패했습니다", e);
         }
         return response;
     }
@@ -359,7 +351,8 @@ public class AdminController {
             response.put("user", updatedUser);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "사용자 수정에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "사용자 수정에 실패했습니다."));
+            logger.error("사용자 수정에 실패했습니다", e);
         }
         return response;
     }
@@ -377,7 +370,8 @@ public class AdminController {
             response.put("message", "사용자 상태가 변경되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "사용자 상태 변경에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "사용자 상태 변경에 실패했습니다."));
+            logger.error("사용자 상태 변경에 실패했습니다", e);
         }
         return response;
     }
@@ -394,7 +388,8 @@ public class AdminController {
             response.put("message", "사용자가 삭제되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "사용자 삭제에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "사용자 삭제에 실패했습니다."));
+            logger.error("사용자 삭제에 실패했습니다", e);
         }
         return response;
     }
@@ -404,15 +399,8 @@ public class AdminController {
     // 코드 그룹 목록 조회
     @GetMapping("/common-code-groups")
     @ResponseBody
-    public Map<String, Object> getCommonCodeGroups(HttpServletRequest request) {
+    public Map<String, Object> getCommonCodeGroups() {
         Map<String, Object> response = new HashMap<>();
-        
-        // 관리자 권한 확인
-        if (!isAdmin(request)) {
-            response.put("success", false);
-            response.put("message", "관리자 권한이 필요합니다.");
-            return response;
-        }
         
         try {
             List<CommonCodeGroupDto> groups = commonCodeGroupService.getAllGroups();
@@ -420,7 +408,8 @@ public class AdminController {
             response.put("groups", groups);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "코드 그룹 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "코드 그룹 목록을 불러오는데 실패했습니다."));
+            logger.error("코드 그룹 목록을 불러오는데 실패했습니다", e);
         }
         return response;
     }
@@ -450,7 +439,8 @@ public class AdminController {
             response.put("group", groupDto);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "코드 그룹 추가에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "코드 그룹 추가에 실패했습니다."));
+            logger.error("코드 그룹 추가에 실패했습니다", e);
         }
         return response;
     }
@@ -494,7 +484,8 @@ public class AdminController {
             response.put("group", groupDto);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "코드 그룹 수정에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "코드 그룹 수정에 실패했습니다."));
+            logger.error("코드 그룹 수정에 실패했습니다", e);
         }
         return response;
     }
@@ -511,7 +502,8 @@ public class AdminController {
             response.put("message", "코드 그룹이 삭제되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "코드 그룹 삭제에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "코드 그룹 삭제에 실패했습니다."));
+            logger.error("코드 그룹 삭제에 실패했습니다", e);
         }
         return response;
     }
@@ -519,15 +511,8 @@ public class AdminController {
     // 코드 목록 조회 (그룹별)
     @GetMapping("/common-codes")
     @ResponseBody
-    public Map<String, Object> getCommonCodes(@RequestParam(required = false) String groupCode, HttpServletRequest request) {
+    public Map<String, Object> getCommonCodes(@RequestParam(required = false) String groupCode) {
         Map<String, Object> response = new HashMap<>();
-        
-        // 관리자 권한 확인
-        if (!isAdmin(request)) {
-            response.put("success", false);
-            response.put("message", "관리자 권한이 필요합니다.");
-            return response;
-        }
         
         try {
             List<CommonCodeDto> codes;
@@ -540,7 +525,8 @@ public class AdminController {
             response.put("codes", codes);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "코드 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "코드 목록을 불러오는데 실패했습니다."));
+            logger.error("코드 목록을 불러오는데 실패했습니다", e);
         }
         return response;
     }
@@ -574,7 +560,8 @@ public class AdminController {
             response.put("code", codeDto);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "코드 추가에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "코드 추가에 실패했습니다."));
+            logger.error("코드 추가에 실패했습니다", e);
         }
         return response;
     }
@@ -620,7 +607,8 @@ public class AdminController {
             response.put("code", codeDto);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "코드 수정에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "코드 수정에 실패했습니다."));
+            logger.error("코드 수정에 실패했습니다", e);
         }
         return response;
     }
@@ -637,7 +625,8 @@ public class AdminController {
             response.put("message", "코드가 삭제되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "코드 삭제에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "코드 삭제에 실패했습니다."));
+            logger.error("코드 삭제에 실패했습니다", e);
         }
         return response;
     }
@@ -683,7 +672,8 @@ public class AdminController {
             response.put("requests", requestList);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "신청 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "신청 목록을 불러오는데 실패했습니다."));
+            logger.error("신청 목록을 불러오는데 실패했습니다", e);
         }
         return response;
     }
@@ -783,7 +773,7 @@ public class AdminController {
             response.put("message", "신청이 승인되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "승인에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "승인에 실패했습니다."));
             logger.error("오류 발생", e);
         }
         return response;
@@ -825,7 +815,8 @@ public class AdminController {
             response.put("message", "신청이 거부되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "거부에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "거부에 실패했습니다."));
+            logger.error("거부에 실패했습니다", e);
         }
         return response;
     }
@@ -842,7 +833,8 @@ public class AdminController {
             response.put("message", "신청이 삭제되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "삭제에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "삭제에 실패했습니다."));
+            logger.error("삭제에 실패했습니다", e);
         }
         return response;
     }
@@ -860,7 +852,8 @@ public class AdminController {
             response.put("images", images);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "이미지 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "이미지 목록을 불러오는데 실패했습니다."));
+            logger.error("이미지 목록을 불러오는데 실패했습니다", e);
         }
         return response;
     }
@@ -876,7 +869,8 @@ public class AdminController {
             response.put("message", "이미지가 삭제되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "이미지 삭제에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "이미지 삭제에 실패했습니다."));
+            logger.error("이미지 삭제에 실패했습니다", e);
         }
         return response;
     }
@@ -894,7 +888,8 @@ public class AdminController {
             response.put("message", "이미지가 추가되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "이미지 추가에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "이미지 추가에 실패했습니다."));
+            logger.error("이미지 추가에 실패했습니다", e);
         }
         return response;
     }
@@ -910,7 +905,8 @@ public class AdminController {
             response.put("message", "대표 이미지가 설정되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "대표 이미지 설정에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "대표 이미지 설정에 실패했습니다."));
+            logger.error("대표 이미지 설정에 실패했습니다", e);
         }
         return response;
     }
@@ -1022,7 +1018,7 @@ public class AdminController {
             response.put("reports", allReports);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "신고 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "신고 목록을 불러오는데 실패했습니다."));
             logger.error("오류 발생", e);
         }
         return response;
@@ -1106,7 +1102,7 @@ public class AdminController {
                             }
                         }
                     } catch (Exception e) {
-                        logger.error("콘텐츠 삭제 중 오류 발생: " + e.getMessage(), e);
+                        logger.error(ErrorMessages.userMessage(e, "콘텐츠 삭제 중 오류 발생."), e);
                         // 삭제 실패해도 신고 처리는 계속 진행
                     }
                 }
@@ -1116,7 +1112,7 @@ public class AdminController {
             response.put("message", "신고가 처리되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "신고 처리에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "신고 처리에 실패했습니다."));
             logger.error("오류 발생", e);
         }
         return response;
@@ -1147,7 +1143,7 @@ public class AdminController {
             response.put("message", "신고 기록이 삭제되었습니다.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "신고 삭제에 실패했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "신고 삭제에 실패했습니다."));
             logger.error("오류 발생", e);
         }
         return response;

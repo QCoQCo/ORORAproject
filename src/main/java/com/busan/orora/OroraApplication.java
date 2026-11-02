@@ -22,7 +22,7 @@ public class OroraApplication {
 			System.setProperty("DB_PORT", dotenv.get("DB_PORT", "3306"));
 			System.setProperty("DB_NAME", dotenv.get("DB_NAME", "arata_busan"));
 			System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME", "root"));
-			System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD", "1111"));
+			System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD", "")); // 비밀번호는 기본값 없이 .env/환경변수로만 설정
 			// 카카오맵 API 키 전달 (.env에 KAKAO_MAP_API_KEY가 없으면 빈 값)
 			System.setProperty("KAKAO_MAP_API_KEY", dotenv.get("KAKAO_MAP_API_KEY", ""));
 			// OAuth2 환경변수 전달

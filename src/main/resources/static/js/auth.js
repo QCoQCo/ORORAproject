@@ -157,14 +157,15 @@ function updateHeader() {
             // 로그인된 상태: 사용자명 드롭다운 메뉴 표시
             loginBtn.innerHTML = `
                 <div class="user-controls">
-                    <div class="role-toggle" title="Role 변경">
+                    ${user.adminAccount === true ? `
+                    <div class="role-toggle" title="관리자/회원 시점 전환 (실제 권한은 바뀌지 않습니다)">
                         <span class="role-chip role-member ${!isAdminRole ? 'active' : ''}">USER</span>
-                        <label class="role-switch" aria-label="Role switch">
+                        <label class="role-switch" aria-label="관리자/회원 시점 전환">
                             <input class="role-switch-input" type="checkbox" ${isAdminRole ? 'checked' : ''} />
                             <span class="role-switch-slider"></span>
                         </label>
                         <span class="role-chip role-admin ${isAdminRole ? 'active' : ''}">ADMIN</span>
-                    </div>
+                    </div>` : ''}
                     <div class="user-dropdown">
                         <button class="user-dropdown-btn">
                             <span class="username">${user.username || '사용자'}</span>
@@ -273,14 +274,15 @@ function initUserDropdown() {
     });
 }
 
-async function updateMyRole(roleCode) {
-    const response = await fetch('/api/users/me/role', {
+// 관리자 계정의 회원 시점 전환 (실제 권한은 바뀌지 않음)
+async function updateMyViewMode(viewAsMember) {
+    const response = await fetch('/api/users/me/view-mode', {
         method: 'POST',
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ roleCode }),
+        body: JSON.stringify({ viewAsMember }),
     });
 
     let data = null;
@@ -291,7 +293,7 @@ async function updateMyRole(roleCode) {
     }
 
     if (!response.ok || !data || data.success !== true) {
-        const message = data && data.message ? data.message : 'Role 변경에 실패했습니다.';
+        const message = data && data.message ? data.message : '시점 전환에 실패했습니다.';
         throw new Error(message);
     }
 
@@ -316,29 +318,27 @@ function initRoleSwitch() {
 
     input.addEventListener('change', async function () {
         const checked = input.checked;
-        const nextRole = checked ? 'ADMIN' : 'MEMBER';
 
         input.disabled = true;
         try {
-            const updatedUser = await updateMyRole(nextRole);
+            // 체크(ADMIN 쪽) = 관리자 시점, 해제(USER 쪽) = 회원 시점
+            const updatedUser = await updateMyViewMode(!checked);
             if (updatedUser) {
                 persistCurrentUser(updatedUser);
             }
 
-            // 역할 변경 후 즉시 헤더/메뉴 반영
-            headerUpdated = false;
-            updateHeader();
-            setTimeout(() => {
-                initUserDropdown();
-                initRoleSwitch();
-            }, 150);
+            // 화면 내용이 권한에 따라 달라지므로 새로고침 (관리자 페이지는 회원 시점에서 볼 수 없으므로 메인으로 이동)
+            if (!checked && window.location.pathname.startsWith('/pages/admin')) {
+                window.location.href = '/';
+            } else {
+                window.location.reload();
+            }
         } catch (error) {
             console.error(error);
             // 실패 시 토글 원복
             input.checked = !checked;
-            alert(error.message || 'Role 변경 중 오류가 발생했습니다.');
-        } finally {
             input.disabled = false;
+            alert(error.message || '시점 전환 중 오류가 발생했습니다.');
         }
     });
 }

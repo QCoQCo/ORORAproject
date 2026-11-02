@@ -259,7 +259,7 @@
     gap: 12px;
 }
 
-/* Role 토글(슬라이드) */
+/* 관리자/회원 시점 전환 토글(슬라이드) - 관리자 계정에만 표시 */
 .role-toggle {
     display: flex;
     align-items: center;

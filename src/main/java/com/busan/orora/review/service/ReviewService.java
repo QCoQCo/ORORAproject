@@ -4,12 +4,17 @@ import com.busan.orora.common.service.FileService;
 import com.busan.orora.review.dto.RatingStat;
 import com.busan.orora.review.dto.ReviewDto;
 import com.busan.orora.review.mapper.ReviewMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +22,11 @@ import java.util.Map;
 
 @Service
 public class ReviewService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReviewService.class);
+
+    /** 업로드된 리뷰 이미지의 URL 접두사 (이 경로의 파일만 삭제 대상) */
+    private static final String REVIEW_IMAGE_URL_PREFIX = "/images/upload/reviews/";
 
     @Autowired
     private ReviewMapper reviewMapper;
@@ -82,10 +92,10 @@ public class ReviewService {
         // 댓글 작성자 확인
         Long commentUserId = reviewMapper.findCommentUserId(commentId);
         if (commentUserId == null) {
-            throw new Exception("댓글을 찾을 수 없습니다.");
+            throw new IllegalArgumentException("댓글을 찾을 수 없습니다.");
         }
         if (!commentUserId.equals(userId)) {
-            throw new Exception("본인의 댓글만 수정할 수 있습니다.");
+            throw new IllegalStateException("본인의 댓글만 수정할 수 있습니다.");
         }
         reviewMapper.updateComment(commentId, userId, content);
     }
@@ -95,10 +105,10 @@ public class ReviewService {
         // 댓글 작성자 확인
         Long commentUserId = reviewMapper.findCommentUserId(commentId);
         if (commentUserId == null) {
-            throw new Exception("댓글을 찾을 수 없습니다.");
+            throw new IllegalArgumentException("댓글을 찾을 수 없습니다.");
         }
         if (!commentUserId.equals(userId)) {
-            throw new Exception("본인의 댓글만 삭제할 수 있습니다.");
+            throw new IllegalStateException("본인의 댓글만 삭제할 수 있습니다.");
         }
         reviewMapper.deleteComment(commentId, userId);
     }
@@ -110,7 +120,7 @@ public class ReviewService {
     public void deleteCommentByAdmin(Long commentId) throws Exception {
         Long commentUserId = reviewMapper.findCommentUserId(commentId);
         if (commentUserId == null) {
-            throw new Exception("댓글을 찾을 수 없습니다.");
+            throw new IllegalArgumentException("댓글을 찾을 수 없습니다.");
         }
         // 관리자는 작성자 확인 없이 삭제 가능
         reviewMapper.deleteComment(commentId, commentUserId);
@@ -120,7 +130,7 @@ public class ReviewService {
         // 중복 신고 확인
         Long existingReportId = reviewMapper.findCommentReportByUserAndComment(userId, commentId);
         if (existingReportId != null) {
-            throw new Exception("이미 신고한 댓글입니다.");
+            throw new IllegalStateException("이미 신고한 댓글입니다.");
         }
         reviewMapper.insertCommentReport(commentId, userId, reason);
     }
@@ -129,7 +139,7 @@ public class ReviewService {
         // 중복 신고 확인
         Long existingReportId = reviewMapper.findReviewReportByUserAndReview(userId, reviewId);
         if (existingReportId != null) {
-            throw new Exception("이미 신고한 리뷰입니다.");
+            throw new IllegalStateException("이미 신고한 리뷰입니다.");
         }
         reviewMapper.insertReviewReport(reviewId, userId, reason);
     }
@@ -158,12 +168,12 @@ public class ReviewService {
         // 리뷰 조회
         ReviewDto review = reviewMapper.findReviewById(reviewId);
         if (review == null) {
-            throw new Exception("리뷰를 찾을 수 없습니다.");
+            throw new IllegalArgumentException("리뷰를 찾을 수 없습니다.");
         }
 
         // 작성자 확인
         if (!review.getUserId().equals(userId)) {
-            throw new Exception("본인이 작성한 리뷰만 수정할 수 있습니다.");
+            throw new IllegalStateException("본인이 작성한 리뷰만 수정할 수 있습니다.");
         }
 
         // 수정할 데이터 설정
@@ -192,12 +202,12 @@ public class ReviewService {
         // 리뷰 조회
         ReviewDto review = reviewMapper.findReviewById(reviewId);
         if (review == null) {
-            throw new Exception("리뷰를 찾을 수 없습니다.");
+            throw new IllegalArgumentException("리뷰를 찾을 수 없습니다.");
         }
 
         // 작성자 확인
         if (!review.getUserId().equals(userId)) {
-            throw new Exception("본인이 작성한 리뷰만 수정할 수 있습니다.");
+            throw new IllegalStateException("본인이 작성한 리뷰만 수정할 수 있습니다.");
         }
 
         // 1. 리뷰 기본 정보 수정
@@ -208,10 +218,18 @@ public class ReviewService {
 
         // 2. 이미지 삭제
         if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
+            // 이 리뷰에 속한 이미지 중 삭제 대상의 URL을 모아 두었다가 커밋 후 파일도 삭제
+            List<String> deletedImageUrls = new ArrayList<>();
+            for (Map<String, Object> image : reviewMapper.findReviewImagesByReviewId(reviewId)) {
+                if (image.get("id") != null && deleteImageIds.contains(((Number) image.get("id")).longValue())) {
+                    deletedImageUrls.add((String) image.get("imageUrl"));
+                }
+            }
             for (Long imageId : deleteImageIds) {
                 // 다른 리뷰의 이미지가 삭제되지 않도록 review_id를 함께 조건으로 사용
                 reviewMapper.deleteReviewImage(imageId, reviewId);
             }
+            deleteImageFilesOnCompletion(deletedImageUrls, TransactionSynchronization.STATUS_COMMITTED);
         }
 
         // 3. 새 이미지 추가
@@ -231,7 +249,9 @@ public class ReviewService {
                 }
             }
 
-            // 새 이미지 저장
+            // 새 이미지 저장 (수정이 롤백되면 이번에 저장한 파일도 삭제)
+            List<String> savedImageUrls = new ArrayList<>();
+            deleteImageFilesOnCompletion(savedImageUrls, TransactionSynchronization.STATUS_ROLLED_BACK);
             int imageOrder = maxOrder + 1;
             for (MultipartFile imageFile : newImages) {
                 if (imageFile == null || imageFile.isEmpty()) {
@@ -241,7 +261,8 @@ public class ReviewService {
                 // 파일 저장
                 String oriImgName = imageFile.getOriginalFilename();
                 String imgName = fileService.uploadFile(reviewImgLocation, oriImgName, imageFile.getBytes());
-                String imgUrl = "/images/upload/reviews/" + imgName;
+                String imgUrl = REVIEW_IMAGE_URL_PREFIX + imgName;
+                savedImageUrls.add(imgUrl);
 
                 // DB에 저장
                 reviewMapper.insertReviewImage(reviewId, imgUrl, imageOrder, oriImgName);
@@ -262,16 +283,16 @@ public class ReviewService {
         // 리뷰 조회
         ReviewDto review = reviewMapper.findReviewById(reviewId);
         if (review == null) {
-            throw new Exception("리뷰를 찾을 수 없습니다.");
+            throw new IllegalArgumentException("리뷰를 찾을 수 없습니다.");
         }
 
         // 작성자 확인
         if (!review.getUserId().equals(userId)) {
-            throw new Exception("본인이 작성한 리뷰만 삭제할 수 있습니다.");
+            throw new IllegalStateException("본인이 작성한 리뷰만 삭제할 수 있습니다.");
         }
 
-        // 리뷰 삭제 (관련 좋아요, 댓글, 이미지는 CASCADE 또는 별도 처리 필요)
-        reviewMapper.deleteReview(reviewId);
+        // 리뷰 삭제 (관련 좋아요, 댓글, 이미지 행은 DB CASCADE로 삭제되고, 이미지 파일은 커밋 후 삭제)
+        deleteReviewWithImageFiles(reviewId);
     }
 
     /**
@@ -281,10 +302,63 @@ public class ReviewService {
     public void deleteReviewByAdmin(Long reviewId) throws Exception {
         ReviewDto review = reviewMapper.findReviewById(reviewId);
         if (review == null) {
-            throw new Exception("리뷰를 찾을 수 없습니다.");
+            throw new IllegalArgumentException("리뷰를 찾을 수 없습니다.");
         }
         // 관리자는 작성자 확인 없이 삭제 가능
+        deleteReviewWithImageFiles(reviewId);
+    }
+
+    /**
+     * 리뷰를 삭제하고, 커밋 후 리뷰에 첨부된 이미지 파일도 삭제합니다.
+     */
+    private void deleteReviewWithImageFiles(Long reviewId) {
+        List<String> imageUrls = new ArrayList<>();
+        for (Map<String, Object> image : reviewMapper.findReviewImagesByReviewId(reviewId)) {
+            imageUrls.add((String) image.get("imageUrl"));
+        }
         reviewMapper.deleteReview(reviewId);
+        deleteImageFilesOnCompletion(imageUrls, TransactionSynchronization.STATUS_COMMITTED);
+    }
+
+    /**
+     * 트랜잭션이 지정한 상태로 끝나면 리뷰 이미지 파일을 삭제합니다.
+     * - STATUS_COMMITTED: DB에서 이미지를 지운 뒤, 커밋된 경우에만 파일 삭제 (롤백되면 파일 유지)
+     * - STATUS_ROLLED_BACK: 이번 트랜잭션에서 저장한 파일을, 롤백된 경우에만 삭제
+     * imageUrls는 트랜잭션이 끝나는 시점에 읽으므로, 등록 후 목록에 추가한 URL도 포함됩니다.
+     * 업로드 경로(/images/upload/reviews/)의 파일만 삭제하고 기본 제공 이미지는 건드리지 않습니다.
+     */
+    private void deleteImageFilesOnCompletion(List<String> imageUrls, int targetStatus) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            if (targetStatus == TransactionSynchronization.STATUS_COMMITTED) {
+                deleteImageFiles(imageUrls);
+            }
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status == targetStatus) {
+                    deleteImageFiles(imageUrls);
+                }
+            }
+        });
+    }
+
+    private void deleteImageFiles(List<String> imageUrls) {
+        for (String imageUrl : imageUrls) {
+            if (imageUrl == null || !imageUrl.startsWith(REVIEW_IMAGE_URL_PREFIX)) {
+                continue;
+            }
+            String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+            if (fileName.isEmpty() || fileName.contains("..")) {
+                continue;
+            }
+            try {
+                fileService.deleteFile(reviewImgLocation + File.separator + fileName);
+            } catch (Exception e) {
+                logger.warn("리뷰 이미지 파일 삭제 실패: {}", imageUrl, e);
+            }
+        }
     }
 
     /**
@@ -370,6 +444,10 @@ public class ReviewService {
             return;
         }
 
+        // 저장 도중 실패해 롤백되면 이번에 저장한 파일도 삭제
+        List<String> savedImageUrls = new ArrayList<>();
+        deleteImageFilesOnCompletion(savedImageUrls, TransactionSynchronization.STATUS_ROLLED_BACK);
+
         int imageOrder = 1;
         for (MultipartFile imageFile : images) {
             if (imageFile == null || imageFile.isEmpty()) {
@@ -379,7 +457,8 @@ public class ReviewService {
             // 파일 저장
             String oriImgName = imageFile.getOriginalFilename();
             String imgName = fileService.uploadFile(reviewImgLocation, oriImgName, imageFile.getBytes());
-            String imgUrl = "/images/upload/reviews/" + imgName;
+            String imgUrl = REVIEW_IMAGE_URL_PREFIX + imgName;
+            savedImageUrls.add(imgUrl);
 
             // DB에 저장
             reviewMapper.insertReviewImage(reviewId, imgUrl, imageOrder, oriImgName);

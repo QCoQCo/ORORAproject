@@ -414,17 +414,17 @@
 - **비고**
     - 현재 응답은 `spotId/title/description/likedAt`를 반환합니다. (이미지 URL은 포함되지 않습니다.)
 
-### 6-1. (헤더/개발용) 내 Role 변경
+### 6-1. (헤더/관리자 전용) 회원 시점 전환
 
-- **엔드포인트**: `POST /api/users/me/role`
-- **설명**: 로그인 사용자의 `roleCode`를 변경합니다. (요구사항: `MEMBER` ↔ `ADMIN` 토글)
-- **인증**: 필요(세션 로그인)
+- **엔드포인트**: `POST /api/users/me/view-mode`
+- **설명**: 관리자 계정이 실제 권한을 바꾸지 않고 회원(MEMBER) 시점으로 사이트를 봅니다. DB의 `role_code`는 변경되지 않으며, 상태는 세션에만 저장되어 로그아웃하면 해제됩니다. 회원 시점에서는 서버 권한도 MEMBER로 동작합니다(`/api/admin/**`, 관리자 페이지 접근 불가, 비활성 관광지 조회 불가).
+- **인증**: 필요(세션 로그인), 계정의 실제 권한이 `ADMIN`인 경우만 허용 (그 외 403)
 - **요청 형식**: `application/json`
 - **요청 본문**:
 
 ```json
 {
-    "roleCode": "ADMIN"
+    "viewAsMember": true
 }
 ```
 
@@ -433,20 +433,28 @@
 ```json
 {
     "success": true,
-    "message": "Role이 변경되었습니다.",
+    "message": "회원 시점으로 전환했습니다.",
     "user": {
         "id": 1,
-        "loginId": "user123",
-        "username": "사용자명",
-        "email": "user@example.com",
-        "role": "ADMIN",
-        "roleCode": "ADMIN",
-        "profileImage": "/images/upload/profiles/image.jpg",
-        "profile_image": "/images/upload/profiles/image.jpg",
-        "join_date": "2024-01-01T00:00:00"
+        "loginId": "admin01",
+        "username": "관리자",
+        "email": "admin@example.com",
+        "role": "MEMBER",
+        "roleCode": "MEMBER",
+        "adminAccount": true,
+        "viewAsMember": true,
+        "profileImage": "/images/defaultProfile.png",
+        "profile_image": "/images/defaultProfile.png",
+        "join_date": "2024-01-01T00:00"
     }
 }
 ```
+
+- **비고**
+    - `role`, `roleCode`: 지금 적용되는 권한
+    - `adminAccount`: 계정의 실제 권한이 관리자인지 (헤더 토글 표시 여부)
+    - `viewAsMember`: 회원 시점으로 보는 중인지
+    - 본인 정보를 반환하는 로그인, 로그인 상태 확인, 사용자 정보 조회, 프로필 수정 응답에도 같은 항목이 포함됩니다.
 
 ---
 
@@ -458,8 +466,7 @@
 - **설명**: 특정 관광지의 상세 정보 조회 (조회수 자동 증가)
 - **경로 파라미터**:
     - `id` (required): 관광지 ID
-- **쿼리 파라미터**:
-    - `userRole` (optional): 사용자 역할 (ADMIN인 경우 비활성화된 카테고리도 접근 가능)
+- **권한**: 비활성화된 관광지와 비활성화된 카테고리의 관광지는 세션의 관리자만 조회 가능 (그 외 403)
 - **응답 형식**:
 
 ```json

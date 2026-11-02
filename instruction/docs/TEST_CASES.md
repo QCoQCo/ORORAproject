@@ -538,49 +538,52 @@
 
 ### 2.7 (헤더/개발용) 내 Role 변경
 
-#### TC-USER-012: MEMBER → ADMIN Role 변경
+#### TC-USER-012: 관리자의 회원 시점 전환
 
-- **목적**: 헤더/개발 편의 기능으로 본인 Role을 ADMIN으로 변경
-- **전제조건**: 로그인된 상태(세션), 현재 roleCode = `MEMBER`
+- **목적**: 관리자 계정이 실제 권한을 바꾸지 않고 회원 시점으로 전환
+- **전제조건**: 관리자 계정으로 로그인된 상태(세션)
 - **입력 데이터**:
-    - `POST /api/users/me/role`
+    - `POST /api/users/me/view-mode`
     - Body:
     ```json
     {
-        "roleCode": "ADMIN"
+        "viewAsMember": true
     }
     ```
 - **예상 결과**:
     - HTTP 상태 코드: 200
-    - `success: true`
-    - `user.roleCode: "ADMIN"` 반환
+    - `success: true`, `user.roleCode: "MEMBER"`, `user.adminAccount: true`, `user.viewAsMember: true` 반환
+    - DB의 `role_code`는 `ADMIN` 그대로
+    - 이후 `/api/admin/**` 접근 불가, 비활성 관광지 상세 조회 시 403
 
-#### TC-USER-013: ADMIN → MEMBER Role 변경
+#### TC-USER-013: 회원 시점에서 관리자 시점으로 복귀
 
-- **목적**: 본인 Role을 MEMBER로 되돌림
-- **전제조건**: 로그인된 상태(세션), 현재 roleCode = `ADMIN`
+- **목적**: 회원 시점으로 전환한 관리자가 관리자 시점으로 되돌림
+- **전제조건**: 관리자 계정이 회원 시점으로 보는 중
 - **입력 데이터**:
-    - `POST /api/users/me/role`
+    - `POST /api/users/me/view-mode`
     - Body:
     ```json
     {
-        "roleCode": "MEMBER"
+        "viewAsMember": false
     }
     ```
 - **예상 결과**:
     - HTTP 상태 코드: 200
-    - `success: true`
-    - `user.roleCode: "MEMBER"` 반환
+    - `success: true`, `user.roleCode: "ADMIN"`, `user.viewAsMember: false` 반환
+    - `/api/admin/**` 다시 접근 가능
 
-#### TC-USER-014: 비로그인 상태에서 Role 변경 시도
+#### TC-USER-014: 관리자가 아닌 사용자의 시점 전환 시도
 
-- **목적**: 인증이 필요한 엔드포인트에 비로그인으로 접근 시 실패 확인
-- **전제조건**: 비로그인 상태(세션 없음)
+- **목적**: 일반 회원은 시점 전환 기능을 쓸 수 없고 헤더 토글도 보이지 않음을 확인
+- **전제조건**: MEMBER 계정으로 로그인된 상태(세션)
 - **입력 데이터**:
-    - `POST /api/users/me/role`
+    - `POST /api/users/me/view-mode`
 - **예상 결과**:
-    - HTTP 상태 코드: 401 (또는 `success: false` 응답)
-    - 메시지: "로그인이 필요합니다."
+    - HTTP 상태 코드: 403
+    - `success: false`
+    - 메시지: "관리자만 사용할 수 있습니다."
+    - 헤더에 토글이 표시되지 않음
 
 ---
 

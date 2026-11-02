@@ -1,11 +1,13 @@
 package com.busan.orora.spot.controller;
 
+import com.busan.orora.common.util.ErrorMessages;
 import com.busan.orora.hashtag.dto.HashtagDto;
 import com.busan.orora.hashtag.service.HashtagService;
 import com.busan.orora.region.dto.RegionDto;
 import com.busan.orora.region.service.RegionService;
 import com.busan.orora.common.service.FileService;
 import com.busan.orora.common.util.SessionUtil;
+import com.busan.orora.common.util.UrlUtil;
 import com.busan.orora.spot.dto.SpotDto;
 import com.busan.orora.spot.dto.SpotImageDto;
 import com.busan.orora.spot.dto.SpotRequestDto;
@@ -179,7 +181,7 @@ public class SpotController {
             Map<String, Object> result = spotService.getAllSpotsGroupedByRegion();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("관광지 목록 조회 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -240,7 +242,7 @@ public class SpotController {
         } catch (Exception e) {
             logger.error("신청 처리 중 오류 발생", e);
             response.put("success", false);
-            response.put("message", "신청 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "신청 중 오류가 발생했습니다."));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -289,6 +291,12 @@ public class SpotController {
             if (regionId == null) {
                 response.put("success", false);
                 response.put("message", "지역을 선택해주세요.");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (!UrlUtil.isSafeLinkUrl(linkUrl)) {
+                response.put("success", false);
+                response.put("message", "링크는 http:// 또는 https://로 시작하는 주소만 입력할 수 있습니다.");
                 return ResponseEntity.badRequest().body(response);
             }
 
@@ -353,7 +361,7 @@ public class SpotController {
         } catch (Exception e) {
             logger.error("신청 처리 중 오류 발생", e);
             response.put("success", false);
-            response.put("message", "신청 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "신청 중 오류가 발생했습니다."));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -420,7 +428,7 @@ public class SpotController {
         } catch (Exception e) {
             logger.error("신청 처리 중 오류 발생", e);
             response.put("success", false);
-            response.put("message", "신청 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "신청 중 오류가 발생했습니다."));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -476,7 +484,7 @@ public class SpotController {
         } catch (Exception e) {
             logger.error("신청 취소 중 오류 발생", e);
             response.put("success", false);
-            response.put("message", "신청 취소 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", ErrorMessages.userMessage(e, "신청 취소 중 오류가 발생했습니다."));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

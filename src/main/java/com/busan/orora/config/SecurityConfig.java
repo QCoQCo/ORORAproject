@@ -5,12 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.busan.orora.user.service.UserService;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
@@ -25,6 +29,9 @@ public class SecurityConfig {
 
     @Autowired(required = false)
     private ClientRegistrationRepository clientRegistrationRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -73,6 +80,7 @@ public class SecurityConfig {
             http.oauth2Login(oauth2 -> {
                 oauth2.loginPage("/pages/login/login");
                 oauth2.successHandler(authenticationSuccessHandler());
+                oauth2.failureHandler(oauth2FailureHandler());
                 if (customOAuth2UserService != null) {
                     oauth2.userInfoEndpoint(userInfo -> userInfo
                             .userService(customOAuth2UserService));
@@ -81,6 +89,10 @@ public class SecurityConfig {
         } else {
             logger.warn("OAuth2 ClientRegistrationRepository not found. OAuth2 login is disabled.");
         }
+
+        // 세션의 로그인 사용자 상태(정지·권한 변경)를 매 요청마다 DB와 맞춤
+        // (세션에서 인증 정보를 읽은 뒤, 익명 사용자 처리와 권한 검사 전에 실행)
+        http.addFilterBefore(new SessionUserRefreshFilter(userService), AnonymousAuthenticationFilter.class);
 
         http.sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -96,5 +108,20 @@ public class SecurityConfig {
         handler.setDefaultTargetUrl("/");
         handler.setUseReferer(false);
         return handler;
+    }
+
+    /**
+     * 소셜 로그인 실패 시 로그인 페이지로 이동 (정지·비활성화 계정은 별도 안내)
+     */
+    private AuthenticationFailureHandler oauth2FailureHandler() {
+        return (request, response, exception) -> {
+            boolean restricted = exception instanceof OAuth2AuthenticationException oauth2Exception
+                    && CustomOAuth2UserService.ACCOUNT_RESTRICTED.equals(oauth2Exception.getError().getErrorCode());
+            if (!restricted) {
+                logger.warn("소셜 로그인 실패: {}", exception.getMessage());
+            }
+            response.sendRedirect(request.getContextPath() + "/pages/login/login?error="
+                    + (restricted ? "restricted" : "social"));
+        };
     }
 }

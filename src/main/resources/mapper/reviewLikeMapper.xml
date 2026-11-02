@@ -4,7 +4,8 @@
 
     <!-- 리뷰 좋아요 추가 -->
     <insert id="addReviewLike" parameterType="com.busan.orora.like.dto.ReviewLikeDto">
-        INSERT INTO review_likes (user_id, review_id)
+        <!-- 동시에 여러 번 눌러도 unique 키 중복 오류가 나지 않도록 IGNORE (이미 있으면 무시) -->
+        INSERT IGNORE INTO review_likes (user_id, review_id)
         VALUES (#{userId}, #{reviewId})
     </insert>
 

@@ -10,6 +10,11 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+// 링크(href)에는 http/https 주소만 허용 (javascript: 등은 escapeHtml로 막을 수 없으므로 별도 확인)
+function isSafeLinkUrl(url) {
+    return /^https?:\/\//i.test(String(url ?? '').trim());
+}
+
 class SearchSystem {
     constructor() {
         this.currentKeyword = '';
@@ -164,7 +169,7 @@ class SearchSystem {
                 <div class="item-content">
                     <h4 class="item-title">${this.highlightKeyword(spot.title, this.currentKeyword)}</h4>
                     ${spot.description ? `<p class="item-description">${this.highlightKeyword(spot.description.substring(0, 100), this.currentKeyword)}${spot.description.length > 100 ? '...' : ''}</p>` : ''}
-                    ${spot.linkUrl ? `<a href="${escapeHtml(spot.linkUrl)}" class="item-link" target="_blank">자세히 보기</a>` : ''}
+                    ${isSafeLinkUrl(spot.linkUrl) ? `<a href="${escapeHtml(spot.linkUrl.trim())}" class="item-link" target="_blank" rel="noopener noreferrer">자세히 보기</a>` : ''}
                 </div>
             </div>
         `,

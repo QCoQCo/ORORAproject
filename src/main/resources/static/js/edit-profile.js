@@ -149,17 +149,9 @@ async function saveProfile() {
         formData.append('phoneNumber', document.getElementById('phoneNumber').value);
         formData.append('address', document.getElementById('address').value);
 
-        // 생년월일
-        const birthDate = document.getElementById('birthDate').value;
-        if (birthDate) {
-            formData.append('birthDate', birthDate);
-        }
-
-        // 성별
-        const genderCode = document.getElementById('genderCode').value;
-        if (genderCode) {
-            formData.append('genderCode', genderCode);
-        }
+        // 생년월일, 성별 (비워 둔 경우에도 빈 값으로 전송해야 서버에서 삭제로 처리됨)
+        formData.append('birthDate', document.getElementById('birthDate').value);
+        formData.append('genderCode', document.getElementById('genderCode').value);
 
         const response = await fetch(`/api/users/${user.id}/profile`, {
             method: 'PUT',

@@ -112,13 +112,6 @@
         WHERE id = #{id}
     </update>
 
-    <update id="updateUserRole">
-        UPDATE users
-        SET role_code = #{roleCode},
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = #{id}
-    </update>
-
     <delete id="deleteUser" parameterType="Long">
         DELETE FROM users
         WHERE id = #{id}
@@ -161,6 +154,14 @@
             ) as profile_image
         FROM users u
         WHERE u.email = #{email} AND u.status_code = 'ACTIVE'
+        LIMIT 1
+    </select>
+
+    <!-- 상태와 관계없이 이메일로 계정 상태 조회 (정지 계정의 소셜 로그인 차단용) -->
+    <select id="findStatusByEmail" parameterType="String" resultType="String">
+        SELECT status_code
+        FROM users
+        WHERE email = #{email}
         LIMIT 1
     </select>
 </mapper>       
