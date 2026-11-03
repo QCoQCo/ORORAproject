@@ -661,49 +661,14 @@ public class UserController {
     }
 
     // 비밀번호 재설정 API
+    // 본인 확인 없이 다른 사람의 비밀번호를 바꿀 수 있어, 이메일 인증을 도입할 때까지 막아 둠
     @PostMapping("/api/auth/reset-password")
     @ResponseBody
-    public Map<String, Object> resetPassword(@RequestBody Map<String, String> request) {
+    public Map<String, Object> resetPassword() {
 
         Map<String, Object> response = new HashMap<>();
-
-        try {
-            String loginId = request.get("loginId");
-            String newPassword = request.get("newPassword");
-
-            if (loginId == null || loginId.trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "아이디를 입력해주세요.");
-                return response;
-            }
-
-            if (newPassword == null || newPassword.trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "새 비밀번호를 입력해주세요.");
-                return response;
-            }
-
-            if (newPassword.length() < 6 || newPassword.length() > 15) {
-                response.put("success", false);
-                response.put("message", "비밀번호는 6자 이상 15자 이하로 입력해주세요.");
-                return response;
-            }
-
-            boolean success = userService.resetPassword(loginId, newPassword);
-
-            if (success) {
-                response.put("success", true);
-                response.put("message", "비밀번호가 성공적으로 재설정되었습니다.");
-            } else {
-                response.put("success", false);
-                response.put("message", "일치하는 사용자를 찾을 수 없습니다.");
-            }
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", ErrorMessages.userMessage(e, "비밀번호 재설정 중 오류가 발생했습니다."));
-            logger.error("비밀번호 재설정 오류 발생", e);
-        }
-
+        response.put("success", false);
+        response.put("message", "비밀번호 재설정 기능을 일시적으로 이용할 수 없습니다.");
         return response;
     }
 }

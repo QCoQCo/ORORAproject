@@ -333,25 +333,6 @@ public class UserService {
     }
 
     /**
-     * 아이디로 비밀번호를 재설정합니다.
-     * 
-     * @param loginId     사용자 로그인 ID
-     * @param newPassword 새로운 비밀번호
-     * @return 성공 여부
-     */
-    @Transactional
-    public boolean resetPassword(String loginId, String newPassword) {
-        UserDto user = userMapper.findByLoginId(loginId);
-        if (user == null) {
-            return false;
-        }
-
-        String encodedPassword = passwordEncoder.encode(newPassword);
-        userMapper.updatePassword(loginId, encodedPassword);
-        return true;
-    }
-
-    /**
      * 이메일로 사용자를 조회합니다 (소셜 로그인용).
      * 
      * @param email 사용자 이메일

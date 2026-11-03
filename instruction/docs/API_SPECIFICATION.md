@@ -158,23 +158,13 @@
 ### 7. 비밀번호 재설정
 
 - **엔드포인트**: `POST /api/auth/reset-password`
-- **설명**: 아이디를 기반으로 비밀번호 재설정
-- **요청 형식**: `application/json`
-- **요청 본문**:
-
-```json
-{
-    "loginId": "string",
-    "newPassword": "string"
-}
-```
-
+- **설명**: 이메일 인증을 도입할 때까지 막아 둔 API. 요청 내용과 관계없이 비밀번호를 변경하지 않음
 - **응답 형식**:
 
 ```json
 {
-    "success": true,
-    "message": "비밀번호가 성공적으로 재설정되었습니다."
+    "success": false,
+    "message": "비밀번호 재설정 기능을 일시적으로 이용할 수 없습니다."
 }
 ```
 
